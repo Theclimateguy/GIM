@@ -1,0 +1,106 @@
+from .climate import effective_damage_multiplier
+from .core import AgentState, WorldState, clamp01
+from .metrics import update_tfp_endogenous
+
+
+def update_capital_endogenous(agent: AgentState) -> None:
+    economy = agent.economy
+    risk = agent.risk
+
+    gdp = max(economy.gdp, 1e-6)
+    capital = max(economy.capital, 1e-6)
+    depreciation = 0.05
+
+    base_savings = 0.22
+    stability = clamp01(risk.regime_stability)
+    tension = clamp01(agent.society.social_tension)
+
+    savings_rate = base_savings * (0.7 + 0.6 * stability - 0.4 * tension)
+    savings_rate = max(0.05, min(0.35, savings_rate))
+
+    investment = savings_rate * gdp
+    economy.capital = max(1e-6, (1.0 - depreciation) * capital + investment)
+
+
+def update_economy_output(agent: AgentState, world: WorldState) -> None:
+    economy = agent.economy
+    update_tfp_endogenous(agent, world)
+
+    alpha = 0.3
+    beta = 0.60
+    gamma = 0.10
+
+    capital = max(economy.capital, 1e-6)
+    labor = max(economy.population / 1e9, 1e-3)
+
+    energy = agent.resources.get("energy")
+    energy_input = max(energy.consumption / 1000.0, 1e-3) if energy else 1.0
+
+    tfp = getattr(economy, "tfp", getattr(economy, "_tfp", 1.0))
+    gdp_potential = tfp * (capital**alpha) * (labor**beta) * (energy_input**gamma)
+
+    if (not hasattr(economy, "_scale_factor")) or getattr(economy, "_scale_factor", None) is None:
+        economy._scale_factor = economy.gdp / gdp_potential if gdp_potential > 0 else 1.0
+
+    gdp_target = gdp_potential * economy._scale_factor * effective_damage_multiplier(agent, world)
+
+    # Endogenous catch-up: faster when realized GDP is below potential,
+    # slower when above. No exogenous growth term is introduced.
+    gdp_now = max(economy.gdp, 1e-6)
+    gap = (gdp_target - gdp_now) / gdp_now
+    adjust_speed = 0.20 + 0.25 * clamp01(max(0.0, gap))
+    economy.gdp = (1.0 - adjust_speed) * economy.gdp + adjust_speed * gdp_target
+
+    update_capital_endogenous(agent)
+
+    if economy.population > 0:
+        economy.gdp_per_capita = economy.gdp * 1e12 / economy.population
+
+
+def compute_effective_interest_rate(agent: AgentState) -> float:
+    economy = agent.economy
+    risk = agent.risk
+
+    base_rate = 0.02
+
+    gdp = max(economy.gdp, 1e-6)
+    debt_gdp = economy.public_debt / gdp
+
+    excess = max(0.0, debt_gdp - 0.6)
+    spread_raw = 0.03 * excess + 0.10 * (excess**2)
+
+    fragility = 1.0 - risk.regime_stability
+    spread = spread_raw * (0.5 + 0.5 * risk.debt_crisis_prone) * (0.7 + 0.6 * fragility)
+
+    return float(max(0.0, base_rate + min(spread, 0.25)))
+
+
+def update_public_finances(agent: AgentState) -> None:
+    economy = agent.economy
+
+    gdp = max(economy.gdp, 1e-6)
+
+    # Baseline fiscal drivers to avoid mechanical debt repayment.
+    base_social_share = 0.15
+    base_military_share = 0.035
+    climate_adaptation_share = 0.005 + 0.015 * max(0.0, agent.climate.climate_risk)
+
+    baseline_spending = gdp * (base_social_share + base_military_share + climate_adaptation_share)
+    policy_spending = economy.social_spending + economy.military_spending + economy.rd_spending
+    economy.gov_spending = max(0.0, baseline_spending + policy_spending)
+
+    economy.taxes = 0.22 * gdp
+    effective_rate = compute_effective_interest_rate(agent)
+    economy.interest_payments = effective_rate * economy.public_debt
+
+    primary_deficit = economy.gov_spending - economy.taxes
+    total_deficit = primary_deficit + economy.interest_payments
+
+    max_new_debt = 0.05 * gdp
+    if total_deficit > 0:
+        new_borrowing = min(total_deficit, max_new_debt)
+    else:
+        new_borrowing = 0.0
+        economy.public_debt = max(0.0, economy.public_debt + total_deficit)
+
+    economy.public_debt += new_borrowing
