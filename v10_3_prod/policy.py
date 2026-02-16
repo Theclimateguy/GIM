@@ -34,8 +34,10 @@ def _is_truthy(value: Optional[str]) -> bool:
 
 def resolve_policy_mode(mode: str = "auto") -> str:
     normalized = (mode or "auto").strip().lower()
-    if normalized not in {"auto", "simple", "llm"}:
-        raise ValueError(f"Unsupported policy mode: {mode!r}. Use auto|simple|llm.")
+    if normalized not in {"auto", "simple", "llm", "growth"}:
+        raise ValueError(
+            f"Unsupported policy mode: {mode!r}. Use auto|simple|llm|growth."
+        )
     return normalized
 
 
@@ -54,6 +56,8 @@ def llm_enablement_status(mode: str = "auto") -> tuple[bool, str]:
 
     if normalized == "simple":
         return False, "POLICY_MODE=simple"
+    if normalized == "growth":
+        return False, "POLICY_MODE=growth"
     if normalized == "llm":
         if not REQUESTS_AVAILABLE:
             return False, "requests library not available"
@@ -72,7 +76,11 @@ def make_policy_map(
     agent_ids: Iterable[str],
     mode: str = "auto",
 ) -> Dict[str, Callable[..., Action]]:
-    policy_fn: Callable[..., Action] = llm_policy if should_use_llm(mode) else simple_rule_based_policy
+    normalized = resolve_policy_mode(mode)
+    if normalized == "growth":
+        policy_fn = growth_seeking_policy
+    else:
+        policy_fn = llm_policy if should_use_llm(mode) else simple_rule_based_policy
     return {agent_id: policy_fn for agent_id in agent_ids}
 
 
@@ -210,6 +218,37 @@ def simple_rule_based_policy(obs: Observation) -> Action:
             use_fx_reserves_change=0.0,
         ),
         explanation="baseline do-nothing policy",
+    )
+
+
+def growth_seeking_policy(obs: Observation) -> Action:
+    gdp_pc = obs.self_state.get("economy", {}).get("gdp_per_capita", 10000.0) or 10000.0
+    if gdp_pc >= 40000:
+        rd_delta = 0.004
+        social_delta = 0.000
+    elif gdp_pc >= 20000:
+        rd_delta = 0.005
+        social_delta = 0.001
+    else:
+        rd_delta = 0.006
+        social_delta = 0.002
+
+    return Action(
+        agent_id=obs.agent_id,
+        time=obs.time,
+        domestic_policy=DomesticPolicy(
+            tax_fuel_change=0.0,
+            social_spending_change=social_delta,
+            military_spending_change=0.0,
+            rd_investment_change=rd_delta,
+            climate_policy="none",
+        ),
+        foreign_policy=ForeignPolicy(),
+        finance=FinancePolicy(
+            borrow_from_global_markets=0.0,
+            use_fx_reserves_change=0.0,
+        ),
+        explanation="deterministic growth-seeking policy",
     )
 
 

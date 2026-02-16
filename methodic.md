@@ -24,15 +24,19 @@ Covers the production code in `v10_3_prod/` and the wrapper entrypoint `V10_3_pr
 World is built from `agent_states.csv` using `v10_3_prod/world_factory.py`.
 - GDP and population load from CSV.
 - Capital is initialized as `K = 3.0 * GDP`.
+- Global biodiversity is initialized as the population-weighted mean of local biodiversity.
 - `global_state.baseline_gdp_pc` is computed once at start:
 
 ```
 baseline_gdp_pc = (sum_i GDP_i) * 1e12 / (sum_i Pop_i)
 ```
 
+**Model Boundaries**
+External inputs are the initial conditions (CSV state, global constants, and initial relations), exogenous policy actions chosen by the policy module (simple, growth, or LLM), and stochastic climate extreme events; all macro outcomes thereafter (GDP, capital, debt, resource stocks and prices, emissions, temperature, biodiversity, social dynamics, migration, and geopolitics) are endogenously produced by the model’s update rules.
+
 **Simulation Loop (Order of Operations)**
 1. Build observations for each agent.
-2. Generate actions via policy (LLM or simple).
+2. Generate actions via policy (LLM, simple, or growth).
 3. Apply sanctions and security actions.
 4. Apply domestic actions.
 5. Apply trade deals and enforce global net exports balance.
@@ -80,18 +84,19 @@ Capital accumulation:
 ```
 K_{t+1} = (1 - δ) * K_t + s * GDP_t
 δ = 0.05
-s = base_savings * (0.7 + 0.6*stability - 0.4*tension), clamped to [0.05, 0.35]
-base_savings = 0.22
+s = base_savings * (0.7 + 0.6*stability - 0.4*tension), clamped to [0.05, 0.40]
+base_savings = 0.24
 ```
 
-TFP dynamics (endogenous to R&D and trade):
+TFP dynamics (baseline drift, R&D, and trade/tech diffusion):
 
 ```
 TFP_t initialized from observed GDP
 rd_share = R&D / GDP
 spillover = 1 + ψ * avg_trade
-TFP_{t+1} = TFP_t * (1 + clamp(φ * rd_share * spillover, -0.05, 0.05))
-φ = 0.25, ψ = 0.30
+diffusion = η * avg_trade_weighted(max(0, tech_gap))
+TFP_{t+1} = TFP_t * (1 + clamp(μ + φ * rd_share * spillover + diffusion, -0.05, 0.05))
+μ = 0.01, φ = 0.25, ψ = 0.30, η = 0.02
 ```
 
 **Public Finance and Debt**
@@ -109,9 +114,10 @@ Taxes = 0.22 * GDP
 Debt service and borrowing:
 
 ```
-interest_rate = 0.02 + spread
+interest_rate = 0.02 + spread + contagion
 spread = min(0.25, (0.03*excess + 0.10*excess^2) * (0.5+0.5*debt_crisis_prone) * (0.7+0.6*fragility))
 excess = max(0, debt_gdp - 0.6)
+contagion = 0.02 * trade-weighted partner debt stress (cap 0.05)
 
 primary_deficit = GovSpending - Taxes
 interest_payments = interest_rate * public_debt
@@ -186,7 +192,7 @@ Temperature and biodiversity:
 T_{t+1} = T_t + climate_sensitivity * (CO2 - CO2_preindustrial) - temp_inertia
 ```
 
-Biodiversity index is population-weighted mean of local biodiversity; local biodiversity declines with higher temperature and climate risk.
+Biodiversity index is population-weighted mean of local biodiversity; local biodiversity declines with higher temperature and climate risk, buffered by resilience (institutions, tech, trust).
 
 Extreme events (probabilistic) reduce capital, population, and trust, and increase tension based on climate risk and resilience.
 
@@ -228,6 +234,14 @@ prosperity = sigmoid(1.2 * ln(gdp_pc / baseline_gdp_pc))
 birth_rate = (0.025 - 1e-6*gdp_pc) * (1 - 0.5*prosperity) * (1 - 0.6*scarcity) * (1 - 0.3*gini)
 
 death_rate = (0.012 - 0.5e-6*gdp_pc) * (1 + 1.0*scarcity + 0.4*gini) * (1 - 0.2*prosperity)
+```
+
+Migration flows (GDP and conflict driven, trade-weighted corridors):
+
+```
+push = 0.6*income_gap + 0.4*conflict_proneness
+outflow = min(max_share, base_rate * push) * population
+inflows distributed to higher-GDP partners by trade_intensity * GDP_gap
 ```
 
 Regime stability collapse trigger:

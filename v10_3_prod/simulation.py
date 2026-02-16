@@ -18,6 +18,7 @@ from .resources import (
 from .social import (
     check_debt_crisis,
     check_regime_stability,
+    update_migration_flows,
     update_population,
     update_social_state,
 )
@@ -184,9 +185,10 @@ def step_world(
         update_economy_output(agent, world)
 
     for agent in world.agents.values():
-        update_public_finances(agent)
-        check_debt_crisis(agent)
+        update_public_finances(agent, world)
+        check_debt_crisis(agent, world)
 
+    update_migration_flows(world)
     for agent in world.agents.values():
         update_population(agent, world)
         if agent.id in actions:

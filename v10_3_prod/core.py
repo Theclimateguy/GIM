@@ -10,7 +10,7 @@ WATER_STRESS_2023 = 0.55
 
 # Global energy constraints.
 WORLD_URR_FOSSIL_ENERGY_ZJ = 35.0
-WORLD_PROVEN_RESERVES_ZJ = 15.0
+WORLD_PROVEN_RESERVES_ZJ = 32.5
 WORLD_ANNUAL_SUPPLY_CAP_ZJ = 0.65
 
 ClimatePolicy = Literal["none", "weak", "moderate", "strong"]

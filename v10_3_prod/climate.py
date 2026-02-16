@@ -4,6 +4,15 @@ import random
 from .core import CO2_PREINDUSTRIAL_GT, TGLOBAL_2023_C, AgentState, WorldState, clamp01
 
 
+def _climate_resilience(agent: AgentState) -> float:
+    tech_res = clamp01(agent.technology.tech_level / 2.0)
+    return clamp01(
+        0.45 * agent.risk.regime_stability
+        + 0.35 * tech_res
+        + 0.20 * agent.society.trust_gov
+    )
+
+
 def update_global_climate(
     world: WorldState,
     co2_absorption_base: float = 20.0,
@@ -41,14 +50,16 @@ def update_global_climate(
 
     temp_increase = world.global_state.temperature_global - TGLOBAL_2023_C
     for agent in world.agents.values():
-        degradation = 0.01 * max(0.0, temp_increase) * agent.climate.climate_risk
+        resilience = _climate_resilience(agent)
+        effective_risk = clamp01(agent.climate.climate_risk) * (1.0 - 0.60 * resilience)
+        degradation = 0.004 * max(0.0, temp_increase) * effective_risk
         agent.climate.biodiversity_local = max(0.0, agent.climate.biodiversity_local - degradation)
 
 
 def update_climate_risks(world: WorldState) -> None:
     delta_t = max(0.0, world.global_state.temperature_global - TGLOBAL_2023_C)
     for agent in world.agents.values():
-        agent.climate.climate_risk = max(0.0, min(1.0, agent.climate.climate_risk + 0.05 * delta_t))
+        agent.climate.climate_risk = max(0.0, min(1.0, agent.climate.climate_risk + 0.015 * delta_t))
 
 
 def apply_climate_extreme_events(
@@ -65,12 +76,7 @@ def apply_climate_extreme_events(
 
         # Endogenous resilience dampens both event likelihood and impact.
         # Better institutions, higher tech, and stronger trust improve coping capacity.
-        tech_res = clamp01(agent.technology.tech_level / 2.0)
-        resilience = clamp01(
-            0.45 * agent.risk.regime_stability
-            + 0.35 * tech_res
-            + 0.20 * agent.society.trust_gov
-        )
+        resilience = _climate_resilience(agent)
 
         extra_warming = max(0.0, temperature - TGLOBAL_2023_C)
         temp_factor = 1.0 + 0.15 * extra_warming

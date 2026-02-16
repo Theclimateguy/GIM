@@ -36,6 +36,12 @@ cd .
 POLICY_MODE=simple SIM_YEARS=5 SIM_SEED=7 python3 -m v10_3_prod
 ```
 
+### 1b. Deterministic growth-seeking baseline (no LLM)
+
+```bash
+POLICY_MODE=growth SIM_YEARS=5 SIM_SEED=7 python3 -m v10_3_prod
+```
+
 ### 2. Baseline with stochastic shocks disabled (diagnostic)
 
 ```bash
@@ -69,7 +75,7 @@ Outputs:
 - `logs/V10_3_prod_<timestamp>_t0-tN.csv`
 
 ## Environment Variables
-- `POLICY_MODE`: `simple` | `llm` | `auto`
+- `POLICY_MODE`: `simple` | `growth` | `llm` | `auto`
 - `SIM_YEARS`: number of simulated years (default `5`)
 - `SIM_SEED`: integer RNG seed for reproducibility
 - `DISABLE_EXTREME_EVENTS=1`: disables stochastic climate extreme events
@@ -86,7 +92,7 @@ Outputs:
 - `v10_3_prod/world_factory.py`: world construction from CSV.
 - `v10_3_prod/observation.py`: observation builder.
 - `v10_3_prod/memory.py`: agent memory and summaries.
-- `v10_3_prod/policy.py`: simple policy, LLM policy, policy selection helpers.
+- `v10_3_prod/policy.py`: simple/growth policies, LLM policy, policy selection helpers.
 - `v10_3_prod/actions.py`: domestic policy and trade effects.
 - `v10_3_prod/geopolitics.py`: sanctions and security interactions.
 - `v10_3_prod/resources.py`: reserves and global resource prices.
@@ -121,5 +127,5 @@ print(world.time)
 - `make_sim_id(name)`
 
 ## Notes
-- Model growth is endogenous (no exogenous trend term).
+- Model growth includes endogenous dynamics plus a small baseline TFP drift.
 - Climate extreme events are calibrated and can be toggled for diagnostics.

@@ -1,6 +1,6 @@
 import math
 
-from .core import Action, AgentState, WorldState
+from .core import Action, AgentState, WorldState, clamp01
 from .economy import compute_effective_interest_rate
 
 
@@ -39,6 +39,65 @@ def update_population(agent: AgentState, world: WorldState) -> None:
 
     growth_rate = agent.economy.birth_rate - agent.economy.death_rate
     agent.economy.population *= 1 + growth_rate
+
+
+def update_migration_flows(world: WorldState) -> None:
+    baseline = getattr(world.global_state, "baseline_gdp_pc", 0.0) or 1.0
+    base_rate = 0.001
+    max_share = 0.003
+
+    gdp_pc: dict[str, float] = {}
+    for agent in world.agents.values():
+        if agent.economy.gdp_per_capita > 0:
+            gdp_pc_val = agent.economy.gdp_per_capita
+        else:
+            gdp_pc_val = agent.economy.gdp * 1e12 / max(agent.economy.population, 1.0)
+        gdp_pc[agent.id] = gdp_pc_val
+
+    net_flows: dict[str, float] = {agent_id: 0.0 for agent_id in world.agents}
+
+    for origin_id, origin in world.agents.items():
+        income_gap = max(0.0, (baseline - gdp_pc[origin_id]) / baseline)
+        conflict_push = clamp01(origin.risk.conflict_proneness)
+        push = 0.6 * income_gap + 0.4 * conflict_push
+        if push <= 0.0:
+            continue
+
+        population = origin.economy.population
+        outflow = base_rate * population * push
+        outflow = min(outflow, max_share * population)
+        if outflow <= 0.0:
+            continue
+
+        weights: dict[str, float] = {}
+        total_weight = 0.0
+        for dest_id, rel in world.relations.get(origin_id, {}).items():
+            dest = world.agents.get(dest_id)
+            if dest is None:
+                continue
+            gap = max(0.0, (gdp_pc[dest_id] - gdp_pc[origin_id]) / baseline)
+            if gap <= 0.0:
+                continue
+            dest_conflict = clamp01(dest.risk.conflict_proneness)
+            weight = max(0.0, rel.trade_intensity) * gap * (1.0 - 0.5 * dest_conflict)
+            if weight <= 0.0:
+                continue
+            weights[dest_id] = weight
+            total_weight += weight
+
+        if total_weight <= 0.0:
+            continue
+
+        for dest_id, weight in weights.items():
+            flow = outflow * (weight / total_weight)
+            net_flows[origin_id] -= flow
+            net_flows[dest_id] += flow
+
+    for agent_id, delta in net_flows.items():
+        if abs(delta) <= 0.0:
+            continue
+        agent = world.agents[agent_id]
+        agent.economy.population = max(0.0, agent.economy.population + delta)
 
 
 def update_social_state(agent: AgentState, action: Action, world: WorldState) -> None:
@@ -111,14 +170,14 @@ def check_regime_stability(agent: AgentState) -> None:
         agent._collapsed_this_step = False
 
 
-def check_debt_crisis(agent: AgentState) -> None:
+def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
     economy = agent.economy
     risk = agent.risk
     society = agent.society
 
     gdp = max(economy.gdp, 1e-6)
     debt_gdp = economy.public_debt / gdp
-    interest_rate = compute_effective_interest_rate(agent)
+    interest_rate = compute_effective_interest_rate(agent, world)
 
     if debt_gdp > 1.2 and interest_rate > 0.12:
         if not hasattr(agent, "_debt_crisis_this_step") or not agent._debt_crisis_this_step:

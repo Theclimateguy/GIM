@@ -124,15 +124,25 @@ def make_world_from_csv(path: str = "agent_states.csv") -> WorldState:
 
     total_pop = sum(a.economy.population for a in agents.values())
     total_gdp = sum(a.economy.gdp for a in agents.values())
+    total_weight = 0.0
+    weighted_bio = 0.0
+    for agent in agents.values():
+        weight = agent.economy.population ** 0.3
+        total_weight += weight
+        weighted_bio += agent.climate.biodiversity_local * weight
     if total_pop > 0:
         baseline_gdp_pc = total_gdp * 1e12 / total_pop
     else:
         baseline_gdp_pc = 10000.0
+    if total_weight > 0:
+        biodiversity_init = weighted_bio / total_weight
+    else:
+        biodiversity_init = BIODIVERSITY_2023
 
     global_state = GlobalState(
         co2=CO2_STOCK_2023_GT,
         temperature_global=TGLOBAL_2023_C,
-        biodiversity_index=BIODIVERSITY_2023,
+        biodiversity_index=biodiversity_init,
         baseline_gdp_pc=baseline_gdp_pc,
     )
 

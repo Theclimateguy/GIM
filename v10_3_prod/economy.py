@@ -11,12 +11,12 @@ def update_capital_endogenous(agent: AgentState) -> None:
     capital = max(economy.capital, 1e-6)
     depreciation = 0.05
 
-    base_savings = 0.22
+    base_savings = 0.24
     stability = clamp01(risk.regime_stability)
     tension = clamp01(agent.society.social_tension)
 
     savings_rate = base_savings * (0.7 + 0.6 * stability - 0.4 * tension)
-    savings_rate = max(0.05, min(0.35, savings_rate))
+    savings_rate = max(0.05, min(0.40, savings_rate))
 
     investment = savings_rate * gdp
     economy.capital = max(1e-6, (1.0 - depreciation) * capital + investment)
@@ -57,7 +57,7 @@ def update_economy_output(agent: AgentState, world: WorldState) -> None:
         economy.gdp_per_capita = economy.gdp * 1e12 / economy.population
 
 
-def compute_effective_interest_rate(agent: AgentState) -> float:
+def compute_effective_interest_rate(agent: AgentState, world: WorldState | None = None) -> float:
     economy = agent.economy
     risk = agent.risk
 
@@ -72,10 +72,30 @@ def compute_effective_interest_rate(agent: AgentState) -> float:
     fragility = 1.0 - risk.regime_stability
     spread = spread_raw * (0.5 + 0.5 * risk.debt_crisis_prone) * (0.7 + 0.6 * fragility)
 
-    return float(max(0.0, base_rate + min(spread, 0.25)))
+    contagion_spread = 0.0
+    if world is not None:
+        total_weight = 0.0
+        stress_sum = 0.0
+        for partner_id, rel in world.relations.get(agent.id, {}).items():
+            partner = world.agents.get(partner_id)
+            if partner is None:
+                continue
+            partner_gdp = max(partner.economy.gdp, 1e-6)
+            partner_debt_gdp = partner.economy.public_debt / partner_gdp
+            partner_excess = max(0.0, partner_debt_gdp - 0.9)
+            partner_stress = partner_excess * partner.risk.debt_crisis_prone
+            weight = max(0.0, rel.trade_intensity)
+            stress_sum += weight * partner_stress
+            total_weight += weight
+        if total_weight > 0.0:
+            avg_partner_stress = stress_sum / total_weight
+            contagion_spread = min(0.05, 0.02 * avg_partner_stress)
+
+    rate = base_rate + min(spread, 0.25) + contagion_spread
+    return float(max(0.0, min(rate, 0.35)))
 
 
-def update_public_finances(agent: AgentState) -> None:
+def update_public_finances(agent: AgentState, world: WorldState) -> None:
     economy = agent.economy
 
     gdp = max(economy.gdp, 1e-6)
@@ -90,7 +110,7 @@ def update_public_finances(agent: AgentState) -> None:
     economy.gov_spending = max(0.0, baseline_spending + policy_spending)
 
     economy.taxes = 0.22 * gdp
-    effective_rate = compute_effective_interest_rate(agent)
+    effective_rate = compute_effective_interest_rate(agent, world)
     economy.interest_payments = effective_rate * economy.public_debt
 
     primary_deficit = economy.gov_spending - economy.taxes

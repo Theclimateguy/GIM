@@ -87,6 +87,8 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
 
     phi = 0.25
     psi = 0.3
+    tfp_drift = 0.01
+    diffusion_eta = 0.02
 
     avg_trade = 0.0
     count = 0
@@ -98,6 +100,21 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
 
     spillover = 1.0 + psi * avg_trade
     tfp_growth = phi * rd_share * spillover
+
+    tech_gap_weighted = 0.0
+    tech_weight = 0.0
+    for partner_id, rel in world.relations.get(agent.id, {}).items():
+        partner = world.agents.get(partner_id)
+        if partner is None:
+            continue
+        gap = max(0.0, partner.technology.tech_level - agent.technology.tech_level)
+        weight = max(0.0, rel.trade_intensity)
+        tech_gap_weighted += weight * gap
+        tech_weight += weight
+    avg_gap = tech_gap_weighted / tech_weight if tech_weight > 0 else 0.0
+    diffusion = diffusion_eta * avg_gap
+
+    tfp_growth = tfp_drift + tfp_growth + diffusion
     tfp_growth = max(-0.05, min(tfp_growth, 0.05))
 
     economy.tfp *= 1.0 + tfp_growth
