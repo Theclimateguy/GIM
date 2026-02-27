@@ -52,6 +52,18 @@ def log_world_to_csv(
         "net_exports",
         "birth_rate",
         "death_rate",
+        "credit_rating",
+        "credit_zone",
+        "credit_risk_score",
+        "credit_financial_risk",
+        "credit_war_risk",
+        "credit_social_risk",
+        "credit_sanctions_risk",
+        "credit_macro_risk",
+        "credit_next_year_revolution_risk",
+        "credit_sanction_risk_next",
+        "credit_inbound_sanctions_mild",
+        "credit_inbound_sanctions_strong",
     ]
 
     with open(filepath, "w", newline="") as file_obj:
@@ -94,6 +106,24 @@ def log_world_to_csv(
                         "net_exports": agent.economy.net_exports,
                         "birth_rate": agent.economy.birth_rate,
                         "death_rate": agent.economy.death_rate,
+                        "credit_rating": agent.credit_rating,
+                        "credit_zone": agent.credit_zone,
+                        "credit_risk_score": agent.credit_risk_score,
+                        "credit_financial_risk": agent.credit_rating_details.get("financial_risk"),
+                        "credit_war_risk": agent.credit_rating_details.get("war_risk"),
+                        "credit_social_risk": agent.credit_rating_details.get("social_risk"),
+                        "credit_sanctions_risk": agent.credit_rating_details.get("sanctions_risk"),
+                        "credit_macro_risk": agent.credit_rating_details.get("macro_risk"),
+                        "credit_next_year_revolution_risk": agent.credit_rating_details.get(
+                            "next_year_revolution_risk"
+                        ),
+                        "credit_sanction_risk_next": agent.credit_rating_details.get("sanction_next"),
+                        "credit_inbound_sanctions_mild": agent.credit_rating_details.get(
+                            "inbound_sanctions_mild"
+                        ),
+                        "credit_inbound_sanctions_strong": agent.credit_rating_details.get(
+                            "inbound_sanctions_strong"
+                        ),
                     }
                 )
 

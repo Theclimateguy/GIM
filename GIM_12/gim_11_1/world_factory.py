@@ -19,13 +19,126 @@ from .core import (
 )
 
 
-def make_world_from_csv(path: str = "agent_states.csv") -> WorldState:
+REQUIRED_COLUMNS = {
+    "id",
+    "name",
+    "region",
+    "regime_type",
+    "gdp",
+    "population",
+    "fx_reserves",
+    "trust_gov",
+    "social_tension",
+    "inequality_gini",
+    "climate_risk",
+    "pdi",
+    "idv",
+    "mas",
+    "uai",
+    "lto",
+    "ind",
+    "survival_self_expression",
+    "traditional_secular",
+}
+
+REQUIRED_NUMERIC_COLUMNS = {
+    "gdp",
+    "population",
+    "fx_reserves",
+    "trust_gov",
+    "social_tension",
+    "inequality_gini",
+    "climate_risk",
+    "pdi",
+    "idv",
+    "mas",
+    "uai",
+    "lto",
+    "ind",
+    "survival_self_expression",
+    "traditional_secular",
+}
+
+OPTIONAL_NUMERIC_COLUMNS = {
+    "public_debt",
+    "energy_reserve",
+    "energy_production",
+    "energy_consumption",
+    "food_reserve",
+    "food_production",
+    "food_consumption",
+    "metals_reserve",
+    "metals_production",
+    "metals_consumption",
+    "co2_annual_emissions",
+    "biodiversity_local",
+    "water_stress",
+    "regime_stability",
+    "debt_crisis_prone",
+    "conflict_proneness",
+    "tech_level",
+    "military_power",
+    "security_index",
+}
+
+
+def _validate_csv_schema(reader: csv.DictReader, path: str) -> None:
+    fieldnames = reader.fieldnames or []
+    field_set = set(fieldnames)
+    missing = sorted(REQUIRED_COLUMNS - field_set)
+    if missing:
+        raise ValueError(
+            f"CSV validation error in {path}: missing required columns: {', '.join(missing)}"
+        )
+
+
+def _validate_row_values(row: dict[str, str], row_num: int, path: str) -> None:
+    for col in REQUIRED_COLUMNS:
+        if not (row.get(col) or "").strip():
+            raise ValueError(
+                f"CSV validation error in {path} at row {row_num}: empty required field '{col}'"
+            )
+
+    for col in REQUIRED_NUMERIC_COLUMNS:
+        raw = (row.get(col) or "").strip()
+        try:
+            float(raw)
+        except ValueError:
+            raise ValueError(
+                f"CSV validation error in {path} at row {row_num}: "
+                f"field '{col}' must be numeric, got '{raw}'"
+            ) from None
+
+    for col in OPTIONAL_NUMERIC_COLUMNS:
+        raw = (row.get(col) or "").strip()
+        if not raw:
+            continue
+        try:
+            float(raw)
+        except ValueError:
+            raise ValueError(
+                f"CSV validation error in {path} at row {row_num}: "
+                f"field '{col}' must be numeric when provided, got '{raw}'"
+            ) from None
+
+
+def make_world_from_csv(path: str = "agent_states.csv", max_agents: int | None = None) -> WorldState:
     agents: Dict[str, AgentState] = {}
 
     with open(path, newline="") as file_obj:
         reader = csv.DictReader(file_obj)
-        for row in reader:
+        _validate_csv_schema(reader, path)
+        for row_num, row in enumerate(reader, start=2):
+            if max_agents is not None and len(agents) >= max_agents:
+                break
+
+            _validate_row_values(row, row_num, path)
             agent_id = row["id"]
+            if not agent_id:
+                continue
+            if agent_id in agents:
+                # Keep the first occurrence to avoid accidental duplicate IDs.
+                continue
             gdp_val = float(row["gdp"])
             population_val = float(row["population"])
 
@@ -109,6 +222,9 @@ def make_world_from_csv(path: str = "agent_states.csv") -> WorldState:
                 memory_id=f"mem_{agent_id}",
             )
 
+    if not agents:
+        raise ValueError(f"CSV validation error in {path}: no valid country rows found")
+
     relations: Dict[str, Dict[str, RelationState]] = {}
     ids = list(agents.keys())
     for left in ids:
@@ -152,7 +268,9 @@ def make_world_from_csv(path: str = "agent_states.csv") -> WorldState:
 
     from .political_dynamics import update_political_states
     from .institutions import build_default_institutions
+    from .credit_rating import update_credit_ratings
 
     update_political_states(world)
     world.institutions = build_default_institutions(world)
+    update_credit_ratings(world, memory={})
     return world

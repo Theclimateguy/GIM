@@ -1,9 +1,12 @@
 import copy
 import json
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from .actions import apply_action, apply_trade_deals
 from .climate import apply_climate_extreme_events, update_climate_risks, update_global_climate
+from .credit_rating import update_credit_ratings
 from .core import Action, AgentMemory, Observation, WorldState
 from .economy import update_economy_output, update_public_finances
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
@@ -223,6 +226,9 @@ def _append_action_logs(
             "avg_trade_intensity": avg_trade_intensity,
             "avg_relation_trust": avg_trust,
             "avg_relation_conflict": avg_conflict,
+            "credit_rating_pre_step": agent.credit_rating,
+            "credit_zone_pre_step": agent.credit_zone,
+            "credit_risk_score_pre_step": agent.credit_risk_score,
             "explanation": action.explanation,
         }
         action_log.append(record)
@@ -251,6 +257,40 @@ def format_policy_summary(action: Action) -> str:
     return ", ".join(parts) if parts else "No changes"
 
 
+def _int_env(name: str, default: int, minimum: int = 1) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return max(minimum, value)
+
+
+def _chunked(values: List[str], chunk_size: int) -> List[List[str]]:
+    return [values[i : i + chunk_size] for i in range(0, len(values), chunk_size)]
+
+
+def _safe_apply_policy(
+    world: WorldState,
+    policies: Dict[str, Callable[[Observation], Action]],
+    agent_id: str,
+    memory_summary: Optional[Dict[str, Any]],
+) -> Action:
+    policy = policies.get(agent_id)
+    if policy is None:
+        return simple_rule_based_policy(build_observation(world, agent_id))
+
+    obs = build_observation(world, agent_id)
+    try:
+        if memory_summary is None:
+            return policy(obs)
+        return policy(obs, memory_summary)
+    except Exception:
+        return simple_rule_based_policy(obs)
+
+
 def step_world(
     world: WorldState,
     policies: Dict[str, Callable[[Observation], Action]],
@@ -266,33 +306,59 @@ def step_world(
     if memory is None:
         memory = {}
 
+    # Comparative metrics are O(N^2); compute once per step before policy generation.
+    compute_relative_metrics(world)
     update_political_states(world)
     if apply_institutions:
         reports = update_institutions(world)
         if institution_log is not None:
             institution_log.extend(reports)
 
+    llm_agent_ids: List[str] = []
     for agent_id in world.agents:
         policy = policies.get(agent_id)
         if policy is None:
             continue
+        if policy is llm_policy:
+            llm_agent_ids.append(agent_id)
+            continue
 
-        obs = build_observation(world, agent_id)
-        memory_summary = summarize_agent_memory(memory, agent_id) if policy is llm_policy else None
-
-        try:
-            if memory_summary is None:
-                action = policy(obs)
-            else:
-                action = policy(obs, memory_summary)
-        except Exception:
-            action = simple_rule_based_policy(obs)
-
+        action = _safe_apply_policy(world, policies, agent_id, memory_summary=None)
         if apply_political_filters:
             action = apply_political_constraints(action, world.agents[agent_id])
         sec = action.foreign_policy.security_actions
         security_intents[agent_id] = (sec.type, sec.target)
         actions[agent_id] = action
+
+    if llm_agent_ids:
+        max_workers = _int_env("LLM_MAX_CONCURRENCY", default=8, minimum=1)
+        batch_size = _int_env("LLM_BATCH_SIZE", default=12, minimum=1)
+        batch_size = min(batch_size, len(llm_agent_ids))
+
+        for batch_ids in _chunked(llm_agent_ids, batch_size):
+            with ThreadPoolExecutor(max_workers=min(max_workers, len(batch_ids))) as executor:
+                futures = {
+                    executor.submit(
+                        _safe_apply_policy,
+                        world,
+                        policies,
+                        agent_id,
+                        summarize_agent_memory(memory, agent_id),
+                    ): agent_id
+                    for agent_id in batch_ids
+                }
+                for future in as_completed(futures):
+                    agent_id = futures[future]
+                    try:
+                        action = future.result()
+                    except Exception:
+                        obs = build_observation(world, agent_id)
+                        action = simple_rule_based_policy(obs)
+                    if apply_political_filters:
+                        action = apply_political_constraints(action, world.agents[agent_id])
+                    sec = action.foreign_policy.security_actions
+                    security_intents[agent_id] = (sec.type, sec.target)
+                    actions[agent_id] = action
 
     resolve_foreign_policy(world, actions)
     apply_sanctions_effects(world)
@@ -334,6 +400,7 @@ def step_world(
 
     compute_relative_metrics(world)
     update_agent_memory(memory, world, actions)
+    update_credit_ratings(world, memory)
 
     world.time += 1
     return world
@@ -347,6 +414,7 @@ def step_world_verbose(
     action_log: Optional[List[Dict[str, Any]]] = None,
     institution_log: Optional[List[Dict[str, Any]]] = None,
 ) -> WorldState:
+    compute_relative_metrics(world)
     pre_snapshot = {
         agent_id: {
             "gdp": agent.economy.gdp,

@@ -6,6 +6,7 @@ from .climate import (
     update_climate_risks,
     update_global_climate,
 )
+from .credit_rating import rating_zone, update_credit_ratings
 from .core import *
 from .economy import (
     compute_effective_interest_rate,

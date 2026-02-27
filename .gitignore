@@ -1,5 +1,9 @@
 logs/
+**/logs/
 .DS_Store
 __pycache__/
+**/__pycache__/
 *.pyc
 archive/
+API.txt
+legacy/_workspace_extras/

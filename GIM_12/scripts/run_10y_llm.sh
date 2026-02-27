@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${DEEPSEEK_API_KEY:?Set DEEPSEEK_API_KEY before running}"
+
+DEFAULT_CONDA_PYTHON="$HOME/miniforge3/envs/gim-py311/bin/python"
+if [[ -x "$DEFAULT_CONDA_PYTHON" ]]; then
+  PYTHON_BIN="${PYTHON_BIN:-$DEFAULT_CONDA_PYTHON}"
+else
+  PYTHON_BIN="${PYTHON_BIN:-python3}"
+fi
+
+POLICY_MODE=llm \
+SIM_YEARS=10 \
+SIM_SEED="${SIM_SEED:-7}" \
+STATE_CSV="${STATE_CSV:-agent_states.csv}" \
+MAX_COUNTRIES="${MAX_COUNTRIES:-100}" \
+LLM_MAX_CONCURRENCY="${LLM_MAX_CONCURRENCY:-12}" \
+LLM_BATCH_SIZE="${LLM_BATCH_SIZE:-20}" \
+SAVE_CSV_LOGS="${SAVE_CSV_LOGS:-1}" \
+GENERATE_CREDIT_MAP="${GENERATE_CREDIT_MAP:-1}" \
+"$PYTHON_BIN" -m gim_11_1

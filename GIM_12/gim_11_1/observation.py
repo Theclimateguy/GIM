@@ -4,16 +4,12 @@ from .core import Observation, WorldState
 from .metrics import (
     compute_debt_stress,
     compute_protest_risk,
-    compute_relative_metrics,
     compute_reserve_years,
 )
 
 
 def build_observation(world: WorldState, agent_id: str) -> Observation:
     agent = world.agents[agent_id]
-
-    # Keep comparative metrics fresh for every decision.
-    compute_relative_metrics(world)
 
     self_state = {
         "economy": asdict(agent.economy),
@@ -26,6 +22,12 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         "political": asdict(agent.political),
         "alliance_block": agent.alliance_block,
         "active_sanctions": dict(agent.active_sanctions),
+        "credit": {
+            "rating": agent.credit_rating,
+            "zone": agent.credit_zone,
+            "risk_score": agent.credit_risk_score,
+            "details": dict(agent.credit_rating_details),
+        },
     }
 
     resource_balance = {
