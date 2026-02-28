@@ -10,7 +10,7 @@ Production snapshot of the updated model with:
 ## Quick Start
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM/GIM_12
+cd /YOUR_PATH_HERE/GIM_12
 export DEEPSEEK_API_KEY="..."
 ./scripts/run_10y_llm.sh
 ```
