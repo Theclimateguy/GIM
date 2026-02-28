@@ -5,13 +5,11 @@ This repository is now organized by model generation.
 ## Active Version
 
 - `GIM_12/` is the current production model.
-- Run from:
-  - `/Users/theclimateguy/Documents/jupyter_lab/GIM/GIM_12`
 
 Quick start:
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM/GIM_12
+cd /YOUR_PATH_HERE/GIM_12
 export DEEPSEEK_API_KEY="..."
 ./scripts/run_10y_llm.sh
 ```
