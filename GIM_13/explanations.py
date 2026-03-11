@@ -1,3 +1,4 @@
+from .crisis_metrics import CrisisDashboard
 from .types import GameResult, RISK_LABELS, ScenarioEvaluation
 
 
@@ -116,5 +117,34 @@ def format_game_result(result: GameResult) -> str:
             for player in game.players
         )
         lines.append(f"- {strategy_line} -> total payoff {combination.total_payoff:+.2f}")
+
+    return "\n".join(lines)
+
+
+def format_crisis_dashboard(dashboard: CrisisDashboard) -> str:
+    lines = ["Global crisis context:"]
+    for metric_name, metric in sorted(
+        dashboard.global_context.metrics.items(),
+        key=lambda item: item[1].severity,
+        reverse=True,
+    ):
+        label = metric_name.replace("_", " ")
+        lines.append(
+            f"- {label}: value={metric.value:.3f} {metric.unit}, severity={metric.severity:.2f}"
+        )
+
+    for report in dashboard.agents.values():
+        lines.extend(
+            [
+                "",
+                f"{report.agent_name} [{report.archetype}]",
+            ]
+        )
+        for metric_name in report.top_metric_names:
+            metric = report.metrics[metric_name]
+            lines.append(
+                f"- {metric_name}: severity={metric.severity:.2f}, relevance={metric.relevance:.2f}, "
+                f"value={metric.value:.3f} {metric.unit}"
+            )
 
     return "\n".join(lines)

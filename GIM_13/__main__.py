@@ -3,10 +3,11 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 
-from .explanations import format_game_result, format_question_evaluation
+from .crisis_metrics import CrisisMetricsEngine
+from .explanations import format_crisis_dashboard, format_game_result, format_question_evaluation
 from .game_runner import GameRunner
 from .runtime import load_world
-from .scenario_compiler import compile_question, load_game_definition
+from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
 
 
 def _resolve_case_path(raw_value: str) -> Path:
@@ -39,6 +40,12 @@ def build_parser() -> ArgumentParser:
     game_parser.add_argument("--max-countries", type=int)
     game_parser.add_argument("--json", dest="json_output", action="store_true")
 
+    metrics_parser = subparsers.add_parser("metrics", help="Build a crisis metrics dashboard")
+    metrics_parser.add_argument("--agents", nargs="*")
+    metrics_parser.add_argument("--state-csv")
+    metrics_parser.add_argument("--max-countries", type=int)
+    metrics_parser.add_argument("--json", dest="json_output", action="store_true")
+
     return parser
 
 
@@ -47,6 +54,7 @@ def main() -> None:
     args = parser.parse_args()
     world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
     runner = GameRunner(world)
+    metrics_engine = CrisisMetricsEngine()
 
     if args.command == "question":
         scenario = compile_question(
@@ -62,6 +70,27 @@ def main() -> None:
             print(json.dumps(asdict(evaluation), indent=2, ensure_ascii=False))
             return
         print(format_question_evaluation(evaluation))
+        return
+
+    if args.command == "metrics":
+        if args.agents:
+            actor_ids, _actor_names, unresolved = resolve_actor_names(world, args.agents)
+            if unresolved:
+                raise SystemExit(f"Unresolved agent names: {', '.join(unresolved)}")
+        else:
+            actor_ids = [
+                agent.id
+                for agent in sorted(
+                    world.agents.values(),
+                    key=lambda current: current.economy.gdp,
+                    reverse=True,
+                )[:5]
+            ]
+        dashboard = metrics_engine.compute_dashboard(world, agent_ids=actor_ids)
+        if args.json_output:
+            print(json.dumps(asdict(dashboard), indent=2, ensure_ascii=False))
+            return
+        print(format_crisis_dashboard(dashboard))
         return
 
     case_path = _resolve_case_path(args.case)

@@ -8,6 +8,7 @@ Current MVP scope:
 - preserve calibrated baseline behavior from `GIM_12`;
 - keep critical tail-risk states in the distribution;
 - enforce soft guardrails instead of silent threshold clipping;
+- compute crisis metrics with archetype-specific relevance routing;
 - run small policy games over a shared world state;
 - explain why a crisis or escalation path appears.
 
@@ -27,6 +28,12 @@ Run the bundled policy-game case:
 python3 -m GIM_13 game --case maritime_pressure_game.json
 ```
 
+Run the crisis metrics dashboard:
+
+```bash
+python3 -m GIM_13 metrics --agents "United States" "Saudi Arabia" Turkey
+```
+
 ## Guardrails
 
 This MVP is intentionally designed around calibrated extreme outcomes:
@@ -35,3 +42,8 @@ This MVP is intentionally designed around calibrated extreme outcomes:
 - they must remain causally grounded;
 - hard legacy thresholds are treated as soft constraints;
 - impossible states are still forbidden.
+
+## Temporal note
+
+`GIM_12` is still an annual core.
+The quarterly-readiness assessment is documented in `GIM_12_quarterly_readiness.md`.

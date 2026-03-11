@@ -27,6 +27,7 @@ What `GIM_12` includes:
 
 - `GIM_12/` : current production model and docs.
 - `GIM_13/` : policy-gaming MVP with scenario compilation, explainability and small game search.
+- `GIM_13/` also contains the new crisis metrics layer and the quarterly-readiness assessment for `GIM_12`.
 - `legacy/GIM_11_1/` : legacy compatibility core and archived docs.
 - `legacy/V10_3_prod/` : previous `V10_3_prod` codebase and docs.
 - `legacy/_workspace_extras/` : historical local helper assets from prior workspace state.
