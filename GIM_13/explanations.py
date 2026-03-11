@@ -23,6 +23,29 @@ def _format_probability(value: float) -> str:
     return f"{100.0 * value:.1f}%"
 
 
+def _top_crisis_changes(evaluation: ScenarioEvaluation, limit: int = 5) -> list[str]:
+    changes: list[tuple[float, str]] = []
+    for agent_id, metrics in evaluation.crisis_delta_by_agent.items():
+        if agent_id == "__global__":
+            prefix = "global"
+        else:
+            report = evaluation.crisis_dashboard.agents.get(agent_id)
+            prefix = report.agent_name if report is not None else agent_id
+        for metric_name, delta in metrics.items():
+            weighted_shift = delta.get("weighted_shift", 0.0)
+            if abs(weighted_shift) < 1e-6:
+                continue
+            direction = "up" if weighted_shift > 0 else "down"
+            changes.append(
+                (
+                    abs(weighted_shift),
+                    f"{prefix}: {metric_name} {direction} by {weighted_shift:+.2f}",
+                )
+            )
+    changes.sort(key=lambda item: item[0], reverse=True)
+    return [line for _score, line in changes[:limit]]
+
+
 def format_question_evaluation(evaluation: ScenarioEvaluation) -> str:
     scenario = evaluation.scenario
     lines = [
@@ -51,6 +74,28 @@ def format_question_evaluation(evaluation: ScenarioEvaluation) -> str:
     )[:5]:
         label = DRIVER_LABELS.get(driver_name, driver_name)
         lines.append(f"- {label}: {driver_value:.2f}")
+
+    lines.append("")
+    lines.append("Crisis layer:")
+    lines.append(f"- Net crisis shift: {evaluation.crisis_signal_summary['net_crisis_shift']:+.2f}")
+    lines.append(
+        f"- Macro stress shift: {evaluation.crisis_signal_summary['macro_stress_shift']:+.2f}"
+    )
+    lines.append(
+        f"- Stability stress shift: {evaluation.crisis_signal_summary['stability_stress_shift']:+.2f}"
+    )
+    lines.append(
+        f"- Geopolitical stress shift: {evaluation.crisis_signal_summary['geopolitical_stress_shift']:+.2f}"
+    )
+    for report in evaluation.crisis_dashboard.agents.values():
+        lines.append(f"- {report.agent_name} top crisis metrics: {', '.join(report.top_metric_names[:3])}")
+
+    top_changes = _top_crisis_changes(evaluation, limit=4)
+    if top_changes:
+        lines.append("")
+        lines.append("Largest crisis shifts:")
+        for line in top_changes:
+            lines.append(f"- {line}")
 
     if scenario.unresolved_actor_names:
         lines.append("")
@@ -108,6 +153,23 @@ def format_game_result(result: GameResult) -> str:
     lines.extend(
         [
             "",
+            "Crisis delta vs baseline:",
+            f"- Net crisis shift: {best.evaluation.crisis_signal_summary['net_crisis_shift']:+.2f}",
+            f"- Macro stress shift: {best.evaluation.crisis_signal_summary['macro_stress_shift']:+.2f}",
+            f"- Stability stress shift: {best.evaluation.crisis_signal_summary['stability_stress_shift']:+.2f}",
+            f"- Geopolitical stress shift: {best.evaluation.crisis_signal_summary['geopolitical_stress_shift']:+.2f}",
+        ]
+    )
+
+    top_changes = _top_crisis_changes(best.evaluation, limit=5)
+    if top_changes:
+        lines.append("- Largest metric shifts:")
+        for line in top_changes:
+            lines.append(f"- {line}")
+
+    lines.extend(
+        [
+            "",
             "Top strategy profiles:",
         ]
     )
@@ -117,6 +179,17 @@ def format_game_result(result: GameResult) -> str:
             for player in game.players
         )
         lines.append(f"- {strategy_line} -> total payoff {combination.total_payoff:+.2f}")
+
+    lines.extend(
+        [
+            "",
+            "Baseline top outcomes:",
+        ]
+    )
+    for risk_name in result.baseline_evaluation.dominant_outcomes:
+        lines.append(
+            f"- {RISK_LABELS[risk_name]}: {_format_probability(result.baseline_evaluation.risk_probabilities[risk_name])}"
+        )
 
     return "\n".join(lines)
 

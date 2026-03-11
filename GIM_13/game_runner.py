@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import copy
 from itertools import product
 import math
 
+from .crisis_metrics import CrisisMetricsEngine
 from .runtime import AgentState, WorldState
 from .types import (
     GameCombinationResult,
@@ -150,6 +152,234 @@ ACTION_OBJECTIVE_BONUS = {
     "domestic_crackdown": {"regime_retention": 0.10},
 }
 
+ACTION_CRISIS_SHIFTS = {
+    "signal_deterrence": {
+        "self": {
+            "conflict_escalation_pressure": 0.08,
+            "sanctions_strangulation": 0.03,
+        },
+        "others": {
+            "conflict_escalation_pressure": 0.02,
+        },
+        "global": {
+            "global_oil_market_stress": 0.01,
+        },
+    },
+    "signal_restraint": {
+        "self": {
+            "conflict_escalation_pressure": -0.08,
+            "sanctions_strangulation": -0.03,
+            "regime_fragility": -0.02,
+        },
+        "others": {
+            "conflict_escalation_pressure": -0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": -0.02,
+            "global_oil_market_stress": -0.01,
+        },
+    },
+    "arm_proxy": {
+        "self": {
+            "conflict_escalation_pressure": 0.12,
+            "sanctions_strangulation": 0.05,
+            "regime_fragility": 0.03,
+        },
+        "others": {
+            "conflict_escalation_pressure": 0.05,
+            "oil_vulnerability": 0.02,
+        },
+        "global": {
+            "global_oil_market_stress": 0.03,
+            "global_sanctions_footprint": 0.02,
+        },
+    },
+    "restrain_proxy": {
+        "self": {
+            "conflict_escalation_pressure": -0.06,
+            "regime_fragility": -0.02,
+        },
+        "others": {
+            "conflict_escalation_pressure": -0.04,
+        },
+        "global": {
+            "global_sanctions_footprint": -0.01,
+        },
+    },
+    "covert_disruption": {
+        "self": {
+            "sanctions_strangulation": 0.04,
+            "conflict_escalation_pressure": 0.08,
+        },
+        "others": {
+            "strategic_dependency": 0.03,
+            "conflict_escalation_pressure": 0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.03,
+        },
+    },
+    "maritime_interdiction": {
+        "self": {
+            "conflict_escalation_pressure": 0.12,
+            "sanctions_strangulation": 0.06,
+        },
+        "others": {
+            "oil_vulnerability": 0.10,
+            "chokepoint_exposure": 0.12,
+            "inflation": 0.04,
+        },
+        "global": {
+            "global_oil_market_stress": 0.12,
+            "global_energy_volume_gap": 0.10,
+            "global_trade_fragmentation": 0.04,
+        },
+    },
+    "partial_mobilization": {
+        "self": {
+            "conflict_escalation_pressure": 0.10,
+            "regime_fragility": 0.03,
+            "sovereign_stress": 0.02,
+        },
+        "others": {
+            "conflict_escalation_pressure": 0.03,
+        },
+        "global": {
+            "global_oil_market_stress": 0.02,
+        },
+    },
+    "targeted_strike": {
+        "self": {
+            "conflict_escalation_pressure": 0.18,
+            "sanctions_strangulation": 0.10,
+            "regime_fragility": 0.05,
+        },
+        "others": {
+            "conflict_escalation_pressure": 0.08,
+            "oil_vulnerability": 0.04,
+            "chokepoint_exposure": 0.05,
+        },
+        "global": {
+            "global_oil_market_stress": 0.08,
+            "global_trade_fragmentation": 0.06,
+            "global_sanctions_footprint": 0.04,
+        },
+    },
+    "backchannel_offer": {
+        "self": {
+            "conflict_escalation_pressure": -0.07,
+            "sanctions_strangulation": -0.02,
+            "regime_fragility": -0.02,
+        },
+        "others": {
+            "conflict_escalation_pressure": -0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": -0.02,
+        },
+    },
+    "accept_mediation": {
+        "self": {
+            "conflict_escalation_pressure": -0.10,
+            "sanctions_strangulation": -0.04,
+            "regime_fragility": -0.03,
+        },
+        "others": {
+            "conflict_escalation_pressure": -0.05,
+            "oil_vulnerability": -0.03,
+            "chokepoint_exposure": -0.03,
+        },
+        "global": {
+            "global_oil_market_stress": -0.04,
+            "global_trade_fragmentation": -0.03,
+            "global_sanctions_footprint": -0.02,
+        },
+    },
+    "information_campaign": {
+        "self": {
+            "regime_fragility": 0.03,
+            "protest_pressure": 0.02,
+        },
+        "others": {
+            "regime_fragility": 0.02,
+            "protest_pressure": 0.02,
+        },
+        "global": {},
+    },
+    "domestic_crackdown": {
+        "self": {
+            "regime_fragility": 0.08,
+            "protest_pressure": 0.04,
+            "sanctions_strangulation": 0.03,
+        },
+        "others": {
+            "sanctions_strangulation": 0.01,
+        },
+        "global": {
+            "global_sanctions_footprint": 0.01,
+        },
+    },
+}
+
+OBJECTIVE_TO_CRISIS_UTILITY = {
+    "regime_retention": {
+        "regime_fragility": -0.70,
+        "protest_pressure": -0.55,
+        "inflation": -0.20,
+        "sanctions_strangulation": -0.20,
+    },
+    "reduce_war_risk": {
+        "conflict_escalation_pressure": -0.80,
+        "chokepoint_exposure": -0.45,
+        "oil_vulnerability": -0.20,
+    },
+    "regional_influence": {
+        "regime_fragility": -0.25,
+        "conflict_escalation_pressure": -0.15,
+    },
+    "sanctions_resilience": {
+        "sanctions_strangulation": -0.85,
+        "fx_stress": -0.60,
+        "inflation": -0.25,
+        "sovereign_stress": -0.25,
+    },
+    "resource_access": {
+        "oil_vulnerability": -0.70,
+        "strategic_dependency": -0.55,
+        "chokepoint_exposure": -0.70,
+        "food_affordability_stress": -0.25,
+    },
+    "bargaining_power": {
+        "regime_fragility": -0.30,
+        "sanctions_strangulation": -0.25,
+    },
+}
+
+OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY = {
+    "regime_retention": {
+        "stability_stress_shift": -0.25,
+        "net_crisis_shift": -0.15,
+    },
+    "reduce_war_risk": {
+        "geopolitical_stress_shift": -0.55,
+        "net_crisis_shift": -0.20,
+    },
+    "regional_influence": {
+        "net_crisis_shift": -0.08,
+    },
+    "sanctions_resilience": {
+        "macro_stress_shift": -0.25,
+        "geopolitical_stress_shift": -0.15,
+    },
+    "resource_access": {
+        "macro_stress_shift": -0.30,
+        "geopolitical_stress_shift": -0.30,
+    },
+    "bargaining_power": {
+        "net_crisis_shift": -0.10,
+    },
+}
+
 
 def _mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
@@ -165,12 +395,15 @@ def _softmax(scores: dict[str, float]) -> dict[str, float]:
 class GameRunner:
     def __init__(self, world: WorldState):
         self.world = world
+        self.crisis_engine = CrisisMetricsEngine()
 
     def _profile_agent(self, agent: AgentState) -> dict[str, float]:
         debt_ratio = agent.economy.public_debt / max(agent.economy.gdp, 0.25)
         resource_gaps = []
         for resource in agent.resources.values():
-            gap = max(resource.consumption - resource.production, 0.0) / max(resource.consumption, 1e-6)
+            gap = max(resource.consumption - resource.production, 0.0) / max(
+                resource.consumption, 1e-6
+            )
             resource_gaps.append(gap)
 
         energy = agent.resources.get("energy")
@@ -194,7 +427,9 @@ class GameRunner:
             + 0.10 * (1.0 - agent.political.coalition_openness)
         )
         sanctions_pressure = 0.18 * len(agent.active_sanctions) + max(0.0, debt_ratio - 0.5)
-        military_posture = 0.55 * agent.technology.military_power + 0.45 * agent.technology.security_index
+        military_posture = (
+            0.55 * agent.technology.military_power + 0.45 * agent.technology.security_index
+        )
         climate_stress = 0.60 * agent.climate.climate_risk + 0.40 * agent.risk.water_stress
         policy_space = agent.political.policy_space
         negotiation_capacity = (
@@ -226,10 +461,7 @@ class GameRunner:
 
     def _aggregate_profiles(self, actor_ids: list[str]) -> dict[str, float]:
         profiles = [self._profile_agent(self.world.agents[actor_id]) for actor_id in actor_ids]
-        aggregate = {
-            key: _mean([profile[key] for profile in profiles])
-            for key in profiles[0]
-        }
+        aggregate = {key: _mean([profile[key] for profile in profiles]) for key in profiles[0]}
         blocks = {self.world.agents[actor_id].alliance_block for actor_id in actor_ids}
         aggregate["multi_block_pressure"] = max(0.0, (len(blocks) - 1) / 3.0)
         aggregate["actor_count_pressure"] = max(0.0, (len(actor_ids) - 1) / 3.0)
@@ -335,12 +567,160 @@ class GameRunner:
             scores["negotiated_deescalation"] += 0.08 * deescalation_count
             scores["broad_regional_escalation"] -= 0.04 * deescalation_count
 
-    def _expand_tail_risk(self, scores: dict[str, float], scenario: ScenarioDefinition, aggregate: dict[str, float]) -> None:
+    def _expand_tail_risk(
+        self,
+        scores: dict[str, float],
+        scenario: ScenarioDefinition,
+        aggregate: dict[str, float],
+    ) -> None:
         critical_pressure = max(0.0, aggregate["tail_pressure"] - 1.25)
         additive_shift = (0.18 if scenario.critical_focus else 0.0) + 0.35 * critical_pressure
         for risk_name in TAIL_RISK_CLASSES:
             scores[risk_name] = scores.get(risk_name, 0.0) + additive_shift
         scores["status_quo"] -= 0.10 * critical_pressure
+
+    def _recompute_top_metrics(self, dashboard) -> None:
+        for report in dashboard.agents.values():
+            report.top_metric_names = [
+                name
+                for name, metric in sorted(
+                    report.metrics.items(),
+                    key=lambda item: item[1].severity * item[1].relevance,
+                    reverse=True,
+                )[:5]
+            ]
+
+    def _apply_metric_shift(self, metric, level_shift: float) -> None:
+        metric.level = max(0.0, min(1.0, metric.level + level_shift))
+        metric.momentum = level_shift
+        metric.buffer = max(0.0, min(1.0, metric.buffer - 0.60 * level_shift))
+        metric.trigger = max(0.0, min(1.0, metric.trigger + 0.80 * level_shift))
+        metric.severity = max(
+            0.0,
+            min(
+                1.0,
+                0.45 * metric.level
+                + 0.20 * max(metric.momentum, 0.0)
+                + 0.20 * (1.0 - metric.buffer)
+                + 0.15 * metric.trigger,
+            ),
+        )
+        if metric.unit in {"index", "share", "basket_index", "debt_to_gdp"}:
+            metric.value = max(0.0, metric.value + level_shift)
+        elif metric.unit == "months":
+            metric.value = max(0.0, metric.value * max(0.25, 1.0 - level_shift))
+
+    def _build_crisis_overlay(
+        self,
+        scenario: ScenarioDefinition,
+        selected_actions: dict[str, str],
+    ) -> tuple[object, dict[str, dict[str, dict[str, float]]], dict[str, float]]:
+        actor_ids = scenario.actor_ids or list(self.world.agents)[:3]
+        baseline_dashboard = self.crisis_engine.compute_dashboard(self.world, agent_ids=actor_ids)
+        adjusted_dashboard = copy.deepcopy(baseline_dashboard)
+
+        for actor_id, action_name in selected_actions.items():
+            shift_spec = ACTION_CRISIS_SHIFTS.get(action_name)
+            if shift_spec is None:
+                continue
+
+            actor_report = adjusted_dashboard.agents.get(actor_id)
+            if actor_report is not None:
+                for metric_name, shift in shift_spec.get("self", {}).items():
+                    metric = actor_report.metrics.get(metric_name)
+                    if metric is not None:
+                        self._apply_metric_shift(metric, shift)
+
+            for other_id in actor_ids:
+                if other_id == actor_id:
+                    continue
+                other_report = adjusted_dashboard.agents.get(other_id)
+                if other_report is None:
+                    continue
+                for metric_name, shift in shift_spec.get("others", {}).items():
+                    metric = other_report.metrics.get(metric_name)
+                    if metric is not None:
+                        self._apply_metric_shift(metric, shift)
+
+            for metric_name, shift in shift_spec.get("global", {}).items():
+                metric = adjusted_dashboard.global_context.metrics.get(metric_name)
+                if metric is not None:
+                    self._apply_metric_shift(metric, shift)
+
+        self._recompute_top_metrics(adjusted_dashboard)
+
+        delta_by_agent: dict[str, dict[str, dict[str, float]]] = {}
+        worst_agent_shift = 0.0
+        macro_shift_total = 0.0
+        stability_shift_total = 0.0
+        geopolitical_shift_total = 0.0
+        macro_count = 0
+        stability_count = 0
+        geopolitical_count = 0
+        net_shift_total = 0.0
+
+        macro_metrics = {"inflation", "fx_stress", "sovereign_stress", "food_affordability_stress"}
+        stability_metrics = {"protest_pressure", "regime_fragility"}
+        geopolitical_metrics = {
+            "oil_vulnerability",
+            "sanctions_strangulation",
+            "conflict_escalation_pressure",
+            "strategic_dependency",
+            "chokepoint_exposure",
+        }
+
+        for agent_id, baseline_report in baseline_dashboard.agents.items():
+            adjusted_report = adjusted_dashboard.agents[agent_id]
+            delta_by_agent[agent_id] = {}
+            weighted_agent_shift = 0.0
+
+            for metric_name, baseline_metric in baseline_report.metrics.items():
+                adjusted_metric = adjusted_report.metrics[metric_name]
+                level_delta = adjusted_metric.level - baseline_metric.level
+                severity_delta = adjusted_metric.severity - baseline_metric.severity
+                weighted_shift = severity_delta * adjusted_metric.relevance
+                delta_by_agent[agent_id][metric_name] = {
+                    "level_delta": level_delta,
+                    "severity_delta": severity_delta,
+                    "weighted_shift": weighted_shift,
+                }
+                weighted_agent_shift += weighted_shift
+                net_shift_total += weighted_shift
+
+                if metric_name in macro_metrics:
+                    macro_shift_total += weighted_shift
+                    macro_count += 1
+                if metric_name in stability_metrics:
+                    stability_shift_total += weighted_shift
+                    stability_count += 1
+                if metric_name in geopolitical_metrics:
+                    geopolitical_shift_total += weighted_shift
+                    geopolitical_count += 1
+
+            worst_agent_shift = max(worst_agent_shift, weighted_agent_shift)
+
+        delta_by_agent["__global__"] = {}
+        global_net_shift = 0.0
+        for metric_name, baseline_metric in baseline_dashboard.global_context.metrics.items():
+            adjusted_metric = adjusted_dashboard.global_context.metrics[metric_name]
+            level_delta = adjusted_metric.level - baseline_metric.level
+            severity_delta = adjusted_metric.severity - baseline_metric.severity
+            delta_by_agent["__global__"][metric_name] = {
+                "level_delta": level_delta,
+                "severity_delta": severity_delta,
+                "weighted_shift": severity_delta,
+            }
+            global_net_shift += severity_delta
+
+        crisis_signal_summary = {
+            "net_crisis_shift": net_shift_total,
+            "macro_stress_shift": macro_shift_total / max(macro_count, 1),
+            "stability_stress_shift": stability_shift_total / max(stability_count, 1),
+            "geopolitical_stress_shift": geopolitical_shift_total / max(geopolitical_count, 1),
+            "global_context_shift": global_net_shift / max(len(delta_by_agent["__global__"]), 1),
+            "worst_actor_shift": worst_agent_shift,
+        }
+        return adjusted_dashboard, delta_by_agent, crisis_signal_summary
 
     def _assess_consistency(
         self,
@@ -422,22 +802,26 @@ class GameRunner:
         scenario: ScenarioDefinition,
         selected_actions: dict[str, str] | None = None,
     ) -> ScenarioEvaluation:
+        resolved_actions = selected_actions or {}
         actor_ids = scenario.actor_ids or list(self.world.agents)[:3]
         actor_profiles = {
-            actor_id: self._profile_agent(self.world.agents[actor_id])
-            for actor_id in actor_ids
+            actor_id: self._profile_agent(self.world.agents[actor_id]) for actor_id in actor_ids
         }
         aggregate = self._aggregate_profiles(actor_ids)
         scores = self._base_scores(scenario, aggregate)
         self._apply_shocks(scores, scenario)
-        self._apply_actions(scores, selected_actions or {})
+        self._apply_actions(scores, resolved_actions)
         self._expand_tail_risk(scores, scenario, aggregate)
         probabilities = _softmax(scores)
         physical_consistency_score, notes, threshold_notes = self._assess_consistency(
             scenario=scenario,
             aggregate=aggregate,
             probabilities=probabilities,
-            selected_actions=selected_actions or {},
+            selected_actions=resolved_actions,
+        )
+        crisis_dashboard, crisis_delta_by_agent, crisis_signal_summary = self._build_crisis_overlay(
+            scenario=scenario,
+            selected_actions=resolved_actions,
         )
 
         calibration_score = 1.0
@@ -453,6 +837,8 @@ class GameRunner:
             )
             if extreme_mass > 0.85 and aggregate["tail_pressure"] < 1.40:
                 calibration_score -= 0.15
+            if abs(crisis_signal_summary["net_crisis_shift"]) > 0.80 and aggregate["tail_pressure"] < 1.30:
+                calibration_score -= 0.10
         calibration_score = max(
             0.0,
             min(1.0, 0.50 * calibration_score + 0.50 * physical_consistency_score),
@@ -478,6 +864,9 @@ class GameRunner:
             risk_probabilities=probabilities,
             driver_scores=aggregate,
             actor_profiles=actor_profiles,
+            crisis_dashboard=crisis_dashboard,
+            crisis_delta_by_agent=crisis_delta_by_agent,
+            crisis_signal_summary=crisis_signal_summary,
             dominant_outcomes=dominant_outcomes,
             criticality_score=criticality_score,
             calibration_score=calibration_score,
@@ -493,20 +882,30 @@ class GameRunner:
         action_name: str,
     ) -> float:
         score = 0.0
+        player_metric_deltas = evaluation.crisis_delta_by_agent.get(player.player_id, {})
         for objective_name, weight in player.objectives.items():
-            utilities = OBJECTIVE_TO_RISK_UTILITY.get(objective_name, {})
+            risk_utilities = OBJECTIVE_TO_RISK_UTILITY.get(objective_name, {})
             objective_value = sum(
                 evaluation.risk_probabilities[risk_name] * utility
-                for risk_name, utility in utilities.items()
+                for risk_name, utility in risk_utilities.items()
             )
             objective_value += ACTION_OBJECTIVE_BONUS.get(action_name, {}).get(objective_name, 0.0)
-            score += weight * objective_value
+            crisis_metric_adjustment = sum(
+                player_metric_deltas.get(metric_name, {}).get("severity_delta", 0.0) * utility
+                for metric_name, utility in OBJECTIVE_TO_CRISIS_UTILITY.get(objective_name, {}).items()
+            )
+            crisis_global_adjustment = sum(
+                evaluation.crisis_signal_summary.get(signal_name, 0.0) * utility
+                for signal_name, utility in OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY.get(objective_name, {}).items()
+            )
+            score += weight * (objective_value + crisis_metric_adjustment + crisis_global_adjustment)
 
         score -= 0.25 * (1.0 - evaluation.calibration_score)
         score -= 0.25 * (1.0 - evaluation.physical_consistency_score)
         return score
 
     def run_game(self, game: GameDefinition, max_combinations: int = 256) -> GameResult:
+        baseline_evaluation = self.evaluate_scenario(game.scenario, selected_actions={})
         action_spaces = [player.allowed_actions or ["signal_restraint"] for player in game.players]
         combination_count = 1
         for action_space in action_spaces:
@@ -544,6 +943,7 @@ class GameRunner:
         combinations.sort(key=lambda combo: combo.total_payoff, reverse=True)
         return GameResult(
             game=game,
+            baseline_evaluation=baseline_evaluation,
             best_combination=combinations[0],
             combinations=combinations,
             truncated_action_space=truncated_action_space,

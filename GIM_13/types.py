@@ -122,6 +122,9 @@ class ScenarioEvaluation:
     risk_probabilities: Dict[str, float]
     driver_scores: Dict[str, float]
     actor_profiles: Dict[str, Dict[str, float]]
+    crisis_dashboard: object
+    crisis_delta_by_agent: Dict[str, Dict[str, Dict[str, float]]]
+    crisis_signal_summary: Dict[str, float]
     dominant_outcomes: List[str]
     criticality_score: float
     calibration_score: float
@@ -141,6 +144,7 @@ class GameCombinationResult:
 @dataclass
 class GameResult:
     game: GameDefinition
+    baseline_evaluation: ScenarioEvaluation
     best_combination: GameCombinationResult
     combinations: List[GameCombinationResult]
     truncated_action_space: bool = False

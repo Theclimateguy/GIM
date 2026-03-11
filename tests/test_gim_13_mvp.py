@@ -43,6 +43,8 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertGreaterEqual(evaluation.calibration_score, 0.0)
         self.assertLessEqual(evaluation.physical_consistency_score, 1.0)
         self.assertTrue(evaluation.dominant_outcomes)
+        self.assertIn("net_crisis_shift", evaluation.crisis_signal_summary)
+        self.assertIn("C18", evaluation.crisis_dashboard.agents)
 
     def test_policy_game_case_runs(self) -> None:
         game = load_game_definition(CASE_PATH, self.world)
@@ -50,6 +52,24 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertTrue(result.combinations)
         self.assertIsNotNone(result.best_combination)
         self.assertEqual(len(result.best_combination.actions), len(game.players))
+        self.assertIsNotNone(result.baseline_evaluation)
+        self.assertIn("net_crisis_shift", result.best_combination.evaluation.crisis_signal_summary)
+        self.assertIn("C18", result.best_combination.evaluation.crisis_delta_by_agent)
+
+    def test_actions_shift_crisis_metrics(self) -> None:
+        scenario = compile_question(
+            question="Could maritime pressure destabilize Saudi Arabia, Turkey and China in 2026?",
+            world=self.world,
+            actors=["Saudi Arabia", "Turkey", "China"],
+            template_id="maritime_deterrence",
+        )
+        baseline = self.runner.evaluate_scenario(scenario, selected_actions={})
+        escalated = self.runner.evaluate_scenario(
+            scenario,
+            selected_actions={"C18": "maritime_interdiction", "C19": "signal_deterrence"},
+        )
+        self.assertAlmostEqual(baseline.crisis_signal_summary["net_crisis_shift"], 0.0, places=6)
+        self.assertGreater(escalated.crisis_signal_summary["geopolitical_stress_shift"], 0.0)
 
 
 if __name__ == "__main__":
