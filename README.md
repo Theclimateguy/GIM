@@ -5,6 +5,7 @@ This repository is now organized by model generation.
 ## Active Version
 
 - `GIM_12/` is the current production model.
+- `GIM_13/` is the new policy-gaming MVP layer built over the same calibrated world core.
 - Run from `GIM_12/`.
 
 Quick start:
@@ -25,6 +26,7 @@ What `GIM_12` includes:
 ## Version Layout
 
 - `GIM_12/` : current production model and docs.
+- `GIM_13/` : policy-gaming MVP with scenario compilation, explainability and small game search.
 - `legacy/GIM_11_1/` : legacy compatibility core and archived docs.
 - `legacy/V10_3_prod/` : previous `V10_3_prod` codebase and docs.
 - `legacy/_workspace_extras/` : historical local helper assets from prior workspace state.
