@@ -39,3 +39,8 @@ In `GIM_12/`:
 
 - Offline map generation does not require internet.
 - Internet is only needed for LLM API calls during simulation.
+
+## License
+
+This repository is licensed under `Apache-2.0`.
+Redistributions and derivative works must preserve `LICENSE`, `NOTICE`, and prominent modification notices.
