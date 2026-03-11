@@ -79,4 +79,4 @@ Per country per year:
 - `credit_risk_score` (`0..1`)
 - component details (`financial/war/social/sanctions/macro` and subfactors)
 
-These are computed in `gim_11_1/credit_rating.py` and updated each simulation year.
+These are computed for `GIM_12` in the legacy compatibility core at `legacy/GIM_11_1/gim_11_1/credit_rating.py` and updated each simulation year.

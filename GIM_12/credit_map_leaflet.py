@@ -197,7 +197,7 @@ def build_html(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build Leaflet credit-rating map for final simulation year")
+    parser = argparse.ArgumentParser(description="Build a GIM_12 Leaflet credit-rating map for the final simulation year")
     parser.add_argument("--logs-dir", default="logs")
     parser.add_argument("--agents-csv", default="agent_states.csv")
     parser.add_argument("--log", default=None, help="Explicit world log CSV path")
@@ -236,7 +236,7 @@ def main() -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     html = build_html(
         payload,
-        title=f"Credit Rating Map - {log_path.name}",
+        title=f"GIM_12 Credit Rating Map - {log_path.name}",
         world_geojson=world_geojson,
         leaflet_css=leaflet_css,
         leaflet_js=leaflet_js,

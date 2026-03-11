@@ -5,11 +5,12 @@ This repository is now organized by model generation.
 ## Active Version
 
 - `GIM_12/` is the current production model.
+- Run from `GIM_12/`.
 
 Quick start:
 
 ```bash
-cd /YOUR_PATH_HERE/GIM_12
+cd GIM_12
 export DEEPSEEK_API_KEY="..."
 ./scripts/run_10y_llm.sh
 ```
@@ -24,7 +25,7 @@ What `GIM_12` includes:
 ## Version Layout
 
 - `GIM_12/` : current production model and docs.
-- `legacy/GIM_11_1/` : previous `GIM_11_1` codebase and docs.
+- `legacy/GIM_11_1/` : legacy compatibility core and archived docs.
 - `legacy/V10_3_prod/` : previous `V10_3_prod` codebase and docs.
 - `legacy/_workspace_extras/` : historical local helper assets from prior workspace state.
 
@@ -32,7 +33,7 @@ What `GIM_12` includes:
 
 In `GIM_12/`:
 - `credit_rating_methodology.md`
-- implementation in `gim_11_1/credit_rating.py`
+- implementation in the legacy compatibility core at `legacy/GIM_11_1/gim_11_1/credit_rating.py`
 
 ## Notes
 
