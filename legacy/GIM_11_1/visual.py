@@ -119,7 +119,7 @@ def build_dashboard(
     for ax in axes_flat[:total_plots]:
         ax.set_xlabel("Year")
 
-    fig.suptitle("World Simulation Dashboard", fontsize=16, y=0.98)
+    fig.suptitle("GIM_12 Simulation Dashboard", fontsize=16, y=0.98)
     fig.legend(
         handles,
         labels,
@@ -137,7 +137,7 @@ def build_dashboard(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build a dashboard from the latest simulation log."
+        description="Build a GIM_12 dashboard from the latest simulation log."
     )
     parser.add_argument("--logs-dir", default="logs")
     parser.add_argument("--agents-csv", default="agent_states.csv")

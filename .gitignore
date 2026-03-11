@@ -1,5 +1,10 @@
 logs/
 **/logs/
+*_credit_map.html
+*_dashboard.png
+dist/
+build/
+release/
 .DS_Store
 __pycache__/
 **/__pycache__/

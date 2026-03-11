@@ -10,7 +10,7 @@ Production snapshot of the updated model with:
 ## Quick Start
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM/GIM_12
+cd GIM_12
 export DEEPSEEK_API_KEY="..."
 ./scripts/run_10y_llm.sh
 ```
@@ -43,7 +43,7 @@ Input CSV is validated before simulation:
 
 See:
 - `credit_rating_methodology.md` (full scoring explanation)
-- implementation: `gim_11_1/credit_rating.py`
+- implementation: legacy compatibility core at `legacy/GIM_11_1/gim_11_1/credit_rating.py`
 
 ## Offline Map
 

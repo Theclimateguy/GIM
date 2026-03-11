@@ -15,6 +15,8 @@ from .policy import llm_enablement_status, make_policy_map, resolve_policy_mode,
 from .simulation import step_world
 from .world_factory import make_world_from_csv
 
+MODEL_DISPLAY_NAME = "GIM_12"
+
 
 def _resolve_state_csv() -> str:
     cwd_candidate = Path("agent_states.csv")
@@ -99,7 +101,7 @@ def _generate_credit_map(csv_path: str, state_csv: str) -> str | None:
 
 def main() -> None:
     print("=" * 70)
-    print("MODEL GIM_11_1")
+    print(f"MODEL {MODEL_DISPLAY_NAME}")
     print("=" * 70)
 
     policy_mode = resolve_policy_mode(os.getenv("POLICY_MODE", "auto"))
@@ -165,7 +167,7 @@ def main() -> None:
     print("\n\nSimulation complete")
 
     if save_csv_logs:
-        sim_id = make_sim_id("GIM_11_1")
+        sim_id = make_sim_id(MODEL_DISPLAY_NAME)
         csv_path = log_world_to_csv(history, sim_id)
         actions_path = log_actions_to_csv(action_log or [], sim_id)
         institutions_path = log_institutions_to_csv(institution_log or [], sim_id)

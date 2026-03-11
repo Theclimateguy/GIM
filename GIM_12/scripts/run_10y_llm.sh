@@ -3,6 +3,14 @@ set -euo pipefail
 
 : "${DEEPSEEK_API_KEY:?Set DEEPSEEK_API_KEY before running}"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
+LEGACY_CORE_DIR="$REPO_DIR/legacy/GIM_11_1"
+if [[ -d "$LEGACY_CORE_DIR" ]]; then
+  export PYTHONPATH="$LEGACY_CORE_DIR${PYTHONPATH:+:$PYTHONPATH}"
+fi
+
 DEFAULT_CONDA_PYTHON="$HOME/miniforge3/envs/gim-py311/bin/python"
 if [[ -x "$DEFAULT_CONDA_PYTHON" ]]; then
   PYTHON_BIN="${PYTHON_BIN:-$DEFAULT_CONDA_PYTHON}"
