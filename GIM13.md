@@ -1,6 +1,7 @@
 # GIM13
 
 Подробная блок-схема запуска и прогона вынесена в [GIM13_simulation_flow.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM13_simulation_flow.md).
+Отдельная схема crisis metric layer вынесена в [GIM13_crisis_metrics_flow.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM13_crisis_metrics_flow.md).
 
 ## 1. Что такое GIM_13
 
