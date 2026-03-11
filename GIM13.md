@@ -1,5 +1,7 @@
 # GIM13
 
+Подробная блок-схема запуска и прогона вынесена в [GIM13_simulation_flow.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM13_simulation_flow.md).
+
 ## 1. Что такое GIM_13
 
 `GIM_13` это новый policy-gaming слой над текущим калиброванным миром `GIM_12`.
