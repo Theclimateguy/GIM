@@ -21,7 +21,10 @@
 
 - `GIM_12` остается базовым world core;
 - `GIM_13` пока не переписывает физику мира и не делает свой отдельный state transition engine;
-- `GIM_13` работает как orchestration + diagnostics + policy gaming слой.
+- `GIM_13` работает как orchestration + diagnostics + policy gaming слой;
+- у `GIM_13` теперь есть два реальных execution path:
+  - static path: быстрый snapshot scorer через `GameRunner`;
+  - sim path: `SimBridge -> step_world(...) × N -> terminal scoring`.
 
 ## 2. Состав модулей
 
@@ -32,10 +35,11 @@
 | `GIM_13/scenario_library.py` | Библиотека сценарных шаблонов и risk classes. |
 | `GIM_13/scenario_compiler.py` | Превращает natural-language question или case file в `ScenarioDefinition` / `GameDefinition`. |
 | `GIM_13/crisis_metrics.py` | Отдельный диагностический слой: archetype routing, crisis metrics, global context. |
-| `GIM_13/game_runner.py` | Главный движок оценки сценариев и policy gaming. |
+| `GIM_13/game_runner.py` | Статический snapshot scorer и fallback path для `question` / `game`. |
+| `GIM_13/sim_bridge.py` | Мост от сценариев `GIM_13` к реальному legacy `step_world(...)` циклу. |
 | `GIM_13/console_app.py` | Интерактивный консольный launcher для `Q&A` и `Policy Gaming` с базовыми логами инференса. |
 | `GIM_13/explanations.py` | Человеко-читаемый вывод для `question`, `game` и `metrics`. |
-| `GIM_13/__main__.py` | CLI entrypoint: `question`, `game`, `metrics`, `console`. |
+| `GIM_13/__main__.py` | CLI entrypoint: `question`, `game`, `metrics`, `console`, `calibrate`; выбирает static vs sim path по `--horizon` / `--no-sim`. |
 | `GIM_13/cases/*.json` | Готовые policy-game кейсы. |
 | `tests/*.py` | Smoke и integration tests для сценариев, gaming и crisis metrics. |
 
@@ -47,16 +51,16 @@
 flowchart TD
     A["Question / Game Case"] --> B["Scenario Compiler"]
     B --> C["ScenarioDefinition / GameDefinition"]
-    C --> D["GameRunner"]
-    D --> E["Risk Scores by Outcome Class"]
-    D --> F["CrisisMetricsEngine"]
-    F --> G["Crisis Dashboard"]
-    D --> H["Policy-Adjusted Crisis Overlay"]
-    H --> I["Crisis Deltas vs Baseline"]
-    E --> J["ScenarioEvaluation"]
-    G --> J
-    I --> J
-    J --> K["Question Answer / Game Ranking / CLI Output"]
+    C --> D{"Execution path"}
+    D -->|static| E["GameRunner"]
+    E --> F["Risk Scores + Crisis Overlay"]
+    D -->|sim| G["SimBridge"]
+    G --> H["legacy policy map<br/>forced players + autonomous non-players"]
+    H --> I["step_world(...) × N"]
+    I --> J["Terminal scoring + trajectory crisis delta"]
+    F --> K["ScenarioEvaluation / GameResult"]
+    J --> K
+    K --> L["Question Answer / Game Ranking / CLI Output"]
 ```
 
 ### 3.2 Что происходит в `question` режиме
@@ -67,35 +71,32 @@ flowchart TD
    - извлекает базовый год;
    - пытается разрешить акторов;
    - собирает `ScenarioDefinition`.
-3. `GameRunner.evaluate_scenario(...)`:
-   - считает базовые risk scores по классам исходов;
-   - применяет шаблонные shocks;
-   - делает `softmax` и получает вероятности сценариев;
-   - вызывает `CrisisMetricsEngine`;
-   - строит `crisis_dashboard`;
-   - возвращает единый `ScenarioEvaluation`.
-4. `explanations.py` формирует текст: outcomes, drivers, crisis layer, consistency notes.
-
-В `question` режиме crisis delta обычно равен нулю, потому что нет набора policy actions для сравнительного overlay.
+3. Если `--horizon=0` или `--no-sim`, идет static path через `GameRunner.evaluate_scenario(...)`.
+4. Если `--horizon>0`, идет sim path:
+   - `SimBridge` строит legacy `policy_map`;
+   - все страны получают autonomous policy mode, сейчас по CLI это `llm`;
+   - мир прогоняется через `step_world(...)` нужное число лет;
+   - terminal state снова скармливается scoring слою.
+5. `explanations.py` формирует текст: outcomes, drivers, crisis layer, consistency notes.
 
 ### 3.3 Что происходит в `game` режиме
 
 1. `scenario_compiler.py` читает case JSON и собирает `GameDefinition`.
-2. `GameRunner.run_game(...)`:
-   - считает baseline evaluation без действий;
-   - строит все комбинации допустимых действий игроков;
-   - для каждой комбинации считает:
-     - distribution of outcomes;
-     - crisis dashboard;
-     - crisis delta vs baseline;
-     - payoffs игроков.
-3. Комбинации сортируются по total payoff.
-4. `explanations.py` показывает:
+2. Если `--horizon=0` или `--no-sim`, используется `GameRunner.run_game(...)`.
+3. Если `--horizon>0`, используется `SimBridge.run_game(...)`:
+   - baseline и каждая комбинация действий прогоняются через `step_world(...)`;
+   - игроки получают forced-action callables;
+   - остальные страны остаются на legacy autonomous policies;
+   - payoff по-прежнему считает `GameRunner._score_player(...)`.
+4. Комбинации сортируются по total payoff.
+5. `explanations.py` показывает:
    - лучший strategy profile;
    - top outcomes;
    - crisis delta vs baseline;
    - top strategy profiles;
    - baseline top outcomes.
+
+На sim path `GameResult` дополнительно несет `trajectory` лучшего профиля и `baseline_trajectory`.
 
 ## 4. Сценарный слой
 
@@ -500,22 +501,21 @@ flowchart TD
 
 Они уже полезны как policy-gaming diagnostics, но позже потребуют более богатого route / logistics / shock graph.
 
-### 11.3 Crisis overlay пока не прогоняет реальный `step_world`
+### 11.3 Static и sim path теперь сосуществуют
 
-Сейчас policy actions изменяют crisis layer через overlay, а не через полноценную прогонку отдельного substep engine.
+Сейчас:
 
-Это осознанный MVP-компромисс:
+- static path по-прежнему меняет crisis layer через overlay и не гонит `step_world`;
+- sim path уже прогоняет реальный legacy core и считает terminal state;
+- оба пути возвращают одинаковые output types и выбираются через `--horizon` / `--no-sim`.
 
-- быстро;
-- объяснимо;
-- не ломает калибровку `GIM_12`;
-- но это еще не финальный multi-scale simulator.
+Главное ограничение теперь не архитектурное, а вычислительное: sim-path `game` может быть дорогим, потому что каждый strategy profile запускает свой trajectory.
 
 ## 12. Что делать дальше
 
 Самый логичный следующий шаг:
 
-1. Связать crisis metrics с реальным `step_world` или substep runner.
+1. Снизить стоимость sim-path `game`: non-player mode control и staged search.
 2. Ввести `FactionState` и proxy-layer.
 3. Добавить историческую память metric deltas на `1/3/12` шагов.
 4. Сделать полноценный crisis ontology и LLM-driven tail risk proposals.
@@ -526,10 +526,11 @@ flowchart TD
 Текущее состояние `GIM_13`:
 
 - есть scenario compiler;
-- есть policy game runner;
+- есть static policy game runner;
+- есть sim bridge в legacy `step_world`;
 - есть crisis metrics layer;
 - есть crisis-aware evaluation;
 - есть crisis-aware payoff logic;
 - есть CLI и тесты.
 
-То есть `GIM_13` уже не просто "обертка над симулятором", а рабочий policy-gaming и crisis diagnostics движок поверх калиброванного мира `GIM_12`.
+То есть `GIM_13` уже не просто "обертка над симулятором", а orchestration слой с двумя реальными режимами поверх калиброванного мира `GIM_12`: быстрый static scorer и медленный, но честный sim path через legacy world engine.

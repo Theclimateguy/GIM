@@ -78,6 +78,15 @@ class GIM13MVPTests(unittest.TestCase):
         args = parser.parse_args(["console"])
         self.assertEqual(args.command, "console")
 
+    def test_question_and_game_support_sim_flags(self) -> None:
+        parser = build_parser()
+        question_args = parser.parse_args(["question", "--question", "test", "--horizon", "2"])
+        game_args = parser.parse_args(["game", "--case", str(CASE_PATH), "--horizon", "3", "--no-sim"])
+        self.assertEqual(question_args.horizon, 2)
+        self.assertFalse(question_args.no_sim)
+        self.assertEqual(game_args.horizon, 3)
+        self.assertTrue(game_args.no_sim)
+
     def test_console_discovers_cases_and_counts_actions(self) -> None:
         cases = discover_cases()
         self.assertTrue(cases)

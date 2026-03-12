@@ -5,9 +5,13 @@ This repository is now organized by model generation.
 ## Active Version
 
 - `GIM_12/` is the current production model.
-- `GIM_13/` is the new policy-gaming MVP layer built over the same calibrated world core.
+- `GIM_13/` is the new policy-gaming layer built over the same calibrated world core.
+- `GIM_13/` now has two operative paths:
+  - static path: fast snapshot scorer;
+  - sim path: `SimBridge` over vendored `GIM_11_1 step_world(...)`.
 - Unified technical documentation for the current stack is in `MODEL_DOCUMENTATION.md`.
-- Run from `GIM_12/`.
+- Run simulation-core workflows from `GIM_12/`.
+- Run policy-gaming and Q&A workflows from `GIM_13/`.
 
 Quick start:
 
@@ -27,7 +31,7 @@ What `GIM_12` includes:
 ## Version Layout
 
 - `GIM_12/` : current production model and docs.
-- `GIM_13/` : policy-gaming MVP with scenario compilation, explainability and small game search.
+- `GIM_13/` : policy-gaming layer with scenario compilation, explainability, static scoring and optional sim-bridge execution.
 - `GIM_13/` also contains the new crisis metrics layer and the quarterly-readiness assessment for `GIM_12`.
 - `legacy/GIM_11_1/` : legacy compatibility core and archived docs.
 - `legacy/V10_3_prod/` : previous `V10_3_prod` codebase and docs.

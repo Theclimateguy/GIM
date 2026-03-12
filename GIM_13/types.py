@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Any, Dict, List
 
 
 RISK_CLASSES = (
@@ -148,3 +148,5 @@ class GameResult:
     best_combination: GameCombinationResult
     combinations: List[GameCombinationResult]
     truncated_action_space: bool = False
+    trajectory: List[Any] | None = None
+    baseline_trajectory: List[Any] | None = None

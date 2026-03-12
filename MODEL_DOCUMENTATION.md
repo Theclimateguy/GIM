@@ -23,10 +23,16 @@ The stack solves three related tasks:
 Operationally, `GIM_13` does not replace the physical or macroeconomic simulation of the legacy core. It sits on top of the same world state and adds:
 
 - scenario compilation;
-- risk scoring over structured outcome classes;
+- a fast static scorer over structured outcome classes;
+- an optional simulation bridge into the yearly `step_world(...)` loop;
 - crisis metric dashboards;
 - policy-game search over action combinations;
 - explainable console and CLI outputs.
+
+`GIM_13` therefore exposes two execution paths that share the same output types:
+
+- static path: `GameRunner` scores a single loaded `WorldState` snapshot and, when actions are present, applies a diagnostic crisis overlay;
+- sim path: `SimBridge` translates the scenario into a mixed legacy `policy_map`, runs `step_world(...)` for `N` yearly steps, and then scores the terminal state and trajectory-derived crisis dashboard.
 
 ## 2. System View
 
@@ -43,20 +49,24 @@ flowchart TD
     F --> G["scenario_library.py"]
     G --> H["ScenarioDefinition / GameDefinition"]
 
-    E --> I["game_runner.py"]
+    E --> I{"Execution path"}
     H --> I
-    I --> J["Outcome scoring"]
-    I --> K["crisis_metrics.py"]
-    K --> L["CrisisDashboard"]
-    I --> M["Policy overlay and payoff scoring"]
-    J --> N["ScenarioEvaluation / GameResult"]
-    L --> N
-    M --> N
-    N --> O["explanations.py / console logs / stdout"]
 
-    P["Raw country panel<br/>WB / WGI / ND-GAIN / FAOSTAT / WMD / overrides"] --> Q["External compile step"]
-    Q --> R["Compiled agent_states_gim13.csv"]
-    R --> C
+    I -->|static| J["game_runner.py<br/>snapshot scorer"]
+    J --> K["Outcome scoring + crisis overlay"]
+    K --> L["ScenarioEvaluation / GameResult"]
+
+    I -->|sim| M["sim_bridge.py"]
+    M --> N["legacy policy map<br/>forced player callables + autonomous non-players"]
+    N --> O["legacy simulation.step_world(...) × N"]
+    O --> P["Terminal / trajectory scoring"]
+    P --> L
+
+    L --> Q["explanations.py / console logs / stdout"]
+
+    R["Raw country panel<br/>WB / WGI / ND-GAIN / FAOSTAT / WMD / overrides"] --> S["External compile step"]
+    S --> T["Compiled agent_states_gim13.csv"]
+    T --> C
 ```
 
 ### 2.2 Main Modules
@@ -68,10 +78,12 @@ flowchart TD
 | `GIM_13/console_app.py` | Interactive launcher with basic inference logs. |
 | `GIM_13/scenario_compiler.py` | Converts a question or JSON case into typed scenario objects. |
 | `GIM_13/scenario_library.py` | Scenario templates, keyword routing, template biases, and shocks. |
-| `GIM_13/game_runner.py` | Outcome scoring, tail-risk expansion, crisis overlay, payoffs, and strategy ranking. |
+| `GIM_13/game_runner.py` | Static snapshot scorer, tail-risk expansion, crisis overlay, payoffs, and fallback strategy ranking. |
+| `GIM_13/sim_bridge.py` | Bridges `ScenarioDefinition` / `GameDefinition` into legacy `step_world(...)` runs and trajectory scoring. |
 | `GIM_13/crisis_metrics.py` | Global and agent crisis metrics, archetype routing, and dashboard construction. |
 | `GIM_13/explanations.py` | Human-readable formatting for CLI output. |
 | `legacy/GIM_11_1/gim_11_1/simulation.py` | Actual yearly world step. |
+| `legacy/GIM_11_1/gim_11_1/policy.py` | Autonomous country-policy selection (`llm`, `simple`, `growth`) used by the sim path. |
 | `legacy/GIM_11_1/gim_11_1/world_factory.py` | CSV validation and construction of `WorldState`. |
 | `GIM_12/agent_states_gim13.csv` | Experimental compiled 57-actor state artifact consumed by `runtime.py` in opt-in mode. |
 
@@ -97,46 +109,63 @@ flowchart TD
     B -->|metrics| E["CrisisMetricsEngine.compute_dashboard()"]
     B -->|console| F["interactive menu"]
 
-    C --> G["evaluate_scenario()"]
-    D --> H["run_game()"]
+    C --> G{"--horizon > 0<br/>and not --no-sim?"}
+    D --> H{"--horizon > 0<br/>and not --no-sim?"}
+
+    G -->|no| I["GameRunner.evaluate_scenario()"]
+    G -->|yes| J["SimBridge.evaluate_scenario()"]
+    H -->|no| K["GameRunner.run_game()"]
+    H -->|yes| L["SimBridge.run_game()"]
+
     F --> C
     F --> D
 
-    G --> I["ScenarioEvaluation"]
-    H --> J["GameResult"]
-    E --> K["CrisisDashboard"]
+    I --> M["ScenarioEvaluation"]
+    J --> M
+    K --> N["GameResult"]
+    L --> N
+    E --> O["CrisisDashboard"]
 
-    I --> L["formatted answer + logs"]
-    J --> L
-    K --> L
+    M --> P["formatted answer + logs"]
+    N --> P
+    O --> P
 ```
 
 ### 3.3 Question Mode
 
-`question` mode is a single-scenario evaluator:
+`question` mode is a single-scenario evaluator with two runtime branches.
 
 1. Load `WorldState`.
 2. Resolve actors from explicit arguments or infer them from the prompt.
 3. Infer `base_year` from the question if present, otherwise default to `2026`.
 4. Detect a template.
 5. Build `ScenarioDefinition`.
-6. Score outcomes in `GameRunner.evaluate_scenario(...)`.
-7. Build a crisis dashboard for the same actors.
-8. Return formatted dominant outcomes, drivers, crisis metrics, and consistency notes.
+6. Choose execution path:
+   - static path: if `--horizon=0` or `--no-sim`, score the loaded snapshot via `GameRunner.evaluate_scenario(...)`;
+   - sim path: if `--horizon>0` and `--no-sim` is not set, instantiate `SimBridge`, build a legacy `policy_map`, run `step_world(...)` for `N` yearly steps, and score the terminal state.
+7. Return the same `ScenarioEvaluation` type in both cases.
+
+Current CLI semantics:
+
+- `--horizon 0` is the default and keeps the historical static scorer behavior;
+- `--sim` is an explicit opt-in alias for the sim path and requires `--horizon > 0`;
+- on the current sim path, non-player countries default to legacy `llm` mode unless the bridge is called differently from code.
 
 ### 3.4 Policy Gaming Mode
 
-`game` mode adds player objectives and action spaces:
+`game` mode adds player objectives and action spaces and, like `question`, has both static and sim branches.
 
 1. Load `WorldState`.
 2. Read the case JSON.
 3. Convert the embedded scenario to `ScenarioDefinition`.
 4. Build `PlayerDefinition` objects with objectives and allowed actions.
-5. Compute a baseline evaluation without actions.
-6. Enumerate all action combinations.
-7. Evaluate each combination.
-8. Score each player.
-9. Rank profiles by total payoff.
+5. Enumerate or truncate player action spaces exactly as in the static scorer.
+6. For each combination, choose execution path:
+   - static path: `GameRunner.run_game(...)` evaluates the selected action labels as score shifts on the loaded snapshot;
+   - sim path: `SimBridge.run_game(...)` converts selected player actions into deterministic legacy `Action`-producing callables, leaves non-player countries on autonomous legacy policies, runs `step_world(...)` for each profile, and scores the terminal state plus trajectory-derived crisis deltas.
+7. Score each player with the existing payoff logic.
+8. Rank profiles by total payoff.
+9. Return a `GameResult`. On the sim path this also carries `trajectory` for the best profile and `baseline_trajectory` for the no-action run.
 
 If the full action space exceeds `256` combinations, each player action list is truncated to its first `3` actions and `truncated_action_space=True`.
 
@@ -150,10 +179,37 @@ If the full action space exceeds `256` combinations, each player action list is 
 
 - choose `Policy Gaming` or `Q&A`;
 - provide a bundled case or free-form question;
+- choose `Simulation years [0 = static]`;
 - optionally point to a state CSV;
 - see basic logs while inference is running.
 
-The console does not introduce a new model path. It is a user interface around the same runtime and scoring logic.
+The console does not introduce a third model path. It exposes the same static-vs-sim branch through prompts instead of flags.
+
+### 3.7 Sim Path Design Notes
+
+`SimBridge` is the translation layer between `GIM_13` action vocabulary and the legacy yearly core.
+
+Important implementation notes:
+
+- forced player actions are implemented as deterministic callables, not plain dictionaries;
+- this is deliberate, because legacy `step_world(...)` consumes a `policy_map` of `agent_id -> callable returning Action`;
+- there is no native dict-based policy interface in `gim_11_1`, so callables are the minimal interoperable design;
+- non-player countries remain on the legacy autonomous policy modes (`llm`, `simple`, `growth`);
+- the static path remains available as the explicit fallback via `--no-sim` or `--horizon 0`.
+
+Current cost model for the sim path is approximately:
+
+```text
+policy-game runtime ~ combinations × horizon_years × non-player policy invocations
+```
+
+This matters most in `game` mode because each strategy profile currently runs its own trajectory. In the current CLI implementation, sim-path `question` and `game` runs both default non-player countries to legacy `llm` mode, which is behaviorally faithful but can become expensive.
+
+Dependency note:
+
+- `GIM_13` currently vendors its own copy of `legacy/GIM_11_1`;
+- `legacy/GIM_11_1/gim_11_1/simulation.py` in this repo carries a sync marker and should be refreshed from the canonical source before release;
+- package unification is still outside the current scope.
 
 ## 4. Scenario Layer and Policy Gaming
 
@@ -165,7 +221,7 @@ The console does not introduce a new model path. It is a user interface around t
 | `GameDefinition` | Scenario plus players, objectives, constraints, and tags. |
 | `PlayerDefinition` | Actor, allowed actions, and weighted objectives. |
 | `ScenarioEvaluation` | Output of one scenario evaluation. |
-| `GameResult` | Baseline evaluation, ranked combinations, and best profile. |
+| `GameResult` | Baseline evaluation, ranked combinations, best profile, and optional sim trajectories. |
 
 ### 4.2 Outcome Classes
 
@@ -181,6 +237,12 @@ Current outcome classes are:
 - `negotiated_deescalation`
 
 Tail-risk classes are all of the above except `status_quo` and `negotiated_deescalation`.
+
+The same action labels are used in both execution paths:
+
+- on the static path they shift risk scores and crisis overlays through tables in `game_runner.py`;
+- on the sim path each label must map explicitly to a legacy `Action` template in `sim_bridge.ACTION_TO_POLICY`;
+- missing mappings raise `ValueError` during bridge construction rather than silently degrading behavior.
 
 ### 4.3 Actor Resolution and Question Compilation
 
@@ -219,7 +281,12 @@ Each template contains:
 
 ### 4.5 Per-Actor Scenario Profile
 
-For each selected actor, `GameRunner._profile_agent(...)` builds a compact feature vector:
+For each selected actor, `GameRunner._profile_agent(...)` builds a compact feature vector from the world snapshot currently being scored:
+
+- on the static path, this is the originally loaded world;
+- on the sim path, this is the terminal `WorldState` after `N` yearly steps.
+
+The profile itself is:
 
 ```text
 debt_ratio = public_debt / max(gdp, 0.25)
@@ -1245,11 +1312,15 @@ The current pipeline was specifically redesigned to avoid artifacts such as nega
 
 Current limitations that matter operationally:
 
-- `GIM_13` policy gaming does not rerun the yearly world simulation after each action profile; it scores a static world snapshot plus a crisis overlay.
-- The crisis overlay is diagnostic and comparative, not a second physics engine.
+- The static path (`--horizon 0` or `--no-sim`) still scores a world snapshot plus a crisis overlay. Only the sim path reruns the yearly world engine.
+- The sim path currently scores the terminal state plus trajectory-derived crisis diagnostics; it does not yet optimize on full path-integrated utility over every intermediate state.
+- On the sim path, player countries are forced through deterministic action templates, while non-player countries stay on legacy autonomous policies. That is operationally useful, but it is not the same as giving every player country an unconstrained LLM deliberation step.
+- The crisis overlay remains diagnostic and comparative, not a second physics engine. On the sim path, crisis deltas are recomputed from actual terminal and historical states instead of synthetic metric shifts.
 - Outcome coefficients, template biases, action shifts, and crisis weights are hand-tuned model parameters, not structural econometric estimates.
+- Sim-path `game` runs can become expensive because each action profile triggers its own `step_world(...)` trajectory and non-player countries currently default to legacy `llm` mode in the CLI path.
 - If the action space grows beyond `256` combinations, the runner truncates each player action set to its first `3` actions for tractability.
 - Cultural and values fields such as Hofstede and WVS axes are structural and often imputed rather than true annual measurements.
+- `GIM_13` still vendors `legacy/GIM_11_1` instead of importing a shared package, so source-sync discipline remains necessary.
 - The experimental `57`-actor state remains opt-in and should be treated as an actively curated baseline rather than a frozen production state.
 
 ## 9. Boundaries and Interpretation
@@ -1258,7 +1329,8 @@ The current model should be read with these boundaries in mind:
 
 - `GIM_13` is a scenario and policy-gaming layer, not a second world physics engine.
 - crisis metrics are proxy-based diagnostics, though implemented deterministically from current state variables.
-- the policy overlay changes the crisis dashboard, not the underlying yearly world state.
+- on the static path, the policy overlay changes the crisis dashboard, not the underlying yearly world state.
+- on the sim path, selected player actions and autonomous non-player policies do flow into `step_world(...)` and therefore do change the underlying `WorldState`.
 - structural cultural and values indicators are slow-moving and often imputed rather than truly annual.
 - the compiled agent state is a curated model input, not a raw public-data dump.
 

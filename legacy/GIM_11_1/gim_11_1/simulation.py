@@ -1,3 +1,7 @@
+# VENDORED COPY from GIM/legacy/GIM_11_1 — last synced 2026-03-12
+# Do not edit directly. Sync from canonical source before each GIM13 release.
+# Tracked divergences: none as of sync date.
+
 import copy
 import json
 import os

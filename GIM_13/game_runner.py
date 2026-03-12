@@ -904,8 +904,17 @@ class GameRunner:
         score -= 0.25 * (1.0 - evaluation.physical_consistency_score)
         return score
 
-    def run_game(self, game: GameDefinition, max_combinations: int = 256) -> GameResult:
-        baseline_evaluation = self.evaluate_scenario(game.scenario, selected_actions={})
+    def run_game(
+        self,
+        game: GameDefinition,
+        max_combinations: int = 256,
+        trajectory: list[WorldState] | None = None,
+    ) -> GameResult:
+        scoring_runner = self
+        if trajectory:
+            scoring_runner = GameRunner(trajectory[-1])
+
+        baseline_evaluation = scoring_runner.evaluate_scenario(game.scenario, selected_actions={})
         action_spaces = [player.allowed_actions or ["signal_restraint"] for player in game.players]
         combination_count = 1
         for action_space in action_spaces:
@@ -922,7 +931,7 @@ class GameRunner:
                 player.player_id: action_name
                 for player, action_name in zip(game.players, choice_tuple)
             }
-            evaluation = self.evaluate_scenario(game.scenario, selected_actions=selected_actions)
+            evaluation = scoring_runner.evaluate_scenario(game.scenario, selected_actions=selected_actions)
             player_payoffs = {
                 player.player_id: self._score_player(
                     player,
@@ -947,4 +956,5 @@ class GameRunner:
             best_combination=combinations[0],
             combinations=combinations,
             truncated_action_space=truncated_action_space,
+            trajectory=trajectory,
         )

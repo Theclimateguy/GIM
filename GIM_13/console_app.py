@@ -11,6 +11,7 @@ from .explanations import format_game_result, format_question_evaluation
 from .game_runner import GameRunner
 from .runtime import default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
+from .sim_bridge import SimBridge
 from .types import GameDefinition
 
 
@@ -46,6 +47,16 @@ def _prompt_optional_int(text: str, *, default: int | None = None) -> int | None
             return int(raw)
         except ValueError:
             print("Enter an integer or leave blank.")
+
+
+def _prompt_non_negative_int(text: str, *, default: int = 0) -> int:
+    while True:
+        value = _prompt_optional_int(text, default=default)
+        if value is None:
+            return default
+        if value >= 0:
+            return value
+        print("Enter a non-negative integer.")
 
 
 def _prompt_actor_list(text: str) -> list[str]:
@@ -123,6 +134,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
     actors = _prompt_actor_list("Actors (comma separated, blank = auto): ")
     base_year = _prompt_optional_int("Base year [auto]: ")
     horizon_months = _prompt_optional_int("Horizon months [24]: ", default=24) or 24
+    horizon_years = _prompt_non_negative_int("Simulation years [0 = static]: ", default=0)
     template = _prompt("Template [auto]: ").strip() or None
 
     started = perf_counter()
@@ -142,8 +154,18 @@ def _run_question_flow(session: ConsoleSession) -> None:
     if scenario.unresolved_actor_names:
         _log(f"Unresolved actors: {', '.join(scenario.unresolved_actor_names)}")
 
-    _log("Evaluating scenario")
-    evaluation = runner.evaluate_scenario(scenario)
+    if horizon_years > 0:
+        _log(f"Running simulation bridge for {horizon_years} yearly steps")
+        bridge = SimBridge()
+        evaluation, _trajectory = bridge.evaluate_scenario(
+            session.world,
+            scenario,
+            n_years=horizon_years,
+            default_mode="llm",
+        )
+    else:
+        _log("Evaluating scenario with static scorer")
+        evaluation = runner.evaluate_scenario(scenario)
     elapsed = perf_counter() - started
     _log(f"Evaluation complete in {elapsed:.2f}s")
 
@@ -198,9 +220,23 @@ def _run_game_flow(session: ConsoleSession) -> None:
     )
     if combination_count > 256:
         _log("Action space exceeds 256 combinations; runner will truncate each player space to the first 3 actions.")
+    horizon_years = _prompt_non_negative_int(
+        "Horizon years [0 = static, 1-10 = simulate]: ",
+        default=0,
+    )
 
-    _log("Running policy game")
-    result = runner.run_game(game)
+    if horizon_years > 0:
+        _log(f"Running policy game through simulation bridge for {horizon_years} yearly steps")
+        bridge = SimBridge()
+        result = bridge.run_game(
+            session.world,
+            game,
+            n_years=horizon_years,
+            default_mode="llm",
+        )
+    else:
+        _log("Running policy game with static scorer")
+        result = runner.run_game(game)
     elapsed = perf_counter() - started
     _log(f"Game evaluation complete in {elapsed:.2f}s")
 

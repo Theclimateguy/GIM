@@ -53,14 +53,18 @@ flowchart TD
 
     C -->|question| D["runtime.load_world()<br/>загрузка калиброванного WorldState из базового мира"]
     D --> E["scenario_compiler.compile_question()<br/>вопрос -> ScenarioDefinition, то есть формальный сценарий"]
-    E --> F["game_runner.evaluate_scenario()<br/>оценка исходов и crisis layer для одного сценария"]
+    E --> F{"--horizon > 0<br/>и не --no-sim?"}
+    F -->|нет| F1["game_runner.evaluate_scenario()<br/>static scorer по snapshot"]
+    F -->|да| F2["sim_bridge.evaluate_scenario()<br/>policy map -> step_world × N -> terminal scoring"]
 
     C -->|game| G["runtime.load_world()<br/>загрузка того же калиброванного мира"]
     G --> H["scenario_compiler.load_game_definition()<br/>case json -> GameDefinition, то есть формальная постановка игры"]
-    H --> I["game_runner.run_game()<br/>baseline, стратегии, payoffs и ранжирование профилей"]
+    H --> I{"--horizon > 0<br/>и не --no-sim?"}
+    I -->|нет| I1["game_runner.run_game()<br/>baseline, стратегии и payoffs на snapshot"]
+    I -->|да| I2["sim_bridge.run_game()<br/>forced players + step_world × N по каждому профилю"]
 
     C -->|metrics| J["runtime.load_world()<br/>загрузка мира без policy game"]
-    J --> K["CrisisMetricsEngine.evaluate_agents()<br/>чистый расчет crisis dashboard по выбранным агентам"]
+    J --> K["CrisisMetricsEngine.compute_dashboard()<br/>чистый расчет crisis dashboard по выбранным агентам"]
     K --> L["explanations.format_crisis_dashboard()<br/>человеко-читаемый вывод метрик"]
     L --> M["stdout / CLI output<br/>печать результата в консоль"]
 
@@ -69,11 +73,13 @@ flowchart TD
     Y -->|Q&A| D
     Y -->|Policy Gaming| G
 
-    F --> N["ScenarioEvaluation<br/>единый объект результата: вероятности исходов, драйверы, crisis metrics"]
+    F1 --> N["ScenarioEvaluation<br/>единый объект результата: вероятности исходов, драйверы, crisis metrics"]
+    F2 --> N
     N --> O["explanations.format_question_evaluation()<br/>ответ по question-режиму"]
     O --> P["stdout / CLI output<br/>печать результата в консоль"]
 
-    I --> Q["baseline evaluation<br/>базовая оценка кейса без действий игроков"]
+    I1 --> Q["baseline evaluation<br/>базовая оценка кейса без действий игроков"]
+    I2 --> Q
     Q --> R["enumerate action combinations<br/>перебор допустимых комбинаций действий"]
     R --> S["evaluate each strategy profile<br/>оценка каждого профиля стратегий"]
     S --> T["rank by total payoff<br/>сортировка профилей по суммарной полезности"]
@@ -86,68 +92,63 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["ScenarioDefinition + optional actions<br/>сценарий и, при наличии, действия игроков"] --> B["resolve scenario actors<br/>разрешение имен стран и выделение акторов сценария"]
-    B --> C["build aggregated actor profile<br/>сбор сводного профиля напряжений, буферов и зависимостей"]
+    A["ScenarioDefinition + optional actions<br/>сценарий и, при наличии, действия игроков"] --> B{"Execution path"}
 
-    C --> D["raw outcome scores<br/>сырые score по классам исходов"]
-    D --> D1["status_quo<br/>сохранение общего статус-кво"]
-    D --> D2["internal_destabilization<br/>внутренняя дестабилизация"]
-    D --> D3["proxy / maritime / direct escalation<br/>эскалация через прокси, морской кризис или прямой удар"]
-    D --> D4["negotiated_deescalation<br/>договорная деэскалация"]
+    B -->|static| C["build aggregated actor profile<br/>по загруженному snapshot"]
+    C --> D["raw outcome scores + template shifts + action shifts"]
+    D --> E["tail-risk expansion + softmax"]
+    C --> F["baseline crisis dashboard"]
+    F --> G["ACTION_CRISIS_SHIFTS overlay"]
+    E --> H["ScenarioEvaluation"]
+    G --> H
 
-    C --> E["template-specific shifts<br/>смещения от выбранного сценарного шаблона"]
-    E --> F["action risk shifts<br/>смещения рисков от конкретных действий игроков"]
-    F --> G["tail-risk expansion<br/>усиление хвостовых редких и критических исходов"]
-    G --> H["softmax<br/>нормализация raw scores в вероятности"]
-    H --> I["risk_probabilities<br/>вероятности outcome classes"]
+    B -->|sim| I["SimBridge.build_policy_map()<br/>forced player callables + autonomous others"]
+    I --> J["step_world(...) × N"]
+    J --> K["terminal WorldState"]
+    K --> L["build aggregated actor profile<br/>по terminal state"]
+    L --> M["raw outcome scores + template shifts"]
+    M --> N["tail-risk expansion + softmax"]
+    K --> O["CrisisMetricsEngine(history=trajectory)"]
+    O --> P["crisis delta: terminal vs initial dashboard"]
+    N --> Q["ScenarioEvaluation"]
+    P --> Q
 
-    B --> J["CrisisMetricsEngine<br/>диагностический слой кризисных метрик"]
-    J --> K["baseline crisis dashboard<br/>базовый снимок кризисных метрик без policy overlay"]
-
-    K --> L{"Есть policy actions?"}
-    L -->|нет| M["baseline dashboard = final dashboard<br/>метрики остаются как в базовом сценарии"]
-    L -->|да| N["ACTION_CRISIS_SHIFTS<br/>таблица того, как действия двигают crisis metrics"]
-    N --> O["policy-adjusted crisis overlay<br/>поверх baseline накладывается policy-driven сдвиг"]
-    O --> P["crisis delta vs baseline<br/>разница метрик относительно базового состояния"]
-    P --> Q["crisis signal summary<br/>сводка сдвигов по macro, stability, geopolitics и global context"]
-
-    I --> R["ScenarioEvaluation<br/>единый результат сценарной оценки"]
-    M --> R
+    H --> R{"Контекст использования"}
     Q --> R
-
-    R --> S{"Контекст использования"}
-    S -->|question| T["top outcomes + drivers + crisis layer<br/>ответ на сценарный вопрос"]
-    S -->|game| U["player payoffs + profile ranking<br/>оценка стратегий игроков"]
+    R -->|question| S["top outcomes + drivers + crisis layer"]
+    R -->|game| T["player payoffs + profile ranking"]
 ```
 
 ## 3. Детализация `game` режима
 
 ```mermaid
 flowchart TD
-    A["GameDefinition<br/>формальная постановка policy game"] --> B["evaluate_scenario() без действий<br/>получаем базовый baseline"]
-    B --> C["baseline risk probabilities<br/>базовые вероятности исходов без стратегических ходов"]
-    B --> D["baseline crisis dashboard<br/>базовый снимок crisis metrics без overlay"]
+    A["GameDefinition<br/>формальная постановка policy game"] --> B{"Execution path"}
+    B -->|static| C["baseline = evaluate_scenario() без действий"]
+    B -->|sim| D["baseline = SimBridge.run_trajectory() без forced actions"]
 
     A --> E["сгенерировать все допустимые комбинации действий игроков<br/>strategy profiles"]
     E --> F["strategy profile 1<br/>первая комбинация действий"]
     E --> G["strategy profile 2<br/>вторая комбинация действий"]
     E --> H["strategy profile N<br/>последняя допустимая комбинация"]
 
-    F --> I["evaluate_scenario(actions)<br/>пересчет outcomes и crisis layer для профиля 1"]
-    G --> J["evaluate_scenario(actions)<br/>пересчет outcomes и crisis layer для профиля 2"]
-    H --> K["evaluate_scenario(actions)<br/>пересчет outcomes и crisis layer для профиля N"]
+    F --> I{"Execution path"}
+    G --> J{"Execution path"}
+    H --> K{"Execution path"}
 
-    I --> L["outcome distribution<br/>распределение вероятностей исходов"]
-    J --> M["outcome distribution<br/>распределение вероятностей исходов"]
-    K --> N["outcome distribution<br/>распределение вероятностей исходов"]
+    I -->|static| L["GameRunner.evaluate_scenario(actions)"]
+    I -->|sim| M["SimBridge.run_trajectory(actions)<br/>terminal scoring"]
+    J -->|static| N["GameRunner.evaluate_scenario(actions)"]
+    J -->|sim| O["SimBridge.run_trajectory(actions)<br/>terminal scoring"]
+    K -->|static| P["GameRunner.evaluate_scenario(actions)"]
+    K -->|sim| Q["SimBridge.run_trajectory(actions)<br/>terminal scoring"]
 
-    I --> O["crisis delta vs baseline<br/>как профиль 1 сдвинул кризисные метрики"]
-    J --> P["crisis delta vs baseline<br/>как профиль 2 сдвинул кризисные метрики"]
-    K --> Q["crisis delta vs baseline<br/>как профиль N сдвинул кризисные метрики"]
-
-    O --> R["score_player()<br/>objective utility + action bonus + crisis utility - penalties"]
-    P --> S["score_player()<br/>objective utility + action bonus + crisis utility - penalties"]
-    Q --> T["score_player()<br/>objective utility + action bonus + crisis utility - penalties"]
+    L --> R["score_player()"]
+    M --> R
+    N --> S["score_player()"]
+    O --> S
+    P --> T["score_player()"]
+    Q --> T
 
     R --> U["profile payoff<br/>суммарная полезность профиля 1"]
     S --> V["profile payoff<br/>суммарная полезность профиля 2"]
@@ -167,8 +168,9 @@ flowchart TD
 - `GameResult`: итог policy game после сравнения всех допустимых профилей стратегий.
 - `Baseline evaluation`: оценка кейса без действий игроков; нужна как точка сравнения.
 - `Baseline crisis dashboard`: базовый crisis snapshot без наложения policy-driven shifts.
+- `SimBridge`: переводчик между action labels `GIM_13` и legacy `Action` callables для `step_world(...)`.
 - `ACTION_CRISIS_SHIFTS`: словарь правил, который задает, какие именно crisis metrics меняет каждое действие.
-- `Policy-adjusted crisis overlay`: слой сдвигов поверх baseline dashboard, не изменяющий сам legacy-world напрямую.
+- `Policy-adjusted crisis overlay`: слой сдвигов поверх baseline dashboard в static path; на sim path ему соответствует реальный state transition.
 - `Crisis delta vs baseline`: разница между baseline dashboard и dashboard после выбранной стратегии.
 - `Crisis signal summary`: агрегированная сводка по крупным осям риска, например `macro_stress_shift` и `geopolitical_stress_shift`.
 - `Payoff`: суммарная полезность стратегии с учетом outcome probabilities, целей игрока и кризисных штрафов.
@@ -183,7 +185,9 @@ flowchart TD
 - `runtime.py` только поднимает калиброванный мир и не меняет физику legacy-core.
 - `GIM_12` по-прежнему делает годовой state transition, а `GIM_13` строит orchestration, diagnostics и policy gaming поверх него.
 - `scenario_compiler.py` превращает вопрос или JSON-case в формальную постановку.
-- `game_runner.py` считает одновременно два слоя: outcome layer и crisis layer.
+- `game_runner.py` это теперь static scorer и fallback path.
+- `sim_bridge.py` это реальный orchestration layer в `step_world(...)`.
 - `crisis_metrics.py` дает explainable слой глобальных и агентских метрик.
-- `ACTION_CRISIS_SHIFTS` меняет не сам `WorldState`, а диагностический overlay поверх baseline dashboard.
+- `ACTION_CRISIS_SHIFTS` меняет не сам `WorldState`, а диагностический overlay только в static path.
+- В sim path выбранные действия меняют `WorldState` через legacy `Action` objects и годовой цикл.
 - В `game` режиме стратегия выигрывает только если дает приемлемый outcome и не слишком ухудшает crisis metrics.

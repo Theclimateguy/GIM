@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 import json
 from pathlib import Path
+from statistics import mean, pstdev
 from typing import Any
 
 from .game_runner import GameRunner
 from .runtime import REPO_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question
+from .sim_bridge import SimBridge
 
 
 CALIBRATION_CASES_DIR = Path(__file__).resolve().parent / "calibration_cases"
@@ -58,6 +60,14 @@ class CalibrationCaseSpec:
 
 
 @dataclass
+class CalibrationRunConfig:
+    n_runs: int = 1
+    horizon_years: int = 0
+    use_sim: bool = False
+    default_mode: str = "llm"
+
+
+@dataclass
 class CalibrationCaseSnapshot:
     dominant_outcomes: list[str]
     dominant_probabilities: dict[str, float]
@@ -78,6 +88,7 @@ class CalibrationCaseResult:
     component_scores: dict[str, float]
     quality_checks: dict[str, bool]
     snapshot: CalibrationCaseSnapshot
+    std_score: float = 0.0
     notes: list[str] = field(default_factory=list)
 
 
@@ -262,7 +273,97 @@ def _score_case(case: CalibrationCaseSpec, evaluation: Any) -> CalibrationCaseRe
         reference_period=case.reference_period,
         passed=passed,
         total_score=total_score,
+        std_score=0.0,
         component_scores=component_scores,
+        quality_checks=quality_checks,
+        snapshot=snapshot,
+        notes=notes,
+    )
+
+
+def _run_single_case(
+    case: CalibrationCaseSpec,
+    *,
+    world: Any,
+    runner: GameRunner,
+    bridge: SimBridge | None,
+    config: CalibrationRunConfig,
+) -> Any:
+    scenario = compile_question(
+        question=case.scenario.question,
+        world=world,
+        base_year=case.scenario.base_year,
+        actors=case.scenario.actors,
+        horizon_months=case.scenario.horizon_months,
+        template_id=case.scenario.template,
+    )
+    if config.use_sim and config.horizon_years > 0:
+        assert bridge is not None
+        evaluation, _trajectory = bridge.evaluate_scenario(
+            world,
+            scenario,
+            n_years=config.horizon_years,
+            default_mode=config.default_mode,
+        )
+        return evaluation
+    return runner.evaluate_scenario(scenario)
+
+
+def _aggregate_case_results(
+    case: CalibrationCaseSpec,
+    run_results: list[CalibrationCaseResult],
+) -> CalibrationCaseResult:
+    if not run_results:
+        raise ValueError(f"No calibration results available for case {case.id}")
+
+    total_scores = [result.total_score for result in run_results]
+    mean_score = mean(total_scores)
+    std_score = pstdev(total_scores) if len(total_scores) > 1 else 0.0
+    representative = min(run_results, key=lambda result: abs(result.total_score - mean_score))
+
+    mean_component_scores = {
+        key: mean(result.component_scores[key] for result in run_results)
+        for key in representative.component_scores
+    }
+    mean_calibration_score = mean(result.snapshot.calibration_score for result in run_results)
+    mean_physical_consistency_score = mean(
+        result.snapshot.physical_consistency_score for result in run_results
+    )
+    mean_criticality_score = mean(result.snapshot.criticality_score for result in run_results)
+    quality_checks = {
+        "calibration_score": mean_calibration_score >= case.expectations.min_calibration_score,
+        "physical_consistency_score": (
+            mean_physical_consistency_score >= case.expectations.min_physical_consistency_score
+        ),
+        "criticality_score": mean_criticality_score >= case.expectations.min_criticality_score,
+    }
+
+    notes = list(representative.notes)
+    if std_score > 0.0:
+        notes.append(f"Run dispersion std={std_score:.3f} over {len(run_results)} runs.")
+
+    snapshot = CalibrationCaseSnapshot(
+        dominant_outcomes=list(representative.snapshot.dominant_outcomes),
+        dominant_probabilities=dict(representative.snapshot.dominant_probabilities),
+        top_drivers=list(representative.snapshot.top_drivers),
+        actor_top_metrics=dict(representative.snapshot.actor_top_metrics),
+        calibration_score=mean_calibration_score,
+        physical_consistency_score=mean_physical_consistency_score,
+        criticality_score=mean_criticality_score,
+    )
+    passed = (
+        mean_score >= case.expectations.minimum_case_score
+        and std_score < 0.15
+        and all(quality_checks.values())
+    )
+    return CalibrationCaseResult(
+        case_id=case.id,
+        title=case.title,
+        reference_period=case.reference_period,
+        passed=passed,
+        total_score=mean_score,
+        std_score=std_score,
+        component_scores=mean_component_scores,
         quality_checks=quality_checks,
         snapshot=snapshot,
         notes=notes,
@@ -274,25 +375,31 @@ def run_operational_calibration(
     *,
     state_csv: str | None = None,
     max_countries: int | None = None,
+    config: CalibrationRunConfig | None = None,
 ) -> CalibrationSuiteResult:
+    active_config = config or CalibrationRunConfig()
+    if active_config.n_runs < 1:
+        raise ValueError("CalibrationRunConfig.n_runs must be at least 1")
     resolved_state_csv = state_csv or _default_calibration_state_csv()
     world = load_world(state_csv=resolved_state_csv, max_agents=max_countries)
     runner = GameRunner(world)
+    bridge = SimBridge() if active_config.use_sim and active_config.horizon_years > 0 else None
 
     case_specs = [_load_case(path) for path in discover_calibration_cases(suite_id)]
     results: list[CalibrationCaseResult] = []
 
     for case in case_specs:
-        scenario = compile_question(
-            question=case.scenario.question,
-            world=world,
-            base_year=case.scenario.base_year,
-            actors=case.scenario.actors,
-            horizon_months=case.scenario.horizon_months,
-            template_id=case.scenario.template,
-        )
-        evaluation = runner.evaluate_scenario(scenario)
-        results.append(_score_case(case, evaluation))
+        run_results = []
+        for _run_index in range(active_config.n_runs):
+            evaluation = _run_single_case(
+                case,
+                world=world,
+                runner=runner,
+                bridge=bridge,
+                config=active_config,
+            )
+            run_results.append(_score_case(case, evaluation))
+        results.append(_aggregate_case_results(case, run_results))
 
     case_count = len(results)
     pass_count = sum(1 for result in results if result.passed)
@@ -337,8 +444,8 @@ def format_calibration_suite_result(result: CalibrationSuiteResult) -> str:
         status = "PASS" if case_result.passed else "FAIL"
         top_outcome = case_result.snapshot.dominant_outcomes[0] if case_result.snapshot.dominant_outcomes else "n/a"
         lines.append(
-            f"- {case_result.case_id} [{status}] score={case_result.total_score:.2f} top={top_outcome} "
-            f"period={case_result.reference_period}"
+            f"- {case_result.case_id} [{status}] score={case_result.total_score:.2f} "
+            f"std={case_result.std_score:.2f} top={top_outcome} period={case_result.reference_period}"
         )
         lines.append(
             "  "
