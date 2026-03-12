@@ -1,0 +1,30 @@
+{
+  "id": "argentina_debt_2023",
+  "title": "Argentina debt and inflation stress",
+  "description": "Debt stress, inflation, and policy-space weakness in Argentina during 2023.",
+  "reference_period": "2023-01 to 2023-12",
+  "tags": ["historical", "domestic", "argentina", "debt"],
+  "scenario": {
+    "question": "Could debt stress, inflation and weak policy space destabilize Argentina in 2023?",
+    "template": "regime_stress",
+    "base_year": 2023,
+    "horizon_months": 12,
+    "actors": ["Argentina"]
+  },
+  "expectations": {
+    "top_outcomes": ["internal_destabilization", "controlled_suppression"],
+    "dominant_outcomes": ["internal_destabilization", "controlled_suppression"],
+    "drivers": ["tail_pressure", "debt_stress", "social_stress"],
+    "actor_metrics": {
+      "Argentina": ["fx_stress", "strategic_dependency", "regime_fragility", "protest_pressure"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.55,
+    "minimum_case_score": 0.7
+  },
+  "historical_signals": [
+    "Debt and inflation stress should dominate over external military escalation channels.",
+    "FX stress is expected to be visible in the top actor metrics."
+  ]
+}

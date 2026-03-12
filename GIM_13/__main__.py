@@ -3,6 +3,11 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 
+from .calibration import (
+    DEFAULT_CALIBRATION_SUITE,
+    format_calibration_suite_result,
+    run_operational_calibration,
+)
 from .console_app import run_console
 from .crisis_metrics import CrisisMetricsEngine
 from .explanations import format_crisis_dashboard, format_game_result, format_question_evaluation
@@ -51,6 +56,15 @@ def build_parser() -> ArgumentParser:
     console_parser.add_argument("--state-csv")
     console_parser.add_argument("--max-countries", type=int)
 
+    calibrate_parser = subparsers.add_parser(
+        "calibrate",
+        help="Run the bundled historical calibration suite against the current model",
+    )
+    calibrate_parser.add_argument("--suite", default=DEFAULT_CALIBRATION_SUITE)
+    calibrate_parser.add_argument("--state-csv")
+    calibrate_parser.add_argument("--max-countries", type=int)
+    calibrate_parser.add_argument("--json", dest="json_output", action="store_true")
+
     return parser
 
 
@@ -59,6 +73,17 @@ def main() -> None:
     args = parser.parse_args()
     if args.command == "console":
         run_console(state_csv=args.state_csv, max_countries=args.max_countries)
+        return
+    if args.command == "calibrate":
+        result = run_operational_calibration(
+            suite_id=args.suite,
+            state_csv=args.state_csv,
+            max_countries=args.max_countries,
+        )
+        if args.json_output:
+            print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
+            return
+        print(format_calibration_suite_result(result))
         return
 
     world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)

@@ -1,0 +1,31 @@
+{
+  "id": "europe_sanctions_2022",
+  "title": "Europe sanctions and energy shock",
+  "description": "Post-February 2022 sanctions pressure and energy disruption across Russia and major European economies.",
+  "reference_period": "2022-02 to 2022-12",
+  "tags": ["historical", "sanctions", "energy", "europe"],
+  "scenario": {
+    "question": "Could sanctions pressure and energy disruption destabilize Germany, France, the United Kingdom and Russia in 2022?",
+    "template": "sanctions_spiral",
+    "base_year": 2022,
+    "horizon_months": 12,
+    "actors": ["Germany", "France", "United Kingdom", "Russia"]
+  },
+  "expectations": {
+    "top_outcomes": ["internal_destabilization", "limited_proxy_escalation"],
+    "dominant_outcomes": ["internal_destabilization", "limited_proxy_escalation", "direct_strike_exchange"],
+    "drivers": ["tail_pressure", "military_posture", "debt_stress"],
+    "actor_metrics": {
+      "Germany": ["strategic_dependency", "fx_stress", "oil_vulnerability"],
+      "Russia": ["regime_fragility", "protest_pressure", "conflict_escalation_pressure"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.55,
+    "minimum_case_score": 0.72
+  },
+  "historical_signals": [
+    "Sanctions access and energy exposure were central channels.",
+    "The historical period combined macro stress with heightened geopolitical escalation risk."
+  ]
+}

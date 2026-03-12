@@ -34,6 +34,12 @@ Launch the interactive console menu:
 python3 -m GIM_13 console
 ```
 
+Run the bundled operational calibration pass:
+
+```bash
+python3 -m GIM_13 calibrate
+```
+
 Run the crisis metrics dashboard:
 
 ```bash
