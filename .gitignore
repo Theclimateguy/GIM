@@ -13,6 +13,12 @@ archive/
 API.txt
 legacy/_workspace_extras/
 
+# Keep the shared misc bundle in git, but leave local scratch areas untracked
+!misc/
+!misc/**
+misc/local/
+misc/previews/
+
 # Local-only docs and drafts not part of the current implementation doc set
 GIM_12/GIM_12_documentation.md
 GIM_12/credit_rating_methodology.md

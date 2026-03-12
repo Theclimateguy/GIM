@@ -6,6 +6,13 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MISC_ROOT = REPO_ROOT / "misc"
+DEFAULT_GEOJSON = MISC_ROOT / "assets" / "credit_map" / "world_countries.geojson"
+DEFAULT_LEAFLET_CSS = MISC_ROOT / "assets" / "credit_map" / "leaflet" / "leaflet.css"
+DEFAULT_LEAFLET_JS = MISC_ROOT / "assets" / "credit_map" / "leaflet" / "leaflet.js"
+
+
 def find_latest_world_log(logs_dir: Path) -> Path:
     if not logs_dir.exists():
         raise FileNotFoundError(f"Logs directory not found: {logs_dir}")
@@ -202,9 +209,9 @@ def main() -> None:
     parser.add_argument("--agents-csv", default="agent_states.csv")
     parser.add_argument("--log", default=None, help="Explicit world log CSV path")
     parser.add_argument("--output", default=None, help="Output HTML path")
-    parser.add_argument("--geojson", default="data/world_countries.geojson", help="Local world GeoJSON path")
-    parser.add_argument("--leaflet-css", default="vendor/leaflet/leaflet.css", help="Local Leaflet CSS path")
-    parser.add_argument("--leaflet-js", default="vendor/leaflet/leaflet.js", help="Local Leaflet JS path")
+    parser.add_argument("--geojson", default=str(DEFAULT_GEOJSON), help="Local world GeoJSON path")
+    parser.add_argument("--leaflet-css", default=str(DEFAULT_LEAFLET_CSS), help="Local Leaflet CSS path")
+    parser.add_argument("--leaflet-js", default=str(DEFAULT_LEAFLET_JS), help="Local Leaflet JS path")
     parser.add_argument("--tile-url", default=None, help="Optional tile URL (leave empty for full offline)")
     args = parser.parse_args()
 

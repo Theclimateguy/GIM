@@ -16,7 +16,7 @@ from .crisis_metrics import CrisisMetricsEngine
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
 from .explanations import format_crisis_dashboard, format_game_result, format_question_evaluation
 from .game_runner import GameRunner
-from .runtime import load_world
+from .runtime import MISC_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
 from .sim_bridge import SimBridge
 
@@ -25,7 +25,7 @@ def _resolve_case_path(raw_value: str) -> Path:
     candidate = Path(raw_value)
     if candidate.exists():
         return candidate
-    packaged = Path(__file__).resolve().parent / "cases" / raw_value
+    packaged = MISC_ROOT / "cases" / raw_value
     if packaged.exists():
         return packaged
     return candidate

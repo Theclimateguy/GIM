@@ -4,6 +4,7 @@ import sys
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+MISC_ROOT = REPO_ROOT / "misc"
 LEGACY_CORE = REPO_ROOT / "legacy" / "GIM_11_1"
 
 legacy_core_str = str(LEGACY_CORE)
@@ -18,7 +19,7 @@ def default_state_csv() -> str:
     explicit = os.environ.get("GIM13_STATE_CSV")
     if explicit:
         return explicit
-    preferred = REPO_ROOT / "GIM_12" / "agent_states_gim13.csv"
+    preferred = MISC_ROOT / "data" / "agent_states_gim13.csv"
     if os.environ.get("GIM13_USE_EXPERIMENTAL_STATE") == "1" and preferred.exists() and preferred.stat().st_size > 0:
         return str(preferred)
     return str(REPO_ROOT / "GIM_12" / "agent_states.csv")
@@ -32,6 +33,7 @@ __all__ = [
     "AgentState",
     "RelationState",
     "WorldState",
+    "MISC_ROOT",
     "REPO_ROOT",
     "default_state_csv",
     "load_world",

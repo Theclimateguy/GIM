@@ -56,14 +56,16 @@ def _bool_env(name: str, default: bool) -> bool:
 
 def _generate_credit_map(csv_path: str, state_csv: str) -> str | None:
     root_dir = Path(__file__).resolve().parent.parent
+    repo_root = root_dir.parent.parent
+    misc_dir = repo_root / "misc" / "assets" / "credit_map"
     map_script = root_dir / "credit_map_leaflet.py"
     if not map_script.exists():
         print(f"Credit map script not found, skipping: {map_script}")
         return None
 
-    geojson_path = root_dir / "data" / "world_countries.geojson"
-    leaflet_css = root_dir / "vendor" / "leaflet" / "leaflet.css"
-    leaflet_js = root_dir / "vendor" / "leaflet" / "leaflet.js"
+    geojson_path = misc_dir / "world_countries.geojson"
+    leaflet_css = misc_dir / "leaflet" / "leaflet.css"
+    leaflet_js = misc_dir / "leaflet" / "leaflet.js"
 
     cmd = [
         sys.executable,

@@ -11,13 +11,13 @@ from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
 from .explanations import format_game_result, format_question_evaluation
 from .game_runner import GameRunner
-from .runtime import default_state_csv, load_world
+from .runtime import MISC_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
 from .sim_bridge import SimBridge
 from .types import GameDefinition
 
 
-CASES_DIR = Path(__file__).resolve().parent / "cases"
+CASES_DIR = MISC_ROOT / "cases"
 
 
 def _log(message: str) -> None:

@@ -9,7 +9,7 @@ from GIM_13.sim_bridge import SimBridge
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CASE_PATH = REPO_ROOT / "GIM_13" / "cases" / "maritime_pressure_game.json"
+CASE_PATH = REPO_ROOT / "misc" / "cases" / "maritime_pressure_game.json"
 
 
 class SimBridgeTests(unittest.TestCase):

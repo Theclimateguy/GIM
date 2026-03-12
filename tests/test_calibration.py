@@ -12,7 +12,7 @@ from GIM_13.calibration import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-EXPERIMENTAL_STATE = REPO_ROOT / "GIM_12" / "agent_states_gim13.csv"
+EXPERIMENTAL_STATE = REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"
 
 
 class GIM13CalibrationTests(unittest.TestCase):
