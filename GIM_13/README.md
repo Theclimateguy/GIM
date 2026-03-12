@@ -36,6 +36,35 @@ python3 -m GIM_13 question \
   --horizon 3
 ```
 
+Write a self-contained decision dashboard after a question or game run.
+The HTML already includes the full `Decision Brief` section rendered from the same run:
+
+```bash
+python3 -m GIM_13 question \
+  "Will Red Sea tensions escalate?" \
+  --horizon 3 \
+  --dashboard \
+  --dashboard-output dashboard.html
+```
+
+If `--json` is passed together with `--dashboard`, the CLI still prints JSON to stdout and also writes `evaluation.json` next to the HTML file.
+
+If you also want a standalone Markdown export of that same brief:
+
+```bash
+python3 -m GIM_13 question \
+  "Will Red Sea tensions escalate?" \
+  --horizon 3 \
+  --brief \
+  --brief-output decision_brief.md
+```
+
+Generate the brief later from a saved JSON artifact:
+
+```bash
+python3 -m GIM_13 brief --from-json evaluation.json --output decision_brief.md
+```
+
 Run the bundled policy-game case:
 
 ```bash
@@ -59,6 +88,10 @@ Launch the interactive console menu:
 ```bash
 python3 -m GIM_13 console
 ```
+
+In `console` mode, both Q&A and Policy Gaming now offer an optional "Write dashboard" step after evaluation.
+That dashboard already contains the embedded brief.
+They also offer an optional standalone Markdown brief export.
 
 Run the bundled operational calibration pass:
 

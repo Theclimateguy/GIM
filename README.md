@@ -32,6 +32,8 @@ What `GIM_12` includes:
 
 - `GIM_12/` : current production model and docs.
 - `GIM_13/` : policy-gaming layer with scenario compilation, explainability, static scoring and optional sim-bridge execution.
+- `GIM_13/` can also export a self-contained HTML decision dashboard from `question` and `game` via `--dashboard`; that HTML now embeds the full `Decision Brief`.
+- `GIM_13/` can export the same analytical brief as standalone Markdown either directly via `--brief` or post-facto from `evaluation.json` via `python -m GIM_13 brief --from-json ...`.
 - `GIM_13/` also contains the new crisis metrics layer and the quarterly-readiness assessment for `GIM_12`.
 - `legacy/GIM_11_1/` : legacy compatibility core and archived docs.
 - `legacy/V10_3_prod/` : previous `V10_3_prod` codebase and docs.

@@ -7,6 +7,8 @@ from math import prod
 from pathlib import Path
 from time import perf_counter
 
+from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
+from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
 from .explanations import format_game_result, format_question_evaluation
 from .game_runner import GameRunner
 from .runtime import default_state_csv, load_world
@@ -59,6 +61,19 @@ def _prompt_non_negative_int(text: str, *, default: int = 0) -> int:
         print("Enter a non-negative integer.")
 
 
+def _prompt_yes_no(text: str, *, default: bool = False) -> bool:
+    suffix = "[Y/n]" if default else "[y/N]"
+    while True:
+        raw = _prompt(f"{text} {suffix}: ").strip().lower()
+        if not raw:
+            return default
+        if raw in {"y", "yes"}:
+            return True
+        if raw in {"n", "no"}:
+            return False
+        print("Enter yes or no.")
+
+
 def _prompt_actor_list(text: str) -> list[str]:
     raw = _prompt(text).strip()
     if not raw:
@@ -93,6 +108,77 @@ def count_action_combinations(game: GameDefinition) -> int:
     if not game.players:
         return 0
     return prod(max(1, len(player.allowed_actions or ["signal_restraint"])) for player in game.players)
+
+
+def _maybe_write_dashboard(
+    *,
+    evaluation,
+    game_result,
+    trajectory,
+    scenario_def,
+    horizon_years: int,
+    use_sim: bool,
+    run_timestamp: str,
+    run_id: str,
+) -> None:
+    if not _prompt_yes_no("Write dashboard (includes Decision Brief)", default=False):
+        return
+    output_path = _prompt("Dashboard output [dashboard.html]: ").strip() or "dashboard.html"
+    written = write_dashboard_artifacts(
+        renderer=DashboardRenderer(),
+        evaluation=evaluation,
+        game_result=game_result,
+        trajectory=trajectory,
+        scenario_def=scenario_def,
+        config=DashboardConfig(
+            output_path=output_path,
+            show_trajectory=use_sim and len(trajectory or []) > 1,
+            show_game_results=game_result is not None,
+            execution_label="sim" if use_sim else "static",
+            policy_mode_label="llm" if use_sim else "snapshot",
+            run_timestamp=run_timestamp,
+            run_id=run_id,
+            n_runs=1,
+            horizon_years=horizon_years,
+        ),
+        save_json=False,
+    )
+    _log(f"Dashboard written to {written['html']}")
+
+
+def _maybe_write_brief(
+    *,
+    evaluation,
+    game_result,
+    trajectory,
+    scenario_def,
+    horizon_years: int,
+    use_sim: bool,
+    run_timestamp: str,
+    run_id: str,
+) -> None:
+    if not _prompt_yes_no("Write standalone analytical brief", default=False):
+        return
+    output_path = _prompt("Brief output [decision_brief.md]: ").strip() or "decision_brief.md"
+    written = write_brief_artifact(
+        renderer=AnalyticsBriefRenderer(),
+        evaluation=evaluation,
+        game_result=game_result,
+        trajectory=trajectory,
+        scenario_def=scenario_def,
+        config=BriefConfig(
+            output_path=output_path,
+            include_trajectory=use_sim and len(trajectory or []) > 1,
+            include_game_results=game_result is not None,
+            execution_label="sim" if use_sim else "static",
+            policy_mode_label="llm" if use_sim else "snapshot",
+            run_timestamp=run_timestamp,
+            run_id=run_id,
+            n_runs=1,
+            horizon_years=horizon_years,
+        ),
+    )
+    _log(f"Analytical brief written to {written}")
 
 
 @dataclass
@@ -157,7 +243,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
     if horizon_years > 0:
         _log(f"Running simulation bridge for {horizon_years} yearly steps")
         bridge = SimBridge()
-        evaluation, _trajectory = bridge.evaluate_scenario(
+        evaluation, trajectory = bridge.evaluate_scenario(
             session.world,
             scenario,
             n_years=horizon_years,
@@ -166,11 +252,35 @@ def _run_question_flow(session: ConsoleSession) -> None:
     else:
         _log("Evaluating scenario with static scorer")
         evaluation = runner.evaluate_scenario(scenario)
+        trajectory = [session.world]
     elapsed = perf_counter() - started
     _log(f"Evaluation complete in {elapsed:.2f}s")
+    run_stamp = datetime.now()
+    run_timestamp = run_stamp.strftime("%Y-%m-%d %H:%M")
+    run_id = f"question-{run_stamp.strftime('%Y%m%d-%H%M%S')}"
 
     print()
     print(format_question_evaluation(evaluation))
+    _maybe_write_dashboard(
+        evaluation=evaluation,
+        game_result=None,
+        trajectory=trajectory,
+        scenario_def=scenario,
+        horizon_years=horizon_years,
+        use_sim=horizon_years > 0,
+        run_timestamp=run_timestamp,
+        run_id=run_id,
+    )
+    _maybe_write_brief(
+        evaluation=evaluation,
+        game_result=None,
+        trajectory=trajectory,
+        scenario_def=scenario,
+        horizon_years=horizon_years,
+        use_sim=horizon_years > 0,
+        run_timestamp=run_timestamp,
+        run_id=run_id,
+    )
 
 
 def _select_case() -> Path | None:
@@ -234,14 +344,39 @@ def _run_game_flow(session: ConsoleSession) -> None:
             n_years=horizon_years,
             default_mode="llm",
         )
+        trajectory = result.trajectory
     else:
         _log("Running policy game with static scorer")
         result = runner.run_game(game)
+        trajectory = [session.world]
     elapsed = perf_counter() - started
     _log(f"Game evaluation complete in {elapsed:.2f}s")
+    run_stamp = datetime.now()
+    run_timestamp = run_stamp.strftime("%Y-%m-%d %H:%M")
+    run_id = f"game-{run_stamp.strftime('%Y%m%d-%H%M%S')}"
 
     print()
     print(format_game_result(result))
+    _maybe_write_dashboard(
+        evaluation=result.best_combination.evaluation,
+        game_result=result,
+        trajectory=trajectory,
+        scenario_def=game.scenario,
+        horizon_years=horizon_years,
+        use_sim=horizon_years > 0,
+        run_timestamp=run_timestamp,
+        run_id=run_id,
+    )
+    _maybe_write_brief(
+        evaluation=result.best_combination.evaluation,
+        game_result=result,
+        trajectory=trajectory,
+        scenario_def=game.scenario,
+        horizon_years=horizon_years,
+        use_sim=horizon_years > 0,
+        run_timestamp=run_timestamp,
+        run_id=run_id,
+    )
 
 
 def run_console(state_csv: str | None = None, max_countries: int | None = None) -> None:

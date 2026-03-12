@@ -30,6 +30,7 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertIn("Saudi Arabia", scenario.actor_names)
         self.assertIn("Iran", scenario.unresolved_actor_names)
         self.assertTrue(scenario.critical_focus)
+        self.assertEqual(scenario.base_year, 2023)
 
     def test_scenario_probabilities_sum_to_one(self) -> None:
         scenario = compile_question(

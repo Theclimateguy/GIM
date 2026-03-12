@@ -27,6 +27,12 @@ COMMON_ALIASES = {
 }
 
 
+# Current country state inputs are compiled for 2023.
+# Until the data pipeline becomes time-selectable, all scenario compilation
+# should anchor on that snapshot year rather than inferred prompt dates.
+FIXED_DATA_BASE_YEAR = 2023
+
+
 def _normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
 
@@ -127,7 +133,8 @@ def compile_question(
         actor_ids, actor_names, fallback_unresolved = resolve_actor_names(world, fallback)
         unresolved.extend(fallback_unresolved)
 
-    resolved_base_year = base_year or _extract_year(question) or 2026
+    del base_year
+    resolved_base_year = FIXED_DATA_BASE_YEAR
     selected_template = template_id or detect_template(question)
 
     return build_scenario_from_template(
