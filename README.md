@@ -20,7 +20,7 @@ The repository is intentionally split into two layers:
 Current practical rule:
 
 - keep executable model code in `GIM_13/`, `GIM_12/`, `legacy/`, and `tests/`;
-- keep the production state in `GIM_12/agent_states.csv`;
+- keep the primary runtime state in `misc/data/agent_states_gim13.csv`;
 - keep this `README.md` as the single canonical documentation file;
 - keep secondary docs, demo cases, calibration fixtures, map assets, generated local cases, and the primary compiled state under `misc/`.
 
@@ -122,7 +122,49 @@ flowchart TD
 
 Operationally, `GIM_13` now treats the `57`-actor compiled state as the default world. The older `GIM_12/agent_states.csv` remains in the repository only as a fallback input.
 
-### 3.2 CLI Modes
+### 3.2 Command Reference
+
+The CLI currently exposes six user-facing subcommands:
+
+| Command | Purpose | Main inputs | Main outputs |
+| --- | --- | --- | --- |
+| `question` | Compile and evaluate one question-driven scenario | positional question or `--question`, optional `--actors`, `--template`, `--horizon` | formatted answer, optional dashboard, optional brief |
+| `game` | Run a policy game from an existing case or free text | `--case <json>` or `--description "<text>"`, optional `--equilibrium`, `--horizon` | strategy ranking, optional equilibrium diagnostics, optional dashboard, optional brief |
+| `metrics` | Render a crisis dashboard without scenario scoring | optional `--agents` | formatted crisis dashboard or JSON |
+| `calibrate` | Run the historical operational suite | optional `--suite`, `--runs`, `--horizon`, `--sim` | calibration suite summary or JSON |
+| `brief` | Rebuild a Markdown brief from a saved JSON artifact | `--from-json <file>` | `decision_brief.md` |
+| `console` | Interactive wrapper over `question` and `game` | prompts | same outputs as the underlying mode |
+
+Common terminal invocations:
+
+```bash
+python -m GIM_13 question "Will Red Sea tensions escalate?"
+python -m GIM_13 question --question "Will war start in Iran?" --actors Iran --horizon 3 --dashboard
+python -m GIM_13 game --case misc/cases/maritime_pressure_game.json --dashboard --equilibrium
+python -m GIM_13 game --description "China imposes export controls and the United States responds with tariffs." --save-case misc/local/cases/trade_case.json --dashboard
+python -m GIM_13 metrics --agents "United States" "China" "Iran"
+python -m GIM_13 calibrate --runs 5 --horizon 3 --sim
+python -m GIM_13 brief --from-json evaluation.json --output decision_brief.md
+python -m GIM_13 console
+```
+
+Important runtime flags:
+
+- `question` and `game` both support `--dashboard`, `--dashboard-output`, `--brief`, `--brief-output`, `--json`, `--horizon`, `--sim`, and `--no-sim`.
+- `game` additionally supports `--equilibrium`, `--episodes`, `--threshold`, `--trust-alpha`, `--max-combinations`, `--description`, and `--save-case`.
+- `calibrate` supports `--runs`, `--horizon`, `--sim`, `--no-sim`, and `--json`.
+
+Console menu flow:
+
+- `Policy Gaming`
+  - load bundled case;
+  - enter custom case path;
+  - or build a new case from free text via `case_builder.py`;
+  - then choose static or sim path and optional equilibrium analysis.
+- `Q&A`
+  - enter question text;
+  - optionally specify actors and template;
+  - then choose static or sim path.
 
 ```mermaid
 flowchart TD
@@ -130,28 +172,34 @@ flowchart TD
     B -->|question| C["compile_question()"]
     B -->|game| D["load_game_definition()<br/>or build_case_from_text()"]
     B -->|metrics| E["CrisisMetricsEngine.compute_dashboard()"]
-    B -->|console| F["interactive menu"]
+    B -->|calibrate| F["run_operational_calibration()"]
+    B -->|brief| G["AnalyticsBriefRenderer.write_from_json()"]
+    B -->|console| H["interactive menu"]
 
-    C --> G{"--horizon > 0<br/>and not --no-sim?"}
-    D --> H{"--horizon > 0<br/>and not --no-sim?"}
+    C --> I{"--horizon > 0<br/>and not --no-sim?"}
+    D --> J{"--horizon > 0<br/>and not --no-sim?"}
 
-    G -->|no| I["GameRunner.evaluate_scenario()"]
-    G -->|yes| J["SimBridge.evaluate_scenario()"]
-    H -->|no| K["GameRunner.run_game()"]
-    H -->|yes| L["SimBridge.run_game()"]
+    I -->|no| K["GameRunner.evaluate_scenario()"]
+    I -->|yes| L["SimBridge.evaluate_scenario()"]
+    J -->|no| M["GameRunner.run_game()"]
+    J -->|yes| N["SimBridge.run_game()"]
 
-    F --> C
-    F --> D
+    H --> C
+    H --> D
 
-    I --> M["ScenarioEvaluation"]
-    J --> M
-    K --> N["GameResult"]
-    L --> N
-    E --> O["CrisisDashboard"]
-
-    M --> P["formatted answer + logs"]
+    K --> O["ScenarioEvaluation"]
+    L --> O
+    M --> P["GameResult"]
     N --> P
-    O --> P
+    E --> Q["CrisisDashboard"]
+    F --> R["CalibrationSuiteResult"]
+    G --> S["Markdown brief"]
+
+    O --> T["formatted answer + reporting artifacts"]
+    P --> T
+    Q --> T
+    R --> T
+    S --> T
 ```
 
 ### 3.3 Question Mode
