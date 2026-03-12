@@ -9,75 +9,20 @@ from time import perf_counter
 from typing import Callable
 
 from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
+from .case_builder import build_case_from_text, write_case_payload
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
 from .explanations import format_equilibrium_result, format_game_result, format_question_evaluation
 from .game_theory.equilibrium_runner import run_equilibrium_search
-from .game_runner import GameRunner, OBJECTIVE_TO_RISK_UTILITY
+from .game_runner import GameRunner
 from .runtime import MISC_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
 from .sim_bridge import SimBridge, SimProgress
-from .types import AVAILABLE_ACTIONS, GameDefinition, PlayerDefinition
+from .types import GameDefinition
 
 
 CASES_DIR = MISC_ROOT / "cases"
+GENERATED_CASES_DIR = MISC_ROOT / "local" / "cases"
 BUILD_NEW_GAME = "__build_new_game__"
-OBJECTIVE_OPTIONS = tuple(OBJECTIVE_TO_RISK_UTILITY)
-OBJECTIVE_LABELS = {
-    "regime_retention": "Regime retention",
-    "reduce_war_risk": "Reduce war risk",
-    "regional_influence": "Regional influence",
-    "sanctions_resilience": "Sanctions resilience",
-    "resource_access": "Resource access",
-    "bargaining_power": "Bargaining power",
-}
-ACTION_LABELS = {
-    "signal_deterrence": "Signal deterrence",
-    "signal_restraint": "Signal restraint",
-    "arm_proxy": "Arm proxy",
-    "restrain_proxy": "Restrain proxy",
-    "covert_disruption": "Covert disruption",
-    "maritime_interdiction": "Maritime interdiction",
-    "partial_mobilization": "Partial mobilization",
-    "targeted_strike": "Targeted strike",
-    "backchannel_offer": "Backchannel offer",
-    "accept_mediation": "Accept mediation",
-    "information_campaign": "Information campaign",
-    "domestic_crackdown": "Domestic crackdown",
-    "impose_tariffs": "Impose tariffs",
-    "export_controls": "Export controls",
-    "lift_sanctions": "Lift sanctions",
-    "currency_intervention": "Currency intervention",
-    "debt_restructuring": "Debt restructuring",
-    "capital_controls": "Capital controls",
-    "cyber_probe": "Cyber probe",
-    "cyber_disruption_attack": "Cyber disruption attack",
-    "cyber_espionage": "Cyber espionage",
-    "cyber_defense_posture": "Cyber defense posture",
-}
-ACTION_DESCRIPTIONS = {
-    "signal_deterrence": "Visible military signaling and limited coercive posture.",
-    "signal_restraint": "Deliberate de-escalatory signaling.",
-    "arm_proxy": "Indirect escalation through proxy support.",
-    "restrain_proxy": "Pull back proxy escalation channels.",
-    "covert_disruption": "Gray-zone disruption without overt force.",
-    "maritime_interdiction": "Pressure shipping routes and chokepoints.",
-    "partial_mobilization": "Raise force posture without open war.",
-    "targeted_strike": "Direct kinetic attack on a counterpart.",
-    "backchannel_offer": "Quiet de-escalation and exploratory bargaining.",
-    "accept_mediation": "Formal acceptance of third-party mediation.",
-    "information_campaign": "Narrative competition and influence operations.",
-    "domestic_crackdown": "Internal repression to retain control.",
-    "impose_tariffs": "Sectoral tariff barriers and retaliatory trade friction.",
-    "export_controls": "Restrict technology and strategic exports.",
-    "lift_sanctions": "Partial sanctions relief and normalization.",
-    "currency_intervention": "FX defense or managed devaluation by the central bank.",
-    "debt_restructuring": "Sovereign debt restructuring or reprofiling.",
-    "capital_controls": "Restrict capital movement to stabilize financing.",
-    "cyber_probe": "Reconnaissance-grade cyber penetration.",
-    "cyber_disruption_attack": "Infrastructure-focused cyber attack.",
-    "cyber_espionage": "Industrial or strategic cyber espionage.",
-    "cyber_defense_posture": "Defensive hardening and cyber resilience.",
-}
 
 
 def _log(message: str) -> None:
@@ -157,65 +102,6 @@ def _prompt_actor_list(text: str) -> list[str]:
     if not raw:
         return []
     return [item.strip() for item in raw.split(",") if item.strip()]
-
-
-def _prompt_numbered_multiselect(
-    title: str,
-    options: list[str],
-    *,
-    label_map: dict[str, str] | None = None,
-    description_map: dict[str, str] | None = None,
-    default_indexes: list[int] | None = None,
-) -> list[str]:
-    print()
-    print(title)
-    for index, option in enumerate(options, start=1):
-        label = label_map.get(option, option) if label_map else option
-        description = description_map.get(option, "") if description_map else ""
-        suffix = f" - {description}" if description else ""
-        print(f"[{index}] {label}{suffix}")
-
-    default_text = ""
-    if default_indexes:
-        default_text = ",".join(str(index) for index in default_indexes)
-
-    while True:
-        raw = _prompt(
-            f"Choose numbers comma-separated [{default_text or 'none'}; a = all, b = back]: "
-        ).strip().lower()
-        if raw == "b":
-            return []
-        if not raw and default_indexes:
-            return [options[index - 1] for index in default_indexes]
-        if raw == "a":
-            return list(options)
-
-        picks: list[str] = []
-        valid = True
-        for token in [item.strip() for item in raw.split(",") if item.strip()]:
-            if not token.isdigit():
-                valid = False
-                break
-            index = int(token)
-            if index < 1 or index > len(options):
-                valid = False
-                break
-            option = options[index - 1]
-            if option not in picks:
-                picks.append(option)
-
-        if picks:
-            return picks
-        if valid and not raw:
-            return []
-        print("Choose one or more numbers, `a`, or `b`.")
-
-
-def _equal_weight_objectives(objectives: list[str]) -> dict[str, float]:
-    if not objectives:
-        return {"reduce_war_risk": 1.0}
-    weight = 1.0 / len(objectives)
-    return {objective: weight for objective in objectives}
 
 
 def _resolve_case_path(raw_value: str) -> Path:
@@ -437,7 +323,7 @@ def _select_case() -> Path | str | None:
     print("Available cases:")
     for index, (path, title) in enumerate(cases, start=1):
         print(f"[{index}] {title} ({path.name})")
-    print("[n] Build a new game interactively")
+    print("[n] Build a new case from free text")
     print("[p] Enter custom path")
     print("[b] Back")
 
@@ -465,83 +351,26 @@ def _run_game_builder_flow(session: ConsoleSession) -> GameDefinition | None:
     del runner
 
     print()
-    print("Interactive policy game builder")
-    title = _prompt("Title [Interactive policy game]: ").strip() or "Interactive policy game"
-    question = _prompt_required("Scenario question: ")
-    actors = _prompt_actor_list("Actors (comma separated, blank = auto): ")
-    template = _prompt("Template [auto]: ").strip() or None
-    horizon_months = _prompt_optional_int("Horizon months [24]: ", default=24) or 24
-
-    _log("Compiling scenario for interactive game")
-    scenario = compile_question(
-        question=question,
-        world=session.world,
-        actors=actors or None,
-        horizon_months=horizon_months,
-        template_id=template,
+    print("LLM case builder")
+    description = _prompt_required("Describe scenario: ")
+    _log("Building case from free text")
+    build = build_case_from_text(description, session.world, prefer_llm=True)
+    game = build.game
+    _log(
+        f"Case built via {build.source_label}: {game.title} "
+        f"({len(game.players)} players, template={game.scenario.template_id})"
     )
-    if not scenario.actor_ids:
-        print("No actors were resolved. Builder aborted.")
-        return None
+    if build.note:
+        _log(build.note)
+    _log(f"Players: {', '.join(player.display_name for player in game.players)}")
 
-    resolved_names = ", ".join(scenario.actor_names) if scenario.actor_names else "none"
-    _log(f"Resolved actors: {resolved_names}")
-    if scenario.unresolved_actor_names:
-        _log(f"Unresolved actors: {', '.join(scenario.unresolved_actor_names)}")
+    if _prompt_yes_no("Save generated case JSON", default=True):
+        default_path = GENERATED_CASES_DIR / f"{game.id}.json"
+        output_path = _prompt(f"Case output [{default_path}]: ").strip() or str(default_path)
+        saved_path = write_case_payload(build.payload, output_path)
+        _log(f"Case JSON written to {saved_path}")
 
-    actor_options = [
-        f"{agent_id}|{session.world.agents[agent_id].name}"
-        for agent_id in scenario.actor_ids
-        if agent_id in session.world.agents
-    ]
-    selected_players = _prompt_numbered_multiselect(
-        "Select players",
-        actor_options,
-        label_map={option: option.split("|", 1)[1] for option in actor_options},
-        default_indexes=list(range(1, len(actor_options) + 1)),
-    )
-    if not selected_players:
-        print("No players selected. Builder aborted.")
-        return None
-
-    players: list[PlayerDefinition] = []
-    for actor_option in selected_players:
-        player_id, display_name = actor_option.split("|", 1)
-        objective_keys = _prompt_numbered_multiselect(
-            f"Objectives for {display_name}",
-            list(OBJECTIVE_OPTIONS),
-            label_map=OBJECTIVE_LABELS,
-            default_indexes=[2, 6],
-        )
-        allowed_actions = _prompt_numbered_multiselect(
-            f"Allowed actions for {display_name}",
-            list(AVAILABLE_ACTIONS),
-            label_map=ACTION_LABELS,
-            description_map=ACTION_DESCRIPTIONS,
-            default_indexes=[1, 2, 9, 10],
-        )
-        if not allowed_actions:
-            allowed_actions = ["signal_restraint"]
-        players.append(
-            PlayerDefinition(
-                player_id=player_id,
-                display_name=display_name,
-                objectives=_equal_weight_objectives(objective_keys),
-                allowed_actions=allowed_actions,
-            )
-        )
-
-    return GameDefinition(
-        id=f"interactive-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
-        title=title,
-        scenario=scenario,
-        players=players,
-        assumptions=[
-            "Interactive console-built case.",
-            "Objective weights are normalized equally across selected objectives.",
-        ],
-        tags=["interactive", "policy-gaming"],
-    )
+    return game
 
 
 def _run_game_flow(session: ConsoleSession) -> None:

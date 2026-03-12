@@ -12,7 +12,7 @@ from GIM_13.calibration import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-EXPERIMENTAL_STATE = REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"
+PRIMARY_STATE = REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"
 
 
 class GIM13CalibrationTests(unittest.TestCase):
@@ -28,8 +28,8 @@ class GIM13CalibrationTests(unittest.TestCase):
         self.assertEqual(args.command, "calibrate")
         self.assertEqual(args.suite, DEFAULT_CALIBRATION_SUITE)
 
-    def test_operational_calibration_runs_on_experimental_state(self) -> None:
-        result = run_operational_calibration(state_csv=str(EXPERIMENTAL_STATE))
+    def test_operational_calibration_runs_on_primary_state(self) -> None:
+        result = run_operational_calibration(state_csv=str(PRIMARY_STATE))
         self.assertEqual(result.case_count, len(result.results))
         self.assertGreaterEqual(result.case_count, 6)
         self.assertGreaterEqual(result.pass_count, result.case_count - 1)
@@ -38,7 +38,7 @@ class GIM13CalibrationTests(unittest.TestCase):
 
     def test_operational_calibration_supports_simulation_config(self) -> None:
         result = run_operational_calibration(
-            state_csv=str(EXPERIMENTAL_STATE),
+            state_csv=str(PRIMARY_STATE),
             config=CalibrationRunConfig(
                 n_runs=1,
                 horizon_years=1,

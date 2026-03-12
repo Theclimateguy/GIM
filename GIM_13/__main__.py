@@ -7,6 +7,7 @@ import sys
 from typing import Callable
 
 from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
+from .case_builder import build_case_from_text, write_case_payload
 from .calibration import (
     CalibrationRunConfig,
     DEFAULT_CALIBRATION_SUITE,
@@ -69,7 +70,10 @@ def build_parser() -> ArgumentParser:
     question_mode_group.add_argument("--no-sim", action="store_true")
 
     game_parser = subparsers.add_parser("game", help="Run a policy-gaming case")
-    game_parser.add_argument("--case", required=True)
+    game_input_group = game_parser.add_mutually_exclusive_group(required=True)
+    game_input_group.add_argument("--case")
+    game_input_group.add_argument("--description", help="Build a case from free text before running the game")
+    game_parser.add_argument("--save-case", help="Optional path to save the generated case JSON")
     game_parser.add_argument("--state-csv")
     game_parser.add_argument("--max-countries", type=int)
     game_parser.add_argument("--json", dest="json_output", action="store_true")
@@ -337,8 +341,17 @@ def main() -> None:
         print(format_crisis_dashboard(dashboard))
         return
 
-    case_path = _resolve_case_path(args.case)
-    game = load_game_definition(case_path, world)
+    built_case_path = None
+    if getattr(args, "description", None):
+        build = build_case_from_text(args.description, world, prefer_llm=True)
+        game = build.game
+        if build.note:
+            print(build.note, file=sys.stderr)
+        if args.save_case:
+            built_case_path = write_case_payload(build.payload, args.save_case)
+    else:
+        case_path = _resolve_case_path(args.case)
+        game = load_game_definition(case_path, world)
     use_sim = _should_use_simulation(args)
     run_timestamp, run_id = _build_run_metadata(args.command)
     if use_sim:
@@ -415,6 +428,8 @@ def main() -> None:
             print(f"JSON artifact written to {written['json']}")
     if brief_path is not None:
         print(f"Analytical brief written to {brief_path}")
+    if built_case_path is not None:
+        print(f"Generated case written to {built_case_path}")
 
 
 if __name__ == "__main__":

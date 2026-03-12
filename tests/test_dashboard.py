@@ -3,6 +3,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from GIM_13.__main__ import build_parser
+from GIM_13.case_builder import build_case_from_text
 from GIM_13.dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
 from GIM_13.game_theory.equilibrium_runner import run_equilibrium_search
 from GIM_13.game_runner import GameRunner
@@ -165,6 +166,40 @@ class DashboardTests(unittest.TestCase):
             self.assertIn("Policy Game Results and Orchestrator Highlights", html)
             self.assertIn("Equilibrium diagnostics", html)
             self.assertIn("Mean external regret", html)
+
+    def test_dashboard_renders_for_builder_generated_game(self) -> None:
+        built = build_case_from_text(
+            (
+                "China introduces export controls on critical minerals and the United States responds "
+                "with tariffs while Japan stays exposed as a bystander."
+            ),
+            self.world,
+            prefer_llm=False,
+        )
+        result = self.runner.run_game(built.game)
+
+        with TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "builder_dashboard.html"
+            write_dashboard_artifacts(
+                renderer=DashboardRenderer(),
+                evaluation=result.best_combination.evaluation,
+                game_result=result,
+                equilibrium_result=None,
+                trajectory=[self.world],
+                scenario_def=built.game.scenario,
+                config=DashboardConfig(
+                    output_path=str(output_path),
+                    show_trajectory=False,
+                    show_game_results=True,
+                    prefer_llm_interpretation=False,
+                ),
+                save_json=False,
+            )
+
+            html = output_path.read_text(encoding="utf-8")
+            self.assertIn("Decision Brief", html)
+            self.assertIn("Strategy ranking", html)
+            self.assertIn("China", html)
 
     def test_dashboard_renders_interpretive_summary_as_multiple_html_paragraphs(self) -> None:
         world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))

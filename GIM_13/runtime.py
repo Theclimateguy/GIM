@@ -20,7 +20,7 @@ def default_state_csv() -> str:
     if explicit:
         return explicit
     preferred = MISC_ROOT / "data" / "agent_states_gim13.csv"
-    if os.environ.get("GIM13_USE_EXPERIMENTAL_STATE") == "1" and preferred.exists() and preferred.stat().st_size > 0:
+    if preferred.exists() and preferred.stat().st_size > 0:
         return str(preferred)
     return str(REPO_ROOT / "GIM_12" / "agent_states.csv")
 

@@ -119,9 +119,6 @@ def discover_calibration_cases(suite_id: str = DEFAULT_CALIBRATION_SUITE) -> lis
 
 
 def _default_calibration_state_csv() -> str:
-    preferred = MISC_ROOT / "data" / "agent_states_gim13.csv"
-    if preferred.exists() and preferred.stat().st_size > 0:
-        return str(preferred)
     return default_state_csv()
 
 

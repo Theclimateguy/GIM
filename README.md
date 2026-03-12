@@ -15,14 +15,14 @@ Unless explicitly marked as conceptual, formulas and rules below reflect the cur
 The repository is intentionally split into two layers:
 
 - core layer: scripts and runtime assets that are part of the active implementation;
-- `misc/`: secondary materials, bundled fixtures, experimental state artifacts, helper assets, and archival documentation.
+- `misc/`: secondary materials, bundled fixtures, primary compiled state artifacts, helper assets, and archival documentation.
 
 Current practical rule:
 
 - keep executable model code in `GIM_13/`, `GIM_12/`, `legacy/`, and `tests/`;
 - keep the production state in `GIM_12/agent_states.csv`;
 - keep this `README.md` as the single canonical documentation file;
-- keep secondary docs, demo cases, calibration fixtures, map assets, and opt-in experimental state under `misc/`.
+- keep secondary docs, demo cases, calibration fixtures, map assets, generated local cases, and the primary compiled state under `misc/`.
 
 That means the active runtime now reads secondary resources from:
 
@@ -98,6 +98,7 @@ flowchart TD
 | `GIM_13/runtime.py` | Loads the calibrated `WorldState` and chooses which CSV to use. |
 | `GIM_13/__main__.py` | CLI entrypoint with `question`, `game`, `metrics`, `console`. |
 | `GIM_13/console_app.py` | Interactive launcher with basic inference logs. |
+| `GIM_13/case_builder.py` | Free-text case compiler that turns scenario descriptions into validated `GameDefinition` objects. |
 | `GIM_13/scenario_compiler.py` | Converts a question or JSON case into typed scenario objects. |
 | `GIM_13/scenario_library.py` | Scenario templates, keyword routing, template biases, and shocks. |
 | `GIM_13/game_runner.py` | Static snapshot scorer, tail-risk expansion, crisis overlay, payoffs, and fallback strategy ranking. |
@@ -107,7 +108,7 @@ flowchart TD
 | `legacy/GIM_11_1/gim_11_1/simulation.py` | Actual yearly world step. |
 | `legacy/GIM_11_1/gim_11_1/policy.py` | Autonomous country-policy selection (`llm`, `simple`, `growth`) used by the sim path. |
 | `legacy/GIM_11_1/gim_11_1/world_factory.py` | CSV validation and construction of `WorldState`. |
-| `misc/data/agent_states_gim13.csv` | Experimental compiled 57-actor state artifact consumed by `runtime.py` in opt-in mode. |
+| `misc/data/agent_states_gim13.csv` | Primary compiled 57-actor state artifact consumed by `runtime.py` by default. |
 
 ## 3. Top-Level Execution
 
@@ -116,10 +117,10 @@ flowchart TD
 `runtime.default_state_csv()` uses the following precedence:
 
 1. `GIM13_STATE_CSV`, if explicitly set.
-2. `misc/data/agent_states_gim13.csv`, but only if `GIM13_USE_EXPERIMENTAL_STATE=1`.
-3. Otherwise `GIM_12/agent_states.csv`.
+2. `misc/data/agent_states_gim13.csv`, if present.
+3. Otherwise `GIM_12/agent_states.csv` as the legacy fallback.
 
-This means the new `57`-actor state is opt-in by design, so legacy tests and older cases are not silently broken.
+Operationally, `GIM_13` now treats the `57`-actor compiled state as the default world. The older `GIM_12/agent_states.csv` remains in the repository only as a fallback input.
 
 ### 3.2 CLI Modes
 
@@ -127,7 +128,7 @@ This means the new `57`-actor state is opt-in by design, so legacy tests and old
 flowchart TD
     A["python -m GIM_13 ..."] --> B{"Mode"}
     B -->|question| C["compile_question()"]
-    B -->|game| D["load_game_definition()"]
+    B -->|game| D["load_game_definition()<br/>or build_case_from_text()"]
     B -->|metrics| E["CrisisMetricsEngine.compute_dashboard()"]
     B -->|console| F["interactive menu"]
 
@@ -179,8 +180,8 @@ Current CLI semantics:
 `game` mode adds player objectives and action spaces and, like `question`, has both static and sim branches.
 
 1. Load `WorldState`.
-2. Read the case JSON.
-3. Convert the embedded scenario to `ScenarioDefinition`.
+2. Either read an existing case JSON or build one directly from free text.
+3. Convert the resulting case into `ScenarioDefinition`.
 4. Build `PlayerDefinition` objects with objectives and allowed actions.
 5. Enumerate or truncate player action spaces exactly as in the static scorer.
 6. For each combination, choose execution path:
@@ -191,6 +192,11 @@ Current CLI semantics:
 9. Return a `GameResult`. On the sim path this also carries `trajectory` for the best profile and `baseline_trajectory` for the no-action run.
 
 If the full action space exceeds `256` combinations, each player action list is truncated to its first `3` actions and `truncated_action_space=True`.
+
+The `game` entrypoint now has two equivalent inputs:
+
+- `--case <path>` loads an existing JSON case;
+- `--description "<free text>"` uses `case_builder.py` to compile a case from natural language, optionally saved with `--save-case`.
 
 ### 3.5 Metrics Mode
 
@@ -231,10 +237,12 @@ Relevant flags on `game`:
 `console` is a client path over the same primitives:
 
 - choose `Policy Gaming` or `Q&A`;
-- provide a bundled case or free-form question;
+- provide a bundled case, a custom case path, or build a new game case from free text;
 - choose `Simulation years [0 = static]`;
 - optionally point to a state CSV;
 - see basic logs and percentage-based simulation progress while inference is running.
+
+When building from free text in console mode, `case_builder.py` first tries DeepSeek and then falls back to deterministic compilation if no key is present or the request fails. Generated JSON cases can be saved locally under `misc/local/cases/`.
 
 The console does not introduce a third model path. It exposes the same static-vs-sim branch through prompts instead of flags.
 
@@ -341,7 +349,7 @@ The same action labels are used in both execution paths:
 `scenario_compiler.py` resolves actors in this order:
 
 1. explicit actor names from CLI or case file;
-2. alias dictionary such as `usa -> United States`, `turkiye -> Turkey`;
+2. alias dictionary such as `usa -> United States`, `turkey -> Turkiye`;
 3. exact normalized country names and IDs;
 4. substring matching against agent names;
 5. fallback to the top `3` countries by GDP if nothing resolves.
@@ -360,6 +368,8 @@ Current built-in templates are:
 - `sanctions_spiral`
 - `regional_pressure`
 - `maritime_deterrence`
+- `trade_war`
+- `cyber_disruption`
 - `regime_stress`
 
 Each template contains:
@@ -369,7 +379,26 @@ Each template contains:
 - a list of monitored indicators;
 - zero or more structured shocks.
 
-### 4.5 Per-Actor Scenario Profile
+### 4.5 Free-Text Case Builder
+
+`case_builder.py` adds a parallel path for policy gaming cases:
+
+1. take a free-text description;
+2. ask DeepSeek for a raw JSON case draft when `DEEPSEEK_API_KEY` is available;
+3. validate and clean the draft against the actual world roster, template registry, objective keys, and action vocabulary;
+4. quietly drop unsupported actions or objectives rather than letting malformed LLM JSON break runtime execution;
+5. rebuild the final `ScenarioDefinition` through the normal compiler and return a fully typed `GameDefinition`.
+
+This means free-text case building is not trusted blindly. The model may propose a structure, but the repository still enforces:
+
+- known templates only;
+- known objectives only;
+- known allowed actions only;
+- valid resolved player actors only;
+- horizon clamped to `12..60` months;
+- fallback player actions if the LLM returns an empty or invalid action list.
+
+### 4.6 Per-Actor Scenario Profile
 
 For each selected actor, `GameRunner._profile_agent(...)` builds a compact feature vector from the world snapshot currently being scored:
 
@@ -415,7 +444,7 @@ tail_pressure =
   + 0.20 * climate_stress
 ```
 
-### 4.6 Aggregate Scenario Profile
+### 4.7 Aggregate Scenario Profile
 
 Across all scenario actors, the runner takes the arithmetic mean of each feature and adds two system terms:
 
@@ -424,7 +453,7 @@ multi_block_pressure = max((number_of_alliance_blocks - 1) / 3, 0)
 actor_count_pressure = max((number_of_actors - 1) / 3, 0)
 ```
 
-### 4.7 Base Outcome Scores
+### 4.8 Base Outcome Scores
 
 Before shocks and actions, raw outcome scores are:
 
@@ -489,15 +518,21 @@ broad_regional_escalation += 0.20 * max(limited_proxy_escalation, 0)
 
 Template-specific `risk_biases` are added directly to the corresponding scores.
 
-### 4.8 Shocks, Actions, and Tail Expansion
+### 4.9 Shocks, Actions, and Tail Expansion
 
 Three additional transforms are applied to raw scores:
 
 1. Scenario shocks.
-   Current channels are `sanctions`, `proxy`, `maritime`, and `domestic`.
+   Current channels are `sanctions`, `proxy`, `maritime`, `domestic`, and `cyber`.
 2. Action risk shifts.
    Each player action moves one or more outcome classes through `ACTION_RISK_SHIFTS`.
 3. Tail expansion.
+
+The action vocabulary now spans three families:
+
+- signaling and military: `signal_deterrence`, `signal_restraint`, `arm_proxy`, `restrain_proxy`, `covert_disruption`, `maritime_interdiction`, `partial_mobilization`, `targeted_strike`, `backchannel_offer`, `accept_mediation`, `information_campaign`, `domestic_crackdown`;
+- economic: `impose_tariffs`, `export_controls`, `lift_sanctions`, `currency_intervention`, `debt_restructuring`, `capital_controls`;
+- cyber: `cyber_probe`, `cyber_disruption_attack`, `cyber_espionage`, `cyber_defense_posture`.
 
 Tail expansion is:
 
@@ -523,7 +558,7 @@ if deescalation_count > 0:
     broad_regional_escalation -= 0.04 * deescalation_count
 ```
 
-### 4.9 Probability Layer
+### 4.10 Probability Layer
 
 Raw scores become probabilities via softmax:
 
@@ -533,7 +568,7 @@ p_i = exp(score_i - max_score) / sum_j exp(score_j - max_score)
 
 The model therefore preserves a full outcome distribution rather than forcing one deterministic forecast.
 
-### 4.10 Consistency and Calibration
+### 4.11 Consistency and Calibration
 
 `evaluate_scenario(...)` computes two quality checks:
 
@@ -1379,8 +1414,8 @@ Operationally, the state build process should be read as a six-stage compile bou
 
 In this repository, the runtime consumes only the compiled artifacts:
 
-- `GIM_12/agent_states.csv`
 - `misc/data/agent_states_gim13.csv`
+- `GIM_12/agent_states.csv` only as fallback when the primary file is unavailable
 
 The raw source panel and upstream build tooling are conceptually outside the runtime path of this repo.
 
@@ -1411,7 +1446,7 @@ Current limitations that matter operationally:
 - If the action space grows beyond `256` combinations, the runner truncates each player action set to its first `3` actions for tractability.
 - Cultural and values fields such as Hofstede and WVS axes are structural and often imputed rather than true annual measurements.
 - `GIM_13` still vendors `legacy/GIM_11_1` instead of importing a shared package, so source-sync discipline remains necessary.
-- The experimental `57`-actor state remains opt-in and should be treated as an actively curated baseline rather than a frozen production state.
+- The `57`-actor state is now the default baseline; this improves coverage, but it also means runtime behavior is calibrated to a denser world than the old 20-country roster.
 
 ## 9. Boundaries and Interpretation
 
