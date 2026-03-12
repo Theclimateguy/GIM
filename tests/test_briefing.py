@@ -6,6 +6,7 @@ import unittest
 
 from GIM_13.__main__ import build_parser
 from GIM_13.briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
+from GIM_13.game_theory.equilibrium_runner import run_equilibrium_search
 from GIM_13.game_runner import GameRunner
 from GIM_13.interpretive_summary import build_interpretive_summary
 from GIM_13.runtime import load_world
@@ -56,6 +57,7 @@ class BriefingTests(unittest.TestCase):
                 renderer=AnalyticsBriefRenderer(),
                 evaluation=evaluation,
                 game_result=None,
+                equilibrium_result=None,
                 trajectory=trajectory,
                 scenario_def=scenario,
                 config=BriefConfig(
@@ -133,6 +135,7 @@ class BriefingTests(unittest.TestCase):
         text = AnalyticsBriefRenderer().render(
             evaluation=evaluation,
             game_result=None,
+            equilibrium_result=None,
             trajectory=[world],
             scenario_def=scenario,
             config=BriefConfig(prefer_llm_interpretation=False),
@@ -141,6 +144,32 @@ class BriefingTests(unittest.TestCase):
         self.assertIn("environment rather than a clean immediate-war forecast", text)
         self.assertIn("forecast, especially because calibration remains", text)
         self.assertIn("consistency remains 1.00.\n\nFor a decision-maker", text)
+
+    def test_game_brief_includes_equilibrium_section(self) -> None:
+        game = load_game_definition(CASE_PATH, self.world)
+        result = self.runner.run_game(game)
+        equilibrium_result = run_equilibrium_search(
+            runner=self.runner,
+            game=game,
+            world=self.world,
+            max_episodes=6,
+            exploration_eps=0.0,
+            stage_game=result,
+        )
+        text = AnalyticsBriefRenderer().render(
+            evaluation=result.best_combination.evaluation,
+            game_result=result,
+            equilibrium_result=equilibrium_result,
+            trajectory=[self.world],
+            scenario_def=game.scenario,
+            config=BriefConfig(
+                include_game_results=True,
+                prefer_llm_interpretation=False,
+            ),
+        )
+        self.assertIn("## Equilibrium Analysis", text)
+        self.assertIn("Mean external regret", text)
+        self.assertIn("Recommended profile", text)
 
 
 if __name__ == "__main__":

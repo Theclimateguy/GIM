@@ -79,6 +79,15 @@ def build_parser() -> ArgumentParser:
     game_parser.add_argument("--brief-output", default="decision_brief.md")
     game_parser.add_argument("--narrative", action="store_true")
     game_parser.add_argument(
+        "--equilibrium",
+        action="store_true",
+        help="Run regret minimization and trust-weighted CE on top of the evaluated game matrix",
+    )
+    game_parser.add_argument("--episodes", type=int, default=50)
+    game_parser.add_argument("--threshold", type=float, default=0.02)
+    game_parser.add_argument("--trust-alpha", type=float, default=0.5)
+    game_parser.add_argument("--max-combinations", type=int, default=256)
+    game_parser.add_argument(
         "--horizon",
         type=int,
         default=0,
@@ -111,24 +120,6 @@ def build_parser() -> ArgumentParser:
     calibrate_mode_group = calibrate_parser.add_mutually_exclusive_group()
     calibrate_mode_group.add_argument("--sim", action="store_true")
     calibrate_mode_group.add_argument("--no-sim", action="store_true")
-
-    equilibrium_parser = subparsers.add_parser(
-        "equilibrium",
-        help="Run regret minimization, trust-weighted correlated equilibrium, and welfare diagnostics",
-    )
-    equilibrium_parser.add_argument("--case", required=True)
-    equilibrium_parser.add_argument("--state-csv")
-    equilibrium_parser.add_argument("--max-countries", type=int)
-    equilibrium_parser.add_argument("--episodes", type=int, default=50)
-    equilibrium_parser.add_argument("--threshold", type=float, default=0.02)
-    equilibrium_parser.add_argument("--max-combinations", type=int, default=256)
-    equilibrium_parser.add_argument(
-        "--trust-alpha",
-        type=float,
-        default=0.5,
-        help="Weight of trust in social welfare [0 = utilitarian, 1 = trust-weighted]",
-    )
-    equilibrium_parser.add_argument("--json", dest="json_output", action="store_true")
 
     brief_parser = subparsers.add_parser(
         "brief",
@@ -215,6 +206,13 @@ def _terminal_progress_logger() -> Callable[[SimProgress], None]:
     return _log
 
 
+def _serialize_game_output(game_result, equilibrium_result) -> dict:
+    payload = {"game_result": asdict(game_result)}
+    if equilibrium_result is not None:
+        payload["equilibrium_result"] = asdict(equilibrium_result)
+    return payload
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
@@ -244,25 +242,6 @@ def main() -> None:
             return
         print(format_calibration_suite_result(result))
         return
-    if args.command == "equilibrium":
-        world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
-        runner = GameRunner(world)
-        game = load_game_definition(_resolve_case_path(args.case), world)
-        result = run_equilibrium_search(
-            runner=runner,
-            game=game,
-            world=world,
-            max_episodes=args.episodes,
-            convergence_threshold=args.threshold,
-            max_combinations=args.max_combinations,
-            trust_alpha=args.trust_alpha,
-        )
-        if args.json_output:
-            print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
-            return
-        print(format_equilibrium_result(result))
-        return
-
     world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
     runner = GameRunner(world)
     metrics_engine = CrisisMetricsEngine()
@@ -297,6 +276,7 @@ def main() -> None:
                 renderer=DashboardRenderer(),
                 evaluation=evaluation,
                 game_result=None,
+                equilibrium_result=None,
                 trajectory=trajectory,
                 scenario_def=scenario,
                 config=_dashboard_config(
@@ -313,6 +293,7 @@ def main() -> None:
                 renderer=AnalyticsBriefRenderer(),
                 evaluation=evaluation,
                 game_result=None,
+                equilibrium_result=None,
                 trajectory=trajectory,
                 scenario_def=scenario,
                 config=_brief_config(
@@ -367,12 +348,25 @@ def main() -> None:
             game,
             n_years=args.horizon,
             default_mode="llm",
+            max_combinations=args.max_combinations,
             progress_callback=_terminal_progress_logger(),
         )
         trajectory = result.trajectory
     else:
-        result = runner.run_game(game)
+        result = runner.run_game(game, max_combinations=args.max_combinations)
         trajectory = [world]
+    equilibrium_result = None
+    if args.equilibrium:
+        equilibrium_result = run_equilibrium_search(
+            runner=GameRunner(trajectory[-1]) if trajectory else runner,
+            game=game,
+            world=trajectory[-1] if trajectory else world,
+            max_episodes=args.episodes,
+            convergence_threshold=args.threshold,
+            max_combinations=args.max_combinations,
+            trust_alpha=args.trust_alpha,
+            stage_game=result,
+        )
     written = None
     brief_path = None
     if args.dashboard:
@@ -380,6 +374,7 @@ def main() -> None:
             renderer=DashboardRenderer(),
             evaluation=result.best_combination.evaluation,
             game_result=result,
+            equilibrium_result=equilibrium_result,
             trajectory=trajectory,
             scenario_def=game.scenario,
             config=_dashboard_config(
@@ -396,6 +391,7 @@ def main() -> None:
             renderer=AnalyticsBriefRenderer(),
             evaluation=result.best_combination.evaluation,
             game_result=result,
+            equilibrium_result=equilibrium_result,
             trajectory=trajectory,
             scenario_def=game.scenario,
             config=_brief_config(
@@ -407,9 +403,12 @@ def main() -> None:
             ),
         )
     if args.json_output:
-        print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
+        print(json.dumps(_serialize_game_output(result, equilibrium_result), indent=2, ensure_ascii=False))
         return
     print(format_game_result(result))
+    if equilibrium_result is not None:
+        print()
+        print(format_equilibrium_result(equilibrium_result))
     if written is not None:
         print(f"\nDashboard written to {written['html']}")
         if "json" in written:

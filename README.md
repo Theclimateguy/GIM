@@ -196,34 +196,35 @@ If the full action space exceeds `256` combinations, each player action list is 
 
 `metrics` mode skips scenario scoring and produces only `CrisisDashboard`. If no agents are provided, it defaults to the top `5` economies in the loaded state.
 
-### 3.6 Equilibrium Mode
+### 3.6 Equilibrium Option On Game Mode
 
-`equilibrium` adds a separate game-theory layer on top of the existing `game` matrix without replacing `run_game()`.
+`equilibrium` is not a standalone product path. It is an optional post-processing layer on top of `game`.
 
-1. Load `WorldState`.
-2. Read the case JSON and build the same `GameDefinition` used by `game`.
-3. Build the full static payoff matrix via `GameRunner.run_game(...)`.
-4. Run a Hedge-style no-regret loop over that fixed matrix to obtain an empirical `CCE`-style distribution.
-5. Compute:
-   - external regret per player;
+Use it like this:
+
+```bash
+python -m GIM_13 game --case maritime_pressure_game.json --equilibrium --episodes 50 --trust-alpha 0.5
+```
+
+What happens when `--equilibrium` is enabled:
+
+1. `game` still builds the same `GameDefinition` and evaluates the same bounded strategy matrix.
+2. The resulting `GameResult` becomes the stage game for:
+   - Hedge-style no-regret episodes;
+   - empirical `CCE` estimation;
    - coalition regret grouped by `alliance_block`;
-   - swap regret post-facto;
+   - swap-regret diagnostics;
    - trust-weighted correlated equilibrium via LP (`scipy` / HiGHS);
    - welfare diagnostics such as trust-weighted social welfare, payoff Gini, and positive-vs-normative KL gap.
-6. Return a standalone `EquilibriumResult`.
+3. Reporting receives both layers from the same run artifact: `GameResult` plus optional `EquilibriumResult`.
 
-Key flags:
+Relevant flags on `game`:
 
+- `--equilibrium` enables the game-theory layer;
 - `--episodes` controls the no-regret horizon;
 - `--threshold` controls convergence on mean external regret;
 - `--trust-alpha` interpolates between plain utilitarian welfare (`0`) and trust-weighted welfare (`1`);
-- `--max-combinations` keeps the same bounded search contract as `game`.
-
-Example:
-
-```bash
-python -m GIM_13 equilibrium --case maritime_pressure_game.json --episodes 50 --trust-alpha 0.5
-```
+- `--max-combinations` keeps the same bounded search contract for both strategy search and equilibrium analysis.
 
 ### 3.7 Console Mode
 
@@ -239,7 +240,7 @@ The console does not introduce a third model path. It exposes the same static-vs
 
 ### 3.8 Reporting and Decision Artefacts
 
-The reporting layer sits on top of `ScenarioEvaluation` / `GameResult` and does not introduce a third inference path.
+The reporting layer sits on top of `ScenarioEvaluation`, `GameResult`, and optional `EquilibriumResult` and does not introduce a third inference path.
 
 Current reporting artifacts:
 
@@ -253,7 +254,7 @@ Current reporting artifacts:
 Reporting flow:
 
 1. run `question`, `game`, or `console`;
-2. obtain `ScenarioEvaluation` or `GameResult`;
+2. obtain `ScenarioEvaluation`, `GameResult`, and optionally `EquilibriumResult` when `game --equilibrium` is enabled;
 3. optionally write `dashboard.html`;
 4. optionally write `evaluation.json`;
 5. optionally regenerate a standalone brief from the same JSON artifact.
@@ -271,6 +272,7 @@ Current reporting contract:
 
 - `dashboard.html` is the primary LPR-facing artifact;
 - the dashboard includes the full `Decision Brief` rendered into HTML;
+- when `game --equilibrium` is enabled, the same dashboard/brief bundle also includes the equilibrium diagnostics section;
 - the standalone `.md` brief is an export path, not a separate source of truth;
 - if `--json` is passed together with `--dashboard`, `evaluation.json` is written next to the HTML file and can be fed back into `python -m GIM_13 brief --from-json ...`.
 

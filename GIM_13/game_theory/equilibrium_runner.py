@@ -46,6 +46,7 @@ def run_equilibrium_search(
     eta: float = 0.1,
     exploration_eps: float = 0.1,
     trust_alpha: float = 0.5,
+    stage_game: object | None = None,
 ) -> EquilibriumResult:
     history = RegretHistory()
     action_history = []
@@ -56,14 +57,28 @@ def run_equilibrium_search(
     episode_keys: list[str] = []
 
     # The stage game is static for a fixed scenario, so reuse the same payoff matrix across episodes.
-    stage_game = runner.run_game(game, max_combinations=max_combinations)
+    stage_game = stage_game or runner.run_game(game, max_combinations=max_combinations)
     profile_cache = seed_profile_cache(stage_game)
+    action_options = _available_actions(stage_game)
 
     for episode in range(max_episodes):
         selected = _hedge_select(stage_game, weights, exploration_eps)
-        external_regret = compute_external_regret(runner, game, selected, profile_cache)
-        coalition_regret = compute_coalition_regret(runner, game, selected, world, profile_cache)
-        _hedge_update(weights, game, stage_game, selected, eta)
+        external_regret = compute_external_regret(
+            runner,
+            game,
+            selected,
+            profile_cache,
+            action_options=action_options,
+        )
+        coalition_regret = compute_coalition_regret(
+            runner,
+            game,
+            selected,
+            world,
+            profile_cache,
+            action_options=action_options,
+        )
+        _hedge_update(weights, game, stage_game, selected, eta, action_options=action_options)
 
         history.records.append(
             RegretRecord(
@@ -82,7 +97,13 @@ def run_equilibrium_search(
             break
 
     if history.records:
-        history.records[-1].swap_regret = compute_swap_regret(runner, game, action_history, profile_cache)
+        history.records[-1].swap_regret = compute_swap_regret(
+            runner,
+            game,
+            action_history,
+            profile_cache,
+            action_options=action_options,
+        )
 
     empirical_cce = _empirical_distribution(episode_keys)
     trust_weights = compute_trust_weights(game, world, alpha=trust_alpha)
@@ -155,11 +176,13 @@ def _hedge_update(
     game_result,
     selected: GameCombinationResult,
     eta: float,
+    action_options: Dict[str, list[str]] | None = None,
 ) -> None:
     for player in game.players:
         player_id = player.player_id
         current_payoff = selected.player_payoffs.get(player_id, 0.0)
-        for action_name in player.allowed_actions:
+        candidate_actions = action_options.get(player_id, player.allowed_actions) if action_options else player.allowed_actions
+        for action_name in candidate_actions:
             payoffs = [
                 combo.player_payoffs.get(player_id, 0.0)
                 for combo in game_result.combinations
@@ -179,6 +202,14 @@ def _empirical_distribution(keys: list[str]) -> Dict[str, float]:
     for key in keys:
         empirical[key] = empirical.get(key, 0.0) + 1.0 / total
     return empirical
+
+
+def _available_actions(game_result) -> Dict[str, list[str]]:
+    action_options: Dict[str, set[str]] = {}
+    for combo in game_result.combinations:
+        for player_id, action_name in combo.actions.items():
+            action_options.setdefault(player_id, set()).add(action_name)
+    return {player_id: sorted(options) for player_id, options in action_options.items()}
 
 
 def _parse_action_key(key: str) -> Dict[str, str]:

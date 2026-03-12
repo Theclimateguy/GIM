@@ -81,12 +81,14 @@ def compute_external_regret(
     game: GameDefinition,
     combo: GameCombinationResult,
     cache: Dict[str, GameCombinationResult],
+    action_options: Dict[str, List[str]] | None = None,
 ) -> Dict[str, float]:
     regret: Dict[str, float] = {}
     for player in game.players:
         player_id = player.player_id
         best_response_payoff = combo.player_payoffs[player_id]
-        for alt_action in player.allowed_actions:
+        candidate_actions = action_options.get(player_id, player.allowed_actions) if action_options else player.allowed_actions
+        for alt_action in candidate_actions:
             if alt_action == combo.actions[player_id]:
                 continue
             alt_profile = {**combo.actions, player_id: alt_action}
@@ -104,6 +106,7 @@ def compute_coalition_regret(
     combo: GameCombinationResult,
     world: WorldState,
     cache: Dict[str, GameCombinationResult],
+    action_options: Dict[str, List[str]] | None = None,
 ) -> Dict[str, float]:
     blocks: Dict[str, List] = {}
     for player in game.players:
@@ -115,7 +118,10 @@ def compute_coalition_regret(
     for block, members in blocks.items():
         current_welfare = sum(combo.player_payoffs.get(member.player_id, 0.0) for member in members)
         best_welfare = current_welfare
-        action_spaces = [member.allowed_actions for member in members]
+        action_spaces = [
+            action_options.get(member.player_id, member.allowed_actions) if action_options else member.allowed_actions
+            for member in members
+        ]
         for joint_actions in iproduct(*action_spaces):
             alt_profile = dict(combo.actions)
             for member, action_name in zip(members, joint_actions):
@@ -134,12 +140,14 @@ def compute_swap_regret(
     game: GameDefinition,
     history: List[Tuple[Dict[str, str], Dict[str, float]]],
     cache: Dict[str, GameCombinationResult],
+    action_options: Dict[str, List[str]] | None = None,
 ) -> Dict[str, Dict[str, float]]:
     swap: Dict[str, Dict[str, float]] = {player.player_id: {} for player in game.players}
     for player in game.players:
         player_id = player.player_id
-        for action_from in player.allowed_actions:
-            for action_to in player.allowed_actions:
+        candidate_actions = action_options.get(player_id, player.allowed_actions) if action_options else player.allowed_actions
+        for action_from in candidate_actions:
+            for action_to in candidate_actions:
                 if action_from == action_to:
                     continue
                 total = 0.0

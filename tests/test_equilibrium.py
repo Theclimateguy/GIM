@@ -21,13 +21,16 @@ class EquilibriumTests(unittest.TestCase):
         cls.runner = GameRunner(cls.world)
         cls.game = load_game_definition(CASE_PATH, cls.world)
 
-    def test_parser_supports_equilibrium_subcommand(self) -> None:
+    def test_parser_supports_equilibrium_flags_on_game(self) -> None:
         parser = build_parser()
         args = parser.parse_args(
             [
-                "equilibrium",
+                "game",
                 "--case",
                 str(CASE_PATH),
+                "--equilibrium",
+                "--max-combinations",
+                "128",
                 "--episodes",
                 "12",
                 "--threshold",
@@ -36,8 +39,10 @@ class EquilibriumTests(unittest.TestCase):
                 "0.7",
             ]
         )
-        self.assertEqual(args.command, "equilibrium")
+        self.assertEqual(args.command, "game")
+        self.assertTrue(args.equilibrium)
         self.assertEqual(args.episodes, 12)
+        self.assertEqual(args.max_combinations, 128)
         self.assertAlmostEqual(args.threshold, 0.05)
         self.assertAlmostEqual(args.trust_alpha, 0.7)
 

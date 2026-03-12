@@ -48,6 +48,7 @@ class AnalyticsBriefRenderer:
         *,
         evaluation: Any,
         game_result: Any | None,
+        equilibrium_result: Any | None,
         trajectory: list[Any] | None,
         scenario_def: Any,
         config: BriefConfig,
@@ -56,6 +57,7 @@ class AnalyticsBriefRenderer:
             "scenario": asdict(scenario_def),
             "evaluation": asdict(evaluation),
             "game_result": asdict(game_result) if game_result is not None else None,
+            "equilibrium_result": asdict(equilibrium_result) if equilibrium_result is not None else None,
             "trajectory": [asdict(state) for state in (trajectory or [])],
             "brief_config": asdict(config),
         }
@@ -65,6 +67,7 @@ class AnalyticsBriefRenderer:
         scenario = payload["scenario"]
         evaluation = payload["evaluation"]
         game_result = payload.get("game_result")
+        equilibrium_result = payload.get("equilibrium_result")
         trajectory = payload.get("trajectory") or []
         runtime_cfg = payload.get("dashboard_config") or payload.get("brief_config") or {}
         defaults = BriefConfig()
@@ -126,6 +129,7 @@ class AnalyticsBriefRenderer:
         glossary_lines = self._glossary_lines(evaluation, actor_ids)
         trajectory_lines = self._trajectory_lines(trajectory) if effective_config.include_trajectory else []
         strategy_table = self._strategy_table(game_result, effective_config.top_k_strategies) if effective_config.include_game_results else ""
+        equilibrium_lines = self._equilibrium_lines(equilibrium_result)
         highlight_lines = [
             f"- {item.title}: {item.body}"
             for item in build_highlights(
@@ -217,6 +221,15 @@ class AnalyticsBriefRenderer:
                 ]
             )
 
+        if equilibrium_lines:
+            parts.extend(
+                [
+                    "",
+                    "## Equilibrium Analysis",
+                    *equilibrium_lines,
+                ]
+            )
+
         parts.extend(
             [
                 "",
@@ -236,6 +249,7 @@ class AnalyticsBriefRenderer:
         *,
         evaluation: Any,
         game_result: Any | None,
+        equilibrium_result: Any | None,
         trajectory: list[Any] | None,
         scenario_def: Any,
         config: BriefConfig,
@@ -243,6 +257,7 @@ class AnalyticsBriefRenderer:
         text = self.render(
             evaluation=evaluation,
             game_result=game_result,
+            equilibrium_result=equilibrium_result,
             trajectory=trajectory,
             scenario_def=scenario_def,
             config=config,
@@ -437,6 +452,80 @@ class AnalyticsBriefRenderer:
             rows.append("> Action space was truncated before evaluation.")
         return "\n".join(rows)
 
+    def _equilibrium_lines(self, equilibrium_result: dict[str, Any] | None) -> list[str]:
+        if not equilibrium_result:
+            return []
+        game = equilibrium_result.get("game", {})
+        player_names = {
+            player.get("player_id"): player.get("display_name", player.get("player_id", "n/a"))
+            for player in game.get("players", [])
+        }
+
+        lines = [
+            f"- Episodes: `{equilibrium_result.get('episodes', 0)}`",
+            f"- Converged: `{'yes' if equilibrium_result.get('converged') else 'no'}`",
+        ]
+
+        ce = equilibrium_result.get("correlated_equilibrium") or {}
+        lines.extend(
+            [
+                f"- CE solver: `{ce.get('solver_status', 'n/a')}`",
+                f"- Max incentive deviation: `{ce.get('max_incentive_deviation', 0.0):.6f}`",
+            ]
+        )
+
+        mean_external = equilibrium_result.get("mean_external_regret") or {}
+        if mean_external:
+            lines.append("- Mean external regret:")
+            for player_id, value in mean_external.items():
+                lines.append(f"  {player_names.get(player_id, player_id)}: `{value:.4f}`")
+
+        mean_coalition = equilibrium_result.get("mean_coalition_regret") or {}
+        if mean_coalition:
+            lines.append("- Mean coalition regret:")
+            for block, value in mean_coalition.items():
+                lines.append(f"  {block}: `{value:.4f}`")
+
+        recommended = equilibrium_result.get("recommended_profile") or {}
+        if recommended:
+            lines.append("- Recommended profile:")
+            for player_id, action_name in recommended.items():
+                lines.append(
+                    f"  {player_names.get(player_id, player_id)}: `{labelize(action_name)}`"
+                )
+
+        welfare = equilibrium_result.get("welfare") or {}
+        if welfare:
+            lines.extend(
+                [
+                    f"- Trust alpha: `{welfare.get('alpha', 0.0):.2f}`",
+                    f"- Utilitarian welfare: `{welfare.get('utilitarian_sw', 0.0):+.3f}`",
+                    f"- Trust-weighted welfare: `{welfare.get('trust_weighted_sw', 0.0):+.3f}`",
+                    f"- Payoff Gini: `{welfare.get('payoff_gini', 0.0):.4f}`",
+                ]
+            )
+            if welfare.get("positive_normative_kl") is not None:
+                lines.append(
+                    f"- Positive vs normative KL gap: `{welfare.get('positive_normative_kl', 0.0):.6f}`"
+                )
+
+        if equilibrium_result.get("price_of_anarchy") is not None:
+            lines.append(f"- Price of anarchy: `{equilibrium_result.get('price_of_anarchy', 0.0):.4f}`")
+
+        top_ce = sorted((ce.get("distribution") or {}).items(), key=lambda item: item[1], reverse=True)[:3]
+        if top_ce:
+            lines.append("- Top CE support:")
+            for key, probability in top_ce:
+                lines.append(f"  {self._profile_label(key, player_names)}: `{100.0 * probability:.1f}%`")
+
+        top_cce = sorted((equilibrium_result.get("ccE_empirical") or {}).items(), key=lambda item: item[1], reverse=True)[:3]
+        if top_cce:
+            lines.append("- Empirical CCE support:")
+            for key, probability in top_cce:
+                lines.append(f"  {self._profile_label(key, player_names)}: `{100.0 * probability:.1f}%`")
+
+        return lines
+
     def _highlight_lines(
         self,
         *,
@@ -624,6 +713,13 @@ class AnalyticsBriefRenderer:
             return 0.0
         return numerator / denominator
 
+    def _profile_label(self, key: str, player_names: dict[str, str]) -> str:
+        parts = []
+        for part in key.split("|"):
+            player_id, action_name = part.split(":", 1)
+            parts.append(f"{player_names.get(player_id, player_id)}={labelize(action_name)}")
+        return "; ".join(parts)
+
     def _horizon_label(self, scenario: dict[str, Any], horizon_years: int) -> str:
         if horizon_years > 0:
             base_year = scenario.get("base_year")
@@ -653,6 +749,7 @@ def write_brief_artifact(
     renderer: AnalyticsBriefRenderer,
     evaluation: Any,
     game_result: Any | None,
+    equilibrium_result: Any | None,
     trajectory: list[Any] | None,
     scenario_def: Any,
     config: BriefConfig,
@@ -660,6 +757,7 @@ def write_brief_artifact(
     return renderer.write(
         evaluation=evaluation,
         game_result=game_result,
+        equilibrium_result=equilibrium_result,
         trajectory=trajectory,
         scenario_def=scenario_def,
         config=config,

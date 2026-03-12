@@ -4,6 +4,7 @@ import unittest
 
 from GIM_13.__main__ import build_parser
 from GIM_13.dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
+from GIM_13.game_theory.equilibrium_runner import run_equilibrium_search
 from GIM_13.game_runner import GameRunner
 from GIM_13.runtime import load_world
 from GIM_13.scenario_compiler import compile_question, load_game_definition
@@ -62,6 +63,7 @@ class DashboardTests(unittest.TestCase):
                 renderer=DashboardRenderer(),
                 evaluation=evaluation,
                 game_result=None,
+                equilibrium_result=None,
                 trajectory=[self.world],
                 scenario_def=scenario,
                 config=DashboardConfig(
@@ -104,6 +106,7 @@ class DashboardTests(unittest.TestCase):
                 renderer=DashboardRenderer(),
                 evaluation=evaluation,
                 game_result=None,
+                equilibrium_result=None,
                 trajectory=trajectory,
                 scenario_def=scenario,
                 config=DashboardConfig(
@@ -127,6 +130,14 @@ class DashboardTests(unittest.TestCase):
     def test_game_dashboard_includes_strategy_ranking(self) -> None:
         game = load_game_definition(CASE_PATH, self.world)
         result = self.runner.run_game(game)
+        equilibrium_result = run_equilibrium_search(
+            runner=self.runner,
+            game=game,
+            world=self.world,
+            max_episodes=6,
+            exploration_eps=0.0,
+            stage_game=result,
+        )
 
         with TemporaryDirectory() as tmp_dir:
             output_path = Path(tmp_dir) / "dashboard.html"
@@ -134,6 +145,7 @@ class DashboardTests(unittest.TestCase):
                 renderer=DashboardRenderer(),
                 evaluation=result.best_combination.evaluation,
                 game_result=result,
+                equilibrium_result=equilibrium_result,
                 trajectory=[self.world],
                 scenario_def=game.scenario,
                 config=DashboardConfig(
@@ -151,6 +163,8 @@ class DashboardTests(unittest.TestCase):
             self.assertIn("Decision-Maker Interpretation", html)
             self.assertIn("Orchestrator highlights", html)
             self.assertIn("Policy Game Results and Orchestrator Highlights", html)
+            self.assertIn("Equilibrium diagnostics", html)
+            self.assertIn("Mean external regret", html)
 
     def test_dashboard_renders_interpretive_summary_as_multiple_html_paragraphs(self) -> None:
         world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))
@@ -168,6 +182,7 @@ class DashboardTests(unittest.TestCase):
                 renderer=DashboardRenderer(),
                 evaluation=evaluation,
                 game_result=None,
+                equilibrium_result=None,
                 trajectory=[world],
                 scenario_def=scenario,
                 config=DashboardConfig(

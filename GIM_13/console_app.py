@@ -10,7 +10,8 @@ from typing import Callable
 
 from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
-from .explanations import format_game_result, format_question_evaluation
+from .explanations import format_equilibrium_result, format_game_result, format_question_evaluation
+from .game_theory.equilibrium_runner import run_equilibrium_search
 from .game_runner import GameRunner
 from .runtime import MISC_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
@@ -57,6 +58,17 @@ def _prompt_optional_int(text: str, *, default: int | None = None) -> int | None
             return int(raw)
         except ValueError:
             print("Enter an integer or leave blank.")
+
+
+def _prompt_optional_float(text: str, *, default: float | None = None) -> float | None:
+    while True:
+        raw = _prompt(text).strip()
+        if not raw:
+            return default
+        try:
+            return float(raw)
+        except ValueError:
+            print("Enter a number or leave blank.")
 
 
 def _prompt_non_negative_int(text: str, *, default: int = 0) -> int:
@@ -122,6 +134,7 @@ def _maybe_write_dashboard(
     *,
     evaluation,
     game_result,
+    equilibrium_result,
     trajectory,
     scenario_def,
     horizon_years: int,
@@ -136,6 +149,7 @@ def _maybe_write_dashboard(
         renderer=DashboardRenderer(),
         evaluation=evaluation,
         game_result=game_result,
+        equilibrium_result=equilibrium_result,
         trajectory=trajectory,
         scenario_def=scenario_def,
         config=DashboardConfig(
@@ -158,6 +172,7 @@ def _maybe_write_brief(
     *,
     evaluation,
     game_result,
+    equilibrium_result,
     trajectory,
     scenario_def,
     horizon_years: int,
@@ -172,6 +187,7 @@ def _maybe_write_brief(
         renderer=AnalyticsBriefRenderer(),
         evaluation=evaluation,
         game_result=game_result,
+        equilibrium_result=equilibrium_result,
         trajectory=trajectory,
         scenario_def=scenario_def,
         config=BriefConfig(
@@ -273,6 +289,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
     _maybe_write_dashboard(
         evaluation=evaluation,
         game_result=None,
+        equilibrium_result=None,
         trajectory=trajectory,
         scenario_def=scenario,
         horizon_years=horizon_years,
@@ -283,6 +300,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
     _maybe_write_brief(
         evaluation=evaluation,
         game_result=None,
+        equilibrium_result=None,
         trajectory=trajectory,
         scenario_def=scenario,
         horizon_years=horizon_years,
@@ -359,6 +377,22 @@ def _run_game_flow(session: ConsoleSession) -> None:
         _log("Running policy game with static scorer")
         result = runner.run_game(game)
         trajectory = [session.world]
+    equilibrium_result = None
+    if _prompt_yes_no("Run equilibrium analysis", default=False):
+        episodes = _prompt_non_negative_int("Equilibrium episodes [50]: ", default=50)
+        threshold = _prompt_optional_float("Convergence threshold [0.02]: ", default=0.02) or 0.02
+        trust_alpha = _prompt_optional_float("Trust alpha [0.5]: ", default=0.5) or 0.5
+        _log("Running equilibrium layer on top of the evaluated game matrix")
+        equilibrium_result = run_equilibrium_search(
+            runner=GameRunner(trajectory[-1]) if trajectory else runner,
+            game=game,
+            world=trajectory[-1] if trajectory else session.world,
+            max_episodes=episodes,
+            convergence_threshold=threshold,
+            max_combinations=256,
+            trust_alpha=trust_alpha,
+            stage_game=result,
+        )
     elapsed = perf_counter() - started
     _log(f"Game evaluation complete in {elapsed:.2f}s")
     run_stamp = datetime.now()
@@ -367,9 +401,13 @@ def _run_game_flow(session: ConsoleSession) -> None:
 
     print()
     print(format_game_result(result))
+    if equilibrium_result is not None:
+        print()
+        print(format_equilibrium_result(equilibrium_result))
     _maybe_write_dashboard(
         evaluation=result.best_combination.evaluation,
         game_result=result,
+        equilibrium_result=equilibrium_result,
         trajectory=trajectory,
         scenario_def=game.scenario,
         horizon_years=horizon_years,
@@ -380,6 +418,7 @@ def _run_game_flow(session: ConsoleSession) -> None:
     _maybe_write_brief(
         evaluation=result.best_combination.evaluation,
         game_result=result,
+        equilibrium_result=equilibrium_result,
         trajectory=trajectory,
         scenario_def=game.scenario,
         horizon_years=horizon_years,

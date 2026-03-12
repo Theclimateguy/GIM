@@ -19,6 +19,7 @@ from .decision_language import (
 )
 from .briefing import AnalyticsBriefRenderer, BriefConfig
 from .explanations import DRIVER_LABELS
+from .game_theory.equilibrium_runner import EquilibriumResult
 from .game_runner import GameRunner
 from .model_terms import DRIVER_EXPLANATIONS, TERM_EXPLANATIONS
 from .runtime import WorldState
@@ -78,6 +79,7 @@ class DashboardRenderer:
         self,
         evaluation: ScenarioEvaluation,
         game_result: GameResult | None,
+        equilibrium_result: EquilibriumResult | None,
         trajectory: list[WorldState] | None,
         scenario_def: ScenarioDefinition,
         config: DashboardConfig,
@@ -101,6 +103,7 @@ class DashboardRenderer:
         )
         initial_evaluation_dict = asdict(initial_evaluation) if initial_evaluation is not None else None
         game_result_dict = asdict(game_result) if game_result is not None else None
+        equilibrium_result_dict = asdict(equilibrium_result) if equilibrium_result is not None else None
         initial_dashboard = initial_evaluation.crisis_dashboard if initial_evaluation is not None else evaluation.crisis_dashboard
         years = self._timeline_years(scenario_def.base_year, len(snapshots))
         events_by_index = self._extract_events(snapshots)
@@ -121,6 +124,7 @@ class DashboardRenderer:
         brief_markdown = AnalyticsBriefRenderer().render(
             evaluation=evaluation,
             game_result=game_result,
+            equilibrium_result=equilibrium_result,
             trajectory=snapshots,
             scenario_def=scenario_def,
             config=BriefConfig(
@@ -181,6 +185,7 @@ class DashboardRenderer:
             self._render_game_and_highlights(
                 evaluation=evaluation,
                 game_result=game_result,
+                equilibrium_result=equilibrium_result,
                 highlight_cards=highlight_cards,
                 config=config,
             )
@@ -760,6 +765,7 @@ class DashboardRenderer:
         *,
         evaluation: ScenarioEvaluation,
         game_result: GameResult | None,
+        equilibrium_result: EquilibriumResult | None,
         trajectory: list[WorldState] | None,
         scenario_def: ScenarioDefinition,
         config: DashboardConfig,
@@ -768,6 +774,7 @@ class DashboardRenderer:
         html = self.render(
             evaluation=evaluation,
             game_result=game_result,
+            equilibrium_result=equilibrium_result,
             trajectory=trajectory,
             scenario_def=scenario_def,
             config=config,
@@ -783,6 +790,7 @@ class DashboardRenderer:
                 "scenario": asdict(scenario_def),
                 "evaluation": asdict(evaluation),
                 "game_result": asdict(game_result) if game_result is not None else None,
+                "equilibrium_result": asdict(equilibrium_result) if equilibrium_result is not None else None,
                 "trajectory": [asdict(state) for state in (trajectory or [])],
                 "dashboard_config": asdict(config),
             }
@@ -1154,6 +1162,7 @@ class DashboardRenderer:
         *,
         evaluation: ScenarioEvaluation,
         game_result: GameResult | None,
+        equilibrium_result: EquilibriumResult | None,
         highlight_cards: list[dict[str, str]],
         config: DashboardConfig,
     ) -> str:
@@ -1203,6 +1212,8 @@ class DashboardRenderer:
 </div>"""
             for card in highlight_cards
         )
+        equilibrium_block = self._render_equilibrium_block(equilibrium_result)
+
         return f"""
 <section class="section">
   <div class="section-header">
@@ -1216,7 +1227,63 @@ class DashboardRenderer:
       {highlights_html}
     </div>
   </div>
+  {equilibrium_block}
 </section>
+"""
+
+    def _render_equilibrium_block(self, equilibrium_result: EquilibriumResult | None) -> str:
+        if equilibrium_result is None:
+            return ""
+        player_names = {
+            player.player_id: player.display_name
+            for player in equilibrium_result.game.players
+        }
+        regret_rows = "".join(
+            f"<tr><td>{escape(player_names.get(player_id, player_id))}</td><td class=\"mono\">{value:.4f}</td></tr>"
+            for player_id, value in equilibrium_result.mean_external_regret.items()
+        )
+        coalition_rows = "".join(
+            f"<tr><td>{escape(block)}</td><td class=\"mono\">{value:.4f}</td></tr>"
+            for block, value in equilibrium_result.mean_coalition_regret.items()
+        )
+        recommended_rows = "".join(
+            f"<li><strong>{escape(player_names.get(player_id, player_id))}</strong>: {escape(self._titleize_action(action_name))}</li>"
+            for player_id, action_name in equilibrium_result.recommended_profile.items()
+        )
+        welfare = equilibrium_result.welfare
+        welfare_html = ""
+        if welfare is not None:
+            welfare_bits = [
+                f"trust-weighted={welfare.trust_weighted_sw:+.3f}",
+                f"utilitarian={welfare.utilitarian_sw:+.3f}",
+                f"Gini={welfare.payoff_gini:.4f}",
+            ]
+            if welfare.positive_normative_kl is not None:
+                welfare_bits.append(f"KL gap={welfare.positive_normative_kl:.6f}")
+            if equilibrium_result.price_of_anarchy is not None:
+                welfare_bits.append(f"PoA={equilibrium_result.price_of_anarchy:.4f}")
+            welfare_html = (
+                '<div class="reading-box"><strong>Welfare diagnostics.</strong> '
+                + ", ".join(welfare_bits)
+                + ".</div>"
+            )
+        return f"""
+<div class="card" style="margin-top:22px;">
+  <h3>Equilibrium diagnostics</h3>
+  <div class="reading-box"><strong>Status.</strong> Episodes={equilibrium_result.episodes}, converged={'yes' if equilibrium_result.converged else 'no'}, solver={escape(equilibrium_result.correlated_equilibrium.solver_status)}, max deviation={equilibrium_result.correlated_equilibrium.max_incentive_deviation:.6f}.</div>
+  <div class="two-col" style="margin-top:16px;">
+    <div>
+      <h3 style="margin-top:0;">Mean external regret</h3>
+      <table class="strategy-table"><tbody>{regret_rows}</tbody></table>
+      {'<h3 style="margin-top:14px;">Coalition regret</h3><table class="strategy-table"><tbody>' + coalition_rows + '</tbody></table>' if coalition_rows else ''}
+    </div>
+    <div>
+      <h3 style="margin-top:0;">Recommended profile</h3>
+      <ul>{recommended_rows}</ul>
+    </div>
+  </div>
+  {welfare_html}
+</div>
 """
 
     def _render_brief_section(self, brief_markdown: str) -> str:
@@ -1921,6 +1988,7 @@ def write_dashboard_artifacts(
     renderer: DashboardRenderer,
     evaluation: ScenarioEvaluation,
     game_result: GameResult | None,
+    equilibrium_result: EquilibriumResult | None,
     trajectory: list[WorldState] | None,
     scenario_def: ScenarioDefinition,
     config: DashboardConfig,
@@ -1929,6 +1997,7 @@ def write_dashboard_artifacts(
     return renderer.write_dashboard_artifacts(
         evaluation=evaluation,
         game_result=game_result,
+        equilibrium_result=equilibrium_result,
         trajectory=trajectory,
         scenario_def=scenario_def,
         config=config,
