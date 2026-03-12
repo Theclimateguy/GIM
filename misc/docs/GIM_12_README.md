@@ -37,7 +37,12 @@ Default behavior:
 Input CSV is validated before simulation:
 - required columns must exist,
 - required fields must be non-empty,
-- numeric fields must parse as float.
+- numeric fields must parse as float,
+- bounded model scores must stay in valid ranges,
+- physical quantities must stay non-negative.
+
+For the new separate GIM 13 state file, start from:
+- `agent_states_gim13.template.csv`
 
 ## Credit Rating Methodology
 

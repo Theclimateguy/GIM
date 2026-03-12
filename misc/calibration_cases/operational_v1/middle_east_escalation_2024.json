@@ -1,0 +1,31 @@
+{
+  "id": "middle_east_escalation_2024",
+  "title": "Middle East proxy and deterrence escalation",
+  "description": "Regional escalation risk linking Iran, Israel, Saudi Arabia, and the United States during 2024.",
+  "reference_period": "2024-04 to 2024-10",
+  "tags": ["historical", "middle-east", "proxy", "regional-escalation"],
+  "scenario": {
+    "question": "Could proxy escalation and deterrence failures push Iran, Israel, Saudi Arabia and the United States into a broader regional crisis in 2024?",
+    "template": "regional_pressure",
+    "base_year": 2024,
+    "horizon_months": 9,
+    "actors": ["Iran", "Israel", "Saudi Arabia", "United States"]
+  },
+  "expectations": {
+    "top_outcomes": ["limited_proxy_escalation", "direct_strike_exchange"],
+    "dominant_outcomes": ["limited_proxy_escalation", "direct_strike_exchange", "broad_regional_escalation"],
+    "drivers": ["tail_pressure", "military_posture", "debt_stress"],
+    "actor_metrics": {
+      "Iran": ["regime_fragility", "protest_pressure", "conflict_escalation_pressure"],
+      "Israel": ["strategic_dependency", "sovereign_stress", "conflict_escalation_pressure"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.62,
+    "minimum_case_score": 0.74
+  },
+  "historical_signals": [
+    "The case is meant to preserve proxy escalation and direct-strike tails in the same distribution.",
+    "Regional spillover should dominate negotiated de-escalation in the initial horizon."
+  ]
+}

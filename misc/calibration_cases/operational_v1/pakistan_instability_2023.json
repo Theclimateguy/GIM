@@ -1,0 +1,30 @@
+{
+  "id": "pakistan_instability_2023",
+  "title": "Pakistan debt and import instability",
+  "description": "Debt stress, import dependence, climate stress, and political instability in Pakistan during 2023.",
+  "reference_period": "2023-01 to 2023-12",
+  "tags": ["historical", "domestic", "pakistan", "debt", "climate"],
+  "scenario": {
+    "question": "Could debt stress, import dependence and political instability destabilize Pakistan in 2023?",
+    "template": "regime_stress",
+    "base_year": 2023,
+    "horizon_months": 12,
+    "actors": ["Pakistan"]
+  },
+  "expectations": {
+    "top_outcomes": ["internal_destabilization", "controlled_suppression"],
+    "dominant_outcomes": ["internal_destabilization", "controlled_suppression"],
+    "drivers": ["tail_pressure", "climate_stress", "social_stress", "debt_stress"],
+    "actor_metrics": {
+      "Pakistan": ["fx_stress", "strategic_dependency", "regime_fragility", "protest_pressure"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.6,
+    "minimum_case_score": 0.72
+  },
+  "historical_signals": [
+    "The case should keep domestic instability in the dominant outcomes.",
+    "Climate and import dependence are intentionally retained as meaningful secondary drivers."
+  ]
+}
