@@ -196,7 +196,36 @@ If the full action space exceeds `256` combinations, each player action list is 
 
 `metrics` mode skips scenario scoring and produces only `CrisisDashboard`. If no agents are provided, it defaults to the top `5` economies in the loaded state.
 
-### 3.6 Console Mode
+### 3.6 Equilibrium Mode
+
+`equilibrium` adds a separate game-theory layer on top of the existing `game` matrix without replacing `run_game()`.
+
+1. Load `WorldState`.
+2. Read the case JSON and build the same `GameDefinition` used by `game`.
+3. Build the full static payoff matrix via `GameRunner.run_game(...)`.
+4. Run a Hedge-style no-regret loop over that fixed matrix to obtain an empirical `CCE`-style distribution.
+5. Compute:
+   - external regret per player;
+   - coalition regret grouped by `alliance_block`;
+   - swap regret post-facto;
+   - trust-weighted correlated equilibrium via LP (`scipy` / HiGHS);
+   - welfare diagnostics such as trust-weighted social welfare, payoff Gini, and positive-vs-normative KL gap.
+6. Return a standalone `EquilibriumResult`.
+
+Key flags:
+
+- `--episodes` controls the no-regret horizon;
+- `--threshold` controls convergence on mean external regret;
+- `--trust-alpha` interpolates between plain utilitarian welfare (`0`) and trust-weighted welfare (`1`);
+- `--max-combinations` keeps the same bounded search contract as `game`.
+
+Example:
+
+```bash
+python -m GIM_13 equilibrium --case maritime_pressure_game.json --episodes 50 --trust-alpha 0.5
+```
+
+### 3.7 Console Mode
 
 `console` is a client path over the same primitives:
 
@@ -208,7 +237,7 @@ If the full action space exceeds `256` combinations, each player action list is 
 
 The console does not introduce a third model path. It exposes the same static-vs-sim branch through prompts instead of flags.
 
-### 3.7 Reporting and Decision Artefacts
+### 3.8 Reporting and Decision Artefacts
 
 The reporting layer sits on top of `ScenarioEvaluation` / `GameResult` and does not introduce a third inference path.
 
@@ -245,7 +274,7 @@ Current reporting contract:
 - the standalone `.md` brief is an export path, not a separate source of truth;
 - if `--json` is passed together with `--dashboard`, `evaluation.json` is written next to the HTML file and can be fed back into `python -m GIM_13 brief --from-json ...`.
 
-### 3.8 Sim Path Design Notes
+### 3.9 Sim Path Design Notes
 
 `SimBridge` is the translation layer between `GIM_13` action vocabulary and the legacy yearly core.
 

@@ -1,4 +1,5 @@
 from .crisis_metrics import CrisisDashboard
+from .game_theory.equilibrium_runner import EquilibriumResult
 from .types import GameResult, RISK_LABELS, ScenarioEvaluation
 
 
@@ -219,5 +220,99 @@ def format_crisis_dashboard(dashboard: CrisisDashboard) -> str:
                 f"- {metric_name}: severity={metric.severity:.2f}, relevance={metric.relevance:.2f}, "
                 f"value={metric.value:.3f} {metric.unit}"
             )
+
+    return "\n".join(lines)
+
+
+def format_equilibrium_result(result: EquilibriumResult) -> str:
+    game = result.game
+    name_map = {player.player_id: player.display_name for player in game.players}
+
+    def _pretty_profile(key: str) -> str:
+        parts = []
+        for part in key.split("|"):
+            player_id, action_name = part.split(":", 1)
+            parts.append(f"{name_map.get(player_id, player_id)}={action_name}")
+        return ", ".join(parts)
+
+    def _pretty_pair(pair_key: str) -> str:
+        left, right = pair_key.split(" || ", 1)
+        return f"{_pretty_profile(left)} || {_pretty_profile(right)}"
+
+    lines = [
+        f"Equilibrium analysis: {game.title}",
+        f"Scenario: {game.scenario.title}",
+        f"Players: {', '.join(player.display_name for player in game.players)}",
+        f"Episodes: {result.episodes}",
+        f"Converged: {'yes' if result.converged else 'no'}",
+        f"CE solver: {result.correlated_equilibrium.solver_status}",
+        f"Max incentive deviation: {result.correlated_equilibrium.max_incentive_deviation:.6f}",
+        "",
+        "Mean external regret:",
+    ]
+
+    for player in game.players:
+        lines.append(
+            f"- {player.display_name}: {result.mean_external_regret.get(player.player_id, 0.0):.4f}"
+        )
+
+    if result.mean_coalition_regret:
+        lines.extend(["", "Mean coalition regret:"])
+        for block, value in sorted(result.mean_coalition_regret.items()):
+            lines.append(f"- {block}: {value:.4f}")
+
+    lines.extend(["", "Recommended profile (argmax CE support):"])
+    for player in game.players:
+        action_name = result.recommended_profile.get(player.player_id, "n/a")
+        lines.append(f"- {player.display_name}: {action_name}")
+
+    if result.welfare is not None:
+        welfare = result.welfare
+        lines.extend(
+            [
+                "",
+                "Welfare diagnostics:",
+                f"- trust alpha: {welfare.alpha:.2f}",
+                f"- utilitarian welfare: {welfare.utilitarian_sw:+.3f}",
+                f"- trust-weighted welfare: {welfare.trust_weighted_sw:+.3f}",
+                f"- payoff gini: {welfare.payoff_gini:.4f}",
+            ]
+        )
+        if welfare.positive_normative_kl is not None:
+            lines.append(f"- positive vs normative gap (KL): {welfare.positive_normative_kl:.6f}")
+        if result.price_of_anarchy is not None:
+            lines.append(f"- price of anarchy: {result.price_of_anarchy:.4f}")
+        if welfare.action_correlations:
+            lines.append("- top action correlations:")
+            for pair_key, probability in welfare.action_correlations.items():
+                lines.append(f"  {_pretty_pair(pair_key)}: {100.0 * probability:.1f}%")
+
+    top_ce = sorted(
+        result.correlated_equilibrium.distribution.items(),
+        key=lambda item: item[1],
+        reverse=True,
+    )[:5]
+    if top_ce:
+        lines.extend(["", "Top CE support:"])
+        for key, probability in top_ce:
+            lines.append(f"- {_pretty_profile(key)}: {100.0 * probability:.1f}%")
+
+    top_cce = sorted(result.ccE_empirical.items(), key=lambda item: item[1], reverse=True)[:5]
+    if top_cce:
+        lines.extend(["", "Empirical CCE support:"])
+        for key, probability in top_cce:
+            lines.append(f"- {_pretty_profile(key)}: {100.0 * probability:.1f}%")
+
+    if result.regret_history.records:
+        swap_regret = result.regret_history.records[-1].swap_regret
+        top_swap: list[tuple[float, str]] = []
+        for player in game.players:
+            for edge, value in swap_regret.get(player.player_id, {}).items():
+                top_swap.append((value, f"{player.display_name}: {edge} -> {value:.4f}"))
+        top_swap.sort(key=lambda item: item[0], reverse=True)
+        if top_swap:
+            lines.extend(["", "Largest swap-regret edges:"])
+            for _value, label in top_swap[:5]:
+                lines.append(f"- {label}")
 
     return "\n".join(lines)

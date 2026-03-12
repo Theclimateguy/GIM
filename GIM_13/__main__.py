@@ -16,7 +16,13 @@ from .calibration import (
 from .console_app import run_console
 from .crisis_metrics import CrisisMetricsEngine
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
-from .explanations import format_crisis_dashboard, format_game_result, format_question_evaluation
+from .explanations import (
+    format_crisis_dashboard,
+    format_equilibrium_result,
+    format_game_result,
+    format_question_evaluation,
+)
+from .game_theory.equilibrium_runner import run_equilibrium_search
 from .game_runner import GameRunner
 from .runtime import MISC_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
@@ -105,6 +111,24 @@ def build_parser() -> ArgumentParser:
     calibrate_mode_group = calibrate_parser.add_mutually_exclusive_group()
     calibrate_mode_group.add_argument("--sim", action="store_true")
     calibrate_mode_group.add_argument("--no-sim", action="store_true")
+
+    equilibrium_parser = subparsers.add_parser(
+        "equilibrium",
+        help="Run regret minimization, trust-weighted correlated equilibrium, and welfare diagnostics",
+    )
+    equilibrium_parser.add_argument("--case", required=True)
+    equilibrium_parser.add_argument("--state-csv")
+    equilibrium_parser.add_argument("--max-countries", type=int)
+    equilibrium_parser.add_argument("--episodes", type=int, default=50)
+    equilibrium_parser.add_argument("--threshold", type=float, default=0.02)
+    equilibrium_parser.add_argument("--max-combinations", type=int, default=256)
+    equilibrium_parser.add_argument(
+        "--trust-alpha",
+        type=float,
+        default=0.5,
+        help="Weight of trust in social welfare [0 = utilitarian, 1 = trust-weighted]",
+    )
+    equilibrium_parser.add_argument("--json", dest="json_output", action="store_true")
 
     brief_parser = subparsers.add_parser(
         "brief",
@@ -219,6 +243,24 @@ def main() -> None:
             print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
             return
         print(format_calibration_suite_result(result))
+        return
+    if args.command == "equilibrium":
+        world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
+        runner = GameRunner(world)
+        game = load_game_definition(_resolve_case_path(args.case), world)
+        result = run_equilibrium_search(
+            runner=runner,
+            game=game,
+            world=world,
+            max_episodes=args.episodes,
+            convergence_threshold=args.threshold,
+            max_combinations=args.max_combinations,
+            trust_alpha=args.trust_alpha,
+        )
+        if args.json_output:
+            print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
+            return
+        print(format_equilibrium_result(result))
         return
 
     world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
