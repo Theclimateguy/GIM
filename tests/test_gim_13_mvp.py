@@ -1,11 +1,13 @@
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from GIM_13.__main__ import build_parser
-from GIM_13.console_app import count_action_combinations, discover_cases
+from GIM_13.console_app import _prompt_numbered_multiselect, count_action_combinations, discover_cases
 from GIM_13.game_runner import GameRunner
 from GIM_13.runtime import load_world
 from GIM_13.scenario_compiler import compile_question, load_game_definition
+from GIM_13.types import AVAILABLE_ACTIONS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +33,20 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertIn("Iran", scenario.unresolved_actor_names)
         self.assertTrue(scenario.critical_focus)
         self.assertEqual(scenario.base_year, 2023)
+
+    def test_compile_question_detects_trade_war_template(self) -> None:
+        scenario = compile_question(
+            question="Could a trade war with tariffs and export controls destabilize China and the United States?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.template_id, "trade_war")
+
+    def test_compile_question_detects_cyber_template(self) -> None:
+        scenario = compile_question(
+            question="Could a cyber attack on infrastructure trigger escalation between Iran and the United States?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.template_id, "cyber_disruption")
 
     def test_scenario_probabilities_sum_to_one(self) -> None:
         scenario = compile_question(
@@ -74,6 +90,27 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertAlmostEqual(baseline.crisis_signal_summary["net_crisis_shift"], 0.0, places=6)
         self.assertGreater(escalated.crisis_signal_summary["geopolitical_stress_shift"], 0.0)
 
+    def test_new_economic_and_cyber_actions_shift_model_outputs(self) -> None:
+        scenario = compile_question(
+            question="Could cyber attacks and a trade war destabilize China and the United States?",
+            world=self.world,
+            actors=["United States", "China"],
+            template_id="trade_war",
+        )
+        baseline = self.runner.evaluate_scenario(scenario, selected_actions={})
+        shifted = self.runner.evaluate_scenario(
+            scenario,
+            selected_actions={
+                scenario.actor_ids[0]: "impose_tariffs",
+                scenario.actor_ids[1]: "cyber_disruption_attack",
+            },
+        )
+        self.assertGreater(shifted.crisis_signal_summary["macro_stress_shift"], 0.0)
+        self.assertGreater(
+            shifted.risk_probabilities["direct_strike_exchange"],
+            baseline.risk_probabilities["direct_strike_exchange"],
+        )
+
     def test_console_subcommand_is_registered(self) -> None:
         parser = build_parser()
         args = parser.parse_args(["console"])
@@ -107,6 +144,16 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertTrue(cases)
         game = load_game_definition(CASE_PATH, self.world)
         self.assertEqual(count_action_combinations(game), 256)
+
+    def test_console_numbered_picker_supports_new_actions(self) -> None:
+        self.assertIn("cyber_disruption_attack", AVAILABLE_ACTIONS)
+        options = list(AVAILABLE_ACTIONS)
+        with patch("GIM_13.console_app._prompt", side_effect=["13,20,22"]), patch("builtins.print"):
+            selection = _prompt_numbered_multiselect("Actions", options)
+        self.assertEqual(
+            selection,
+            ["impose_tariffs", "cyber_disruption_attack", "cyber_defense_posture"],
+        )
 
 
 if __name__ == "__main__":

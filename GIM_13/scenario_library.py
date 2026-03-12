@@ -107,6 +107,62 @@ TEMPLATE_REGISTRY = {
             }
         ],
     },
+    "trade_war": {
+        "title": "Trade war",
+        "narrative": (
+            "An economic confrontation centered on tariffs, export controls and sanctions-style pressure, "
+            "with spillovers into domestic stability and strategic dependence."
+        ),
+        "risk_biases": {
+            "internal_destabilization": 0.50,
+            "limited_proxy_escalation": 0.15,
+            "controlled_suppression": 0.10,
+            "negotiated_deescalation": -0.05,
+        },
+        "indicators": [
+            "sanctions_pressure",
+            "resource_gap",
+            "social_stress",
+            "policy_space",
+            "tail_pressure",
+        ],
+        "shocks": [
+            {
+                "channel": "sanctions",
+                "magnitude": 0.55,
+                "cadence": "monthly",
+                "rationale": "Tariffs, export controls and retaliatory measures tighten trade access.",
+            }
+        ],
+    },
+    "cyber_disruption": {
+        "title": "Cyber disruption",
+        "narrative": (
+            "A cyber confrontation where reconnaissance, infrastructure attacks and defensive hardening "
+            "shape escalation risk without assuming immediate conventional war."
+        ),
+        "risk_biases": {
+            "direct_strike_exchange": 0.30,
+            "limited_proxy_escalation": 0.20,
+            "internal_destabilization": 0.10,
+            "broad_regional_escalation": 0.15,
+        },
+        "indicators": [
+            "conflict_stress",
+            "sanctions_pressure",
+            "policy_space",
+            "negotiation_capacity",
+            "tail_pressure",
+        ],
+        "shocks": [
+            {
+                "channel": "cyber",
+                "magnitude": 0.60,
+                "cadence": "weekly",
+                "rationale": "Persistent cyber pressure raises disruption risk and escalation miscalculation.",
+            }
+        ],
+    },
     "regime_stress": {
         "title": "Regime stress",
         "narrative": (
@@ -138,6 +194,8 @@ TEMPLATE_REGISTRY = {
 
 TEMPLATE_KEYWORDS = {
     "sanctions_spiral": ("sanction", "embargo", "pressure campaign"),
+    "trade_war": ("trade war", "tariff", "tariffs", "export control", "export controls"),
+    "cyber_disruption": ("cyber", "hack", "hacking", "malware", "infrastructure attack"),
     "regional_pressure": ("iran", "proxy", "middle east", "gulf", "regional escalation"),
     "maritime_deterrence": ("maritime", "strait", "chokepoint", "shipping", "blockade", "ormuz"),
     "regime_stress": ("protest", "riot", "regime", "domestic crisis", "leadership shock"),

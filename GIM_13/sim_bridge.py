@@ -119,6 +119,86 @@ ACTION_TO_POLICY: dict[str, dict] = {
         },
         "description": "Domestic repression posture that trades legitimacy for control.",
     },
+    "impose_tariffs": {
+        "domestic": {"tax_fuel_change": 0.06},
+        "trade_restrictions": [
+            {"level": "hard", "target_mode": "primary_peer", "reason": "sectoral tariffs"}
+        ],
+        "description": "Tariff escalation against selected sectors tied to the primary counterpart.",
+    },
+    "export_controls": {
+        "domestic": {"rd_investment_change": 0.001},
+        "sanctions": [
+            {"type": "mild", "target_mode": "primary_peer", "reason": "export controls"}
+        ],
+        "trade_restrictions": [
+            {"level": "hard", "target_mode": "primary_peer", "reason": "technology export controls"}
+        ],
+        "description": "Technology export restrictions designed to slow counterpart capability gains.",
+    },
+    "lift_sanctions": {
+        "domestic": {"social_spending_change": 0.001, "military_spending_change": -0.001},
+        "trade_deals": [
+            {
+                "resource_selector": "largest_gap",
+                "direction": "import",
+                "partner_mode": "primary_peer",
+                "volume_scale": 0.05,
+                "price_preference": "fair",
+            }
+        ],
+        "trade_restrictions": [
+            {"level": "none", "target_mode": "primary_peer", "reason": "partial sanctions relief"}
+        ],
+        "description": "Partial sanctions relief paired with limited economic normalization.",
+    },
+    "currency_intervention": {
+        "domestic": {"tax_fuel_change": 0.08, "social_spending_change": -0.002},
+        "finance": {"use_fx_reserves_change": 0.06},
+        "description": "Currency defense through reserve use and tighter domestic adjustment.",
+    },
+    "debt_restructuring": {
+        "domestic": {"social_spending_change": 0.002, "military_spending_change": -0.002},
+        "finance": {"borrow_from_global_markets": 0.02, "use_fx_reserves_change": 0.02},
+        "description": "Sovereign debt restructuring with temporary domestic and external adjustment.",
+    },
+    "capital_controls": {
+        "domestic": {"social_spending_change": -0.001},
+        "trade_restrictions": [
+            {"level": "soft", "target_mode": "primary_peer", "reason": "capital controls spillover"}
+        ],
+        "finance": {"use_fx_reserves_change": 0.03},
+        "description": "Capital flow restrictions used to stabilize domestic financing conditions.",
+    },
+    "cyber_probe": {
+        "domestic": {"rd_investment_change": 0.001},
+        "sanctions": [
+            {"type": "mild", "target_mode": "primary_peer", "reason": "cyber probe response"}
+        ],
+        "description": "Reconnaissance-grade cyber pressure short of open disruption.",
+    },
+    "cyber_disruption_attack": {
+        "domestic": {"rd_investment_change": 0.002, "military_spending_change": 0.002},
+        "sanctions": [
+            {"type": "mild", "target_mode": "primary_peer", "reason": "cyber disruption attack"}
+        ],
+        "trade_restrictions": [
+            {"level": "soft", "target_mode": "primary_peer", "reason": "infrastructure disruption"}
+        ],
+        "security": {"type": "border_incident", "target_mode": "primary_peer"},
+        "description": "Infrastructure-targeting cyber attack with visible escalation risk.",
+    },
+    "cyber_espionage": {
+        "domestic": {"rd_investment_change": 0.002},
+        "trade_restrictions": [
+            {"level": "soft", "target_mode": "primary_peer", "reason": "industrial cyber espionage"}
+        ],
+        "description": "Industrial cyber espionage focused on strategic and technology gains.",
+    },
+    "cyber_defense_posture": {
+        "domestic": {"rd_investment_change": 0.002, "military_spending_change": -0.001},
+        "description": "Defensive hardening that lowers cyber exposure without overt retaliation.",
+    },
 }
 
 MACRO_METRICS = {"inflation", "fx_stress", "sovereign_stress", "food_affordability_stress"}
@@ -614,6 +694,7 @@ class SimBridge:
             trade_specs=spec.get("trade_deals", []),
         )
         domestic = spec.get("domestic", {})
+        finance = spec.get("finance", {})
         explanation = spec.get("description", action_name.replace("_", " "))
         if primary_peer and primary_peer in world.agents:
             explanation = f"{explanation} Target={world.agents[primary_peer].name}."
@@ -640,8 +721,8 @@ class SimBridge:
                     ),
                 ),
                 finance=FinancePolicy(
-                    borrow_from_global_markets=0.0,
-                    use_fx_reserves_change=0.0,
+                    borrow_from_global_markets=float(finance.get("borrow_from_global_markets", 0.0)),
+                    use_fx_reserves_change=float(finance.get("use_fx_reserves_change", 0.0)),
                 ),
                 explanation=f"forced_gim13_action:{action_name}; {explanation}",
             )

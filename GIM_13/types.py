@@ -46,6 +46,16 @@ AVAILABLE_ACTIONS = (
     "accept_mediation",
     "information_campaign",
     "domestic_crackdown",
+    "impose_tariffs",
+    "export_controls",
+    "lift_sanctions",
+    "currency_intervention",
+    "debt_restructuring",
+    "capital_controls",
+    "cyber_probe",
+    "cyber_disruption_attack",
+    "cyber_espionage",
+    "cyber_defense_posture",
 )
 
 

@@ -73,6 +73,51 @@ ACTION_RISK_SHIFTS = {
         "internal_destabilization": 0.10,
         "negotiated_deescalation": -0.05,
     },
+    "impose_tariffs": {
+        "internal_destabilization": 0.15,
+        "limited_proxy_escalation": 0.10,
+        "negotiated_deescalation": -0.05,
+    },
+    "export_controls": {
+        "internal_destabilization": 0.08,
+        "limited_proxy_escalation": 0.08,
+        "negotiated_deescalation": -0.04,
+    },
+    "lift_sanctions": {
+        "internal_destabilization": -0.20,
+        "negotiated_deescalation": 0.25,
+    },
+    "currency_intervention": {
+        "internal_destabilization": 0.12,
+        "controlled_suppression": 0.05,
+        "status_quo": -0.04,
+    },
+    "debt_restructuring": {
+        "internal_destabilization": 0.10,
+        "status_quo": -0.05,
+    },
+    "capital_controls": {
+        "internal_destabilization": 0.08,
+        "controlled_suppression": 0.05,
+        "limited_proxy_escalation": 0.05,
+    },
+    "cyber_probe": {
+        "limited_proxy_escalation": 0.08,
+        "internal_destabilization": 0.05,
+    },
+    "cyber_disruption_attack": {
+        "direct_strike_exchange": 0.20,
+        "broad_regional_escalation": 0.10,
+        "negotiated_deescalation": -0.08,
+    },
+    "cyber_espionage": {
+        "limited_proxy_escalation": 0.04,
+        "controlled_suppression": 0.05,
+    },
+    "cyber_defense_posture": {
+        "direct_strike_exchange": -0.05,
+        "negotiated_deescalation": 0.05,
+    },
 }
 
 SHOCK_RISK_SHIFTS = {
@@ -92,6 +137,12 @@ SHOCK_RISK_SHIFTS = {
     "domestic": {
         "controlled_suppression": 0.18,
         "internal_destabilization": 0.25,
+    },
+    "cyber": {
+        "direct_strike_exchange": 0.20,
+        "limited_proxy_escalation": 0.10,
+        "internal_destabilization": 0.08,
+        "broad_regional_escalation": 0.08,
     },
 }
 
@@ -150,6 +201,20 @@ ACTION_OBJECTIVE_BONUS = {
     "backchannel_offer": {"reduce_war_risk": 0.10, "bargaining_power": 0.06},
     "accept_mediation": {"reduce_war_risk": 0.15},
     "domestic_crackdown": {"regime_retention": 0.10},
+    "impose_tariffs": {"bargaining_power": 0.08, "sanctions_resilience": 0.04},
+    "export_controls": {"bargaining_power": 0.10, "regional_influence": 0.04},
+    "lift_sanctions": {
+        "reduce_war_risk": 0.12,
+        "sanctions_resilience": 0.12,
+        "resource_access": 0.06,
+    },
+    "currency_intervention": {"regime_retention": 0.06, "sanctions_resilience": 0.08},
+    "debt_restructuring": {"regime_retention": 0.08, "sanctions_resilience": 0.12},
+    "capital_controls": {"regime_retention": 0.05, "sanctions_resilience": 0.08},
+    "cyber_probe": {"bargaining_power": 0.06, "regional_influence": 0.05},
+    "cyber_disruption_attack": {"bargaining_power": 0.10, "regional_influence": 0.08},
+    "cyber_espionage": {"bargaining_power": 0.08, "resource_access": 0.05},
+    "cyber_defense_posture": {"reduce_war_risk": 0.08, "regime_retention": 0.04},
 }
 
 ACTION_CRISIS_SHIFTS = {
@@ -317,6 +382,132 @@ ACTION_CRISIS_SHIFTS = {
         },
         "global": {
             "global_sanctions_footprint": 0.01,
+        },
+    },
+    "impose_tariffs": {
+        "self": {
+            "inflation": 0.03,
+            "sanctions_strangulation": 0.02,
+        },
+        "others": {
+            "strategic_dependency": 0.05,
+            "inflation": 0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.08,
+        },
+    },
+    "export_controls": {
+        "self": {
+            "sanctions_strangulation": 0.04,
+            "strategic_dependency": 0.08,
+        },
+        "others": {
+            "strategic_dependency": 0.10,
+            "inflation": 0.02,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.07,
+            "global_sanctions_footprint": 0.03,
+        },
+    },
+    "lift_sanctions": {
+        "self": {
+            "sanctions_strangulation": -0.10,
+            "fx_stress": -0.05,
+            "regime_fragility": -0.02,
+        },
+        "others": {
+            "sanctions_strangulation": -0.06,
+            "strategic_dependency": -0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": -0.06,
+            "global_sanctions_footprint": -0.08,
+        },
+    },
+    "currency_intervention": {
+        "self": {
+            "fx_stress": 0.18,
+            "inflation": 0.10,
+        },
+        "others": {
+            "inflation": 0.01,
+        },
+        "global": {},
+    },
+    "debt_restructuring": {
+        "self": {
+            "sovereign_stress": -0.25,
+            "regime_fragility": 0.05,
+            "protest_pressure": 0.03,
+        },
+        "others": {},
+        "global": {},
+    },
+    "capital_controls": {
+        "self": {
+            "sanctions_strangulation": 0.12,
+            "fx_stress": 0.15,
+            "strategic_dependency": 0.04,
+        },
+        "others": {
+            "strategic_dependency": 0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.05,
+        },
+    },
+    "cyber_probe": {
+        "self": {
+            "conflict_escalation_pressure": 0.03,
+        },
+        "others": {
+            "conflict_escalation_pressure": 0.02,
+            "strategic_dependency": 0.02,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.01,
+        },
+    },
+    "cyber_disruption_attack": {
+        "self": {
+            "conflict_escalation_pressure": 0.12,
+            "sanctions_strangulation": 0.04,
+        },
+        "others": {
+            "conflict_escalation_pressure": 0.08,
+            "strategic_dependency": 0.06,
+            "chokepoint_exposure": 0.03,
+            "inflation": 0.03,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.05,
+            "global_oil_market_stress": 0.02,
+        },
+    },
+    "cyber_espionage": {
+        "self": {
+            "regime_fragility": 0.01,
+        },
+        "others": {
+            "strategic_dependency": 0.10,
+            "sanctions_strangulation": 0.02,
+        },
+        "global": {
+            "global_trade_fragmentation": 0.02,
+        },
+    },
+    "cyber_defense_posture": {
+        "self": {
+            "conflict_escalation_pressure": -0.05,
+            "strategic_dependency": -0.04,
+        },
+        "others": {
+            "conflict_escalation_pressure": -0.01,
+        },
+        "global": {
+            "global_trade_fragmentation": -0.01,
         },
     },
 }
@@ -550,6 +741,12 @@ class GameRunner:
                 "maritime_interdiction",
                 "partial_mobilization",
                 "targeted_strike",
+                "impose_tariffs",
+                "export_controls",
+                "capital_controls",
+                "cyber_probe",
+                "cyber_disruption_attack",
+                "cyber_espionage",
             }:
                 escalation_count += 1
             if action_name in {
@@ -557,6 +754,8 @@ class GameRunner:
                 "restrain_proxy",
                 "backchannel_offer",
                 "accept_mediation",
+                "lift_sanctions",
+                "cyber_defense_posture",
             }:
                 deescalation_count += 1
 
