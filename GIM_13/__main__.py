@@ -3,6 +3,7 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 
+from .console_app import run_console
 from .crisis_metrics import CrisisMetricsEngine
 from .explanations import format_crisis_dashboard, format_game_result, format_question_evaluation
 from .game_runner import GameRunner
@@ -46,12 +47,20 @@ def build_parser() -> ArgumentParser:
     metrics_parser.add_argument("--max-countries", type=int)
     metrics_parser.add_argument("--json", dest="json_output", action="store_true")
 
+    console_parser = subparsers.add_parser("console", help="Launch the interactive console menu")
+    console_parser.add_argument("--state-csv")
+    console_parser.add_argument("--max-countries", type=int)
+
     return parser
 
 
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+    if args.command == "console":
+        run_console(state_csv=args.state_csv, max_countries=args.max_countries)
+        return
+
     world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
     runner = GameRunner(world)
     metrics_engine = CrisisMetricsEngine()

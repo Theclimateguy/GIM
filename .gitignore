@@ -12,3 +12,18 @@ __pycache__/
 archive/
 API.txt
 legacy/_workspace_extras/
+
+# Local-only docs and drafts not part of the current implementation doc set
+GIM_12/GIM_12_documentation.md
+GIM_12/credit_rating_methodology.md
+GIM_12/gamma_app_prompt_ru.md
+GIM_12/methodic.md
+GIM_12_quarterly_readiness.md
+GIM_13_policy_gaming_TZ.md
+legacy/GIM_11_1/GIM_11_1_documentation.md
+legacy/GIM_11_1/methodic.md
+legacy/V10_3_prod/V10_3_prod_documentation.md
+
+# Local-only state artifacts
+GIM_12/agent_states_gim13.template.csv
+legacy/GIM_11_1/agent_states.csv

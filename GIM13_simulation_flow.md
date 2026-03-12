@@ -64,6 +64,11 @@ flowchart TD
     K --> L["explanations.format_crisis_dashboard()<br/>человеко-читаемый вывод метрик"]
     L --> M["stdout / CLI output<br/>печать результата в консоль"]
 
+    C -->|console| X["console_app.run_console()<br/>интерактивное меню режимов и параметров"]
+    X --> Y{"Выбран путь"}
+    Y -->|Q&A| D
+    Y -->|Policy Gaming| G
+
     F --> N["ScenarioEvaluation<br/>единый объект результата: вероятности исходов, драйверы, crisis metrics"]
     N --> O["explanations.format_question_evaluation()<br/>ответ по question-режиму"]
     O --> P["stdout / CLI output<br/>печать результата в консоль"]

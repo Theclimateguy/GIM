@@ -28,6 +28,12 @@ Run the bundled policy-game case:
 python3 -m GIM_13 game --case maritime_pressure_game.json
 ```
 
+Launch the interactive console menu:
+
+```bash
+python3 -m GIM_13 console
+```
+
 Run the crisis metrics dashboard:
 
 ```bash

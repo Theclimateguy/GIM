@@ -6,6 +6,7 @@ This repository is now organized by model generation.
 
 - `GIM_12/` is the current production model.
 - `GIM_13/` is the new policy-gaming MVP layer built over the same calibrated world core.
+- Unified technical documentation for the current stack is in `MODEL_DOCUMENTATION.md`.
 - Run from `GIM_12/`.
 
 Quick start:

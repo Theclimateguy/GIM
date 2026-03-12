@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import sys
 
@@ -14,6 +15,12 @@ from gim_11_1.world_factory import make_world_from_csv  # noqa: E402
 
 
 def default_state_csv() -> str:
+    explicit = os.environ.get("GIM13_STATE_CSV")
+    if explicit:
+        return explicit
+    preferred = REPO_ROOT / "GIM_12" / "agent_states_gim13.csv"
+    if os.environ.get("GIM13_USE_EXPERIMENTAL_STATE") == "1" and preferred.exists() and preferred.stat().st_size > 0:
+        return str(preferred)
     return str(REPO_ROOT / "GIM_12" / "agent_states.csv")
 
 

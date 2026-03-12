@@ -1,5 +1,7 @@
 # GIM13
 
+Единый актуальный свод по модели теперь находится в [MODEL_DOCUMENTATION.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/MODEL_DOCUMENTATION.md).
+
 Подробная блок-схема запуска и прогона вынесена в [GIM13_simulation_flow.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM13_simulation_flow.md).
 Отдельная схема crisis metric layer вынесена в [GIM13_crisis_metrics_flow.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM13_crisis_metrics_flow.md).
 
@@ -25,14 +27,15 @@
 
 | Модуль | Роль |
 | :-- | :-- |
-| `GIM_13/runtime.py` | Подключает legacy-core `GIM_11_1` и загружает `WorldState` из `GIM_12/agent_states.csv`. |
+| `GIM_13/runtime.py` | Подключает legacy-core `GIM_11_1`; по умолчанию загружает `GIM_12/agent_states.csv`, а `GIM_12/agent_states_gim13.csv` использует только в opt-in режиме через `GIM13_USE_EXPERIMENTAL_STATE=1` или `GIM13_STATE_CSV=/abs/path/to/file.csv`. |
 | `GIM_13/types.py` | Контракты сценариев, игроков, оценок сценария и результата игры. |
 | `GIM_13/scenario_library.py` | Библиотека сценарных шаблонов и risk classes. |
 | `GIM_13/scenario_compiler.py` | Превращает natural-language question или case file в `ScenarioDefinition` / `GameDefinition`. |
 | `GIM_13/crisis_metrics.py` | Отдельный диагностический слой: archetype routing, crisis metrics, global context. |
 | `GIM_13/game_runner.py` | Главный движок оценки сценариев и policy gaming. |
+| `GIM_13/console_app.py` | Интерактивный консольный launcher для `Q&A` и `Policy Gaming` с базовыми логами инференса. |
 | `GIM_13/explanations.py` | Человеко-читаемый вывод для `question`, `game` и `metrics`. |
-| `GIM_13/__main__.py` | CLI entrypoint: `question`, `game`, `metrics`. |
+| `GIM_13/__main__.py` | CLI entrypoint: `question`, `game`, `metrics`, `console`. |
 | `GIM_13/cases/*.json` | Готовые policy-game кейсы. |
 | `tests/*.py` | Smoke и integration tests для сценариев, gaming и crisis metrics. |
 

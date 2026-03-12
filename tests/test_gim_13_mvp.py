@@ -1,6 +1,8 @@
 from pathlib import Path
 import unittest
 
+from GIM_13.__main__ import build_parser
+from GIM_13.console_app import count_action_combinations, discover_cases
 from GIM_13.game_runner import GameRunner
 from GIM_13.runtime import load_world
 from GIM_13.scenario_compiler import compile_question, load_game_definition
@@ -70,6 +72,17 @@ class GIM13MVPTests(unittest.TestCase):
         )
         self.assertAlmostEqual(baseline.crisis_signal_summary["net_crisis_shift"], 0.0, places=6)
         self.assertGreater(escalated.crisis_signal_summary["geopolitical_stress_shift"], 0.0)
+
+    def test_console_subcommand_is_registered(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["console"])
+        self.assertEqual(args.command, "console")
+
+    def test_console_discovers_cases_and_counts_actions(self) -> None:
+        cases = discover_cases()
+        self.assertTrue(cases)
+        game = load_game_definition(CASE_PATH, self.world)
+        self.assertEqual(count_action_combinations(game), 256)
 
 
 if __name__ == "__main__":
