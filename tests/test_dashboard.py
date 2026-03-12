@@ -67,6 +67,7 @@ class DashboardTests(unittest.TestCase):
                 config=DashboardConfig(
                     output_path=str(output_path),
                     show_trajectory=False,
+                    prefer_llm_interpretation=False,
                 ),
                 save_json=True,
             )
@@ -76,7 +77,11 @@ class DashboardTests(unittest.TestCase):
             self.assertIn("World State Snapshot", html)
             self.assertNotIn("Trajectory Dynamics", html)
             self.assertIn("Decision Brief", html)
+            self.assertIn("Decision-Maker Interpretation", html)
             self.assertIn("Key drivers", html)
+            self.assertIn('aria-label="Criticality gauge"', html)
+            self.assertIn(">0.0<", html)
+            self.assertIn(">1.0<", html)
             self.assertTrue(Path(written["json"]).exists())
 
     def test_sim_question_dashboard_includes_trajectory_block(self) -> None:
@@ -107,6 +112,7 @@ class DashboardTests(unittest.TestCase):
                     execution_label="sim",
                     policy_mode_label="simple",
                     horizon_years=1,
+                    prefer_llm_interpretation=False,
                 ),
                 save_json=False,
             )
@@ -114,6 +120,7 @@ class DashboardTests(unittest.TestCase):
             html = output_path.read_text(encoding="utf-8")
             self.assertIn("Trajectory Dynamics", html)
             self.assertIn("Decision Brief", html)
+            self.assertIn("Decision-Maker Interpretation", html)
             self.assertIn("Trajectory shift", html)
             self.assertIn("Model terms", html)
 
@@ -133,6 +140,7 @@ class DashboardTests(unittest.TestCase):
                     output_path=str(output_path),
                     show_trajectory=False,
                     show_game_results=True,
+                    prefer_llm_interpretation=False,
                 ),
                 save_json=False,
             )
@@ -140,8 +148,40 @@ class DashboardTests(unittest.TestCase):
             html = output_path.read_text(encoding="utf-8")
             self.assertIn("Strategy ranking", html)
             self.assertIn("Decision Brief", html)
+            self.assertIn("Decision-Maker Interpretation", html)
             self.assertIn("Orchestrator highlights", html)
             self.assertIn("Policy Game Results and Orchestrator Highlights", html)
+
+    def test_dashboard_renders_interpretive_summary_as_multiple_html_paragraphs(self) -> None:
+        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))
+        scenario = compile_question(
+            question="Will war start in Iran?",
+            world=world,
+            actors=["Iran"],
+            horizon_months=36,
+        )
+        evaluation = GameRunner(world).evaluate_scenario(scenario)
+
+        with TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "dashboard.html"
+            write_dashboard_artifacts(
+                renderer=DashboardRenderer(),
+                evaluation=evaluation,
+                game_result=None,
+                trajectory=[world],
+                scenario_def=scenario,
+                config=DashboardConfig(
+                    output_path=str(output_path),
+                    show_trajectory=False,
+                    prefer_llm_interpretation=False,
+                ),
+                save_json=False,
+            )
+
+            html = output_path.read_text(encoding="utf-8")
+            self.assertIn("<p>The model does not make direct war in Iran the base case", html)
+            self.assertIn("<p>The quantitative picture is being driven mainly", html)
+            self.assertIn("<p>For a decision-maker, the practical implication is", html)
 
 
 if __name__ == "__main__":

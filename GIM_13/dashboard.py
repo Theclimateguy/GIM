@@ -69,6 +69,8 @@ class DashboardConfig:
     run_id: str | None = None
     n_runs: int = 1
     horizon_years: int = 0
+    include_interpretive_summary: bool = True
+    prefer_llm_interpretation: bool = True
 
 
 class DashboardRenderer:
@@ -131,6 +133,8 @@ class DashboardRenderer:
                 run_id=config.run_id,
                 n_runs=config.n_runs,
                 horizon_years=config.horizon_years,
+                include_interpretive_summary=config.include_interpretive_summary,
+                prefer_llm_interpretation=config.prefer_llm_interpretation,
             ),
         )
 
@@ -1503,14 +1507,14 @@ class DashboardRenderer:
         dash = 100.0 * clamped
         return f"""
 <div class="gauge-wrap">
-  <svg width="260" height="160" viewBox="0 0 220 140" role="img" aria-label="Criticality gauge">
-    <path d="M 30 110 A 80 80 0 0 1 190 110" pathLength="100" fill="none" stroke="#eadfcb" stroke-width="18" stroke-linecap="round"></path>
-    <path d="M 30 110 A 80 80 0 0 1 190 110" pathLength="100" fill="none" stroke="{color}" stroke-width="18" stroke-linecap="round" stroke-dasharray="{dash:.1f} 100"></path>
-    <text x="110" y="88" text-anchor="middle" font-size="16" fill="#6b665d">criticality</text>
-    <text x="110" y="112" text-anchor="middle" font-size="32" font-weight="800" fill="#1d1b18">{clamped:.2f}</text>
-    <text x="30" y="132" text-anchor="middle" font-size="11" fill="#6b665d">0</text>
-    <text x="110" y="132" text-anchor="middle" font-size="11" fill="#6b665d">0.5</text>
-    <text x="190" y="132" text-anchor="middle" font-size="11" fill="#6b665d">1.0</text>
+  <svg width="280" height="182" viewBox="0 0 240 170" role="img" aria-label="Criticality gauge">
+    <path d="M 35 122 A 85 85 0 0 1 205 122" pathLength="100" fill="none" stroke="#eadfcb" stroke-width="18" stroke-linecap="round"></path>
+    <path d="M 35 122 A 85 85 0 0 1 205 122" pathLength="100" fill="none" stroke="{color}" stroke-width="18" stroke-linecap="round" stroke-dasharray="{dash:.1f} 100"></path>
+    <text x="120" y="94" text-anchor="middle" font-size="14" fill="#6b665d">criticality</text>
+    <text x="120" y="124" text-anchor="middle" font-size="38" font-weight="800" fill="#1d1b18">{clamped:.2f}</text>
+    <text x="35" y="150" text-anchor="middle" font-size="12" fill="#6b665d">0.0</text>
+    <text x="120" y="150" text-anchor="middle" font-size="12" fill="#6b665d">0.5</text>
+    <text x="205" y="150" text-anchor="middle" font-size="12" fill="#6b665d">1.0</text>
   </svg>
   <div class="gauge-caption">0.0-0.3 green, 0.3-0.6 amber, 0.6-1.0 red</div>
 </div>"""

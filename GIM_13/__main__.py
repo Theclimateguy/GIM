@@ -3,6 +3,8 @@ from dataclasses import asdict
 from datetime import datetime
 import json
 from pathlib import Path
+import sys
+from typing import Callable
 
 from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
 from .calibration import (
@@ -18,7 +20,7 @@ from .explanations import format_crisis_dashboard, format_game_result, format_qu
 from .game_runner import GameRunner
 from .runtime import MISC_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
-from .sim_bridge import SimBridge
+from .sim_bridge import SimBridge, SimProgress
 
 
 def _resolve_case_path(raw_value: str) -> Path:
@@ -178,6 +180,17 @@ def _build_run_metadata(command: str) -> tuple[str, str]:
     return run_timestamp, run_id
 
 
+def _terminal_progress_logger() -> Callable[[SimProgress], None]:
+    def _log(update: SimProgress) -> None:
+        print(
+            f"[sim] {update.percent:>3}%  {update.message}",
+            file=sys.stderr,
+            flush=True,
+        )
+
+    return _log
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
@@ -231,6 +244,7 @@ def main() -> None:
                 scenario,
                 n_years=args.horizon,
                 default_mode="llm",
+                progress_callback=_terminal_progress_logger(),
             )
         else:
             evaluation = runner.evaluate_scenario(scenario)
@@ -311,6 +325,7 @@ def main() -> None:
             game,
             n_years=args.horizon,
             default_mode="llm",
+            progress_callback=_terminal_progress_logger(),
         )
         trajectory = result.trajectory
     else:

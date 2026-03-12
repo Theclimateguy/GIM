@@ -1,6 +1,6 @@
 # VENDORED COPY from GIM/legacy/GIM_11_1 — last synced 2026-03-12
 # Do not edit directly. Sync from canonical source before each GIM13 release.
-# Tracked divergences: none as of sync date.
+# Tracked divergences: optional policy_progress callback in step_world for GIM13 CLI progress reporting.
 
 import copy
 import json
@@ -304,6 +304,7 @@ def step_world(
     action_log: Optional[List[Dict[str, Any]]] = None,
     institution_log: Optional[List[Dict[str, Any]]] = None,
     apply_institutions: bool = True,
+    policy_progress: Optional[Callable[[str], None]] = None,
 ) -> WorldState:
     actions: Dict[str, Action] = {}
     security_intents: Dict[str, Tuple[str, Optional[str]]] = {}
@@ -333,6 +334,8 @@ def step_world(
         sec = action.foreign_policy.security_actions
         security_intents[agent_id] = (sec.type, sec.target)
         actions[agent_id] = action
+        if policy_progress is not None:
+            policy_progress(agent_id)
 
     if llm_agent_ids:
         max_workers = _int_env("LLM_MAX_CONCURRENCY", default=8, minimum=1)
@@ -363,6 +366,8 @@ def step_world(
                     sec = action.foreign_policy.security_actions
                     security_intents[agent_id] = (sec.type, sec.target)
                     actions[agent_id] = action
+                    if policy_progress is not None:
+                        policy_progress(agent_id)
 
     resolve_foreign_policy(world, actions)
     apply_sanctions_effects(world)

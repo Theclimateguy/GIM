@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from itertools import product
 from typing import Callable
 
@@ -132,6 +132,61 @@ GEOPOLITICAL_METRICS = {
 }
 
 
+@dataclass(frozen=True)
+class SimProgress:
+    phase: str
+    percent: int
+    completed_units: int
+    total_units: int
+    message: str
+
+
+class _ProgressTracker:
+    def __init__(
+        self,
+        *,
+        phase: str,
+        total_units: int,
+        callback: Callable[[SimProgress], None] | None,
+        percent_step: int = 5,
+    ) -> None:
+        self.phase = phase
+        self.total_units = max(total_units, 1)
+        self.callback = callback
+        self.percent_step = max(percent_step, 1)
+        self.completed_units = 0
+        self._next_percent = 0
+
+    def start(self, message: str) -> None:
+        self._emit(percent=0, message=message)
+        self._next_percent = self.percent_step
+
+    def advance(self, *, units: int = 1, message: str) -> None:
+        self.completed_units = min(self.total_units, self.completed_units + max(units, 0))
+        percent = int((100 * self.completed_units) / self.total_units)
+        if self.completed_units >= self.total_units or percent >= self._next_percent:
+            self._emit(percent=percent, message=message)
+            while self._next_percent <= percent:
+                self._next_percent += self.percent_step
+
+    def complete(self, message: str) -> None:
+        self.completed_units = self.total_units
+        self._emit(percent=100, message=message)
+
+    def _emit(self, *, percent: int, message: str) -> None:
+        if self.callback is None:
+            return
+        self.callback(
+            SimProgress(
+                phase=self.phase,
+                percent=max(0, min(100, percent)),
+                completed_units=self.completed_units,
+                total_units=self.total_units,
+                message=message,
+            )
+        )
+
+
 class SimBridge:
     """
     Wires GIM13 scenario/game definitions into a GIM11_1 simulation run.
@@ -212,6 +267,9 @@ class SimBridge:
         world: WorldState,
         policy_map: dict[str, Callable[..., Action]],
         n_years: int,
+        *,
+        progress_tracker: _ProgressTracker | None = None,
+        trajectory_label: str = "simulation",
     ) -> list[WorldState]:
         """
         Deep-copy the world and run step_world n_years times.
@@ -223,8 +281,27 @@ class SimBridge:
         sim_world = copy.deepcopy(world)
         trajectory = [copy.deepcopy(sim_world)]
         memory = {}
-        for _ in range(n_years):
-            sim_world = step_world(sim_world, policy_map, memory=memory)
+        agent_count = max(len(sim_world.agents), 1)
+        for year_index in range(n_years):
+            resolved_in_year = {"count": 0}
+
+            def _policy_progress(agent_id: str) -> None:
+                if progress_tracker is None:
+                    return
+                resolved_in_year["count"] += 1
+                progress_tracker.advance(
+                    message=(
+                        f"{trajectory_label}: year {year_index + 1}/{n_years}, "
+                        f"resolved {resolved_in_year['count']}/{agent_count} agents"
+                    )
+                )
+
+            sim_world = step_world(
+                sim_world,
+                policy_map,
+                memory=memory,
+                policy_progress=_policy_progress if progress_tracker is not None else None,
+            )
             trajectory.append(copy.deepcopy(sim_world))
         return trajectory
 
@@ -277,9 +354,28 @@ class SimBridge:
         *,
         n_years: int,
         default_mode: str = "llm",
+        progress_callback: Callable[[SimProgress], None] | None = None,
     ) -> tuple[ScenarioEvaluation, list[WorldState]]:
         policy_map = self.build_policy_map(world, game_def=None, default_mode=default_mode)
-        trajectory = self.run_trajectory(world, policy_map, n_years)
+        tracker = None
+        if progress_callback is not None and n_years > 0:
+            tracker = _ProgressTracker(
+                phase="question",
+                total_units=max(len(world.agents), 1) * n_years,
+                callback=progress_callback,
+            )
+            tracker.start(
+                f"Starting scenario simulation for {n_years} yearly steps across {len(world.agents)} agents"
+            )
+        trajectory = self.run_trajectory(
+            world,
+            policy_map,
+            n_years,
+            progress_tracker=tracker,
+            trajectory_label="scenario simulation",
+        )
+        if tracker is not None:
+            tracker.complete("Scenario simulation complete")
         return self.score_trajectory(trajectory, scenario_def), trajectory
 
     def run_game(
@@ -290,16 +386,8 @@ class SimBridge:
         n_years: int,
         default_mode: str = "llm",
         max_combinations: int = 256,
+        progress_callback: Callable[[SimProgress], None] | None = None,
     ) -> GameResult:
-        baseline_policy_map = self.build_policy_map(
-            world,
-            game_def=game_def,
-            default_mode=default_mode,
-            selected_actions={},
-        )
-        baseline_trajectory = self.run_trajectory(world, baseline_policy_map, n_years)
-        baseline_evaluation = self.score_trajectory(baseline_trajectory, game_def.scenario)
-
         action_spaces = [player.allowed_actions or ["signal_restraint"] for player in game_def.players]
         combination_count = 1
         for action_space in action_spaces:
@@ -310,11 +398,42 @@ class SimBridge:
             action_spaces = [action_space[:3] for action_space in action_spaces]
             truncated_action_space = True
 
+        effective_combination_count = 1
+        for action_space in action_spaces:
+            effective_combination_count *= max(1, len(action_space))
+
+        tracker = None
+        if progress_callback is not None and n_years > 0:
+            tracker = _ProgressTracker(
+                phase="game",
+                total_units=max(len(world.agents), 1) * n_years * (1 + effective_combination_count),
+                callback=progress_callback,
+            )
+            tracker.start(
+                "Starting policy game simulation "
+                f"(baseline + {effective_combination_count} strategy profiles)"
+            )
+
+        baseline_policy_map = self.build_policy_map(
+            world,
+            game_def=game_def,
+            default_mode=default_mode,
+            selected_actions={},
+        )
+        baseline_trajectory = self.run_trajectory(
+            world,
+            baseline_policy_map,
+            n_years,
+            progress_tracker=tracker,
+            trajectory_label="baseline profile",
+        )
+        baseline_evaluation = self.score_trajectory(baseline_trajectory, game_def.scenario)
+
         scoring_runner = GameRunner(world)
         combinations: list[GameCombinationResult] = []
         trajectories_by_actions: dict[tuple[tuple[str, str], ...], list[WorldState]] = {}
 
-        for choice_tuple in product(*action_spaces):
+        for combo_index, choice_tuple in enumerate(product(*action_spaces), start=1):
             selected_actions = {
                 player.player_id: action_name
                 for player, action_name in zip(game_def.players, choice_tuple)
@@ -325,7 +444,13 @@ class SimBridge:
                 default_mode=default_mode,
                 selected_actions=selected_actions,
             )
-            trajectory = self.run_trajectory(world, policy_map, n_years)
+            trajectory = self.run_trajectory(
+                world,
+                policy_map,
+                n_years,
+                progress_tracker=tracker,
+                trajectory_label=f"strategy {combo_index}/{effective_combination_count}",
+            )
             evaluation = self.score_trajectory(trajectory, game_def.scenario)
             player_payoffs = {
                 player.player_id: scoring_runner._score_player(
@@ -348,6 +473,8 @@ class SimBridge:
 
         combinations.sort(key=lambda combo: combo.total_payoff, reverse=True)
         best_signature = tuple(sorted(combinations[0].actions.items()))
+        if tracker is not None:
+            tracker.complete("Policy game simulation complete")
         return GameResult(
             game=game_def,
             baseline_evaluation=baseline_evaluation,

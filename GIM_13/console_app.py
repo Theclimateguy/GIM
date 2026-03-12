@@ -6,6 +6,7 @@ import json
 from math import prod
 from pathlib import Path
 from time import perf_counter
+from typing import Callable
 
 from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
@@ -13,7 +14,7 @@ from .explanations import format_game_result, format_question_evaluation
 from .game_runner import GameRunner
 from .runtime import MISC_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
-from .sim_bridge import SimBridge
+from .sim_bridge import SimBridge, SimProgress
 from .types import GameDefinition
 
 
@@ -23,6 +24,13 @@ CASES_DIR = MISC_ROOT / "cases"
 def _log(message: str) -> None:
     stamp = datetime.now().strftime("%H:%M:%S")
     print(f"[{stamp}] {message}")
+
+
+def _progress_logger() -> Callable[[SimProgress], None]:
+    def _log_progress(update: SimProgress) -> None:
+        _log(f"Simulation {update.percent:>3}% - {update.message}")
+
+    return _log_progress
 
 
 def _prompt(text: str) -> str:
@@ -248,6 +256,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
             scenario,
             n_years=horizon_years,
             default_mode="llm",
+            progress_callback=_progress_logger(),
         )
     else:
         _log("Evaluating scenario with static scorer")
@@ -343,6 +352,7 @@ def _run_game_flow(session: ConsoleSession) -> None:
             game,
             n_years=horizon_years,
             default_mode="llm",
+            progress_callback=_progress_logger(),
         )
         trajectory = result.trajectory
     else:

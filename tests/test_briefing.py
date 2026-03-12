@@ -7,6 +7,7 @@ import unittest
 from GIM_13.__main__ import build_parser
 from GIM_13.briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
 from GIM_13.game_runner import GameRunner
+from GIM_13.interpretive_summary import build_interpretive_summary
 from GIM_13.runtime import load_world
 from GIM_13.scenario_compiler import compile_question, load_game_definition
 from GIM_13.sim_bridge import SimBridge
@@ -63,14 +64,17 @@ class BriefingTests(unittest.TestCase):
                     include_game_results=False,
                     execution_label="sim",
                     policy_mode_label="simple",
+                    prefer_llm_interpretation=False,
                 ),
             )
             text = Path(written).read_text(encoding="utf-8")
+            self.assertIn("## Decision-Maker Interpretation", text)
             self.assertIn("## Executive Summary", text)
             self.assertIn("## Global Trajectory", text)
             self.assertIn("## Analyst Highlights", text)
             self.assertIn("## Model Terms", text)
             self.assertIn("Policy space", text)
+            self.assertIn("Interpretation source: Deterministic fallback.", text)
 
     def test_game_brief_from_json_writes_markdown(self) -> None:
         game = load_game_definition(CASE_PATH, self.world)
@@ -89,11 +93,54 @@ class BriefingTests(unittest.TestCase):
             input_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
             written = AnalyticsBriefRenderer().write_from_json(
                 input_path=str(input_path),
-                config=BriefConfig(output_path=str(output_path)),
+                config=BriefConfig(output_path=str(output_path), prefer_llm_interpretation=False),
             )
             text = Path(written).read_text(encoding="utf-8")
+            self.assertIn("## Decision-Maker Interpretation", text)
             self.assertIn("## Strategy Ranking", text)
             self.assertIn("Maritime pressure policy game", text)
+
+    def test_interpretive_summary_answers_war_question_directly(self) -> None:
+        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))
+        scenario = compile_question(
+            question="Will war start in Iran?",
+            world=world,
+            actors=["Iran"],
+            horizon_months=36,
+        )
+        evaluation = GameRunner(world).evaluate_scenario(scenario)
+        summary = build_interpretive_summary(
+            {
+                "scenario": asdict(scenario),
+                "evaluation": asdict(evaluation),
+                "trajectory": [asdict(world)],
+            },
+            prefer_llm=False,
+        )
+        self.assertEqual(len(summary.paragraphs), 3)
+        self.assertIn("war", summary.paragraphs[0].lower())
+        self.assertIn("Iran", summary.paragraphs[0])
+
+    def test_interpretive_summary_is_split_into_markdown_paragraphs(self) -> None:
+        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))
+        scenario = compile_question(
+            question="Will war start in Iran?",
+            world=world,
+            actors=["Iran"],
+            horizon_months=36,
+        )
+        evaluation = GameRunner(world).evaluate_scenario(scenario)
+        text = AnalyticsBriefRenderer().render(
+            evaluation=evaluation,
+            game_result=None,
+            trajectory=[world],
+            scenario_def=scenario,
+            config=BriefConfig(prefer_llm_interpretation=False),
+        )
+        self.assertIn("Interpretation source: Deterministic fallback.\n\nThe model", text)
+        self.assertIn("environment rather than a clean immediate-war forecast", text)
+        self.assertIn("forecast, especially because calibration remains", text)
+        self.assertIn("consistency remains 1.00.\n\nFor a decision-maker", text)
 
 
 if __name__ == "__main__":

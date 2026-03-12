@@ -20,6 +20,7 @@ from .decision_language import (
     world_gdp,
 )
 from .explanations import DRIVER_LABELS
+from .interpretive_summary import build_interpretive_summary
 from .model_terms import TERM_EXPLANATIONS
 
 
@@ -37,6 +38,8 @@ class BriefConfig:
     run_id: str | None = None
     n_runs: int = 1
     horizon_years: int = 0
+    include_interpretive_summary: bool = True
+    prefer_llm_interpretation: bool = True
 
 
 class AnalyticsBriefRenderer:
@@ -73,6 +76,12 @@ class AnalyticsBriefRenderer:
                 run_id=runtime_cfg.get("run_id"),
                 n_runs=int(runtime_cfg.get("n_runs", defaults.n_runs) or defaults.n_runs),
                 horizon_years=int(runtime_cfg.get("horizon_years", defaults.horizon_years) or defaults.horizon_years),
+                include_interpretive_summary=bool(
+                    runtime_cfg.get("include_interpretive_summary", defaults.include_interpretive_summary)
+                ),
+                prefer_llm_interpretation=bool(
+                    runtime_cfg.get("prefer_llm_interpretation", defaults.prefer_llm_interpretation)
+                ),
             )
         else:
             effective_config = BriefConfig(
@@ -104,6 +113,8 @@ class AnalyticsBriefRenderer:
                     if config.horizon_years != defaults.horizon_years
                     else int(runtime_cfg.get("horizon_years", defaults.horizon_years) or defaults.horizon_years)
                 ),
+                include_interpretive_summary=config.include_interpretive_summary,
+                prefer_llm_interpretation=config.prefer_llm_interpretation,
             )
 
         initial_eval = self._baseline_evaluation(payload)
@@ -132,6 +143,14 @@ class AnalyticsBriefRenderer:
             actor_names=list(scenario.get("actor_names") or []),
             horizon_years=horizon_years,
         )
+        interpretive_summary = (
+            build_interpretive_summary(
+                payload,
+                prefer_llm=effective_config.prefer_llm_interpretation,
+            )
+            if effective_config.include_interpretive_summary
+            else None
+        )
 
         parts = [
             f"# GIM13 Decision Brief: {scenario.get('source_prompt') or scenario.get('title')}",
@@ -150,6 +169,13 @@ class AnalyticsBriefRenderer:
             parts.append(f"- Policy game: {game_result['game']['title']}")
         parts.extend(
             [
+                "",
+                "## Decision-Maker Interpretation",
+                *(
+                    self._interpretive_lines(interpretive_summary)
+                    if interpretive_summary is not None
+                    else ["Interpretive summary disabled."]
+                ),
                 "",
                 "## Executive Summary",
                 executive_summary,
@@ -198,7 +224,7 @@ class AnalyticsBriefRenderer:
                 *highlight_lines,
                 "",
                 "## Method Note",
-                "- This brief is deterministic and derived from model outputs only.",
+                "- Quantitative sections are derived directly from model outputs; the interpretation layer can be produced either by DeepSeek or by deterministic fallback rules.",
                 "- It can be generated directly after `question/game` or post-facto from `evaluation.json`.",
             ]
         )
@@ -233,6 +259,14 @@ class AnalyticsBriefRenderer:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(text, encoding="utf-8")
         return str(output_path)
+
+    def _interpretive_lines(self, summary: Any) -> list[str]:
+        lines = [f"Interpretation source: {summary.source_label}."]
+        for paragraph in summary.paragraphs:
+            lines.extend(["", paragraph])
+        if summary.note:
+            lines.extend(["", f"_Note: {summary.note}_"])
+        return lines
 
     def _baseline_evaluation(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         game_result = payload.get("game_result")

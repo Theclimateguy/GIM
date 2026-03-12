@@ -172,6 +172,7 @@ Current CLI semantics:
 - `--horizon 0` is the default and keeps the historical static scorer behavior;
 - `--sim` is an explicit opt-in alias for the sim path and requires `--horizon > 0`;
 - on the current sim path, non-player countries default to legacy `llm` mode unless the bridge is called differently from code.
+- sim-path CLI runs emit progress updates to the terminal as percentages in roughly `5%` increments, which is useful when LLM-backed country policies take noticeable time.
 
 ### 3.4 Policy Gaming Mode
 
@@ -203,7 +204,7 @@ If the full action space exceeds `256` combinations, each player action list is 
 - provide a bundled case or free-form question;
 - choose `Simulation years [0 = static]`;
 - optionally point to a state CSV;
-- see basic logs while inference is running.
+- see basic logs and percentage-based simulation progress while inference is running.
 
 The console does not introduce a third model path. It exposes the same static-vs-sim branch through prompts instead of flags.
 
@@ -216,6 +217,7 @@ Current reporting artifacts:
 - formatted stdout via `explanations.py`;
 - self-contained `dashboard.html` via `dashboard.py`;
 - embedded `Decision Brief` section inside that dashboard;
+- embedded `Decision-Maker Interpretation`: a short 3-paragraph direct answer layer, generated via DeepSeek when available and otherwise via deterministic fallback rules;
 - standalone Markdown export via `briefing.py`;
 - optional `evaluation.json` sidecar for post-facto analysis or brief regeneration.
 
@@ -253,6 +255,7 @@ Important implementation notes:
 - this is deliberate, because legacy `step_world(...)` consumes a `policy_map` of `agent_id -> callable returning Action`;
 - there is no native dict-based policy interface in `gim_11_1`, so callables are the minimal interoperable design;
 - non-player countries remain on the legacy autonomous policy modes (`llm`, `simple`, `growth`);
+- progress reporting is implemented through an optional callback in the vendored `step_world(...)`, so LLM batching remains intact and the terminal can show completion percentages without changing the policy semantics;
 - the static path remains available as the explicit fallback via `--no-sim` or `--horizon 0`.
 
 Current cost model for the sim path is approximately:

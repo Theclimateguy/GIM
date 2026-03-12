@@ -67,6 +67,33 @@ class SimBridgeTests(unittest.TestCase):
         self.assertEqual(len(result.trajectory), 2)
         self.assertEqual(len(result.baseline_trajectory), 2)
 
+    def test_progress_callback_reports_monotonic_percentages(self) -> None:
+        scenario = compile_question(
+            question="Will Red Sea tensions escalate for Saudi Arabia, Turkey and China?",
+            world=self.world,
+            actors=["Saudi Arabia", "Turkey", "China"],
+            template_id="maritime_deterrence",
+        )
+        updates = []
+
+        def on_progress(update) -> None:
+            updates.append((update.percent, update.message))
+
+        self.bridge.evaluate_scenario(
+            self.world,
+            scenario,
+            n_years=1,
+            default_mode="simple",
+            progress_callback=on_progress,
+        )
+
+        percents = [percent for percent, _message in updates]
+        self.assertTrue(percents)
+        self.assertEqual(percents[0], 0)
+        self.assertEqual(percents[-1], 100)
+        self.assertEqual(percents, sorted(percents))
+        self.assertTrue(any("resolved" in message for _percent, message in updates))
+
 
 if __name__ == "__main__":
     unittest.main()
