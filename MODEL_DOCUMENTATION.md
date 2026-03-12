@@ -54,7 +54,7 @@ flowchart TD
     M --> N
     N --> O["explanations.py / console logs / stdout"]
 
-    P["Raw country panel<br/>WB / WGI / ND-GAIN / FAOSTAT / WMD / overrides"] --> Q["build_gim13_agent_states.py"]
+    P["Raw country panel<br/>WB / WGI / ND-GAIN / FAOSTAT / WMD / overrides"] --> Q["External compile step"]
     Q --> R["Compiled agent_states_gim13.csv"]
     R --> C
 ```
@@ -73,7 +73,7 @@ flowchart TD
 | `GIM_13/explanations.py` | Human-readable formatting for CLI output. |
 | `legacy/GIM_11_1/gim_11_1/simulation.py` | Actual yearly world step. |
 | `legacy/GIM_11_1/gim_11_1/world_factory.py` | CSV validation and construction of `WorldState`. |
-| `GIM_12/scripts/build_gim13_agent_states.py` | Source-layer builder for the new compiled state. |
+| `GIM_12/agent_states_gim13.csv` | Experimental compiled 57-actor state artifact consumed by `runtime.py` in opt-in mode. |
 
 ## 3. Top-Level Execution
 
@@ -894,6 +894,18 @@ intensity =
 emissions = GDP * intensity * (1 - policy_reduction) * 1.8
 ```
 
+Current coded constants are:
+
+```text
+CARBON_POOL_FRACTIONS = (0.2173, 0.2240, 0.2824, 0.2763)
+CARBON_POOL_TIMESCALES = (inf, 394.4, 36.54, 4.304)
+DEFAULT_ECS = 3.0, bounded to [1.5, 4.0]
+DEFAULT_F_NONCO2 = 0.0
+DEFAULT_HEAT_CAP_SURFACE = 20.0
+DEFAULT_HEAT_CAP_DEEP = 100.0
+DEFAULT_OCEAN_EXCHANGE = 0.7
+```
+
 Carbon cycle:
 
 ```text
@@ -929,6 +941,32 @@ target = clamp01(base + (1 - base) * temp_component)
 climate_risk_next = climate_risk + 0.06 * (target - climate_risk)
 ```
 
+Damage enters the economy through `effective_damage_multiplier(...)`, which is the term used in:
+
+```text
+GDP_target = GDP_potential * scale_factor * effective_damage_multiplier
+```
+
+The current coded damage link is:
+
+```text
+delta_t = temperature_global - TGLOBAL_2023_C
+
+benefit =
+    0.006 * exp(-((delta_t - 0.3)^2) / (2 * 0.5^2))
+
+loss = 0.006 * temperature_global^2
+
+climate_damage_multiplier =
+    max(0, 1 + benefit - loss)
+
+effective_damage_multiplier =
+    climate_damage_multiplier
+  * (1 + 0.005 * (1 - climate_risk))
+```
+
+This is the current implementation-specific damage mapping, not a DICE-style damage function.
+
 Extreme events remain stochastic, but their likelihood and impact are damped by endogenous resilience built from:
 
 - regime stability;
@@ -936,17 +974,117 @@ Extreme events remain stochastic, but their likelihood and impact are damped by 
 - trust;
 - adaptation spending.
 
+The current event logic is:
+
+```text
+resilience =
+    0.40 * regime_stability
+  + 0.30 * clamp01(tech_level / 2)
+  + 0.15 * trust_gov
+  + 0.15 * clamp01(climate_adaptation_spending / (0.03 * GDP))
+
+event_prob =
+    (0.012 + 0.07 * climate_risk)
+  * (1 + 0.15 * max(temperature_global - TGLOBAL_2023_C, 0))
+  * (1 - 0.40 * resilience)
+
+severity =
+    (0.03 + 0.15 * climate_risk)
+  * (1 - 0.50 * resilience)
+```
+
 ### 6.7 Social and Political Dynamics
 
 Population, migration, trust, tension, inequality, and regime collapse remain endogenous.
 
-Examples:
+Population update:
 
-- births decline with prosperity, scarcity, and inequality;
-- deaths rise with scarcity and inequality;
-- migration is pushed by income gaps and conflict;
-- trust falls with unemployment, inflation, inequality, and tension;
-- tension rises with inequality, unemployment, inflation, and low trust.
+```text
+availability_ratio =
+    (food_production + 0.2 * food_reserve) / max(food_consumption, 1e-6)
+
+scarcity = max(1 - clamp(availability_ratio, 0, 2), 0)
+
+prosperity =
+    1 / (1 + exp(-1.2 * ln(max(gdp_pc / baseline_gdp_pc, 1e-6))))
+
+birth_rate =
+    clamp(
+        (0.025 - 0.000001 * gdp_pc)
+      * (1 - 0.5 * prosperity)
+      * (1 - 0.6 * scarcity)
+      * (1 - 0.3 * gini_share),
+        0.006,
+        0.04
+    )
+
+death_rate =
+    clamp(
+        (0.012 - 0.0000005 * gdp_pc)
+      * (1 + 1.0 * scarcity + 0.4 * gini_share)
+      * (1 - 0.2 * prosperity),
+        0.004,
+        0.03
+    )
+
+population_next = population * (1 + birth_rate - death_rate)
+```
+
+Migration update:
+
+```text
+origin_push =
+    0.6 * income_gap_to_baseline
+  + 0.4 * conflict_proneness
+
+outflow =
+    min(0.001 * population * origin_push, 0.003 * population)
+
+destination_weight =
+    trade_intensity
+  * positive_income_gap
+  * (1 - 0.5 * destination_conflict_proneness)
+```
+
+Trust and tension update:
+
+```text
+trust_change =
+    0.00005 * (gdp_per_capita / 10000)
+  - 0.025 * unemployment
+  - 0.025 * inflation
+  - 0.0004 * inequality_gini
+  - 0.08 * max(social_tension - 0.3, 0)
+
+trust_gov_next = clamp(trust_gov + trust_change, 0, 1)
+
+inequality_sensitivity = 1 - idv / 100
+
+tension_change =
+    0.0005 * inequality_gini * inequality_sensitivity
+  + 0.01 * unemployment
+  + 0.005 * inflation
+  + 0.06 * (0.5 - trust_gov_next)
+
+social_tension_next = clamp(social_tension + tension_change, 0, 1)
+```
+
+Inequality update:
+
+```text
+gdp_growth = (gdp - prev_gdp) / max(prev_gdp, 1e-6)
+
+gini_next =
+    clamp(
+        gini
+      + 6.0 * gdp_growth
+      + 4.0 * abs(min(gdp_growth, 0)) * (0.5 + social_tension)
+      - 60.0 * social_spending_change
+      + 1.2 * (social_tension - 0.4),
+        20,
+        70
+    )
+```
 
 Regime collapse trigger:
 
@@ -1065,7 +1203,31 @@ Aggregation rules:
 - weighted average: Gini, Hofstede, WVS, climate risk, water stress, biodiversity, trust, regime stability;
 - recompute after aggregation: `social_tension`, `debt_crisis_prone`, `conflict_proneness`, `tech_level`, `security_index`, `military_power`, `food_reserve`.
 
-### 7.7 Validation Rules
+### 7.7 Compile Walkthrough
+
+Operationally, the state build process should be read as a six-stage compile boundary:
+
+1. `Source ingest`
+   Pull macro, governance, climate, cultural, and resource inputs into a country-level raw panel.
+2. `Roster selection`
+   Keep top-50 by 2023 nominal GDP and force Taiwan to remain explicit.
+3. `Row-level backfill`
+   Fill missing values using latest available observation, official overrides, or regional/statistical imputations.
+4. `Residual aggregation`
+   Aggregate all non-top actors into residual regional buckets using raw quantities, not normalized residual subtraction.
+5. `Model transformation`
+   Convert real-world quantities into model units and recompute latent scores such as `social_tension`, `security_index`, and `military_power`.
+6. `Validation and export`
+   Enforce schema, non-negativity, bound checks, and uniqueness, then export the compiled CSV consumed by `runtime.py`.
+
+In this repository, the runtime consumes only the compiled artifacts:
+
+- `GIM_12/agent_states.csv`
+- `GIM_12/agent_states_gim13.csv`
+
+The raw source panel and upstream build tooling are conceptually outside the runtime path of this repo.
+
+### 7.8 Validation Rules
 
 The compiled CSV must satisfy:
 
@@ -1079,7 +1241,18 @@ The compiled CSV must satisfy:
 
 The current pipeline was specifically redesigned to avoid artifacts such as negative metals in aggregate rows.
 
-## 8. Boundaries and Interpretation
+## 8. Limitations
+
+Current limitations that matter operationally:
+
+- `GIM_13` policy gaming does not rerun the yearly world simulation after each action profile; it scores a static world snapshot plus a crisis overlay.
+- The crisis overlay is diagnostic and comparative, not a second physics engine.
+- Outcome coefficients, template biases, action shifts, and crisis weights are hand-tuned model parameters, not structural econometric estimates.
+- If the action space grows beyond `256` combinations, the runner truncates each player action set to its first `3` actions for tractability.
+- Cultural and values fields such as Hofstede and WVS axes are structural and often imputed rather than true annual measurements.
+- The experimental `57`-actor state remains opt-in and should be treated as an actively curated baseline rather than a frozen production state.
+
+## 9. Boundaries and Interpretation
 
 The current model should be read with these boundaries in mind:
 
@@ -1089,7 +1262,7 @@ The current model should be read with these boundaries in mind:
 - structural cultural and values indicators are slow-moving and often imputed rather than truly annual.
 - the compiled agent state is a curated model input, not a raw public-data dump.
 
-## 9. Recommended Reading Order
+## 10. Recommended Reading Order
 
 If this document is used as the primary documentation set, the intended reading order is:
 
