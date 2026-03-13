@@ -23,6 +23,8 @@ from .types import GameDefinition
 CASES_DIR = MISC_ROOT / "cases"
 GENERATED_CASES_DIR = MISC_ROOT / "local" / "cases"
 BUILD_NEW_GAME = "__build_new_game__"
+BACKGROUND_POLICY_CHOICES = ("compiled-llm", "llm", "simple", "growth")
+LLM_REFRESH_CHOICES = ("trigger", "periodic", "never")
 
 
 def _log(message: str) -> None:
@@ -97,6 +99,18 @@ def _prompt_yes_no(text: str, *, default: bool = False) -> bool:
         print("Enter yes or no.")
 
 
+def _prompt_choice(text: str, choices: tuple[str, ...], *, default: str) -> str:
+    choice_set = {choice.lower(): choice for choice in choices}
+    prompt_text = "/".join(choices)
+    while True:
+        raw = _prompt(f"{text} [{prompt_text}] [{default}]: ").strip().lower()
+        if not raw:
+            return default
+        if raw in choice_set:
+            return choice_set[raw]
+        print(f"Choose one of: {', '.join(choices)}.")
+
+
 def _prompt_actor_list(text: str) -> list[str]:
     raw = _prompt(text).strip()
     if not raw:
@@ -142,6 +156,7 @@ def _maybe_write_dashboard(
     scenario_def,
     horizon_years: int,
     use_sim: bool,
+    policy_mode_label: str,
     run_timestamp: str,
     run_id: str,
 ) -> None:
@@ -160,7 +175,7 @@ def _maybe_write_dashboard(
             show_trajectory=use_sim and len(trajectory or []) > 1,
             show_game_results=game_result is not None,
             execution_label="sim" if use_sim else "static",
-            policy_mode_label="llm" if use_sim else "snapshot",
+            policy_mode_label=policy_mode_label if use_sim else "snapshot",
             run_timestamp=run_timestamp,
             run_id=run_id,
             n_runs=1,
@@ -180,6 +195,7 @@ def _maybe_write_brief(
     scenario_def,
     horizon_years: int,
     use_sim: bool,
+    policy_mode_label: str,
     run_timestamp: str,
     run_id: str,
 ) -> None:
@@ -198,7 +214,7 @@ def _maybe_write_brief(
             include_trajectory=use_sim and len(trajectory or []) > 1,
             include_game_results=game_result is not None,
             execution_label="sim" if use_sim else "static",
-            policy_mode_label="llm" if use_sim else "snapshot",
+            policy_mode_label=policy_mode_label if use_sim else "snapshot",
             run_timestamp=run_timestamp,
             run_id=run_id,
             n_runs=1,
@@ -268,19 +284,33 @@ def _run_question_flow(session: ConsoleSession) -> None:
         _log(f"Unresolved actors: {', '.join(scenario.unresolved_actor_names)}")
 
     if horizon_years > 0:
-        _log(f"Running simulation bridge for {horizon_years} yearly steps")
+        background_policy = _prompt_choice(
+            "Background policy",
+            BACKGROUND_POLICY_CHOICES,
+            default="compiled-llm",
+        )
+        llm_refresh = _prompt_choice("LLM refresh mode", LLM_REFRESH_CHOICES, default="trigger")
+        llm_refresh_years = _prompt_non_negative_int("LLM refresh years [2]: ", default=2) or 2
+        _log(
+            f"Running simulation bridge for {horizon_years} yearly steps "
+            f"(background={background_policy}, refresh={llm_refresh})"
+        )
         bridge = SimBridge()
         evaluation, trajectory = bridge.evaluate_scenario(
             session.world,
             scenario,
             n_years=horizon_years,
-            default_mode="llm",
+            default_mode=background_policy,
+            llm_refresh=llm_refresh,
+            llm_refresh_years=llm_refresh_years,
             progress_callback=_progress_logger(),
         )
+        policy_mode_label = background_policy
     else:
         _log("Evaluating scenario with static scorer")
         evaluation = runner.evaluate_scenario(scenario)
         trajectory = [session.world]
+        policy_mode_label = "snapshot"
     elapsed = perf_counter() - started
     _log(f"Evaluation complete in {elapsed:.2f}s")
     run_stamp = datetime.now()
@@ -297,6 +327,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
         scenario_def=scenario,
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
+        policy_mode_label=policy_mode_label,
         run_timestamp=run_timestamp,
         run_id=run_id,
     )
@@ -308,6 +339,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
         scenario_def=scenario,
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
+        policy_mode_label=policy_mode_label,
         run_timestamp=run_timestamp,
         run_id=run_id,
     )
@@ -404,20 +436,34 @@ def _run_game_flow(session: ConsoleSession) -> None:
     )
 
     if horizon_years > 0:
-        _log(f"Running policy game through simulation bridge for {horizon_years} yearly steps")
+        background_policy = _prompt_choice(
+            "Background policy",
+            BACKGROUND_POLICY_CHOICES,
+            default="compiled-llm",
+        )
+        llm_refresh = _prompt_choice("LLM refresh mode", LLM_REFRESH_CHOICES, default="trigger")
+        llm_refresh_years = _prompt_non_negative_int("LLM refresh years [2]: ", default=2) or 2
+        _log(
+            f"Running policy game through simulation bridge for {horizon_years} yearly steps "
+            f"(background={background_policy}, refresh={llm_refresh})"
+        )
         bridge = SimBridge()
         result = bridge.run_game(
             session.world,
             game,
             n_years=horizon_years,
-            default_mode="llm",
+            default_mode=background_policy,
+            llm_refresh=llm_refresh,
+            llm_refresh_years=llm_refresh_years,
             progress_callback=_progress_logger(),
         )
         trajectory = result.trajectory
+        policy_mode_label = background_policy
     else:
         _log("Running policy game with static scorer")
         result = runner.run_game(game)
         trajectory = [session.world]
+        policy_mode_label = "snapshot"
     equilibrium_result = None
     if _prompt_yes_no("Run equilibrium analysis", default=False):
         episodes = _prompt_non_negative_int("Equilibrium episodes [50]: ", default=50)
@@ -453,6 +499,7 @@ def _run_game_flow(session: ConsoleSession) -> None:
         scenario_def=game.scenario,
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
+        policy_mode_label=policy_mode_label,
         run_timestamp=run_timestamp,
         run_id=run_id,
     )
@@ -464,6 +511,7 @@ def _run_game_flow(session: ConsoleSession) -> None:
         scenario_def=game.scenario,
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
+        policy_mode_label=policy_mode_label,
         run_timestamp=run_timestamp,
         run_id=run_id,
     )

@@ -72,6 +72,8 @@ class EquilibriumTests(unittest.TestCase):
         self.assertIsNotNone(result.welfare)
         self.assertIsNotNone(result.price_of_anarchy)
         self.assertTrue(result.ccE_empirical)
+        self.assertAlmostEqual(result.trust_alpha, 0.5)
+        self.assertIn("standard correlated-equilibrium incentive constraints", result.correlated_equilibrium.objective_description)
 
     def test_format_equilibrium_result_includes_key_sections(self) -> None:
         result = run_equilibrium_search(
@@ -88,6 +90,22 @@ class EquilibriumTests(unittest.TestCase):
         self.assertIn("Recommended profile", text)
         self.assertIn("Top CE support", text)
         self.assertIn("Welfare diagnostics", text)
+        self.assertIn("Normative CE objective", text)
+
+    def test_equilibrium_warns_when_stage_game_is_truncated(self) -> None:
+        stage_game = self.runner.run_game(self.game, max_combinations=8)
+        self.assertTrue(stage_game.truncated_action_space)
+        result = run_equilibrium_search(
+            runner=self.runner,
+            game=self.game,
+            world=self.world,
+            max_episodes=4,
+            max_combinations=8,
+            exploration_eps=0.0,
+            stage_game=stage_game,
+        )
+        self.assertTrue(result.warnings)
+        self.assertIn("truncated stage game", result.warnings[0])
 
 
 if __name__ == "__main__":

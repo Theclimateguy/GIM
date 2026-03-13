@@ -295,6 +295,12 @@ def _safe_apply_policy(
         return simple_rule_based_policy(obs)
 
 
+def _uses_async_policy(policy: Callable[..., Action] | None) -> bool:
+    if policy is None:
+        return False
+    return policy is llm_policy or bool(getattr(policy, "__gim_async_policy__", False))
+
+
 def step_world(
     world: WorldState,
     policies: Dict[str, Callable[[Observation], Action]],
@@ -324,11 +330,11 @@ def step_world(
         policy = policies.get(agent_id)
         if policy is None:
             continue
-        if policy is llm_policy:
+        if _uses_async_policy(policy):
             llm_agent_ids.append(agent_id)
             continue
 
-        action = _safe_apply_policy(world, policies, agent_id, memory_summary=None)
+        action = _safe_apply_policy(world, policies, agent_id, summarize_agent_memory(memory, agent_id))
         if apply_political_filters:
             action = apply_political_constraints(action, world.agents[agent_id])
         sec = action.foreign_policy.security_actions

@@ -64,7 +64,9 @@ class CalibrationRunConfig:
     n_runs: int = 1
     horizon_years: int = 0
     use_sim: bool = False
-    default_mode: str = "llm"
+    default_mode: str = "compiled-llm"
+    llm_refresh: str = "trigger"
+    llm_refresh_years: int = 2
 
 
 @dataclass
@@ -301,6 +303,8 @@ def _run_single_case(
             scenario,
             n_years=config.horizon_years,
             default_mode=config.default_mode,
+            llm_refresh=config.llm_refresh,
+            llm_refresh_years=config.llm_refresh_years,
         )
         return evaluation
     return runner.evaluate_scenario(scenario)

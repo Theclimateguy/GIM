@@ -1,4 +1,4 @@
-# GIM_13
+# GIM_13 v13.1.0
 
 This document consolidates the current logic of the model stack across `GIM_13`, the compiled `GIM_12` agent state, and the legacy yearly core `GIM_11_1`.
 
@@ -8,7 +8,7 @@ Scope:
 - `GIM_12` provides the compiled world state and data pipeline.
 - `GIM_11_1` remains the actual yearly state-transition engine.
 
-Unless explicitly marked as conceptual, formulas and rules below reflect the current codebase as of March 12, 2026. If code and this document diverge, code is authoritative.
+Unless explicitly marked as conceptual, formulas and rules below reflect the current codebase as of March 13, 2026, release `v13.1.0`. If code and this document diverge, code is authoritative.
 
 ## 0. Repository Layout
 
@@ -22,6 +22,7 @@ Current practical rule:
 - keep executable model code in `GIM_13/`, `GIM_12/`, `legacy/`, and `tests/`;
 - keep the primary runtime state in `misc/data/agent_states_gim13.csv`;
 - keep this `README.md` as the single canonical documentation file;
+- keep `COMMAND_REFERENCE.md` as the quick operational CLI reference;
 - keep secondary docs, demo cases, calibration fixtures, map assets, generated local cases, and the primary compiled state under `misc/`.
 
 That means the active runtime now reads secondary resources from:
@@ -47,6 +48,7 @@ Operationally, `GIM_13` does not replace the physical or macroeconomic simulatio
 - scenario compilation;
 - a fast static scorer over structured outcome classes;
 - an optional simulation bridge into the yearly `step_world(...)` loop;
+- a compiled background-policy layer that decouples rare LLM doctrine refresh from yearly state transitions;
 - crisis metric dashboards;
 - policy-game search over action combinations;
 - explainable console and CLI outputs.
@@ -54,7 +56,7 @@ Operationally, `GIM_13` does not replace the physical or macroeconomic simulatio
 `GIM_13` therefore exposes two execution paths that share the same output types:
 
 - static path: `GameRunner` scores a single loaded `WorldState` snapshot and, when actions are present, applies a diagnostic crisis overlay;
-- sim path: `SimBridge` translates the scenario into a mixed legacy `policy_map`, runs `step_world(...)` for `N` yearly steps, and then scores the terminal state and trajectory-derived crisis dashboard.
+- sim path: `SimBridge` translates the scenario into a mixed legacy `policy_map`, optionally uses `compiled-llm` doctrines for non-player countries, runs `step_world(...)` for `N` yearly steps, and then scores the terminal state and trajectory-derived crisis dashboard.
 
 ## 2. System View
 
@@ -79,7 +81,8 @@ flowchart TD
     K --> L["ScenarioEvaluation / GameResult"]
 
     I -->|sim| M["sim_bridge.py"]
-    M --> N["legacy policy map<br/>forced player callables + autonomous non-players"]
+    M --> M1["compiled_policy.py<br/>rare doctrine refresh + deterministic controller"]
+    M1 --> N["legacy policy map<br/>forced player callables + autonomous non-players"]
     N --> O["legacy simulation.step_world(...) × N"]
     O --> P["Terminal / trajectory scoring"]
     P --> L
@@ -103,6 +106,7 @@ flowchart TD
 | `GIM_13/scenario_library.py` | Scenario templates, keyword routing, template biases, and shocks. |
 | `GIM_13/game_runner.py` | Static snapshot scorer, tail-risk expansion, crisis overlay, payoffs, and fallback strategy ranking. |
 | `GIM_13/sim_bridge.py` | Bridges `ScenarioDefinition` / `GameDefinition` into legacy `step_world(...)` runs and trajectory scoring. |
+| `GIM_13/compiled_policy.py` | Compiled-LLM background policy manager with doctrine caching and deterministic yearly controller. |
 | `GIM_13/crisis_metrics.py` | Global and agent crisis metrics, archetype routing, and dashboard construction. |
 | `GIM_13/explanations.py` | Human-readable formatting for CLI output. |
 | `legacy/GIM_11_1/gim_11_1/simulation.py` | Actual yearly world step. |
@@ -124,12 +128,13 @@ Operationally, `GIM_13` now treats the `57`-actor compiled state as the default 
 
 ### 3.2 Command Reference
 
-The CLI currently exposes six user-facing subcommands:
+The CLI currently exposes six user-facing subcommands plus a global `--version` flag.
+The short operational version of this section is also available in `COMMAND_REFERENCE.md`.
 
 | Command | Purpose | Main inputs | Main outputs |
 | --- | --- | --- | --- |
-| `question` | Compile and evaluate one question-driven scenario | positional question or `--question`, optional `--actors`, `--template`, `--horizon` | formatted answer, optional dashboard, optional brief |
-| `game` | Run a policy game from an existing case or free text | `--case <json>` or `--description "<text>"`, optional `--equilibrium`, `--horizon` | strategy ranking, optional equilibrium diagnostics, optional dashboard, optional brief |
+| `question` | Compile and evaluate one question-driven scenario | positional question or `--question`, optional `--actors`, `--template`, `--horizon`, `--background-policy` | formatted answer, optional dashboard, optional brief |
+| `game` | Run a policy game from an existing case or free text | `--case <json>` or `--description "<text>"`, optional `--equilibrium`, `--horizon`, `--background-policy` | strategy ranking, optional equilibrium diagnostics, optional dashboard, optional brief |
 | `metrics` | Render a crisis dashboard without scenario scoring | optional `--agents` | formatted crisis dashboard or JSON |
 | `calibrate` | Run the historical operational suite | optional `--suite`, `--runs`, `--horizon`, `--sim` | calibration suite summary or JSON |
 | `brief` | Rebuild a Markdown brief from a saved JSON artifact | `--from-json <file>` | `decision_brief.md` |
@@ -139,20 +144,21 @@ Common terminal invocations:
 
 ```bash
 python -m GIM_13 question "Will Red Sea tensions escalate?"
-python -m GIM_13 question --question "Will war start in Iran?" --actors Iran --horizon 3 --dashboard
-python -m GIM_13 game --case misc/cases/maritime_pressure_game.json --dashboard --equilibrium
+python -m GIM_13 question --question "Will war start in Iran?" --actors Iran --horizon 3 --dashboard --background-policy compiled-llm --llm-refresh trigger
+python -m GIM_13 game --case misc/cases/maritime_pressure_game.json --dashboard --equilibrium --background-policy compiled-llm
 python -m GIM_13 game --description "China imposes export controls and the United States responds with tariffs." --save-case misc/local/cases/trade_case.json --dashboard
 python -m GIM_13 metrics --agents "United States" "China" "Iran"
 python -m GIM_13 calibrate --runs 5 --horizon 3 --sim
 python -m GIM_13 brief --from-json evaluation.json --output decision_brief.md
+python -m GIM_13 --version
 python -m GIM_13 console
 ```
 
 Important runtime flags:
 
-- `question` and `game` both support `--dashboard`, `--dashboard-output`, `--brief`, `--brief-output`, `--json`, `--horizon`, `--sim`, and `--no-sim`.
+- `question` and `game` both support `--dashboard`, `--dashboard-output`, `--brief`, `--brief-output`, `--json`, `--horizon`, `--sim`, `--no-sim`, `--background-policy`, `--llm-refresh`, and `--llm-refresh-years`.
 - `game` additionally supports `--equilibrium`, `--episodes`, `--threshold`, `--trust-alpha`, `--max-combinations`, `--description`, and `--save-case`.
-- `calibrate` supports `--runs`, `--horizon`, `--sim`, `--no-sim`, and `--json`.
+- `calibrate` supports `--runs`, `--horizon`, `--sim`, `--no-sim`, `--background-policy`, `--llm-refresh`, `--llm-refresh-years`, and `--json`.
 
 Console menu flow:
 
@@ -220,7 +226,9 @@ Current CLI semantics:
 
 - `--horizon 0` is the default and keeps the historical static scorer behavior;
 - `--sim` is an explicit opt-in alias for the sim path and requires `--horizon > 0`;
-- on the current sim path, non-player countries default to legacy `llm` mode unless the bridge is called differently from code.
+- on the current sim path, non-player countries default to `compiled-llm`, which compiles a multi-year doctrine rarely and applies a deterministic yearly controller between refreshes.
+- `--background-policy llm|compiled-llm|simple|growth` explicitly controls autonomous non-player behavior on the sim path.
+- `--llm-refresh trigger|periodic|never` and `--llm-refresh-years` control how often `compiled-llm` refreshes background doctrines.
 - sim-path CLI runs emit progress updates to the terminal as percentages in roughly `5%` increments, which is useful when LLM-backed country policies take noticeable time.
 
 ### 3.4 Policy Gaming Mode
@@ -234,7 +242,7 @@ Current CLI semantics:
 5. Enumerate or truncate player action spaces exactly as in the static scorer.
 6. For each combination, choose execution path:
    - static path: `GameRunner.run_game(...)` evaluates the selected action labels as score shifts on the loaded snapshot;
-   - sim path: `SimBridge.run_game(...)` converts selected player actions into deterministic legacy `Action`-producing callables, leaves non-player countries on autonomous legacy policies, runs `step_world(...)` for each profile, and scores the terminal state plus trajectory-derived crisis deltas.
+   - sim path: `SimBridge.run_game(...)` converts selected player actions into deterministic legacy `Action`-producing callables, leaves non-player countries on autonomous background policies (`compiled-llm`, `llm`, `simple`, or `growth`), runs `step_world(...)` for each profile, and scores the terminal state plus trajectory-derived crisis deltas.
 7. Score each player with the existing payoff logic.
 8. Rank profiles by total payoff.
 9. Return a `GameResult`. On the sim path this also carries `trajectory` for the best profile and `baseline_trajectory` for the no-action run.
@@ -279,6 +287,77 @@ Relevant flags on `game`:
 - `--threshold` controls convergence on mean external regret;
 - `--trust-alpha` interpolates between plain utilitarian welfare (`0`) and trust-weighted welfare (`1`);
 - `--max-combinations` keeps the same bounded search contract for both strategy search and equilibrium analysis.
+
+Mathematically, the game-theory layer is split into a positive and a normative object.
+
+Positive object: empirical `CCE` from repeated play.
+
+For played profiles `a^1, ..., a^T`, the empirical distribution is:
+
+```text
+q_T(a) = (1 / T) * sum_t 1[a^t = a]
+```
+
+If each player `i` drives external regret toward zero, then `q_T` approaches an `epsilon-CCE`:
+
+```text
+E_{a ~ q_T}[u_i(a)] >= E_{a ~ q_T}[u_i(a_i', a_-i)] - epsilon_T
+```
+
+for every player `i` and unilateral deviation `a_i'`.
+
+The current implementation uses a Hedge-style learner over a fixed stage game. For each player-action weight:
+
+```text
+w_i(a_i) <- w_i(a_i) * exp(-eta * (u_i(a^t) - mean payoff of action a_i))
+```
+
+with exploration mixed in at selection time.
+
+Normative object: correlated equilibrium from LP.
+
+The LP does **not** change the standard CE incentive constraints. It maximizes a trust-weighted welfare objective over the same stage game:
+
+```text
+max_q  sum_a q(a) * sum_i w_i(alpha) * u_i(a)
+```
+
+subject to:
+
+```text
+q(a) >= 0
+sum_a q(a) = 1
+
+sum_{a_-i} q(a_i, a_-i) * [u_i(a_i, a_-i) - u_i(a_i', a_-i)] >= 0
+```
+
+for every player `i`, recommended action `a_i`, and unilateral deviation `a_i'`.
+
+Trust weights come from bilateral in-game trust and are normalized back to player count:
+
+```text
+raw_i = 1 + alpha * average_trust_i
+w_i(alpha) = raw_i * |Players| / sum_j raw_j
+```
+
+This means `trust_alpha` affects the **objective** of the normative CE, not the CE feasibility constraints themselves.
+
+The welfare comparison is then:
+
+- positive distribution: empirical `CCE` from no-regret play;
+- normative distribution: LP-optimal CE under the trust-weighted objective.
+
+The reported KL gap is:
+
+```text
+D_KL(q_positive || q_normative)
+```
+
+which measures how far the emergent repeated-play distribution is from the welfare-maximizing CE on the same stage game.
+
+Important limitation:
+
+- if `truncated_action_space=True`, then both the positive learner and the LP solve the **truncated** game, not the full original game. `EquilibriumResult` now carries an explicit warning when this happens.
 
 ### 3.7 Console Mode
 
@@ -341,17 +420,31 @@ Important implementation notes:
 - forced player actions are implemented as deterministic callables, not plain dictionaries;
 - this is deliberate, because legacy `step_world(...)` consumes a `policy_map` of `agent_id -> callable returning Action`;
 - there is no native dict-based policy interface in `gim_11_1`, so callables are the minimal interoperable design;
-- non-player countries remain on the legacy autonomous policy modes (`llm`, `simple`, `growth`);
+- non-player countries can remain on legacy autonomous modes (`llm`, `simple`, `growth`) or on the new `compiled-llm` layer;
+- `compiled-llm` calls DeepSeek rarely to compile a multi-year doctrine and then uses a deterministic yearly controller to produce bounded legacy `Action` objects;
+- doctrine refresh can be `trigger`-based, `periodic`, or `never`, which breaks the direct link between yearly state transitions and LLM request frequency;
 - progress reporting is implemented through an optional callback in the vendored `step_world(...)`, so LLM batching remains intact and the terminal can show completion percentages without changing the policy semantics;
 - the static path remains available as the explicit fallback via `--no-sim` or `--horizon 0`.
+
+Inside one simulated year, the bridge ultimately delegates to the legacy `step_world(...)` order:
+
+1. compute comparative metrics and update political states;
+2. resolve player and non-player policies into concrete legacy `Action` objects;
+3. resolve foreign policy, sanctions, security actions, and trade barriers;
+4. apply domestic and foreign actions to the world;
+5. update trade deals, relations, resource stocks, and global prices;
+6. update climate, economy, public finance, migration, and social state;
+7. update memory and credit ratings;
+8. increment world time.
 
 Current cost model for the sim path is approximately:
 
 ```text
 policy-game runtime ~ combinations × horizon_years × non-player policy invocations
+live LLM requests ~ doctrine_refresh_events × non-player agents
 ```
 
-This matters most in `game` mode because each strategy profile currently runs its own trajectory. In the current CLI implementation, sim-path `question` and `game` runs both default non-player countries to legacy `llm` mode, which is behaviorally faithful but can become expensive.
+This matters most in `game` mode because each strategy profile currently runs its own trajectory. `compiled-llm` reduces the live-LLM portion of this cost by moving non-player actors onto cached doctrines between refresh events, while still keeping LLM-generated strategic priors in the loop.
 
 Dependency note:
 

@@ -7,6 +7,7 @@ import sys
 from typing import Callable
 
 from .briefing import AnalyticsBriefRenderer, BriefConfig, write_brief_artifact
+from . import __version__
 from .case_builder import build_case_from_text, write_case_payload
 from .calibration import (
     CalibrationRunConfig,
@@ -29,6 +30,9 @@ from .runtime import MISC_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
 from .sim_bridge import SimBridge, SimProgress
 
+BACKGROUND_POLICY_CHOICES = ("compiled-llm", "llm", "simple", "growth")
+LLM_REFRESH_CHOICES = ("trigger", "periodic", "never")
+
 
 def _resolve_case_path(raw_value: str) -> Path:
     candidate = Path(raw_value)
@@ -42,6 +46,7 @@ def _resolve_case_path(raw_value: str) -> Path:
 
 def build_parser() -> ArgumentParser:
     parser = ArgumentParser(description="GIM_13 policy-gaming MVP")
+    parser.add_argument("--version", action="version", version=f"GIM_13 {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     question_parser = subparsers.add_parser("question", help="Compile and evaluate a question-driven scenario")
@@ -68,6 +73,24 @@ def build_parser() -> ArgumentParser:
     question_mode_group = question_parser.add_mutually_exclusive_group()
     question_mode_group.add_argument("--sim", action="store_true")
     question_mode_group.add_argument("--no-sim", action="store_true")
+    question_parser.add_argument(
+        "--background-policy",
+        choices=BACKGROUND_POLICY_CHOICES,
+        default="compiled-llm",
+        help="Autonomous policy mode for non-player countries on the sim path.",
+    )
+    question_parser.add_argument(
+        "--llm-refresh",
+        choices=LLM_REFRESH_CHOICES,
+        default="trigger",
+        help="How often compiled-llm doctrines are refreshed.",
+    )
+    question_parser.add_argument(
+        "--llm-refresh-years",
+        type=int,
+        default=2,
+        help="Periodic doctrine refresh interval in years when --llm-refresh=periodic.",
+    )
 
     game_parser = subparsers.add_parser("game", help="Run a policy-gaming case")
     game_input_group = game_parser.add_mutually_exclusive_group(required=True)
@@ -100,6 +123,24 @@ def build_parser() -> ArgumentParser:
     game_mode_group = game_parser.add_mutually_exclusive_group()
     game_mode_group.add_argument("--sim", action="store_true")
     game_mode_group.add_argument("--no-sim", action="store_true")
+    game_parser.add_argument(
+        "--background-policy",
+        choices=BACKGROUND_POLICY_CHOICES,
+        default="compiled-llm",
+        help="Autonomous policy mode for non-player countries on the sim path.",
+    )
+    game_parser.add_argument(
+        "--llm-refresh",
+        choices=LLM_REFRESH_CHOICES,
+        default="trigger",
+        help="How often compiled-llm doctrines are refreshed.",
+    )
+    game_parser.add_argument(
+        "--llm-refresh-years",
+        type=int,
+        default=2,
+        help="Periodic doctrine refresh interval in years when --llm-refresh=periodic.",
+    )
 
     metrics_parser = subparsers.add_parser("metrics", help="Build a crisis metrics dashboard")
     metrics_parser.add_argument("--agents", nargs="*")
@@ -124,6 +165,24 @@ def build_parser() -> ArgumentParser:
     calibrate_mode_group = calibrate_parser.add_mutually_exclusive_group()
     calibrate_mode_group.add_argument("--sim", action="store_true")
     calibrate_mode_group.add_argument("--no-sim", action="store_true")
+    calibrate_parser.add_argument(
+        "--background-policy",
+        choices=BACKGROUND_POLICY_CHOICES,
+        default="compiled-llm",
+        help="Autonomous policy mode for non-player countries on the sim path.",
+    )
+    calibrate_parser.add_argument(
+        "--llm-refresh",
+        choices=LLM_REFRESH_CHOICES,
+        default="trigger",
+        help="How often compiled-llm doctrines are refreshed.",
+    )
+    calibrate_parser.add_argument(
+        "--llm-refresh-years",
+        type=int,
+        default=2,
+        help="Periodic doctrine refresh interval in years when --llm-refresh=periodic.",
+    )
 
     brief_parser = subparsers.add_parser(
         "brief",
@@ -163,7 +222,7 @@ def _dashboard_config(
         show_game_results=show_game_results,
         show_narrative=bool(getattr(args, "narrative", False)),
         execution_label="sim" if use_sim else "static",
-        policy_mode_label="llm" if use_sim else "snapshot",
+        policy_mode_label=_policy_mode_label(args, use_sim),
         run_timestamp=run_timestamp,
         run_id=run_id,
         n_runs=1,
@@ -184,7 +243,7 @@ def _brief_config(
         include_trajectory=use_sim and getattr(args, "horizon", 0) > 0,
         include_game_results=include_game_results,
         execution_label="sim" if use_sim else "static",
-        policy_mode_label="llm" if use_sim else "snapshot",
+        policy_mode_label=_policy_mode_label(args, use_sim),
         run_timestamp=run_timestamp,
         run_id=run_id,
         n_runs=1,
@@ -208,6 +267,12 @@ def _terminal_progress_logger() -> Callable[[SimProgress], None]:
         )
 
     return _log
+
+
+def _policy_mode_label(args, use_sim: bool) -> str:
+    if not use_sim:
+        return "snapshot"
+    return getattr(args, "background_policy", "compiled-llm")
 
 
 def _serialize_game_output(game_result, equilibrium_result) -> dict:
@@ -239,6 +304,9 @@ def main() -> None:
                 n_runs=args.runs,
                 horizon_years=args.horizon,
                 use_sim=_should_use_simulation(args),
+                default_mode=args.background_policy,
+                llm_refresh=args.llm_refresh,
+                llm_refresh_years=args.llm_refresh_years,
             ),
         )
         if args.json_output:
@@ -268,7 +336,9 @@ def main() -> None:
                 world,
                 scenario,
                 n_years=args.horizon,
-                default_mode="llm",
+                default_mode=args.background_policy,
+                llm_refresh=args.llm_refresh,
+                llm_refresh_years=args.llm_refresh_years,
                 progress_callback=_terminal_progress_logger(),
             )
         else:
@@ -360,7 +430,9 @@ def main() -> None:
             world,
             game,
             n_years=args.horizon,
-            default_mode="llm",
+            default_mode=args.background_policy,
+            llm_refresh=args.llm_refresh,
+            llm_refresh_years=args.llm_refresh_years,
             max_combinations=args.max_combinations,
             progress_callback=_terminal_progress_logger(),
         )
