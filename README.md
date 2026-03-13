@@ -87,12 +87,18 @@ flowchart TD
     O --> P["Terminal / trajectory scoring"]
     P --> L
 
-    L --> Q["explanations.py / console logs / stdout"]
+    L --> Q{"game --equilibrium?"}
+    Q -->|yes| R["game_theory/equilibrium_runner.py<br/>Hedge / empirical CCE / normative CE LP"]
+    R --> S["EquilibriumResult"]
+    L --> T["dashboard.py / briefing.py / explanations.py"]
+    S --> T
 
-    R["Raw country panel<br/>WB / WGI / ND-GAIN / FAOSTAT / WMD / overrides"] --> S["External compile step"]
-    S --> T["Compiled agent_states_gim13.csv"]
-    T --> C
+    U["Raw country panel<br/>WB / WGI / ND-GAIN / FAOSTAT / WMD / overrides"] --> V["External compile step"]
+    V --> W["Compiled agent_states_gim13.csv"]
+    W --> C
 ```
+
+In this top-level view, `ScenarioEvaluation` and `GameResult` stay grouped because both static and sim paths feed the same reporting layer; `EquilibriumResult` is shown separately because it exists only as an optional post-processing branch on `game`.
 
 ### 2.2 Main Modules
 
@@ -197,12 +203,16 @@ flowchart TD
     L --> O
     M --> P["GameResult"]
     N --> P
+    P --> U{"--equilibrium?"}
+    U -->|yes| V["run_equilibrium_search()"]
+    V --> W["EquilibriumResult"]
     E --> Q["CrisisDashboard"]
     F --> R["CalibrationSuiteResult"]
     G --> S["Markdown brief"]
 
     O --> T["formatted answer + reporting artifacts"]
     P --> T
+    W --> T
     Q --> T
     R --> T
     S --> T
@@ -266,6 +276,18 @@ Use it like this:
 
 ```bash
 python -m GIM_13 game --case maritime_pressure_game.json --equilibrium --episodes 50 --trust-alpha 0.5
+```
+
+```mermaid
+flowchart TD
+    A["GameResult<br/>fixed stage game"] --> B["Hedge / no-regret episodes"]
+    B --> C["Empirical CCE<br/>positive distribution"]
+    A --> D["Trust-weighted CE LP"]
+    D --> E["Normative CE<br/>same stage game"]
+    C --> F["Welfare + regret diagnostics"]
+    E --> F
+    F --> G["EquilibriumResult"]
+    G --> H["dashboard / brief / stdout"]
 ```
 
 What happens when `--equilibrium` is enabled:
