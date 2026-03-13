@@ -144,8 +144,11 @@ class GIM13MVPTests(unittest.TestCase):
                 "--equilibrium",
                 "--episodes",
                 "12",
+                "--background-policy",
+                "simple",
             ]
         )
+        calibrate_args = parser.parse_args(["calibrate", "--horizon", "3", "--background-policy", "growth"])
         built_args = parser.parse_args(
             [
                 "game",
@@ -155,10 +158,14 @@ class GIM13MVPTests(unittest.TestCase):
         )
         self.assertEqual(question_args.horizon, 2)
         self.assertFalse(question_args.no_sim)
+        self.assertEqual(question_args.background_policy, "compiled-llm")
+        self.assertEqual(question_args.llm_refresh, "trigger")
         self.assertEqual(game_args.horizon, 3)
         self.assertTrue(game_args.no_sim)
         self.assertTrue(game_args.equilibrium)
         self.assertEqual(game_args.episodes, 12)
+        self.assertEqual(game_args.background_policy, "simple")
+        self.assertEqual(calibrate_args.background_policy, "growth")
         self.assertEqual(
             built_args.description,
             "China imposes export controls and the United States answers with tariffs.",

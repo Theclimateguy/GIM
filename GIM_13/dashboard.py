@@ -1254,6 +1254,7 @@ class DashboardRenderer:
         welfare_html = ""
         if welfare is not None:
             welfare_bits = [
+                f"alpha={equilibrium_result.trust_alpha:.2f}",
                 f"trust-weighted={welfare.trust_weighted_sw:+.3f}",
                 f"utilitarian={welfare.utilitarian_sw:+.3f}",
                 f"Gini={welfare.payoff_gini:.4f}",
@@ -1267,10 +1268,19 @@ class DashboardRenderer:
                 + ", ".join(welfare_bits)
                 + ".</div>"
             )
+        warning_html = ""
+        if equilibrium_result.warnings:
+            warning_html = (
+                '<div class="reading-box" style="margin-top:12px;"><strong>Warnings.</strong> '
+                + " ".join(escape(warning) for warning in equilibrium_result.warnings)
+                + "</div>"
+            )
         return f"""
 <div class="card" style="margin-top:22px;">
   <h3>Equilibrium diagnostics</h3>
   <div class="reading-box"><strong>Status.</strong> Episodes={equilibrium_result.episodes}, converged={'yes' if equilibrium_result.converged else 'no'}, solver={escape(equilibrium_result.correlated_equilibrium.solver_status)}, max deviation={equilibrium_result.correlated_equilibrium.max_incentive_deviation:.6f}.</div>
+  <div class="reading-box" style="margin-top:12px;"><strong>Normative CE.</strong> {escape(equilibrium_result.correlated_equilibrium.objective_description)}</div>
+  {warning_html}
   <div class="two-col" style="margin-top:16px;">
     <div>
       <h3 style="margin-top:0;">Mean external regret</h3>

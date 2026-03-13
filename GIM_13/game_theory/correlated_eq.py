@@ -15,6 +15,7 @@ class CorrelatedEquilibrium:
     distribution: Dict[str, float]
     social_welfare: float
     utilitarian_welfare: float
+    objective_description: str
     is_feasible: bool
     max_incentive_deviation: float
     solver_status: str
@@ -30,6 +31,10 @@ def solve_correlated_equilibrium(
             distribution={},
             social_welfare=0.0,
             utilitarian_welfare=0.0,
+            objective_description=(
+                "Maximize trust-weighted welfare subject to standard correlated-equilibrium "
+                "incentive constraints."
+            ),
             is_feasible=False,
             max_incentive_deviation=float("inf"),
             solver_status="no combinations",
@@ -43,6 +48,10 @@ def solve_correlated_equilibrium(
             distribution={},
             social_welfare=0.0,
             utilitarian_welfare=0.0,
+            objective_description=(
+                "Maximize trust-weighted welfare subject to standard correlated-equilibrium "
+                "incentive constraints."
+            ),
             is_feasible=False,
             max_incentive_deviation=float("inf"),
             solver_status="scipy not available",
@@ -100,6 +109,10 @@ def solve_correlated_equilibrium(
             distribution={key: float(probability) for key, probability in zip(keys, uniform)},
             social_welfare=float(-objective @ uniform),
             utilitarian_welfare=float(-utilitarian @ uniform),
+            objective_description=(
+                "Maximize trust-weighted welfare subject to standard correlated-equilibrium "
+                "incentive constraints."
+            ),
             is_feasible=False,
             max_incentive_deviation=float("inf"),
             solver_status=str(result.message),
@@ -115,6 +128,10 @@ def solve_correlated_equilibrium(
         distribution={key: float(probability) for key, probability in zip(keys, sigma)},
         social_welfare=float(-objective @ sigma),
         utilitarian_welfare=float(-utilitarian @ sigma),
+        objective_description=(
+            "Maximize trust-weighted welfare subject to standard correlated-equilibrium "
+            "incentive constraints."
+        ),
         is_feasible=True,
         max_incentive_deviation=max_dev,
         solver_status="optimal",

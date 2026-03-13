@@ -463,6 +463,7 @@ class AnalyticsBriefRenderer:
 
         lines = [
             f"- Episodes: `{equilibrium_result.get('episodes', 0)}`",
+            f"- Trust alpha: `{equilibrium_result.get('trust_alpha', 0.0):.2f}`",
             f"- Converged: `{'yes' if equilibrium_result.get('converged') else 'no'}`",
         ]
 
@@ -471,8 +472,15 @@ class AnalyticsBriefRenderer:
             [
                 f"- CE solver: `{ce.get('solver_status', 'n/a')}`",
                 f"- Max incentive deviation: `{ce.get('max_incentive_deviation', 0.0):.6f}`",
+                f"- Normative CE objective: {ce.get('objective_description', 'n/a')}",
             ]
         )
+
+        warnings = equilibrium_result.get("warnings") or []
+        if warnings:
+            lines.append("- Warnings:")
+            for warning in warnings:
+                lines.append(f"  {warning}")
 
         mean_external = equilibrium_result.get("mean_external_regret") or {}
         if mean_external:

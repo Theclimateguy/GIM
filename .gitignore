@@ -18,6 +18,7 @@ legacy/_workspace_extras/
 !misc/**
 misc/local/
 misc/previews/
+misc/.DS_Store
 
 # Local-only docs and drafts not part of the current implementation doc set
 GIM_12/GIM_12_documentation.md

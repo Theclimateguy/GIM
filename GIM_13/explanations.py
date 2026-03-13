@@ -244,12 +244,19 @@ def format_equilibrium_result(result: EquilibriumResult) -> str:
         f"Scenario: {game.scenario.title}",
         f"Players: {', '.join(player.display_name for player in game.players)}",
         f"Episodes: {result.episodes}",
+        f"Trust alpha: {result.trust_alpha:.2f}",
         f"Converged: {'yes' if result.converged else 'no'}",
         f"CE solver: {result.correlated_equilibrium.solver_status}",
         f"Max incentive deviation: {result.correlated_equilibrium.max_incentive_deviation:.6f}",
+        f"Normative CE objective: {result.correlated_equilibrium.objective_description}",
         "",
         "Mean external regret:",
     ]
+
+    if result.warnings:
+        lines.extend(["", "Warnings:"])
+        for warning in result.warnings:
+            lines.append(f"- {warning}")
 
     for player in game.players:
         lines.append(

@@ -20,6 +20,7 @@ from gim_11_1.core import (
 from gim_11_1.policy import make_policy_map
 from gim_11_1.simulation import step_world
 
+from .compiled_policy import CompiledLLMPolicyManager
 from .crisis_metrics import CrisisDashboard, CrisisMetricsEngine
 from .game_runner import ACTION_RISK_SHIFTS, GameRunner
 from .types import GameCombinationResult, GameDefinition, GameResult, ScenarioDefinition, ScenarioEvaluation
@@ -278,6 +279,7 @@ class SimBridge:
 
     def __init__(self) -> None:
         self.metrics_engine = CrisisMetricsEngine()
+        self._compiled_managers: dict[tuple[str, int], CompiledLLMPolicyManager] = {}
 
     @classmethod
     def unmapped_actions(cls) -> list[str]:
@@ -293,8 +295,10 @@ class SimBridge:
         self,
         world: WorldState,
         game_def: GameDefinition | None,
-        default_mode: str = "llm",
+        default_mode: str = "compiled-llm",
         selected_actions: dict[str, str] | None = None,
+        llm_refresh: str = "trigger",
+        llm_refresh_years: int = 2,
     ) -> dict[str, Callable[..., Action]]:
         """
         For each agent in world:
@@ -303,7 +307,16 @@ class SimBridge:
         """
 
         self.validate_action_mapping()
-        policy_map = make_policy_map(world.agents.keys(), mode=default_mode)
+        if default_mode == "compiled-llm":
+            policy_map = {
+                agent_id: self._compiled_policy_manager(
+                    refresh_mode=llm_refresh,
+                    refresh_years=llm_refresh_years,
+                ).policy_for_agent(agent_id)
+                for agent_id in world.agents
+            }
+        else:
+            policy_map = make_policy_map(world.agents.keys(), mode=default_mode)
         action_selection = dict(selected_actions or {})
         if not game_def:
             if action_selection:
@@ -433,10 +446,18 @@ class SimBridge:
         scenario_def: ScenarioDefinition,
         *,
         n_years: int,
-        default_mode: str = "llm",
+        default_mode: str = "compiled-llm",
+        llm_refresh: str = "trigger",
+        llm_refresh_years: int = 2,
         progress_callback: Callable[[SimProgress], None] | None = None,
     ) -> tuple[ScenarioEvaluation, list[WorldState]]:
-        policy_map = self.build_policy_map(world, game_def=None, default_mode=default_mode)
+        policy_map = self.build_policy_map(
+            world,
+            game_def=None,
+            default_mode=default_mode,
+            llm_refresh=llm_refresh,
+            llm_refresh_years=llm_refresh_years,
+        )
         tracker = None
         if progress_callback is not None and n_years > 0:
             tracker = _ProgressTracker(
@@ -464,7 +485,9 @@ class SimBridge:
         game_def: GameDefinition,
         *,
         n_years: int,
-        default_mode: str = "llm",
+        default_mode: str = "compiled-llm",
+        llm_refresh: str = "trigger",
+        llm_refresh_years: int = 2,
         max_combinations: int = 256,
         progress_callback: Callable[[SimProgress], None] | None = None,
     ) -> GameResult:
@@ -499,6 +522,8 @@ class SimBridge:
             game_def=game_def,
             default_mode=default_mode,
             selected_actions={},
+            llm_refresh=llm_refresh,
+            llm_refresh_years=llm_refresh_years,
         )
         baseline_trajectory = self.run_trajectory(
             world,
@@ -523,6 +548,8 @@ class SimBridge:
                 game_def=game_def,
                 default_mode=default_mode,
                 selected_actions=selected_actions,
+                llm_refresh=llm_refresh,
+                llm_refresh_years=llm_refresh_years,
             )
             trajectory = self.run_trajectory(
                 world,
@@ -564,6 +591,22 @@ class SimBridge:
             trajectory=trajectories_by_actions.get(best_signature),
             baseline_trajectory=baseline_trajectory,
         )
+
+    def _compiled_policy_manager(
+        self,
+        *,
+        refresh_mode: str,
+        refresh_years: int,
+    ) -> CompiledLLMPolicyManager:
+        cache_key = (refresh_mode, max(int(refresh_years), 1))
+        manager = self._compiled_managers.get(cache_key)
+        if manager is None:
+            manager = CompiledLLMPolicyManager(
+                refresh_mode=refresh_mode,
+                refresh_years=refresh_years,
+            )
+            self._compiled_managers[cache_key] = manager
+        return manager
 
     def _selected_agent_ids(self, world: WorldState, scenario_def: ScenarioDefinition) -> list[str] | None:
         actor_ids = [agent_id for agent_id in scenario_def.actor_ids if agent_id in world.agents]

@@ -25,6 +25,7 @@ from .welfare import WelfareAnalysis, analyse_welfare, compute_trust_weights
 class EquilibriumResult:
     game: GameDefinition
     episodes: int
+    trust_alpha: float
     regret_history: RegretHistory
     correlated_equilibrium: CorrelatedEquilibrium
     welfare: WelfareAnalysis | None
@@ -34,6 +35,7 @@ class EquilibriumResult:
     recommended_profile: Dict[str, str]
     price_of_anarchy: float | None
     ccE_empirical: Dict[str, float]
+    warnings: list[str]
 
 
 def run_equilibrium_search(
@@ -60,6 +62,12 @@ def run_equilibrium_search(
     stage_game = stage_game or runner.run_game(game, max_combinations=max_combinations)
     profile_cache = seed_profile_cache(stage_game)
     action_options = _available_actions(stage_game)
+    warnings: list[str] = []
+    if getattr(stage_game, "truncated_action_space", False):
+        warnings.append(
+            "Equilibrium was computed on the truncated stage game because the original action "
+            "space exceeded the configured combination budget."
+        )
 
     for episode in range(max_episodes):
         selected = _hedge_select(stage_game, weights, exploration_eps)
@@ -135,6 +143,7 @@ def run_equilibrium_search(
     return EquilibriumResult(
         game=game,
         episodes=len(history.records),
+        trust_alpha=trust_alpha,
         regret_history=history,
         correlated_equilibrium=ce,
         welfare=welfare,
@@ -144,6 +153,7 @@ def run_equilibrium_search(
         recommended_profile=recommended_profile,
         price_of_anarchy=price_of_anarchy,
         ccE_empirical=empirical_cce,
+        warnings=warnings,
     )
 
 
