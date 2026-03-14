@@ -1,6 +1,7 @@
 import math
 import random
 
+from . import calibration_params as cal
 from .core import (
     CO2_PREINDUSTRIAL_GT,
     F2XCO2_W_M2,
@@ -11,31 +12,18 @@ from .core import (
     clamp01,
 )
 
-CARBON_POOL_FRACTIONS = (0.2173, 0.2240, 0.2824, 0.2763)
-CARBON_POOL_TIMESCALES = (math.inf, 394.4, 36.54, 4.304)
-DEFAULT_ECS = 3.0
-ECS_MIN = 1.5
-ECS_MAX = 4.0
-DEFAULT_F_NONCO2 = 0.0
-DEFAULT_HEAT_CAP_SURFACE = 20.0
-DEFAULT_HEAT_CAP_DEEP = 100.0
-DEFAULT_OCEAN_EXCHANGE = 0.7
-EMISSIONS_SCALE = 1.8
-TECH_DECARB_K = 0.12
-DECARB_RATE = 0.049
-
 
 def _climate_resilience(agent: AgentState) -> float:
-    tech_res = clamp01(agent.technology.tech_level / 2.0)
+    tech_res = clamp01(agent.technology.tech_level / cal.RESILIENCE_TECH_REF)
     gdp = max(agent.economy.gdp, 1e-6)
     adapt_spend = getattr(agent.economy, "climate_adaptation_spending", 0.0)
     adapt_share = max(0.0, adapt_spend) / gdp
-    adapt_res = clamp01(adapt_share / 0.03)
+    adapt_res = clamp01(adapt_share / cal.RESILIENCE_ADAPT_REF)
     return clamp01(
-        0.40 * agent.risk.regime_stability
-        + 0.30 * tech_res
-        + 0.15 * agent.society.trust_gov
-        + 0.15 * adapt_res
+        cal.RESILIENCE_STABILITY_W * agent.risk.regime_stability
+        + cal.RESILIENCE_TECH_W * tech_res
+        + cal.RESILIENCE_TRUST_W * agent.society.trust_gov
+        + cal.RESILIENCE_ADAPT_W * adapt_res
     )
 
 
@@ -50,23 +38,23 @@ def update_emissions_from_economy(
     if base_intensity is None or base_intensity <= 0.0:
         base_intensity = agent.climate.co2_annual_emissions / gdp
         if base_intensity <= 0.0:
-            base_intensity = 0.02
+            base_intensity = cal.CO2_INTENSITY_FLOOR
         agent.climate._co2_intensity_base = base_intensity
 
     tech = max(0.5, agent.technology.tech_level)
-    tech_factor = math.exp(-TECH_DECARB_K * max(0.0, tech - 1.0))
+    tech_factor = math.exp(-cal.TECH_DECARB_K * max(0.0, tech - 1.0))
     energy = agent.resources.get("energy")
     efficiency = max(0.5, energy.efficiency) if energy is not None else 1.0
     efficiency_factor = 1.0 / efficiency
 
-    time_factor = math.exp(-DECARB_RATE * max(0.0, time))
-    tax_effect = 1.0 - 0.12 * fuel_tax_change
-    tax_effect = min(1.4, max(0.6, tax_effect))
+    time_factor = math.exp(-cal.DECARB_RATE * max(0.0, time))
+    tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
+    tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
     intensity = base_intensity * tech_factor * efficiency_factor * time_factor * tax_effect
-    reduction = max(0.0, min(0.9, policy_reduction))
+    reduction = max(0.0, min(cal.POLICY_REDUCTION_MAX, policy_reduction))
     agent.climate.co2_annual_emissions = max(
         0.0,
-        gdp * intensity * (1.0 - reduction) * EMISSIONS_SCALE,
+        gdp * intensity * (1.0 - reduction) * cal.EMISSIONS_SCALE,
     )
 
 
@@ -85,13 +73,13 @@ def _init_carbon_pools(world: WorldState, fractions: list[float]) -> None:
 def update_global_climate(
     world: WorldState,
     dt: float = 1.0,
-    ecs: float = DEFAULT_ECS,
-    f_nonco2: float = DEFAULT_F_NONCO2,
-    heat_cap_surface: float = DEFAULT_HEAT_CAP_SURFACE,
-    heat_cap_deep: float = DEFAULT_HEAT_CAP_DEEP,
-    ocean_exchange: float = DEFAULT_OCEAN_EXCHANGE,
-    carbon_pool_fractions: tuple[float, ...] = CARBON_POOL_FRACTIONS,
-    carbon_pool_timescales: tuple[float, ...] = CARBON_POOL_TIMESCALES,
+    ecs: float = cal.ECS_DEFAULT,
+    f_nonco2: float = cal.F_NONCO2_DEFAULT,
+    heat_cap_surface: float = cal.HEAT_CAP_SURFACE,
+    heat_cap_deep: float = cal.HEAT_CAP_DEEP,
+    ocean_exchange: float = cal.OCEAN_EXCHANGE,
+    carbon_pool_fractions: tuple[float, ...] = cal.CARBON_POOL_FRACTIONS,
+    carbon_pool_timescales: tuple[float, ...] = cal.CARBON_POOL_TIMESCALES,
 ) -> None:
     total_emissions = sum(agent.climate.co2_annual_emissions for agent in world.agents.values())
 
@@ -122,11 +110,11 @@ def update_global_climate(
 
     c_ppm = max(1e-6, world.global_state.co2 / GTCO2_PER_PPM)
     c0_ppm = CO2_PREINDUSTRIAL_GT / GTCO2_PER_PPM
-    f_co2 = 5.35 * math.log(c_ppm / c0_ppm)
+    f_co2 = cal.FORCING_LOG_COEFF * math.log(c_ppm / c0_ppm)
     f_total = f_co2 + f_nonco2
     world.global_state.forcing_total = f_total
 
-    ecs = min(max(ECS_MIN, ecs), ECS_MAX)
+    ecs = min(max(cal.ECS_MIN, ecs), cal.ECS_MAX)
     climate_feedback = F2XCO2_W_M2 / ecs
     t_surface = world.global_state.temperature_global
     t_ocean = world.global_state.temperature_ocean
@@ -148,18 +136,20 @@ def update_global_climate(
     temp_increase = world.global_state.temperature_global - TGLOBAL_2023_C
     for agent in world.agents.values():
         resilience = _climate_resilience(agent)
-        effective_risk = clamp01(agent.climate.climate_risk) * (1.0 - 0.60 * resilience)
-        degradation = 0.004 * max(0.0, temp_increase) * effective_risk
+        effective_risk = clamp01(agent.climate.climate_risk) * (
+            1.0 - cal.BIODIVERSITY_RISK_DAMP * resilience
+        )
+        degradation = cal.BIODIVERSITY_TEMP_DAMAGE * max(0.0, temp_increase) * effective_risk
         agent.climate.biodiversity_local = max(0.0, agent.climate.biodiversity_local - degradation)
 
 
 def update_climate_risks(
     world: WorldState,
-    response_rate: float = 0.06,
-    sensitivity: float = 0.45,
-    base_const: float = 0.3,
-    base_water: float = 0.45,
-    base_gini: float = 0.15,
+    response_rate: float = cal.CRISK_RESPONSE_RATE,
+    sensitivity: float = cal.CRISK_TEMP_SENSITIVITY,
+    base_const: float = cal.CRISK_BASE_CONST,
+    base_water: float = cal.CRISK_WATER_WEIGHT,
+    base_gini: float = cal.CRISK_GINI_WEIGHT,
 ) -> None:
     delta_t = max(0.0, world.global_state.temperature_global - TGLOBAL_2023_C)
     for agent in world.agents.values():
@@ -175,8 +165,8 @@ def update_climate_risks(
 
 def apply_climate_extreme_events(
     world: WorldState,
-    base_prob: float = 0.012,
-    max_extra_prob: float = 0.07,
+    base_prob: float = cal.EVENT_BASE_PROB,
+    max_extra_prob: float = cal.EVENT_MAX_EXTRA_PROB,
 ) -> None:
     temperature = world.global_state.temperature_global
 
@@ -190,51 +180,58 @@ def apply_climate_extreme_events(
         resilience = _climate_resilience(agent)
 
         extra_warming = max(0.0, temperature - TGLOBAL_2023_C)
-        temp_factor = 1.0 + 0.15 * extra_warming
+        temp_factor = 1.0 + cal.EVENT_TEMP_WARMING_SENS * extra_warming
         event_prob = (base_prob + max_extra_prob * risk) * temp_factor
-        event_prob *= 1.0 - 0.40 * resilience
-        event_prob = min(0.5, max(0.0, event_prob))
+        event_prob *= 1.0 - cal.EVENT_RESILIENCE_DAMP * resilience
+        event_prob = min(cal.EVENT_PROB_MAX, max(0.0, event_prob))
 
         if random.random() >= event_prob:
             continue
 
-        severity = 0.03 + 0.15 * risk
-        severity *= 1.0 - 0.50 * resilience
+        severity = cal.EVENT_SEVERITY_BASE + cal.EVENT_SEVERITY_RISK_SENS * risk
+        severity *= 1.0 - cal.EVENT_SEVERITY_RESILIENCE_DAMP * resilience
         agent.economy.capital *= max(0.0, 1.0 - severity)
 
-        pop_loss = (0.004 + 0.015 * risk) * (1.0 - 0.35 * resilience)
+        pop_loss = (cal.EVENT_POP_LOSS_BASE + cal.EVENT_POP_LOSS_RISK_SENS * risk) * (
+            1.0 - cal.EVENT_POP_RESILIENCE_DAMP * resilience
+        )
         agent.economy.population *= max(0.0, 1.0 - pop_loss)
 
-        shock_penalty = min(0.10, 0.5 * severity)
-        agent.economy.climate_shock_years = max(agent.economy.climate_shock_years, 2)
+        shock_penalty = min(cal.EVENT_SHOCK_PENALTY_CAP, cal.EVENT_SHOCK_PENALTY_SEVERITY_SENS * severity)
+        agent.economy.climate_shock_years = max(
+            agent.economy.climate_shock_years,
+            cal.EVENT_SHOCK_YEARS,
+        )
         agent.economy.climate_shock_penalty = max(
             agent.economy.climate_shock_penalty,
             shock_penalty,
         )
 
-        tension_jump = (0.03 + 0.10 * risk) * (1.0 - 0.35 * resilience)
+        tension_jump = (cal.EVENT_TENSION_JUMP_BASE + cal.EVENT_TENSION_JUMP_RISK_SENS * risk) * (
+            1.0 - cal.EVENT_POP_RESILIENCE_DAMP * resilience
+        )
         agent.society.social_tension = min(1.0, agent.society.social_tension + tension_jump)
-        if agent.risk.regime_stability > 0.6:
-            trust_delta = 0.02 + 0.02 * resilience
+        if agent.risk.regime_stability > cal.EVENT_TRUST_STABILITY_THRESHOLD:
+            trust_delta = cal.EVENT_TRUST_REWARD_BASE + cal.EVENT_TRUST_REWARD_RESILIENCE_SENS * resilience
             agent.society.trust_gov = min(1.0, agent.society.trust_gov + trust_delta)
         else:
-            trust_delta = 0.02 + 0.03 * risk
+            trust_delta = cal.EVENT_TRUST_PENALTY_BASE + cal.EVENT_TRUST_PENALTY_RISK_SENS * risk
             agent.society.trust_gov = max(0.0, agent.society.trust_gov - trust_delta)
 
 
 def climate_damage_multiplier(temperature: float) -> float:
     delta_t = temperature - TGLOBAL_2023_C
 
-    benefit_peak = 0.3
-    max_benefit = 0.006
-    benefit = max_benefit * math.exp(-((delta_t - benefit_peak) ** 2) / (2 * 0.5**2))
+    benefit = cal.DAMAGE_BENEFIT_MAX * math.exp(
+        -((delta_t - cal.DAMAGE_BENEFIT_PEAK) ** 2) / (2 * cal.DAMAGE_BENEFIT_STDDEV**2)
+    )
 
-    loss = 0.006 * (temperature**2)
+    loss = cal.DAMAGE_QUAD_COEFF * (temperature**2)
     return max(0.0, 1.0 + benefit - loss)
 
 
 def effective_damage_multiplier(agent: AgentState, world: WorldState) -> float:
     base = climate_damage_multiplier(world.global_state.temperature_global)
     risk = agent.climate.climate_risk
-    adjustment = 1.0 + 0.005 * (1.0 - risk)
+    adjustment = 1.0 + cal.DAMAGE_RISK_ADJ * (1.0 - risk)
     return max(0.0, base * adjustment)
