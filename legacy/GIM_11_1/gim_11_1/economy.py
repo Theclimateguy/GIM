@@ -1,6 +1,7 @@
 from . import calibration_params as cal
 from .climate import effective_damage_multiplier
 from .core import AgentState, WorldState, clamp01, effective_trade_intensity
+from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
 from .metrics import update_tfp_endogenous
 
 
@@ -12,7 +13,7 @@ def update_capital_endogenous(agent: AgentState) -> None:
     capital = max(economy.capital, 1e-6)
     depreciation = cal.CAPITAL_DEPRECIATION
 
-    base_savings = cal.SAVINGS_BASE
+    base_savings = get_savings_rate(agent.name)
     stability = clamp01(risk.regime_stability)
     tension = clamp01(agent.society.social_tension)
 
@@ -121,7 +122,7 @@ def update_public_finances(agent: AgentState, world: WorldState) -> None:
     gdp = max(economy.gdp, 1e-6)
 
     # Baseline fiscal drivers to avoid mechanical debt repayment.
-    base_social_share = cal.SOCIAL_SPEND_BASE
+    base_social_share = get_social_spend_share(agent.name)
     base_military_share = cal.MILITARY_SPEND_BASE
     climate_adaptation_share = cal.CLIMATE_ADAPT_BASE + cal.CLIMATE_ADAPT_RISK_SENS * max(
         0.0,
@@ -133,7 +134,7 @@ def update_public_finances(agent: AgentState, world: WorldState) -> None:
     policy_spending = economy.social_spending + economy.military_spending + economy.rd_spending
     economy.gov_spending = max(0.0, baseline_spending + policy_spending)
 
-    economy.taxes = cal.TAX_RATE_BASE * gdp
+    economy.taxes = get_tax_rate(agent.name) * gdp
     effective_rate = compute_effective_interest_rate(agent, world)
     economy.interest_payments = effective_rate * economy.public_debt
 
