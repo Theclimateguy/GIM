@@ -6,16 +6,26 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import sys
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_STATE_CSV = REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"
+DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
+DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
 DEFAULT_BUILDER_REFERENCE = "GIM/GIM_12/scripts/build_gim13_agent_states.py"
 DEFAULT_HANDOFF_CONTRACT = (
-    "EMISSIONS_SCALE and DECARB_RATE are compile-bound coefficients attached to the compiled "
-    "state artifact. They do not carry standalone physical meaning and must only change when "
-    "the state CSV is recompiled and this manifest is regenerated from the pipeline handoff."
+    "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, "
+    "while DECARB_RATE remains compile-bound until the dedicated decarbonization pass lands. "
+    "These coefficients must only change when the state CSV or the refresh inputs change and the "
+    "manifest is regenerated."
 )
+
+LEGACY_CORE = REPO_ROOT / "legacy" / "GIM_11_1"
+if str(LEGACY_CORE) not in sys.path:
+    sys.path.insert(0, str(LEGACY_CORE))
+
+from gim_11_1.state_artifact import compute_emissions_scale_from_state_csv  # noqa: E402
 
 
 def _compute_sha256(path: Path) -> str:
@@ -40,7 +50,22 @@ def build_manifest(
     target_year: int,
     builder_reference: str,
     handoff_contract: str,
+    rebuild_source: str,
+    emissions_reference_year: int | None = None,
+    emissions_reference_gtco2: float | None = None,
+    emissions_reference_state_csv: Path | None = None,
 ) -> dict[str, object]:
+    emissions_reference = None
+    if (
+        emissions_reference_year is not None
+        and emissions_reference_gtco2 is not None
+        and emissions_reference_state_csv is not None
+    ):
+        emissions_reference = {
+            "year": emissions_reference_year,
+            "global_co2_gtco2": emissions_reference_gtco2,
+            "state_csv": os.path.relpath(emissions_reference_state_csv, manifest_path.parent),
+        }
     return {
         "manifest_version": 1,
         "state_csv": os.path.relpath(state_csv, manifest_path.parent),
@@ -54,7 +79,14 @@ def build_manifest(
         "change_requires_pipeline_rebuild": True,
         "builder_reference": builder_reference,
         "handoff_contract": handoff_contract,
+        "rebuild_source": rebuild_source,
+        "emissions_reference": emissions_reference,
     }
+
+
+def _load_observed_global_co2(observed_fixture: Path, year: int) -> float:
+    raw = json.loads(observed_fixture.read_text(encoding="utf-8"))
+    return float(raw["global_co2_gtco2"][str(year)])
 
 
 def parse_args() -> argparse.Namespace:
@@ -73,8 +105,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--emissions-scale",
         type=float,
-        default=1.8,
-        help="Pipeline-bound EMISSIONS_SCALE to stamp into the manifest.",
+        help="Explicit EMISSIONS_SCALE override. If omitted, derive it from the historical fixture.",
     )
     parser.add_argument(
         "--decarb-rate",
@@ -87,6 +118,22 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=2023,
         help="Compiled target year represented by the state CSV.",
+    )
+    parser.add_argument(
+        "--reference-state-csv",
+        default=str(DEFAULT_REFERENCE_STATE_CSV),
+        help="State CSV used to derive EMISSIONS_SCALE from observed global CO2.",
+    )
+    parser.add_argument(
+        "--observed-fixture",
+        default=str(DEFAULT_OBSERVED_FIXTURE),
+        help="Observed backtest fixture containing global CO2 history.",
+    )
+    parser.add_argument(
+        "--reference-year",
+        type=int,
+        default=2015,
+        help="Observed reference year used when deriving EMISSIONS_SCALE.",
     )
     parser.add_argument(
         "--builder-reference",
@@ -112,14 +159,41 @@ def main() -> None:
     if not state_csv.exists():
         raise SystemExit(f"State CSV not found: {state_csv}")
 
+    reference_state_csv = Path(args.reference_state_csv).expanduser().resolve()
+    observed_fixture = Path(args.observed_fixture).expanduser().resolve()
+    if args.emissions_scale is None:
+        if not reference_state_csv.exists():
+            raise SystemExit(f"Reference state CSV not found: {reference_state_csv}")
+        if not observed_fixture.exists():
+            raise SystemExit(f"Observed fixture not found: {observed_fixture}")
+        observed_global_co2_gtco2 = _load_observed_global_co2(observed_fixture, args.reference_year)
+        emissions_scale = compute_emissions_scale_from_state_csv(
+            reference_state_csv,
+            observed_global_co2_gtco2,
+        )
+        rebuild_source = "data"
+        emissions_reference_year = int(args.reference_year)
+        emissions_reference_gtco2 = observed_global_co2_gtco2
+        emissions_reference_state_csv = reference_state_csv
+    else:
+        emissions_scale = float(args.emissions_scale)
+        rebuild_source = "manual"
+        emissions_reference_year = None
+        emissions_reference_gtco2 = None
+        emissions_reference_state_csv = None
+
     manifest = build_manifest(
         state_csv=state_csv,
         manifest_path=manifest_path,
-        emissions_scale=args.emissions_scale,
+        emissions_scale=emissions_scale,
         decarb_rate=args.decarb_rate,
         target_year=args.target_year,
         builder_reference=args.builder_reference,
         handoff_contract=args.handoff_contract,
+        rebuild_source=rebuild_source,
+        emissions_reference_year=emissions_reference_year,
+        emissions_reference_gtco2=emissions_reference_gtco2,
+        emissions_reference_state_csv=emissions_reference_state_csv,
     )
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

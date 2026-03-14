@@ -4,6 +4,7 @@ import csv
 import json
 from io import BytesIO
 from pathlib import Path
+import sys
 import urllib.request
 import xml.etree.ElementTree as ET
 from zipfile import ZipFile
@@ -14,6 +15,20 @@ FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures"
 BASE_STATE_CSV = REPO_ROOT / "GIM_12" / "agent_states.csv"
 OBSERVED_OUTPUT = FIXTURES_DIR / "historical_backtest_observed.json"
 STATE_OUTPUT = FIXTURES_DIR / "historical_backtest_state_2015.csv"
+CALIBRATION_DIR = Path(__file__).resolve().parent
+
+if str(REPO_ROOT / "legacy" / "GIM_11_1") not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT / "legacy" / "GIM_11_1"))
+if str(CALIBRATION_DIR) not in sys.path:
+    sys.path.insert(0, str(CALIBRATION_DIR))
+
+from gim_11_1.state_artifact import compute_emissions_scale_from_state_csv  # noqa: E402
+from refresh_state_artifact_manifest import (  # noqa: E402
+    DEFAULT_BUILDER_REFERENCE,
+    DEFAULT_HANDOFF_CONTRACT,
+    DEFAULT_STATE_CSV,
+    build_manifest,
+)
 
 START_YEAR = 2015
 END_YEAR = 2023
@@ -282,13 +297,48 @@ def _build_initial_state_csv(
         writer.writerows(updated_rows)
 
 
+def compute_emissions_scale(state_2015_path: str | Path, gcp_observed_2015: float) -> float:
+    return compute_emissions_scale_from_state_csv(state_2015_path, gcp_observed_2015)
+
+
+def _refresh_primary_artifact_manifest(
+    *,
+    state_2015_path: Path,
+    observed: dict[str, object],
+) -> Path:
+    observed_global_co2_series = observed["global_co2_gtco2"]
+    if START_YEAR in observed_global_co2_series:
+        observed_global_co2 = float(observed_global_co2_series[START_YEAR])
+    else:
+        observed_global_co2 = float(observed_global_co2_series[str(START_YEAR)])
+    emissions_scale = compute_emissions_scale(state_2015_path, observed_global_co2)
+    manifest_path = DEFAULT_STATE_CSV.with_suffix(".artifacts.json")
+    manifest = build_manifest(
+        state_csv=DEFAULT_STATE_CSV,
+        manifest_path=manifest_path,
+        emissions_scale=emissions_scale,
+        decarb_rate=0.049,
+        target_year=2023,
+        builder_reference=DEFAULT_BUILDER_REFERENCE,
+        handoff_contract=DEFAULT_HANDOFF_CONTRACT,
+        rebuild_source="data",
+        emissions_reference_year=START_YEAR,
+        emissions_reference_gtco2=observed_global_co2,
+        emissions_reference_state_csv=state_2015_path,
+    )
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    return manifest_path
+
+
 def main() -> None:
     FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
     observed, indicators = _build_observed_fixture()
     OBSERVED_OUTPUT.write_text(json.dumps(observed, indent=2) + "\n", encoding="utf-8")
     _build_initial_state_csv(indicators, output_path=STATE_OUTPUT)
+    manifest_path = _refresh_primary_artifact_manifest(state_2015_path=STATE_OUTPUT, observed=observed)
     print(OBSERVED_OUTPUT)
     print(STATE_OUTPUT)
+    print(manifest_path)
 
 
 if __name__ == "__main__":

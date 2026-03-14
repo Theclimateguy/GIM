@@ -133,7 +133,7 @@ In this top-level view, `ScenarioEvaluation` and `GameResult` stay grouped becau
 
 Operationally, `GIM_13` now treats the `57`-actor compiled state as the default world. The older `GIM_12/agent_states.csv` remains in the repository only as a fallback input.
 
-If `GIM13_STATE_CSV` points at a non-default compiled CSV, it should travel with a sibling `<state>.artifacts.json` manifest. The legacy climate layer reads `EMISSIONS_SCALE` and `DECARB_RATE` from that manifest so those coefficients cannot drift independently of the state-pipeline handoff.
+If `GIM13_STATE_CSV` points at a non-default compiled CSV, it should travel with a sibling `<state>.artifacts.json` manifest. The legacy climate layer reads `EMISSIONS_SCALE` and `DECARB_RATE` from that manifest so those coefficients cannot drift independently of the state-pipeline handoff. As of the current calibration pass, `EMISSIONS_SCALE` is refreshed from the 2015 structural backtest fixture plus observed GCP CO2, while `DECARB_RATE` remains on the older artifact path until the dedicated decarbonization pass lands.
 
 ### 3.2 Command Reference
 

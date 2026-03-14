@@ -43,6 +43,13 @@ class StateArtifactBindingTests(unittest.TestCase):
         self.assertGreater(binding.emissions_scale, 0.0)
         self.assertGreater(binding.decarb_rate, 0.0)
         self.assertIn("must only change", binding.handoff_contract.lower())
+        self.assertEqual(binding.rebuild_source, "data")
+        self.assertEqual(binding.emissions_reference_year, 2015)
+        self.assertIsNotNone(binding.emissions_reference_gtco2)
+        self.assertEqual(
+            binding.emissions_reference_state_csv,
+            (REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv").resolve(),
+        )
 
     def test_calibration_params_use_manifest_bound_coefficients(self) -> None:
         self.assertAlmostEqual(cal.EMISSIONS_SCALE, PRIMARY_STATE_ARTIFACT.emissions_scale)
@@ -81,6 +88,8 @@ class StateArtifactBindingTests(unittest.TestCase):
         self.assertEqual(binding.state_row_count, 1)
         self.assertAlmostEqual(binding.emissions_scale, 1.8)
         self.assertAlmostEqual(binding.decarb_rate, 0.049)
+        self.assertEqual(binding.rebuild_source, "legacy")
+        self.assertIsNone(binding.emissions_reference_year)
 
 
 if __name__ == "__main__":

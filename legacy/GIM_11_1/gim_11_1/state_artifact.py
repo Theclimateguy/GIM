@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import warnings
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,18 @@ class StateArtifactBinding:
     change_requires_pipeline_rebuild: bool
     builder_reference: str
     handoff_contract: str
+    rebuild_source: str = "legacy"
+    emissions_reference_year: int | None = None
+    emissions_reference_gtco2: float | None = None
+    emissions_reference_state_csv: Path | None = None
+
+
+LEGACY_EMISSIONS_SCALE = 1.8
+LEGACY_DECARB_RATE = 0.049
+LEGACY_FALLBACK_CONTRACT = (
+    "Legacy fallback artifact values are in use because the active state-artifact manifest could "
+    "not be loaded. Run the refresh path to restore a hash-locked manifest."
+)
 
 
 def _repo_root() -> Path:
@@ -68,12 +81,74 @@ def _count_rows(path: Path) -> int:
         return sum(1 for _ in csv.DictReader(handle))
 
 
-def load_state_artifact(state_csv: str | Path | None = None) -> StateArtifactBinding:
+def compute_emissions_scale_from_state_csv(
+    state_csv: str | Path,
+    observed_global_co2_gtco2: float,
+) -> float:
+    state_csv_path = _resolve_state_csv_path(state_csv)
+    with state_csv_path.open("r", encoding="utf-8", newline="") as handle:
+        total_agent_co2 = sum(
+            float(row.get("co2_annual_emissions") or 0.0) for row in csv.DictReader(handle)
+        )
+    if total_agent_co2 <= 0.0:
+        raise ValueError(f"No positive co2_annual_emissions found in {state_csv_path}")
+    return float(observed_global_co2_gtco2) / total_agent_co2
+
+
+def _resolve_optional_manifest_path(manifest_path: Path, value: str | None) -> Path | None:
+    if not value:
+        return None
+    candidate = Path(str(value))
+    if not candidate.is_absolute():
+        return (manifest_path.parent / candidate).resolve()
+    return candidate.resolve()
+
+
+def _legacy_fallback_binding(
+    *,
+    manifest_path: Path,
+    state_csv_path: Path,
+    message: str,
+) -> StateArtifactBinding:
+    warnings.warn(message, stacklevel=2)
+    state_csv_sha256 = _compute_sha256(state_csv_path) if state_csv_path.exists() else ""
+    state_row_count = _count_rows(state_csv_path) if state_csv_path.exists() else 0
+    return StateArtifactBinding(
+        manifest_version=0,
+        manifest_path=manifest_path,
+        state_csv_path=state_csv_path,
+        state_csv_sha256=state_csv_sha256,
+        state_row_count=state_row_count,
+        target_year=2023,
+        emissions_scale=LEGACY_EMISSIONS_SCALE,
+        decarb_rate=LEGACY_DECARB_RATE,
+        change_requires_pipeline_rebuild=False,
+        builder_reference="legacy fallback",
+        handoff_contract=LEGACY_FALLBACK_CONTRACT,
+        rebuild_source="legacy",
+    )
+
+
+def load_state_artifact(
+    state_csv: str | Path | None = None,
+    *,
+    allow_legacy_fallback: bool = False,
+) -> StateArtifactBinding:
     repo_root = _repo_root()
     requested_state_csv = state_csv or _active_state_csv_override() or _primary_state_csv(repo_root)
     state_csv_path = _resolve_state_csv_path(requested_state_csv)
     manifest_path = _manifest_path_for_state_csv(repo_root, state_csv_path)
     if not manifest_path.exists():
+        if allow_legacy_fallback:
+            return _legacy_fallback_binding(
+                manifest_path=manifest_path,
+                state_csv_path=state_csv_path,
+                message=(
+                    f"State artifact manifest not found at {manifest_path}; using legacy artifact values "
+                    f"(emissions_scale={LEGACY_EMISSIONS_SCALE}, decarb_rate={LEGACY_DECARB_RATE}). "
+                    "Run the refresh path to restore a data-derived manifest."
+                ),
+            )
         raise RuntimeError(
             f"State artifact manifest is missing: {manifest_path}. "
             "Restore the manifest or regenerate it from the state pipeline handoff before "
@@ -130,14 +205,30 @@ def load_state_artifact(state_csv: str | Path | None = None) -> StateArtifactBin
         change_requires_pipeline_rebuild=bool(raw["change_requires_pipeline_rebuild"]),
         builder_reference=str(raw.get("builder_reference", "")),
         handoff_contract=str(raw["handoff_contract"]),
+        rebuild_source=str(raw.get("rebuild_source", "legacy")),
+        emissions_reference_year=(
+            int(raw["emissions_reference"]["year"]) if raw.get("emissions_reference", {}).get("year") else None
+        ),
+        emissions_reference_gtco2=(
+            float(raw["emissions_reference"]["global_co2_gtco2"])
+            if raw.get("emissions_reference", {}).get("global_co2_gtco2") is not None
+            else None
+        ),
+        emissions_reference_state_csv=_resolve_optional_manifest_path(
+            manifest_path,
+            raw.get("emissions_reference", {}).get("state_csv"),
+        ),
     )
 
 
-def load_primary_state_artifact() -> StateArtifactBinding:
-    return load_state_artifact(_primary_state_csv(_repo_root()))
+def load_primary_state_artifact(*, allow_legacy_fallback: bool = False) -> StateArtifactBinding:
+    return load_state_artifact(
+        _primary_state_csv(_repo_root()),
+        allow_legacy_fallback=allow_legacy_fallback,
+    )
 
 
-PRIMARY_STATE_ARTIFACT = load_primary_state_artifact()
+PRIMARY_STATE_ARTIFACT = load_primary_state_artifact(allow_legacy_fallback=True)
 
 active_state_csv_override = _active_state_csv_override()
 if active_state_csv_override is None:
@@ -152,6 +243,9 @@ else:
 
 __all__ = [
     "ACTIVE_STATE_ARTIFACT",
+    "compute_emissions_scale_from_state_csv",
+    "LEGACY_DECARB_RATE",
+    "LEGACY_EMISSIONS_SCALE",
     "PRIMARY_STATE_ARTIFACT",
     "StateArtifactBinding",
     "load_state_artifact",

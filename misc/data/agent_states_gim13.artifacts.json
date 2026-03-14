@@ -5,10 +5,16 @@
   "state_row_count": 57,
   "compiled_target_year": 2023,
   "artifact_parameters": {
-    "emissions_scale": 1.8,
+    "emissions_scale": 0.9755424434247171,
     "decarb_rate": 0.049
   },
   "change_requires_pipeline_rebuild": true,
   "builder_reference": "GIM/GIM_12/scripts/build_gim13_agent_states.py",
-  "handoff_contract": "EMISSIONS_SCALE and DECARB_RATE are compile-bound coefficients attached to the compiled state artifact. They do not carry standalone physical meaning and must only change when the state CSV is recompiled and this manifest is regenerated from the pipeline handoff."
+  "handoff_contract": "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, while DECARB_RATE remains compile-bound until the dedicated decarbonization pass lands. These coefficients must only change when the state CSV or the refresh inputs change and the manifest is regenerated.",
+  "rebuild_source": "data",
+  "emissions_reference": {
+    "year": 2015,
+    "global_co2_gtco2": 35.40489697074173,
+    "state_csv": "../../tests/fixtures/historical_backtest_state_2015.csv"
+  }
 }

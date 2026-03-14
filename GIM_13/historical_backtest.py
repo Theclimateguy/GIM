@@ -11,6 +11,7 @@ from gim_11_1 import calibration_params as cal
 from gim_11_1.core import GTCO2_PER_PPM, WorldState
 from gim_11_1.policy import make_policy_map
 from gim_11_1.simulation import step_world
+from gim_11_1.state_artifact import ACTIVE_STATE_ARTIFACT
 from gim_11_1.world_factory import make_world_from_csv
 
 
@@ -135,6 +136,13 @@ def _anchor_emissions_intensity(world: WorldState) -> None:
         agent.climate._co2_intensity_base = agent.climate.co2_annual_emissions / denom
 
 
+def _should_anchor_emissions_intensity() -> bool:
+    # The anchor is a legacy workaround for manifests whose emissions scale was not
+    # yet data-derived. Once the active artifact is refreshed from historical data,
+    # leaving the anchor on would partially cancel the intended 4c correction.
+    return getattr(ACTIVE_STATE_ARTIFACT, "rebuild_source", "legacy") != "data"
+
+
 def _seed_historical_globals(world: WorldState, observed: dict[str, object], start_year: int) -> None:
     atmospheric_co2_ppm = _coerce_int_keyed_series(observed["atmospheric_co2_ppm"])
     temperature_c = _coerce_int_keyed_series(observed["temperature_c_preindustrial"])
@@ -173,7 +181,8 @@ def run_historical_backtest(
 
     world = make_world_from_csv(str(state_csv_path))
     _seed_historical_globals(world, observed, start_year)
-    _anchor_emissions_intensity(world)
+    if _should_anchor_emissions_intensity():
+        _anchor_emissions_intensity(world)
 
     policies = make_policy_map(world.agents.keys(), mode=policy_mode)
 
