@@ -1,4 +1,4 @@
-__version__ = "13.1.0"
+__version__ = "13.1.2"
 
 from .crisis_metrics import CrisisMetricsEngine
 from .game_runner import GameRunner

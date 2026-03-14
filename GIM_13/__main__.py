@@ -15,6 +15,7 @@ from .calibration import (
     format_calibration_suite_result,
     run_operational_calibration,
 )
+from .calibration_validator import run_sanity_suite
 from .console_app import run_console
 from .crisis_metrics import CrisisMetricsEngine
 from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artifacts
@@ -282,6 +283,24 @@ def _serialize_game_output(game_result, equilibrium_result) -> dict:
     return payload
 
 
+def _emit_sanity_suite(json_output: bool) -> None:
+    suite = run_sanity_suite()
+    stream = sys.stderr if json_output else sys.stdout
+    sections = (
+        ("Outcome warnings", suite["outcome_warnings"]),
+        ("Action warnings", suite["action_warnings"]),
+        ("Crisis warnings", suite["crisis_warnings"]),
+    )
+    for label, warnings in sections:
+        if not warnings:
+            continue
+        print(f"{label}:", file=stream)
+        for warning in warnings:
+            print(f"  - {warning}", file=stream)
+    if not suite["pass"]:
+        print("Sanity suite reported fatal calibration issues.", file=stream)
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
@@ -296,6 +315,7 @@ def main() -> None:
         print(f"Analytical brief written to {output_path}")
         return
     if args.command == "calibrate":
+        _emit_sanity_suite(args.json_output)
         result = run_operational_calibration(
             suite_id=args.suite,
             state_csv=args.state_csv,

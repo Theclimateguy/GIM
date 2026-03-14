@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from . import geo_calibration as geo
 from .runtime import AgentState, WorldState
 
 from gim_11_1.core import clamp01, effective_trade_intensity
@@ -120,6 +121,21 @@ REGIONAL_ROUTE_RISK = {
     "Global South": 0.50,
 }
 
+ARCHETYPE_RELEVANCE = geo.ARCHETYPE_RELEVANCE
+REGIONAL_ROUTE_RISK = geo.REGIONAL_ROUTE_RISK
+
+
+def _gw(name: str) -> float:
+    return geo.CRISIS_METRIC_WEIGHTS[name].value
+
+
+def _arch(name: str) -> float:
+    return geo.ARCHETYPE_THRESHOLDS[name].value
+
+
+def _relevance(archetype: str, metric_name: str) -> float:
+    return ARCHETYPE_RELEVANCE[archetype][metric_name].value
+
 
 def _safe_div(numerator: float, denominator: float, default: float = 0.0) -> float:
     if abs(denominator) <= 1e-9:
@@ -149,7 +165,12 @@ def _trigger_from_level(level: float, threshold: float) -> float:
 
 def _severity(level: float, momentum: float, buffer: float, trigger: float) -> float:
     worsening = max(momentum, 0.0)
-    return clamp01(0.45 * level + 0.20 * worsening + 0.20 * (1.0 - buffer) + 0.15 * trigger)
+    return clamp01(
+        _gw("severity_level_weight") * level
+        + _gw("severity_momentum_weight") * worsening
+        + _gw("severity_buffer_weight") * (1.0 - buffer)
+        + _gw("severity_trigger_weight") * trigger
+    )
 
 
 def _normalize(value: float, low: float, high: float) -> float:
@@ -211,21 +232,29 @@ class CrisisMetricsEngine:
         )
         regime = agent.culture.regime_type.lower()
 
-        if energy_export >= 0.15 and agent.region == "Middle East":
+        if energy_export >= _arch("hydrocarbon_exporter_energy_export_min") and agent.region == "Middle East":
             return "hydrocarbon_exporter"
 
-        if agent.risk.conflict_proneness >= 0.75 or agent.risk.regime_stability <= 0.40:
+        if (
+            agent.risk.conflict_proneness >= _arch("fragile_conflict_proneness_min")
+            or agent.risk.regime_stability <= _arch("fragile_regime_stability_max")
+        ):
             return "fragile_conflict_state"
 
-        if agent.economy.gdp >= 10.0 or (
-            agent.economy.gdp >= 4.0 and agent.economy.population >= 150_000_000
+        if agent.economy.gdp >= _arch("industrial_gdp_large_min") or (
+            agent.economy.gdp >= _arch("industrial_gdp_mid_min")
+            and agent.economy.population >= _arch("industrial_population_min")
         ):
             return "industrial_power"
 
-        if regime == "democracy" and gdp_pc >= 35_000:
+        if regime == "democracy" and gdp_pc >= _arch("advanced_democracy_gdp_pc_min"):
             return "advanced_service_democracy"
 
-        if energy_gap >= 0.10 or _safe_div(agent.economy.fx_reserves, agent.economy.gdp, 0.0) < 0.15:
+        if energy_gap >= _arch("developing_importer_energy_gap_min") or _safe_div(
+            agent.economy.fx_reserves,
+            agent.economy.gdp,
+            0.0,
+        ) < _arch("developing_importer_fx_gdp_max"):
             return "developing_importer"
 
         return "mixed_emerging"
@@ -236,7 +265,7 @@ class CrisisMetricsEngine:
             return {
                 "avg_trade_intensity": 0.0,
                 "avg_trade_barrier": 0.0,
-                "avg_trust": 0.5,
+                "avg_trust": _arch("default_avg_trust"),
                 "avg_conflict": 0.0,
                 "war_links": 0.0,
             }
@@ -286,11 +315,18 @@ class CrisisMetricsEngine:
         avg_conflict = _safe_div(conflict_sum, total_relations, 0.0)
 
         oil_benchmark = world.global_state.prices.get("energy", 1.0) * (
-            1.0 + 0.65 * energy_gap_ratio + 0.20 * sanctions_footprint + 0.15 * avg_conflict
+            1.0
+            + _gw("global_oil_energy_gap_weight") * energy_gap_ratio
+            + _gw("global_oil_sanctions_weight") * sanctions_footprint
+            + _gw("global_oil_conflict_weight") * avg_conflict
         )
-        oil_level = _normalize(oil_benchmark, 1.0, 2.5)
-        oil_buffer = clamp01(1.0 - energy_gap_ratio / 0.25)
-        oil_trigger = _trigger_from_level(oil_level, 0.55)
+        oil_level = _normalize(
+            oil_benchmark,
+            _gw("global_oil_normalize_low"),
+            _gw("global_oil_normalize_high"),
+        )
+        oil_buffer = clamp01(1.0 - energy_gap_ratio / _gw("global_oil_buffer_gap_ref"))
+        oil_trigger = _trigger_from_level(oil_level, _gw("global_oil_trigger_threshold"))
 
         metrics = {
             "global_oil_market_stress": CrisisMetric(
@@ -304,7 +340,7 @@ class CrisisMetricsEngine:
                 trigger=oil_trigger,
                 severity=_severity(oil_level, 0.0, oil_buffer, oil_trigger),
                 relevance=1.0,
-                threshold_flag=oil_level >= 0.55,
+                threshold_flag=oil_level >= _gw("global_oil_trigger_threshold"),
                 contributors={
                     "base_energy_price": world.global_state.prices.get("energy", 1.0),
                     "energy_gap_ratio": energy_gap_ratio,
@@ -317,18 +353,24 @@ class CrisisMetricsEngine:
                 description=GLOBAL_METRIC_DESCRIPTIONS["global_energy_volume_gap"],
                 value=positive_gap,
                 unit="energy_volume",
-                level=_normalize(energy_gap_ratio, 0.0, 0.20),
+                level=_normalize(energy_gap_ratio, 0.0, _gw("global_energy_gap_normalize_high")),
                 momentum=0.0,
-                buffer=clamp01(1.0 - energy_gap_ratio / 0.20),
-                trigger=_trigger_from_level(_normalize(energy_gap_ratio, 0.0, 0.20), 0.50),
+                buffer=clamp01(1.0 - energy_gap_ratio / _gw("global_energy_gap_normalize_high")),
+                trigger=_trigger_from_level(
+                    _normalize(energy_gap_ratio, 0.0, _gw("global_energy_gap_normalize_high")),
+                    _gw("global_energy_gap_trigger_threshold"),
+                ),
                 severity=_severity(
-                    _normalize(energy_gap_ratio, 0.0, 0.20),
+                    _normalize(energy_gap_ratio, 0.0, _gw("global_energy_gap_normalize_high")),
                     0.0,
-                    clamp01(1.0 - energy_gap_ratio / 0.20),
-                    _trigger_from_level(_normalize(energy_gap_ratio, 0.0, 0.20), 0.50),
+                    clamp01(1.0 - energy_gap_ratio / _gw("global_energy_gap_normalize_high")),
+                    _trigger_from_level(
+                        _normalize(energy_gap_ratio, 0.0, _gw("global_energy_gap_normalize_high")),
+                        _gw("global_energy_gap_trigger_threshold"),
+                    ),
                 ),
                 relevance=1.0,
-                threshold_flag=energy_gap_ratio >= 0.10,
+                threshold_flag=energy_gap_ratio >= _gw("global_energy_gap_flag"),
                 contributors={
                     "energy_supply": energy_supply,
                     "energy_demand": energy_demand,
@@ -340,18 +382,24 @@ class CrisisMetricsEngine:
                 description=GLOBAL_METRIC_DESCRIPTIONS["global_sanctions_footprint"],
                 value=sanctions_footprint,
                 unit="share",
-                level=_normalize(sanctions_footprint, 0.0, 0.15),
+                level=_normalize(sanctions_footprint, 0.0, _gw("global_sanctions_normalize_high")),
                 momentum=0.0,
-                buffer=clamp01(1.0 - sanctions_footprint / 0.15),
-                trigger=_trigger_from_level(_normalize(sanctions_footprint, 0.0, 0.15), 0.40),
+                buffer=clamp01(1.0 - sanctions_footprint / _gw("global_sanctions_normalize_high")),
+                trigger=_trigger_from_level(
+                    _normalize(sanctions_footprint, 0.0, _gw("global_sanctions_normalize_high")),
+                    _gw("global_sanctions_trigger_threshold"),
+                ),
                 severity=_severity(
-                    _normalize(sanctions_footprint, 0.0, 0.15),
+                    _normalize(sanctions_footprint, 0.0, _gw("global_sanctions_normalize_high")),
                     0.0,
-                    clamp01(1.0 - sanctions_footprint / 0.15),
-                    _trigger_from_level(_normalize(sanctions_footprint, 0.0, 0.15), 0.40),
+                    clamp01(1.0 - sanctions_footprint / _gw("global_sanctions_normalize_high")),
+                    _trigger_from_level(
+                        _normalize(sanctions_footprint, 0.0, _gw("global_sanctions_normalize_high")),
+                        _gw("global_sanctions_trigger_threshold"),
+                    ),
                 ),
                 relevance=1.0,
-                threshold_flag=sanctions_footprint >= 0.06,
+                threshold_flag=sanctions_footprint >= _gw("global_sanctions_flag"),
                 contributors={"sanctions_links": float(sanctions_links)},
             ),
             "global_trade_fragmentation": CrisisMetric(
@@ -359,18 +407,24 @@ class CrisisMetricsEngine:
                 description=GLOBAL_METRIC_DESCRIPTIONS["global_trade_fragmentation"],
                 value=avg_barrier,
                 unit="share",
-                level=_normalize(avg_barrier, 0.0, 0.70),
+                level=_normalize(avg_barrier, 0.0, _gw("global_trade_fragmentation_normalize_high")),
                 momentum=0.0,
-                buffer=clamp01(1.0 - avg_barrier / 0.70),
-                trigger=_trigger_from_level(_normalize(avg_barrier, 0.0, 0.70), 0.45),
+                buffer=clamp01(1.0 - avg_barrier / _gw("global_trade_fragmentation_normalize_high")),
+                trigger=_trigger_from_level(
+                    _normalize(avg_barrier, 0.0, _gw("global_trade_fragmentation_normalize_high")),
+                    _gw("global_trade_fragmentation_trigger_threshold"),
+                ),
                 severity=_severity(
-                    _normalize(avg_barrier, 0.0, 0.70),
+                    _normalize(avg_barrier, 0.0, _gw("global_trade_fragmentation_normalize_high")),
                     0.0,
-                    clamp01(1.0 - avg_barrier / 0.70),
-                    _trigger_from_level(_normalize(avg_barrier, 0.0, 0.70), 0.45),
+                    clamp01(1.0 - avg_barrier / _gw("global_trade_fragmentation_normalize_high")),
+                    _trigger_from_level(
+                        _normalize(avg_barrier, 0.0, _gw("global_trade_fragmentation_normalize_high")),
+                        _gw("global_trade_fragmentation_trigger_threshold"),
+                    ),
                 ),
                 relevance=1.0,
-                threshold_flag=avg_barrier >= 0.25,
+                threshold_flag=avg_barrier >= _gw("global_trade_fragmentation_flag"),
                 contributors={"avg_trade_barrier": avg_barrier, "avg_conflict": avg_conflict},
             ),
         }
@@ -428,11 +482,16 @@ class CrisisMetricsEngine:
     ) -> AgentCrisisReport:
         agent = world.agents[agent_id]
         archetype = self.detect_archetype(agent, world)
-        relevance_map = ARCHETYPE_RELEVANCE[archetype]
+        relevance_map = {
+            metric_name: weight.value
+            for metric_name, weight in ARCHETYPE_RELEVANCE[archetype].items()
+        }
         relation_stats = self._relation_stats(world, agent_id)
         reserve_years = compute_reserve_years(agent)
 
-        baseline_gdp_pc = getattr(world.global_state, "baseline_gdp_pc", 0.0) or 20_000.0
+        baseline_gdp_pc = getattr(world.global_state, "baseline_gdp_pc", 0.0) or _gw(
+            "baseline_gdp_pc_default"
+        )
         gdp_pc = agent.economy.gdp_per_capita or (
             agent.economy.gdp * 1e12 / max(agent.economy.population, 1.0)
         )
@@ -440,7 +499,11 @@ class CrisisMetricsEngine:
         energy_gap = _resource_gap_ratio(agent, "energy")
         food_gap = _resource_gap_ratio(agent, "food")
         metals_gap = _resource_gap_ratio(agent, "metals")
-        import_dependency = 0.50 * energy_gap + 0.30 * food_gap + 0.20 * metals_gap
+        import_dependency = (
+            _gw("import_dependency_energy_weight") * energy_gap
+            + _gw("import_dependency_food_weight") * food_gap
+            + _gw("import_dependency_metals_weight") * metals_gap
+        )
         avg_trade_intensity = relation_stats["avg_trade_intensity"]
         avg_trade_barrier = relation_stats["avg_trade_barrier"]
         avg_trust = relation_stats["avg_trust"]
@@ -453,27 +516,53 @@ class CrisisMetricsEngine:
         price_energy = world.global_state.prices.get("energy", 1.0)
         price_food = world.global_state.prices.get("food", 1.0)
         price_metals = world.global_state.prices.get("metals", 1.0)
-        sanctions_scale = clamp01(active_sanctions / 4.0)
+        sanctions_scale = clamp01(active_sanctions / _gw("sanctions_scale_denominator"))
 
         inflation_estimate = max(
             0.0,
             agent.economy.inflation
-            + 0.07 * max(price_energy - 1.0, 0.0) * (0.4 + 0.6 * energy_gap)
-            + 0.05 * max(price_food - 1.0, 0.0) * (0.3 + 0.7 * food_gap)
-            + 0.03 * max(price_metals - 1.0, 0.0) * (0.2 + 0.8 * metals_gap)
-            + 0.04 * sanctions_scale
-            + 0.03 * avg_trade_barrier,
+            + _gw("inflation_energy_price_weight")
+            * max(price_energy - 1.0, 0.0)
+            * (
+                _gw("inflation_energy_gap_base")
+                + _gw("inflation_energy_gap_weight") * energy_gap
+            )
+            + _gw("inflation_food_price_weight")
+            * max(price_food - 1.0, 0.0)
+            * (_gw("inflation_food_gap_base") + _gw("inflation_food_gap_weight") * food_gap)
+            + _gw("inflation_metals_price_weight")
+            * max(price_metals - 1.0, 0.0)
+            * (
+                _gw("inflation_metals_gap_base")
+                + _gw("inflation_metals_gap_weight") * metals_gap
+            )
+            + _gw("inflation_sanctions_weight") * sanctions_scale
+            + _gw("inflation_trade_barrier_weight") * avg_trade_barrier,
         )
-        inflation_level = _normalize(inflation_estimate, 0.02, 0.15)
+        inflation_level = _normalize(
+            inflation_estimate,
+            _gw("inflation_normalize_low"),
+            _gw("inflation_normalize_high"),
+        )
         inflation_buffer = clamp01(1.0 - import_dependency)
-        inflation_trigger = _trigger_from_level(inflation_level, 0.55)
+        inflation_trigger = _trigger_from_level(inflation_level, _gw("inflation_trigger_threshold"))
 
-        import_bill_proxy = agent.economy.gdp * (0.08 + 0.24 * import_dependency + 0.10 * avg_trade_intensity)
-        monthly_import_bill = max(import_bill_proxy / 12.0, 1e-6)
+        import_bill_proxy = agent.economy.gdp * (
+            _gw("import_bill_base_share")
+            + _gw("import_bill_dependency_weight") * import_dependency
+            + _gw("import_bill_trade_weight") * avg_trade_intensity
+        )
+        monthly_import_bill = max(import_bill_proxy / _gw("months_per_year"), 1e-6)
         fx_cover_months = agent.economy.fx_reserves / monthly_import_bill
-        fx_level = clamp01(max(0.0, 6.0 - min(fx_cover_months, 6.0)) / 6.0)
-        fx_buffer = clamp01(fx_cover_months / 6.0)
-        fx_trigger = clamp01(max(0.0, 3.0 - min(fx_cover_months, 3.0)) / 3.0)
+        fx_level = clamp01(
+            max(0.0, _gw("fx_cover_months_ref") - min(fx_cover_months, _gw("fx_cover_months_ref")))
+            / _gw("fx_cover_months_ref")
+        )
+        fx_buffer = clamp01(fx_cover_months / _gw("fx_cover_months_ref"))
+        fx_trigger = clamp01(
+            max(0.0, _gw("fx_trigger_months_ref") - min(fx_cover_months, _gw("fx_trigger_months_ref")))
+            / _gw("fx_trigger_months_ref")
+        )
 
         debt_gdp = _safe_div(agent.economy.public_debt, max(agent.economy.gdp, 1e-6), 0.0)
         interest_rate = compute_effective_interest_rate(agent, world)
@@ -483,85 +572,173 @@ class CrisisMetricsEngine:
             0.0,
         )
         sovereign_level = clamp01(
-            0.35 * _normalize(debt_gdp, 0.6, 1.4)
-            + 0.25 * _normalize(interest_rate, 0.03, 0.15)
-            + 0.20 * _normalize(interest_to_revenue, 0.10, 0.40)
-            + 0.20 * fx_level
+            _gw("sovereign_debt_weight")
+            * _normalize(debt_gdp, _gw("sovereign_debt_low"), _gw("sovereign_debt_high"))
+            + _gw("sovereign_rate_weight")
+            * _normalize(interest_rate, _gw("sovereign_rate_low"), _gw("sovereign_rate_high"))
+            + _gw("sovereign_interest_revenue_weight")
+            * _normalize(
+                interest_to_revenue,
+                _gw("sovereign_interest_revenue_low"),
+                _gw("sovereign_interest_revenue_high"),
+            )
+            + _gw("sovereign_fx_weight") * fx_level
         )
-        sovereign_buffer = clamp01(0.5 * fx_buffer + 0.5 * (1.0 - _normalize(debt_gdp, 0.6, 1.4)))
+        sovereign_buffer = clamp01(
+            _gw("sovereign_buffer_fx_weight") * fx_buffer
+            + _gw("sovereign_buffer_debt_weight")
+            * (1.0 - _normalize(debt_gdp, _gw("sovereign_debt_low"), _gw("sovereign_debt_high")))
+        )
         sovereign_trigger = clamp01(
-            0.6 * clamp01(max(debt_gdp - 1.2, 0.0) / 0.4)
-            + 0.4 * clamp01(max(interest_rate - 0.12, 0.0) / 0.08)
+            _gw("sovereign_trigger_debt_weight")
+            * clamp01(
+                max(debt_gdp - _gw("sovereign_trigger_debt_threshold"), 0.0)
+                / _gw("sovereign_trigger_debt_ref")
+            )
+            + _gw("sovereign_trigger_rate_weight")
+            * clamp01(
+                max(interest_rate - _gw("sovereign_trigger_rate_threshold"), 0.0)
+                / _gw("sovereign_trigger_rate_ref")
+            )
         )
 
         food_cover_days = _cover_days(agent, "food")
-        income_buffer = clamp01(gdp_pc / max(1.5 * baseline_gdp_pc, 1.0))
-        basket_price = 0.60 * price_food + 0.25 * price_energy + 0.15 * price_metals
-        food_level = clamp01(
-            0.45 * food_gap
-            + 0.25 * _normalize(basket_price, 1.0, 2.2)
-            + 0.15 * inflation_level
-            + 0.15 * (1.0 - income_buffer)
+        income_buffer = clamp01(gdp_pc / max(_gw("income_buffer_ref_multiplier") * baseline_gdp_pc, 1.0))
+        basket_price = (
+            _gw("basket_food_weight") * price_food
+            + _gw("basket_energy_weight") * price_energy
+            + _gw("basket_metals_weight") * price_metals
         )
-        food_buffer = clamp01(0.5 * income_buffer + 0.5 * min(food_cover_days / 180.0, 1.0))
-        food_trigger = clamp01(0.6 * food_gap + 0.4 * (1.0 - food_buffer))
+        food_level = clamp01(
+            _gw("food_gap_weight") * food_gap
+            + _gw("food_basket_weight")
+            * _normalize(basket_price, _gw("food_basket_low"), _gw("food_basket_high"))
+            + _gw("food_inflation_weight") * inflation_level
+            + _gw("food_income_weight") * (1.0 - income_buffer)
+        )
+        food_buffer = clamp01(
+            _gw("food_buffer_income_weight") * income_buffer
+            + _gw("food_buffer_cover_weight")
+            * min(food_cover_days / _gw("food_cover_days_ref"), 1.0)
+        )
+        food_trigger = clamp01(
+            _gw("food_trigger_gap_weight") * food_gap
+            + _gw("food_trigger_buffer_weight") * (1.0 - food_buffer)
+        )
 
         protest_base = compute_protest_risk(agent)
-        unemployment_norm = _normalize(agent.economy.unemployment, 0.04, 0.20)
-        protest_level = clamp01(
-            0.35 * protest_base
-            + 0.20 * inflation_level
-            + 0.15 * unemployment_norm
-            + 0.15 * food_level
-            + 0.15 * (1.0 - agent.society.trust_gov)
+        unemployment_norm = _normalize(
+            agent.economy.unemployment,
+            _gw("unemployment_normalize_low"),
+            _gw("unemployment_normalize_high"),
         )
-        protest_buffer = clamp01(0.5 * agent.society.trust_gov + 0.5 * agent.risk.regime_stability)
-        protest_trigger = clamp01(0.5 * protest_level + 0.5 * agent.political.protest_pressure)
+        protest_level = clamp01(
+            _gw("protest_base_weight") * protest_base
+            + _gw("protest_inflation_weight") * inflation_level
+            + _gw("protest_unemployment_weight") * unemployment_norm
+            + _gw("protest_food_weight") * food_level
+            + _gw("protest_distrust_weight") * (1.0 - agent.society.trust_gov)
+        )
+        protest_buffer = clamp01(
+            _gw("protest_buffer_trust_weight") * agent.society.trust_gov
+            + _gw("protest_buffer_stability_weight") * agent.risk.regime_stability
+        )
+        protest_trigger = clamp01(
+            _gw("protest_trigger_level_weight") * protest_level
+            + _gw("protest_trigger_pressure_weight") * agent.political.protest_pressure
+        )
 
         regime_level = clamp01(
-            0.30 * (1.0 - agent.risk.regime_stability)
-            + 0.20 * (1.0 - agent.society.trust_gov)
-            + 0.20 * agent.society.social_tension
-            + 0.15 * protest_level
-            + 0.15 * sanctions_scale
+            _gw("regime_stability_gap_weight") * (1.0 - agent.risk.regime_stability)
+            + _gw("regime_distrust_weight") * (1.0 - agent.society.trust_gov)
+            + _gw("regime_tension_weight") * agent.society.social_tension
+            + _gw("regime_protest_weight") * protest_level
+            + _gw("regime_sanctions_weight") * sanctions_scale
         )
         regime_buffer = clamp01(
-            0.35 * agent.technology.security_index
-            + 0.30 * agent.political.policy_space
-            + 0.35 * agent.society.trust_gov
+            _gw("regime_buffer_security_weight") * agent.technology.security_index
+            + _gw("regime_buffer_policy_space_weight") * agent.political.policy_space
+            + _gw("regime_buffer_trust_weight") * agent.society.trust_gov
         )
-        regime_trigger = clamp01(0.6 * protest_level + 0.4 * (1.0 - agent.risk.regime_stability))
+        regime_trigger = clamp01(
+            _gw("regime_trigger_protest_weight") * protest_level
+            + _gw("regime_trigger_stability_weight") * (1.0 - agent.risk.regime_stability)
+        )
 
         sanctions_level = clamp01(
-            0.35 * sanctions_scale
-            + 0.20 * avg_trade_barrier
-            + 0.20 * trade_fragmentation.level
-            + 0.15 * fx_level
-            + 0.10 * clamp01(max(0.5 - avg_trade_intensity, 0.0) / 0.5)
+            _gw("sanctions_level_scale_weight") * sanctions_scale
+            + _gw("sanctions_level_barrier_weight") * avg_trade_barrier
+            + _gw("sanctions_level_fragmentation_weight") * trade_fragmentation.level
+            + _gw("sanctions_level_fx_weight") * fx_level
+            + _gw("sanctions_level_trade_slack_weight")
+            * clamp01(
+                max(_gw("sanctions_trade_slack_threshold") - avg_trade_intensity, 0.0)
+                / _gw("sanctions_trade_slack_ref")
+            )
         )
         sanctions_buffer = clamp01(
-            0.50 * agent.political.policy_space + 0.50 * (1.0 - avg_trade_barrier)
+            _gw("sanctions_buffer_policy_space_weight") * agent.political.policy_space
+            + _gw("sanctions_buffer_barrier_relief_weight") * (1.0 - avg_trade_barrier)
         )
-        sanctions_trigger = clamp01(0.7 * sanctions_scale + 0.3 * avg_trade_barrier)
+        sanctions_trigger = clamp01(
+            _gw("sanctions_trigger_scale_weight") * sanctions_scale
+            + _gw("sanctions_trigger_barrier_weight") * avg_trade_barrier
+        )
 
         reserve_stress = clamp01(
-            0.50 * _normalize(max(5.0 - reserve_years.get("energy", 5.0), 0.0), 0.0, 5.0)
-            + 0.30 * _normalize(max(3.0 - reserve_years.get("food", 3.0), 0.0), 0.0, 3.0)
-            + 0.20 * _normalize(max(5.0 - reserve_years.get("metals", 5.0), 0.0), 0.0, 5.0)
+            _gw("reserve_stress_energy_weight")
+            * _normalize(
+                max(
+                    _gw("reserve_stress_energy_ref")
+                    - reserve_years.get("energy", _gw("reserve_stress_energy_ref")),
+                    0.0,
+                ),
+                0.0,
+                _gw("reserve_stress_energy_ref"),
+            )
+            + _gw("reserve_stress_food_weight")
+            * _normalize(
+                max(
+                    _gw("reserve_stress_food_ref")
+                    - reserve_years.get("food", _gw("reserve_stress_food_ref")),
+                    0.0,
+                ),
+                0.0,
+                _gw("reserve_stress_food_ref"),
+            )
+            + _gw("reserve_stress_metals_weight")
+            * _normalize(
+                max(
+                    _gw("reserve_stress_metals_ref")
+                    - reserve_years.get("metals", _gw("reserve_stress_metals_ref")),
+                    0.0,
+                ),
+                0.0,
+                _gw("reserve_stress_metals_ref"),
+            )
         )
-        strategic_level = clamp01(0.60 * import_dependency + 0.40 * reserve_stress)
+        strategic_level = clamp01(
+            _gw("strategic_import_weight") * import_dependency
+            + _gw("strategic_reserve_weight") * reserve_stress
+        )
         strategic_buffer = clamp01(1.0 - reserve_stress)
-        strategic_trigger = clamp01(0.7 * import_dependency + 0.3 * reserve_stress)
+        strategic_trigger = clamp01(
+            _gw("strategic_trigger_import_weight") * import_dependency
+            + _gw("strategic_trigger_reserve_weight") * reserve_stress
+        )
 
-        route_risk = REGIONAL_ROUTE_RISK.get(agent.region, 0.40)
+        route_risk = REGIONAL_ROUTE_RISK.get(agent.region, REGIONAL_ROUTE_RISK["__default__"]).value
         chokepoint_level = clamp01(
-            0.40 * (energy_gap * avg_trade_intensity)
-            + 0.20 * avg_trade_intensity
-            + 0.25 * oil_stress.level
-            + 0.15 * route_risk
+            _gw("chokepoint_gap_trade_weight") * (energy_gap * avg_trade_intensity)
+            + _gw("chokepoint_trade_weight") * avg_trade_intensity
+            + _gw("chokepoint_oil_weight") * oil_stress.level
+            + _gw("chokepoint_route_weight") * route_risk
         )
         chokepoint_buffer = clamp01(1.0 - energy_gap * avg_trade_intensity)
-        chokepoint_trigger = clamp01(0.6 * oil_stress.level + 0.4 * chokepoint_level)
+        chokepoint_trigger = clamp01(
+            _gw("chokepoint_trigger_oil_weight") * oil_stress.level
+            + _gw("chokepoint_trigger_level_weight") * chokepoint_level
+        )
 
         energy_cover_days = _cover_days(agent, "energy")
         energy_export_ratio = max(
@@ -573,27 +750,37 @@ class CrisisMetricsEngine:
             ),
         )
         oil_level = clamp01(
-            0.45 * energy_gap
-            + 0.20 * (1.0 - min(energy_cover_days / 180.0, 1.0))
-            + 0.20 * chokepoint_level
-            + 0.15 * (energy_export_ratio * oil_stress.level)
+            _gw("oil_gap_weight") * energy_gap
+            + _gw("oil_cover_weight") * (1.0 - min(energy_cover_days / _gw("energy_cover_days_ref"), 1.0))
+            + _gw("oil_chokepoint_weight") * chokepoint_level
+            + _gw("oil_export_weight") * (energy_export_ratio * oil_stress.level)
         )
-        oil_buffer = clamp01(0.60 * min(energy_cover_days / 180.0, 1.0) + 0.40 * (1.0 - energy_gap))
-        oil_trigger = clamp01(0.5 * oil_stress.level + 0.5 * energy_gap)
+        oil_buffer = clamp01(
+            _gw("oil_buffer_cover_weight") * min(energy_cover_days / _gw("energy_cover_days_ref"), 1.0)
+            + _gw("oil_buffer_gap_relief_weight") * (1.0 - energy_gap)
+        )
+        oil_trigger = clamp01(
+            _gw("oil_trigger_oil_weight") * oil_stress.level
+            + _gw("oil_trigger_gap_weight") * energy_gap
+        )
 
         conflict_level = clamp01(
-            0.30 * avg_conflict
-            + 0.20 * (1.0 - avg_trust)
-            + 0.15 * agent.political.hawkishness
-            + 0.15 * clamp01(agent.technology.military_power / 2.0)
-            + 0.10 * sanctions_level
-            + 0.10 * relation_stats["war_links"]
+            _gw("conflict_conflict_weight") * avg_conflict
+            + _gw("conflict_distrust_weight") * (1.0 - avg_trust)
+            + _gw("conflict_hawkishness_weight") * agent.political.hawkishness
+            + _gw("conflict_military_weight")
+            * clamp01(agent.technology.military_power / _gw("conflict_military_ref"))
+            + _gw("conflict_sanctions_weight") * sanctions_level
+            + _gw("conflict_war_links_weight") * relation_stats["war_links"]
         )
         conflict_buffer = clamp01(
-            0.50 * agent.political.coalition_openness + 0.50 * agent.technology.security_index
+            _gw("conflict_buffer_coalition_weight") * agent.political.coalition_openness
+            + _gw("conflict_buffer_security_weight") * agent.technology.security_index
         )
         conflict_trigger = clamp01(
-            0.50 * avg_conflict + 0.30 * agent.political.hawkishness + 0.20 * relation_stats["war_links"]
+            _gw("conflict_trigger_conflict_weight") * avg_conflict
+            + _gw("conflict_trigger_hawkishness_weight") * agent.political.hawkishness
+            + _gw("conflict_trigger_war_links_weight") * relation_stats["war_links"]
         )
 
         metrics = {
