@@ -202,7 +202,7 @@ class DashboardTests(unittest.TestCase):
             self.assertIn("China", html)
 
     def test_dashboard_renders_interpretive_summary_as_multiple_html_paragraphs(self) -> None:
-        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_operational.csv"))
+        world = load_world(state_csv=str(REPO_ROOT / "data" / "agent_states_operational.csv"))
         scenario = compile_question(
             question="Will war start in Iran?",
             world=world,

@@ -1439,7 +1439,7 @@ def main() -> None:
         "--output-csv",
         type=Path,
         default=Path(
-            "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.csv"
+            "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv"
         ),
     )
     parser.add_argument(

@@ -34,7 +34,7 @@ This document is the calibration ledger for the active `GIM_14` repo.
   - runtime harness: [run_historical_backtest(...)](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/historical_backtest.py)
 - Global CO2:
   - target data: GCP fossil CO2 series in the same observed fixture
-  - artifact binding: `EMISSIONS_SCALE` comes from [agent_states_operational.artifacts.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.artifacts.json), not a free knob
+  - artifact binding: `EMISSIONS_SCALE` comes from [agent_states_operational.artifacts.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.artifacts.json), not a free knob
 - Temperature:
   - target data: HadCRUT5-based preindustrial anomaly series in the same observed fixture
   - forcing logic: non-CO2 forcing schedule is calendar-based inside [climate.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/climate.py)
@@ -78,7 +78,7 @@ Two coefficients remain artifact-bound:
 - `EMISSIONS_SCALE`
 - `DECARB_RATE_STRUCTURAL`
 
-Their active values must come from [agent_states_operational.artifacts.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.artifacts.json), and should only change through the refresh path, not by hand-editing [calibration_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/calibration_params.py).
+Their active values must come from [agent_states_operational.artifacts.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.artifacts.json), and should only change through the refresh path, not by hand-editing [calibration_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/calibration_params.py).
 
 ## 5. Validation Commands
 

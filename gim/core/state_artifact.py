@@ -45,7 +45,7 @@ def _repo_root() -> Path:
 
 
 def _primary_state_csv(repo_root: Path) -> Path:
-    return (repo_root / "misc" / "data" / "agent_states_operational.csv").resolve()
+    return (repo_root / "data" / "agent_states_operational.csv").resolve()
 
 
 def _resolve_state_csv_path(path: str | Path) -> Path:

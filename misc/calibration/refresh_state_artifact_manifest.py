@@ -10,7 +10,7 @@ import sys
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_STATE_CSV = REPO_ROOT / "misc" / "data" / "agent_states_operational.csv"
+DEFAULT_STATE_CSV = REPO_ROOT / "data" / "agent_states_operational.csv"
 DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
 DEFAULT_BUILDER_REFERENCE = "GIM_14/scripts/build_gim13_agent_states.py"
@@ -108,7 +108,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--state-csv",
         default=str(DEFAULT_STATE_CSV),
-        help="Compiled state CSV to bind. Defaults to misc/data/agent_states_operational.csv.",
+        help="Compiled state CSV to bind. Defaults to data/agent_states_operational.csv.",
     )
     parser.add_argument(
         "--manifest",

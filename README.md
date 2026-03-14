@@ -16,7 +16,7 @@ Current scope:
 `GIM_14` currently supports the following capabilities:
 
 - load a compiled multi-country world state from [data/agent_states.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states.csv)
-- load the larger `57`-actor operational state from [misc/data/agent_states_operational.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.csv)
+- load the larger `57`-actor operational state from [data/agent_states_operational.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv)
 - validate the state CSV before simulation via [world_factory.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/world_factory.py)
 - run yearly simulations with endogenous updates to economy, resources, climate, geopolitics, politics, society, institutions, and creditworthiness
 - choose between `simple`, `growth`, `llm`, and `auto` policy modes through the CLI and env vars
@@ -55,7 +55,7 @@ Main areas:
 - [gim/core/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core) is the active yearly simulation engine
 - [gim/game_runner.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/game_runner.py), [gim/sim_bridge.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sim_bridge.py), and [gim/dashboard.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/dashboard.py) are the restored orchestration, policy-gaming, and reporting layer
 - [data/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data) holds the compiled state, raw pipeline cache, generated panels, and map geometry
-- [misc/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc) holds the compatibility data, packaged cases, calibration cases, and credit-map assets inherited from `GIM_13`
+- [misc/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc) holds packaged cases, calibration cases, and credit-map assets inherited from `GIM_13`
 - [scripts/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/scripts) holds helper scripts for state building, map rendering, and long runs
 - [docs/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs) holds the active public documentation set: methodology, calibration, migration, and data-contract docs
 - [tests/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests) now holds both smoke checks and restored scenario/game/reporting regression tests
@@ -200,6 +200,7 @@ The active data layer has two parts:
 Compiled runtime state:
 
 - [data/agent_states.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states.csv)
+- [data/agent_states_operational.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv)
 
 Source-data pipeline:
 
@@ -281,7 +282,7 @@ Already done:
 
 - active core moved into a single installable package
 - active data/pipeline assets copied into the new repo
-- compatibility `misc/data`, `misc/cases`, `misc/calibration_cases`, and dashboard assets restored
+- operational cases, calibration cases, and dashboard assets restored under `misc/`
 - `question`, `game`, `metrics`, `console`, `brief`, and `calibrate` commands restored into `gim`
 - dashboard, briefing, equilibrium, geo-calibration, and compiled-policy modules restored
 - `historical_backtest`, `decarb_sensitivity`, `state_artifact`, `calibration_params`, and `country_params` restored into the active calibration layer

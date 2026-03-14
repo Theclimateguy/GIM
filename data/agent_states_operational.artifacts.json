@@ -15,7 +15,7 @@
   "emissions_reference": {
     "year": 2015,
     "global_co2_gtco2": 35.40489697074173,
-    "state_csv": "../../tests/fixtures/historical_backtest_state_2015.csv"
+    "state_csv": "../tests/fixtures/historical_backtest_state_2015.csv"
   },
   "decarb_reference": {
     "source": "legacy",

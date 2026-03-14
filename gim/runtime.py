@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .core.core import AgentState, RelationState, WorldState
 from .core.world_factory import make_world_from_csv
-from .paths import DEFAULT_STATE_CSV
+from .paths import DEFAULT_STATE_CSV, OPERATIONAL_STATE_CSV
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -16,7 +16,7 @@ def default_state_csv() -> str:
         if explicit:
             return explicit
 
-    preferred = MISC_ROOT / "data" / "agent_states_operational.csv"
+    preferred = OPERATIONAL_STATE_CSV
     if preferred.exists() and preferred.stat().st_size > 0:
         return str(preferred)
     return str(DEFAULT_STATE_CSV)
