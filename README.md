@@ -135,6 +135,8 @@ Operationally, `GIM_13` now treats the `57`-actor compiled state as the default 
 
 If `GIM13_STATE_CSV` points at a non-default compiled CSV, it should travel with a sibling `<state>.artifacts.json` manifest. The legacy climate layer reads `EMISSIONS_SCALE` and `DECARB_RATE` from that manifest so those coefficients cannot drift independently of the state-pipeline handoff. As of the current calibration pass, `EMISSIONS_SCALE` is refreshed from the 2015 structural backtest fixture plus observed GCP CO2, while `DECARB_RATE` now carries explicit source metadata and a sensitivity harness; the active manifest still keeps the legacy rate because the observed `0.022` prior materially worsens the current CO2 backtest.
 
+For a compact answer to `what is calibrated to what, and how`, see [CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/misc/docs/CALIBRATION_REFERENCE.md). The complementary [CALIBRATION_LAYER.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/misc/docs/CALIBRATION_LAYER.md) describes the operational regression harness rather than the parameter ledger.
+
 ### 3.2 Command Reference
 
 The CLI currently exposes six user-facing subcommands plus a global `--version` flag.

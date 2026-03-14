@@ -2,6 +2,8 @@
 
 This document describes the current calibration layer implemented for `GIM_13`.
 
+For the calibration ledger itself, including `what` was calibrated, `to which data`, and `by which mechanism`, see [CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/misc/docs/CALIBRATION_REFERENCE.md).
+
 It is not a full scientific calibration framework yet. In its current form, it is an operational regression harness over bundled historical scenarios. That makes it useful for model iteration and guardrail checking, but not sufficient as proof of external validity.
 
 ## 1. Purpose
