@@ -57,7 +57,7 @@ Main areas:
 - [data/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data) holds the compiled state, raw pipeline cache, generated panels, and map geometry
 - [misc/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc) holds the compatibility data, packaged cases, calibration cases, and credit-map assets inherited from `GIM_13`
 - [scripts/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/scripts) holds helper scripts for state building, map rendering, and long runs
-- [docs/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs) holds migration notes, calibration references, parity audit notes, and imported methodology snapshots
+- [docs/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs) holds the active public documentation set: methodology, calibration, migration, and data-contract docs
 - [tests/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests) now holds both smoke checks and restored scenario/game/reporting regression tests
 
 ## 3. System View
@@ -230,6 +230,16 @@ Calibration continuity from the `GIM_13` line is preserved here through:
 
 These files now describe the active calibration stack that runs directly inside `GIM_14`, including the restored historical backtest, decarb sensitivity, manifest binding, geo-calibration, and operational scenario suite.
 
+## 8.1 Core Documentation Set
+
+The active documentation set for `GIM_14` is:
+
+- [docs/MODEL_METHODOLOGY.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/MODEL_METHODOLOGY.md)
+- [docs/CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_REFERENCE.md)
+- [docs/CALIBRATION_LAYER.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_LAYER.md)
+- [docs/MIGRATION_NOTES.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/MIGRATION_NOTES.md)
+- [docs/agent_state_data_contract.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/agent_state_data_contract.md)
+
 ## 9. Testing
 
 The current `GIM_14` regression surface includes:
@@ -278,6 +288,7 @@ Already done:
 - manifest and historical-fixture refresh scripts restored under `misc/calibration`
 - hybrid CLI added so `python -m gim` still runs the world simulator while subcommands run the higher-level orchestration layer
 - restored parity tests added and passing locally
+- public docs reduced to the active `GIM_14` set instead of legacy snapshots
 
 Still expected later:
 

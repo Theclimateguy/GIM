@@ -1,19 +1,334 @@
-# Methodic Map (GIM_12)
+# GIM Model Methodology
 
-Этот документ описывает актуальную модель в `GIM_12`, включая все ключевые взаимодействия, уравнения и метрики, фактически реализованные в коде.
+This document describes the model as a system, not as a repository version label.
 
-## 1. Область и источник истины
+The active implementation currently lives in `GIM_14`, but the methodology below is meant
+to describe the GIM model family at the level of state variables, yearly update logic,
+core equations, and the scenario/game overlay that sits on top of the yearly simulator.
 
-- Активная папка запуска: `GIM_12/`.
-- Ядро модели использует legacy compatibility path `legacy/GIM_11_1/gim_11_1/`.
-- `GIM_12/GIM_12.py` только подключает legacy-ядро и вызывает `gim_11_1.cli.main`.
+## 1. Source of Truth
 
-Следовательно, все механики ниже основаны на коде:
-- `core.py`, `world_factory.py`, `simulation.py`,
-- `policy.py`, `actions.py`, `political_dynamics.py`, `geopolitics.py`,
-- `resources.py`, `climate.py`, `economy.py`, `social.py`,
-- `metrics.py`, `institutions.py`, `memory.py`, `credit_rating.py`,
-- `logging_utils.py`.
+The active implementation is the `gim` package inside `GIM_14`.
+
+The main runtime modules are:
+
+- [gim/core/world_factory.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/world_factory.py)
+- [gim/core/simulation.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/simulation.py)
+- [gim/core/policy.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/policy.py)
+- [gim/core/actions.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/actions.py)
+- [gim/core/resources.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/resources.py)
+- [gim/core/climate.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/climate.py)
+- [gim/core/economy.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/economy.py)
+- [gim/core/social.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/social.py)
+- [gim/core/geopolitics.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/geopolitics.py)
+- [gim/core/political_dynamics.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/political_dynamics.py)
+- [gim/core/metrics.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/metrics.py)
+- [gim/core/credit_rating.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/credit_rating.py)
+
+The scenario and reporting layer sits above the yearly simulator:
+
+- [gim/scenario_compiler.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/scenario_compiler.py)
+- [gim/game_runner.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/game_runner.py)
+- [gim/sim_bridge.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sim_bridge.py)
+- [gim/dashboard.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/dashboard.py)
+- [gim/briefing.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/briefing.py)
+
+## 2. Model Boundary
+
+Exogenous inputs:
+
+- initial actor state loaded from CSV
+- actor count limit
+- policy mode: `simple`, `growth`, `llm`, `auto`
+- runtime randomness via `SIM_SEED`
+- execution flags such as `DISABLE_EXTREME_EVENTS`, `SAVE_CSV_LOGS`, `GENERATE_CREDIT_MAP`
+
+Endogenous outputs:
+
+- GDP, capital, debt, fiscal balances, FX reserves
+- resource reserves, production, consumption, prices
+- trust, tension, inequality, protest risk, migration, demography
+- sanctions, trade barriers, trust/conflict dyads, conflict escalation, wars
+- emissions, carbon pools, forcing, temperature, biodiversity, climate risk
+- political metrics, comparative metrics, credit rating and crisis dashboards
+
+## 3. State Vector
+
+### 3.1 WorldState
+
+- `time`
+- `agents`
+- `global_state`
+- `relations`
+- `institutions`
+- `institution_reports`
+
+### 3.2 AgentState
+
+Each actor has six tightly coupled sub-blocks:
+
+- economy: GDP, capital, debt, reserves, fiscal shares, inflation, unemployment
+- resources: energy, food, and metals reserve-production-consumption-efficiency states
+- society: trust in government, social tension, inequality
+- climate: emissions, climate risk, biodiversity
+- technology/security: tech level, military power, security index
+- politics/risk: legitimacy, protest pressure, sanction propensity, protectionism, conflict propensity, regime stability
+
+### 3.3 RelationState
+
+The bilateral layer is a directed graph with:
+
+- `trade_intensity`
+- `trust`
+- `conflict_level`
+- `trade_barrier`
+- `at_war`
+
+Effective trade intensity is:
+
+```text
+effective_trade_intensity = trade_intensity * (1 - clamp01(trade_barrier))
+```
+
+### 3.4 GlobalState
+
+- atmospheric carbon stock and carbon pools
+- global temperature and ocean temperature
+- total radiative forcing
+- biodiversity index
+- global resource prices and reserve summaries
+
+## 4. Initialization Logic
+
+The world loader validates the CSV, fills supported defaults, derives missing `capital`
+and `public_debt` when allowed by the contract, creates the relation graph, and seeds
+global baseline variables.
+
+Important initialization conventions:
+
+- if `capital` is missing, the loader uses `3 * gdp`
+- if `public_debt_pct_gdp` is provided, absolute debt is derived from GDP
+- relation defaults start from neutral priors and are then updated endogenously
+- bounded model variables are validated before the first simulation step
+
+The active data contract is documented in
+[agent_state_data_contract.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/agent_state_data_contract.md).
+
+## 5. Yearly Update Order
+
+The yearly simulator is intentionally sequential because many channels feed the next one.
+
+```text
+1. compute relative metrics
+2. update political states
+3. update institutions
+4. generate actor policies
+5. apply political constraints
+6. resolve foreign policy intents
+7. apply sanctions and security effects
+8. apply domestic actions and trade deals
+9. update bilateral relations endogenously
+10. update resources and global prices
+11. update climate and climate risks
+12. apply extreme events
+13. update economy and capital stock
+14. update public finances and debt stress
+15. update migration and demography
+16. update social state and regime checks
+17. refresh relative metrics, memory, and credit ratings
+18. increment time
+```
+
+This order matters because the model is path-dependent. For example, fiscal stress affects
+political space, political space shapes policy, policy changes sanctions and trade barriers,
+those move resources and GDP, and the new macro path then feeds social stress and ratings.
+
+## 6. Core Mathematical Blocks
+
+### 6.1 Political State Update
+
+Political state is built from trust, tension, protest risk, resource stress, and debt stress.
+
+Representative equations:
+
+```text
+legitimacy = 0.6 * trust + 0.4 * (1 - tension)
+protest_pressure = 0.5 * protest_risk + 0.5 * tension
+policy_space = 0.5 * legitimacy + 0.3 * (1 - protest_pressure) + 0.2 * (1 - debt_stress_norm)
+```
+
+Derived policy attitudes such as hawkishness, protectionism, coalition openness, and
+sanction propensity are latent combinations of conflict risk, trust, regime stability,
+resource stress, and domestic strain.
+
+### 6.2 Foreign Policy, Sanctions, and Trade Barriers
+
+Sanctions and barriers are not read directly from the CSV; they emerge from actor choices
+and bilateral conditions.
+
+Representative sanction support score:
+
+```text
+support =
+  0.4 * sanction_propensity(actor)
+  + 0.3 * conflict_level(actor, target)
+  + 0.3 * (1 - trust(actor, target))
+  + intent_bonus
+```
+
+Trade barrier pressure is a function of protectionism, conflict, and low trust, with
+block alignment reducing the barrier baseline.
+
+### 6.3 Resource Dynamics
+
+For each of `energy`, `food`, and `metals`, the model updates:
+
+- reserve stock
+- production
+- consumption
+- efficiency
+- global price
+
+The resource block links into the rest of the model through:
+
+- GDP production capacity
+- trade exposure
+- climate and food stress
+- protest risk and political fragility
+
+### 6.4 Climate Block
+
+The climate block has three layers:
+
+- emissions generation at the actor level
+- carbon-cycle propagation at the global level
+- damage/risk propagation back into actor outcomes
+
+Actor emissions are driven by GDP scale, emissions intensity, technology, efficiency,
+and the active artifact-bound `EMISSIONS_SCALE`.
+
+The model uses:
+
+- a four-pool carbon-cycle approximation
+- explicit global temperature update
+- non-CO2 forcing schedule
+- structural decarbonization and tech-efficiency decarbonization as separate channels
+
+This separation matters: tech decarb captures efficiency and technology effects, while
+structural decarb represents the broader energy transition path.
+
+### 6.5 Economy Block
+
+Output is a multi-factor production function with capital, labor, and energy terms, plus
+TFP dynamics, climate damage, trade spillovers, and debt/financial penalties.
+
+The economy block updates:
+
+- GDP
+- capital accumulation
+- unemployment and inflation
+- government revenue and spending
+- debt, interest burden, and reserve pressure
+
+Public finance then feeds back into:
+
+- social spending
+- military and R&D spending
+- protest risk
+- debt crisis probability
+- credit rating
+
+### 6.6 Social Block
+
+The social block updates:
+
+- population
+- migration
+- trust in government
+- social tension
+- inequality
+- regime stability and collapse conditions
+
+Typical drivers are GDP-per-capita stress, unemployment, inflation, Gini, water/food stress,
+climate shocks, and fiscal redistribution.
+
+### 6.7 Creditworthiness Block
+
+The model computes a yearly sovereign-style rating on a `1..26` scale.
+
+Risk components are grouped into:
+
+- financial risk
+- war risk
+- social instability risk
+- sanctions risk
+- macro stability risk
+
+In compact form:
+
+```text
+total_risk = 0.25 * financial + 0.20 * war + 0.22 * social + 0.13 * sanctions + 0.20 * macro
+rating = clamp(round(1 + total_risk * 25), 1, 26)
+```
+
+This block is downstream of the full simulation state, so it acts as an integrated
+diagnostic rather than a separate standalone model.
+
+## 7. Policy Modes
+
+The yearly simulator supports four policy-generation modes:
+
+- `simple`: deterministic baseline heuristics
+- `growth`: deterministic growth-biased heuristics
+- `llm`: live LLM-generated actions
+- `auto`: use `llm` when the runtime is configured, otherwise fall back to deterministic policies
+
+The same world simulator is used underneath all four modes.
+
+## 8. Scenario and Game Overlay
+
+The scenario/game layer does not replace the world model. It compiles questions into
+structured actor/action spaces and then scores them using the same world state and the same
+underlying crisis metrics.
+
+The main stages are:
+
+1. compile free-text question into a scenario template
+2. generate or load a game definition
+3. evaluate action combinations on the current world state
+4. optionally simulate trajectories through `SimBridge`
+5. generate dashboard, brief, equilibrium, and JSON outputs
+
+This makes the question/game layer consistent with the world simulator instead of being
+a disconnected forecasting shell.
+
+## 9. Calibration Interface
+
+Calibration is externalized into dedicated harnesses rather than hidden inside the step loop.
+
+The active surfaces are:
+
+- structural backtest against GDP, global CO2, and temperature
+- state-artifact binding for compile-bound coefficients
+- decarb sensitivity analysis
+- country macro priors
+- geopolitical calibration over operational cases
+
+The detailed ledger and runtime commands are in:
+
+- [CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_REFERENCE.md)
+- [CALIBRATION_LAYER.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_LAYER.md)
+
+## 10. Practical Reading Order
+
+If someone needs to understand the model quickly, the most useful order is:
+
+1. this methodology document
+2. [agent_state_data_contract.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/agent_state_data_contract.md)
+3. [CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_REFERENCE.md)
+4. [gim/core/simulation.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/simulation.py)
+5. [gim/core/climate.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/climate.py)
+6. [gim/core/economy.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/economy.py)
 
 ## 2. Границы модели
 

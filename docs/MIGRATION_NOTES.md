@@ -1,6 +1,7 @@
 # GIM_14 Migration Notes
 
-This repository was created as a clean local successor to the current `GIM` workspace.
+This document records the move from the older split workspace into the unified `GIM_14`
+repository that is now the active development base.
 
 ## Migration Principles
 
@@ -17,6 +18,7 @@ This repository was created as a clean local successor to the current `GIM` work
 - `GIM_12/scripts/` -> `scripts/`
 - `GIM_12/data/world_countries.geojson` -> `data/world_countries.geojson`
 - `GIM_12/vendor/leaflet/` -> `vendor/leaflet/`
+- `GIM_13` operational layer -> `gim/`, `misc/`, `tests/`, and calibration docs
 
 ## Deliberately Excluded
 
@@ -30,5 +32,20 @@ This repository was created as a clean local successor to the current `GIM` work
 - introduced a top-level installable package `gim`
 - added `gim/paths.py` so the CLI resolves data and asset paths from the new repo layout
 - updated the CLI display name and default state CSV location for `GIM_14`
-- added a smoke-test suite to verify world loading, one-step simulation, and CLI execution
+- restored the `GIM_13` scenario, game, dashboard, briefing, and calibration surface into the active repo
+- renamed the large operational state artifact to `agent_states_operational.*`
+- removed documentation snapshots from the public docs surface and kept only active `GIM_14` docs
+- added a regression suite to verify world loading, scenario/game flows, dashboards, and calibration harnesses
 
+## Current Outcome
+
+`GIM_14` now contains:
+
+- the active yearly simulation core
+- the active data pipeline
+- the operational scenario/game/reporting layer
+- the calibration harness and manifests
+- the active public documentation set
+
+The older versioned folders remain useful as provenance, but `GIM_14` is now the intended
+working repository.

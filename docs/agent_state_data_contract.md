@@ -1,7 +1,8 @@
 # Agent State Data Contract
 
 This document separates the real-world source layer from the model-ready `agent_states.csv` layer.
-It is the working contract for the future `top-50 + regional aggregates + Taiwan` rebuild.
+In `GIM_14`, it is the working contract for both the compact runtime state and the larger
+operational state build.
 
 ## 1. Design Rules
 
