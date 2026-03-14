@@ -16,7 +16,7 @@ def default_state_csv() -> str:
         if explicit:
             return explicit
 
-    preferred = MISC_ROOT / "data" / "agent_states_gim13.csv"
+    preferred = MISC_ROOT / "data" / "agent_states_operational.csv"
     if preferred.exists() and preferred.stat().st_size > 0:
         return str(preferred)
     return str(DEFAULT_STATE_CSV)

@@ -35,7 +35,7 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertEqual(scenario.base_year, 2023)
 
     def test_default_runtime_uses_large_primary_state(self) -> None:
-        self.assertIn("misc/data/agent_states_gim13.csv", default_state_csv())
+        self.assertIn("misc/data/agent_states_operational.csv", default_state_csv())
         self.assertGreaterEqual(len(self.world.agents), 50)
         self.assertIn("USA", self.world.agents)
         self.assertIn("CHN", self.world.agents)

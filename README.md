@@ -16,7 +16,7 @@ Current scope:
 `GIM_14` currently supports the following capabilities:
 
 - load a compiled multi-country world state from [data/agent_states.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states.csv)
-- load the larger `57`-actor compatibility state from [misc/data/agent_states_gim13.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_gim13.csv)
+- load the larger `57`-actor operational state from [misc/data/agent_states_operational.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.csv)
 - validate the state CSV before simulation via [world_factory.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/world_factory.py)
 - run yearly simulations with endogenous updates to economy, resources, climate, geopolitics, politics, society, institutions, and creditworthiness
 - choose between `simple`, `growth`, `llm`, and `auto` policy modes through the CLI and env vars

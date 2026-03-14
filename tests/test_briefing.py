@@ -103,7 +103,7 @@ class BriefingTests(unittest.TestCase):
             self.assertIn("Maritime pressure policy game", text)
 
     def test_interpretive_summary_answers_war_question_directly(self) -> None:
-        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))
+        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_operational.csv"))
         scenario = compile_question(
             question="Will war start in Iran?",
             world=world,
@@ -124,7 +124,7 @@ class BriefingTests(unittest.TestCase):
         self.assertIn("Iran", summary.paragraphs[0])
 
     def test_interpretive_summary_is_split_into_markdown_paragraphs(self) -> None:
-        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"))
+        world = load_world(state_csv=str(REPO_ROOT / "misc" / "data" / "agent_states_operational.csv"))
         scenario = compile_question(
             question="Will war start in Iran?",
             world=world,

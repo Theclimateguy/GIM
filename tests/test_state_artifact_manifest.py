@@ -13,7 +13,7 @@ from gim.core import state_artifact
 from misc.calibration.refresh_state_artifact_manifest import build_manifest
 
 
-PRIMARY_MANIFEST = REPO_ROOT / "misc" / "data" / "agent_states_gim13.artifacts.json"
+PRIMARY_MANIFEST = REPO_ROOT / "misc" / "data" / "agent_states_operational.artifacts.json"
 REFERENCE_STATE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
 OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 
@@ -38,7 +38,7 @@ class StateArtifactManifestTests(unittest.TestCase):
     def test_primary_load_can_warn_and_fallback_when_manifest_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_root = Path(tmpdir)
-            state_csv = repo_root / "misc" / "data" / "agent_states_gim13.csv"
+            state_csv = repo_root / "misc" / "data" / "agent_states_operational.csv"
             state_csv.parent.mkdir(parents=True, exist_ok=True)
             state_csv.write_text("id,value\nA,1\n", encoding="utf-8")
 

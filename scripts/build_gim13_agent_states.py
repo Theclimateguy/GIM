@@ -1431,17 +1431,21 @@ def build_actor_source_audit(panel: pd.DataFrame, actor_ids: set[str]) -> pd.Dat
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build GIM13 agent_states CSV from external source layers.")
+    parser = argparse.ArgumentParser(
+        description="Build the operational agent state CSV from external source layers."
+    )
     parser.add_argument("--target-year", type=int, default=TARGET_YEAR)
     parser.add_argument(
         "--output-csv",
         type=Path,
-        default=Path("/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM_12/agent_states_gim13.csv"),
+        default=Path(
+            "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.csv"
+        ),
     )
     parser.add_argument(
         "--data-root",
         type=Path,
-        default=Path("/Users/theclimateguy/Documents/jupyter_lab/GIM/GIM_12/data/agent_state_pipeline"),
+        default=Path("/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_state_pipeline"),
     )
     args = parser.parse_args()
 

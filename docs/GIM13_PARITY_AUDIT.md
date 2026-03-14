@@ -64,8 +64,8 @@ The following modules were restored into [gim](/Users/theclimateguy/Documents/ju
 
 Compatibility inputs were also restored:
 
-- [misc/data/agent_states_gim13.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_gim13.csv)
-- [misc/data/agent_states_gim13.artifacts.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_gim13.artifacts.json)
+- [misc/data/agent_states_operational.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.csv)
+- [misc/data/agent_states_operational.artifacts.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_operational.artifacts.json)
 - [misc/cases/maritime_pressure_game.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/cases/maritime_pressure_game.json)
 - [misc/calibration_cases/operational_v1](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v1)
 - [misc/assets/credit_map](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/assets/credit_map)
@@ -116,8 +116,8 @@ Current result:
 
 Still pending if full parity is required:
 
-- replace transitional naming like `agent_states_gim13` where that is no longer semantically correct
 - decide whether any remaining refresh helpers should move from `misc/calibration` into a more stable public tooling surface
+- decide whether historical tool names like `build_gim13_agent_states.py` should be renamed as a separate cleanup pass
 
 ## 7. Recommended Next Step
 

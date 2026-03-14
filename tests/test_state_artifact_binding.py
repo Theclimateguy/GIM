@@ -31,7 +31,7 @@ class StateArtifactBindingTests(unittest.TestCase):
         binding = PRIMARY_STATE_ARTIFACT
 
         self.assertEqual(binding.manifest_version, 1)
-        self.assertEqual(binding.state_csv_path, REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv")
+        self.assertEqual(binding.state_csv_path, REPO_ROOT / "misc" / "data" / "agent_states_operational.csv")
         self.assertEqual(binding.state_csv_sha256, _compute_sha256(binding.state_csv_path))
         self.assertEqual(binding.state_row_count, _count_rows(binding.state_csv_path))
         self.assertTrue(binding.change_requires_pipeline_rebuild)
