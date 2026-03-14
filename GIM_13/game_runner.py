@@ -5,6 +5,7 @@ from itertools import product
 import math
 
 from .crisis_metrics import CrisisMetricsEngine
+from . import geo_calibration as geo
 from .runtime import AgentState, WorldState
 from .types import (
     GameCombinationResult,
@@ -571,6 +572,14 @@ OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY = {
     },
 }
 
+ACTION_RISK_SHIFTS = geo.ACTION_RISK_SHIFTS
+SHOCK_RISK_SHIFTS = geo.SHOCK_RISK_SHIFTS
+OBJECTIVE_TO_RISK_UTILITY = geo.OBJECTIVE_TO_RISK_UTILITY
+ACTION_OBJECTIVE_BONUS = geo.ACTION_OBJECTIVE_BONUS
+ACTION_CRISIS_SHIFTS = geo.ACTION_CRISIS_SHIFTS
+OBJECTIVE_TO_CRISIS_UTILITY = geo.OBJECTIVE_TO_CRISIS_UTILITY
+OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY = geo.OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY
+
 
 def _mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
@@ -589,7 +598,10 @@ class GameRunner:
         self.crisis_engine = CrisisMetricsEngine()
 
     def _profile_agent(self, agent: AgentState) -> dict[str, float]:
-        debt_ratio = agent.economy.public_debt / max(agent.economy.gdp, 0.25)
+        debt_ratio = agent.economy.public_debt / max(
+            agent.economy.gdp,
+            geo.PROFILE_WEIGHTS["debt_ratio_floor"].value,
+        )
         resource_gaps = []
         for resource in agent.resources.values():
             gap = max(resource.consumption - resource.production, 0.0) / max(
@@ -606,34 +618,46 @@ class GameRunner:
 
         debt_stress = max(agent.risk.debt_crisis_prone, max(0.0, debt_ratio - 0.3))
         social_stress = (
-            0.45 * agent.society.social_tension
-            + 0.25 * (1.0 - agent.society.trust_gov)
-            + 0.30 * (1.0 - agent.risk.regime_stability)
+            geo.PROFILE_WEIGHTS["social_tension_weight"].value * agent.society.social_tension
+            + geo.PROFILE_WEIGHTS["social_distrust_weight"].value * (1.0 - agent.society.trust_gov)
+            + geo.PROFILE_WEIGHTS["social_instability_weight"].value * (1.0 - agent.risk.regime_stability)
         )
         conflict_stress = (
-            0.30 * agent.risk.conflict_proneness
-            + 0.25 * agent.political.hawkishness
-            + 0.20 * max(agent.technology.military_power - 0.75, 0.0)
-            + 0.15 * (1.0 - agent.technology.security_index)
-            + 0.10 * (1.0 - agent.political.coalition_openness)
+            geo.PROFILE_WEIGHTS["conflict_proneness_weight"].value * agent.risk.conflict_proneness
+            + geo.PROFILE_WEIGHTS["hawkishness_weight"].value * agent.political.hawkishness
+            + geo.PROFILE_WEIGHTS["military_surplus_weight"].value
+            * max(
+                agent.technology.military_power
+                - geo.PROFILE_WEIGHTS["military_surplus_threshold"].value,
+                0.0,
+            )
+            + geo.PROFILE_WEIGHTS["security_gap_weight"].value * (1.0 - agent.technology.security_index)
+            + geo.PROFILE_WEIGHTS["coalition_gap_weight"].value * (1.0 - agent.political.coalition_openness)
         )
-        sanctions_pressure = 0.18 * len(agent.active_sanctions) + max(0.0, debt_ratio - 0.5)
+        sanctions_pressure = (
+            geo.PROFILE_WEIGHTS["sanctions_link_weight"].value * len(agent.active_sanctions)
+            + max(0.0, debt_ratio - geo.PROFILE_WEIGHTS["sanctions_debt_overhang_threshold"].value)
+        )
         military_posture = (
-            0.55 * agent.technology.military_power + 0.45 * agent.technology.security_index
+            geo.PROFILE_WEIGHTS["military_posture_military_weight"].value * agent.technology.military_power
+            + geo.PROFILE_WEIGHTS["military_posture_security_weight"].value * agent.technology.security_index
         )
-        climate_stress = 0.60 * agent.climate.climate_risk + 0.40 * agent.risk.water_stress
+        climate_stress = (
+            geo.PROFILE_WEIGHTS["climate_risk_weight"].value * agent.climate.climate_risk
+            + geo.PROFILE_WEIGHTS["water_stress_weight"].value * agent.risk.water_stress
+        )
         policy_space = agent.political.policy_space
         negotiation_capacity = (
-            0.40 * agent.political.coalition_openness
-            + 0.30 * agent.society.trust_gov
-            + 0.30 * agent.risk.regime_stability
+            geo.PROFILE_WEIGHTS["negotiation_coalition_weight"].value * agent.political.coalition_openness
+            + geo.PROFILE_WEIGHTS["negotiation_trust_weight"].value * agent.society.trust_gov
+            + geo.PROFILE_WEIGHTS["negotiation_stability_weight"].value * agent.risk.regime_stability
         )
         tail_pressure = (
             social_stress
             + conflict_stress
             + _mean(resource_gaps)
-            + 0.40 * debt_stress
-            + 0.20 * climate_stress
+            + geo.PROFILE_WEIGHTS["tail_debt_weight"].value * debt_stress
+            + geo.PROFILE_WEIGHTS["tail_climate_weight"].value * climate_stress
         )
 
         return {
@@ -654,8 +678,14 @@ class GameRunner:
         profiles = [self._profile_agent(self.world.agents[actor_id]) for actor_id in actor_ids]
         aggregate = {key: _mean([profile[key] for profile in profiles]) for key in profiles[0]}
         blocks = {self.world.agents[actor_id].alliance_block for actor_id in actor_ids}
-        aggregate["multi_block_pressure"] = max(0.0, (len(blocks) - 1) / 3.0)
-        aggregate["actor_count_pressure"] = max(0.0, (len(actor_ids) - 1) / 3.0)
+        aggregate["multi_block_pressure"] = max(
+            0.0,
+            (len(blocks) - 1) / geo.PROFILE_WEIGHTS["multi_block_divisor"].value,
+        )
+        aggregate["actor_count_pressure"] = max(
+            0.0,
+            (len(actor_ids) - 1) / geo.PROFILE_WEIGHTS["actor_count_divisor"].value,
+        )
         return aggregate
 
     def _base_scores(
@@ -665,106 +695,50 @@ class GameRunner:
     ) -> dict[str, float]:
         bias = scenario.risk_biases
         scores = {
-            "status_quo": (
-                0.65
-                + 0.35 * (1.0 - aggregate["social_stress"])
-                + 0.20 * (1.0 - aggregate["conflict_stress"])
-                + 0.20 * aggregate["policy_space"]
-                - 0.15 * aggregate["resource_gap"]
-            ),
-            "controlled_suppression": (
-                0.05
-                + 0.75 * aggregate["social_stress"]
-                + 0.35 * aggregate["military_posture"]
-                - 0.20 * aggregate["negotiation_capacity"]
-            ),
-            "internal_destabilization": (
-                -0.05
-                + 0.95 * aggregate["social_stress"]
-                + 0.45 * aggregate["debt_stress"]
-                + 0.35 * aggregate["resource_gap"]
-                - 0.20 * aggregate["policy_space"]
-            ),
-            "limited_proxy_escalation": (
-                0.00
-                + 0.85 * aggregate["conflict_stress"]
-                + 0.25 * aggregate["sanctions_pressure"]
-                + 0.15 * aggregate["actor_count_pressure"]
-            ),
-            "maritime_chokepoint_crisis": (
-                -0.15
-                + 1.10 * aggregate["energy_dependence"]
-                + 0.40 * aggregate["conflict_stress"]
-                + 0.25 * aggregate["resource_gap"]
-            ),
-            "direct_strike_exchange": (
-                -0.10
-                + 0.90 * aggregate["conflict_stress"]
-                + 0.50 * aggregate["military_posture"]
-                + 0.20 * aggregate["sanctions_pressure"]
-            ),
-            "broad_regional_escalation": (
-                -0.35
-                + 0.30 * aggregate["actor_count_pressure"]
-                + 0.25 * aggregate["multi_block_pressure"]
-                + 0.35 * aggregate["conflict_stress"]
-            ),
-            "negotiated_deescalation": (
-                0.10
-                + 0.80 * aggregate["negotiation_capacity"]
-                + 0.15 * (1.0 - aggregate["conflict_stress"])
-                - 0.20 * aggregate["tail_pressure"]
-            ),
+            outcome_name: weight.value
+            for outcome_name, weight in geo.OUTCOME_INTERCEPTS.items()
         }
+        for outcome_name, drivers in geo.OUTCOME_DRIVERS.items():
+            for feature_name, weight in drivers.items():
+                scores[outcome_name] = scores.get(outcome_name, 0.0) + aggregate[feature_name] * weight.value
 
         for risk_name, shift in bias.items():
             scores[risk_name] = scores.get(risk_name, 0.0) + shift
 
-        scores["broad_regional_escalation"] += 0.30 * max(scores["direct_strike_exchange"], 0.0)
-        scores["broad_regional_escalation"] += 0.20 * max(scores["limited_proxy_escalation"], 0.0)
+        for source_name, weight in geo.OUTCOME_LINK_SHIFTS["broad_regional_escalation"].items():
+            scores["broad_regional_escalation"] += weight.value * max(scores[source_name], 0.0)
         return scores
 
     def _apply_shocks(self, scores: dict[str, float], scenario: ScenarioDefinition) -> None:
         for shock in scenario.shocks:
             for risk_name, shift in SHOCK_RISK_SHIFTS.get(shock.channel, {}).items():
-                scores[risk_name] = scores.get(risk_name, 0.0) + shift * shock.magnitude
+                scores[risk_name] = scores.get(risk_name, 0.0) + shift.value * shock.magnitude
 
     def _apply_actions(self, scores: dict[str, float], selected_actions: dict[str, str]) -> None:
         escalation_count = 0
         deescalation_count = 0
         for action_name in selected_actions.values():
             for risk_name, shift in ACTION_RISK_SHIFTS.get(action_name, {}).items():
-                scores[risk_name] = scores.get(risk_name, 0.0) + shift
-            if action_name in {
-                "arm_proxy",
-                "covert_disruption",
-                "maritime_interdiction",
-                "partial_mobilization",
-                "targeted_strike",
-                "impose_tariffs",
-                "export_controls",
-                "capital_controls",
-                "cyber_probe",
-                "cyber_disruption_attack",
-                "cyber_espionage",
-            }:
+                scores[risk_name] = scores.get(risk_name, 0.0) + shift.value
+            if action_name in geo.ESCALATORY_ACTIONS:
                 escalation_count += 1
-            if action_name in {
-                "signal_restraint",
-                "restrain_proxy",
-                "backchannel_offer",
-                "accept_mediation",
-                "lift_sanctions",
-                "cyber_defense_posture",
-            }:
+            if action_name in geo.DEESCALATORY_ACTIONS:
                 deescalation_count += 1
 
         if escalation_count:
-            scores["direct_strike_exchange"] += 0.06 * escalation_count
-            scores["broad_regional_escalation"] += 0.04 * escalation_count
+            scores["direct_strike_exchange"] += (
+                geo.ACTION_COUNT_SHIFTS["escalation_direct_strike"].value * escalation_count
+            )
+            scores["broad_regional_escalation"] += (
+                geo.ACTION_COUNT_SHIFTS["escalation_broad_regional"].value * escalation_count
+            )
         if deescalation_count:
-            scores["negotiated_deescalation"] += 0.08 * deescalation_count
-            scores["broad_regional_escalation"] -= 0.04 * deescalation_count
+            scores["negotiated_deescalation"] += (
+                geo.ACTION_COUNT_SHIFTS["deescalation_negotiated"].value * deescalation_count
+            )
+            scores["broad_regional_escalation"] -= (
+                geo.ACTION_COUNT_SHIFTS["deescalation_broad_regional_relief"].value * deescalation_count
+            )
 
     def _expand_tail_risk(
         self,
@@ -772,11 +746,16 @@ class GameRunner:
         scenario: ScenarioDefinition,
         aggregate: dict[str, float],
     ) -> None:
-        critical_pressure = max(0.0, aggregate["tail_pressure"] - 1.25)
-        additive_shift = (0.18 if scenario.critical_focus else 0.0) + 0.35 * critical_pressure
+        critical_pressure = max(
+            0.0,
+            aggregate["tail_pressure"] - geo.TAIL_RISK_PARAMETERS["critical_pressure_threshold"].value,
+        )
+        additive_shift = (
+            geo.TAIL_RISK_PARAMETERS["critical_focus_bonus"].value if scenario.critical_focus else 0.0
+        ) + geo.TAIL_RISK_PARAMETERS["critical_pressure_sensitivity"].value * critical_pressure
         for risk_name in TAIL_RISK_CLASSES:
             scores[risk_name] = scores.get(risk_name, 0.0) + additive_shift
-        scores["status_quo"] -= 0.10 * critical_pressure
+        scores["status_quo"] -= geo.TAIL_RISK_PARAMETERS["status_quo_penalty"].value * critical_pressure
 
     def _recompute_top_metrics(self, dashboard) -> None:
         for report in dashboard.agents.values():
@@ -798,10 +777,10 @@ class GameRunner:
             0.0,
             min(
                 1.0,
-                0.45 * metric.level
-                + 0.20 * max(metric.momentum, 0.0)
-                + 0.20 * (1.0 - metric.buffer)
-                + 0.15 * metric.trigger,
+                geo.CRISIS_METRIC_WEIGHTS["severity_level_weight"].value * metric.level
+                + geo.CRISIS_METRIC_WEIGHTS["severity_momentum_weight"].value * max(metric.momentum, 0.0)
+                + geo.CRISIS_METRIC_WEIGHTS["severity_buffer_weight"].value * (1.0 - metric.buffer)
+                + geo.CRISIS_METRIC_WEIGHTS["severity_trigger_weight"].value * metric.trigger,
             ),
         )
         if metric.unit in {"index", "share", "basket_index", "debt_to_gdp"}:
@@ -828,7 +807,7 @@ class GameRunner:
                 for metric_name, shift in shift_spec.get("self", {}).items():
                     metric = actor_report.metrics.get(metric_name)
                     if metric is not None:
-                        self._apply_metric_shift(metric, shift)
+                        self._apply_metric_shift(metric, shift.value)
 
             for other_id in actor_ids:
                 if other_id == actor_id:
@@ -839,12 +818,12 @@ class GameRunner:
                 for metric_name, shift in shift_spec.get("others", {}).items():
                     metric = other_report.metrics.get(metric_name)
                     if metric is not None:
-                        self._apply_metric_shift(metric, shift)
+                        self._apply_metric_shift(metric, shift.value)
 
             for metric_name, shift in shift_spec.get("global", {}).items():
                 metric = adjusted_dashboard.global_context.metrics.get(metric_name)
                 if metric is not None:
-                    self._apply_metric_shift(metric, shift)
+                    self._apply_metric_shift(metric, shift.value)
 
         self._recompute_top_metrics(adjusted_dashboard)
 
@@ -1085,16 +1064,19 @@ class GameRunner:
         for objective_name, weight in player.objectives.items():
             risk_utilities = OBJECTIVE_TO_RISK_UTILITY.get(objective_name, {})
             objective_value = sum(
-                evaluation.risk_probabilities[risk_name] * utility
+                evaluation.risk_probabilities[risk_name] * utility.value
                 for risk_name, utility in risk_utilities.items()
             )
-            objective_value += ACTION_OBJECTIVE_BONUS.get(action_name, {}).get(objective_name, 0.0)
+            objective_value += ACTION_OBJECTIVE_BONUS.get(action_name, {}).get(
+                objective_name,
+                geo.GeoWeight(0.0, (0.0, 0.0), "expert_prior"),
+            ).value
             crisis_metric_adjustment = sum(
-                player_metric_deltas.get(metric_name, {}).get("severity_delta", 0.0) * utility
+                player_metric_deltas.get(metric_name, {}).get("severity_delta", 0.0) * utility.value
                 for metric_name, utility in OBJECTIVE_TO_CRISIS_UTILITY.get(objective_name, {}).items()
             )
             crisis_global_adjustment = sum(
-                evaluation.crisis_signal_summary.get(signal_name, 0.0) * utility
+                evaluation.crisis_signal_summary.get(signal_name, 0.0) * utility.value
                 for signal_name, utility in OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY.get(objective_name, {}).items()
             )
             score += weight * (objective_value + crisis_metric_adjustment + crisis_global_adjustment)

@@ -1,0 +1,54 @@
+{
+  "calibration_score": 1.0,
+  "criticality_score": 0.6204953159562142,
+  "crisis_signal_summary": {
+    "geopolitical_stress_shift": 0.0,
+    "global_context_shift": 0.0,
+    "macro_stress_shift": 0.0,
+    "net_crisis_shift": 0.0,
+    "stability_stress_shift": 0.0,
+    "worst_actor_shift": 0.0
+  },
+  "dominant_outcomes": [
+    "internal_destabilization",
+    "limited_proxy_escalation",
+    "direct_strike_exchange"
+  ],
+  "driver_scores": {
+    "actor_count_pressure": 0.6666666666666666,
+    "climate_stress": 0.453705468037818,
+    "conflict_stress": 0.5113881700462981,
+    "debt_stress": 0.6830907290278546,
+    "energy_dependence": 0.23997620018041574,
+    "military_posture": 0.9776083464042209,
+    "multi_block_pressure": 0.3333333333333333,
+    "negotiation_capacity": 0.5294941602346425,
+    "policy_space": 0.6464000024870132,
+    "resource_gap": 0.4313542373808676,
+    "sanctions_pressure": 0.3994077240307466,
+    "social_stress": 0.4713191884401653,
+    "tail_pressure": 1.7780389810860366
+  },
+  "physical_consistency_score": 1.0,
+  "raw_risk_scores": {
+    "broad_regional_escalation": 0.9327197326540368,
+    "controlled_suppression": 1.2765671239047856,
+    "direct_strike_exchange": 1.2937487144300408,
+    "internal_destabilization": 1.6736516830467056,
+    "limited_proxy_escalation": 1.3093455189271528,
+    "maritime_chokepoint_crisis": 0.7911812909423063,
+    "negotiated_deescalation": 0.2912793064635619,
+    "status_quo": 0.9445336168183514
+  },
+  "risk_probabilities": {
+    "broad_regional_escalation": 0.1019694772244669,
+    "controlled_suppression": 0.14381401709468775,
+    "direct_strike_exchange": 0.14630632020210937,
+    "internal_destabilization": 0.21392071933797835,
+    "limited_proxy_escalation": 0.14860611941370294,
+    "maritime_chokepoint_crisis": 0.08851172984858002,
+    "negotiated_deescalation": 0.053690340126145215,
+    "status_quo": 0.10318127675232938
+  },
+  "scenario_id": "sanctions_spiral-2023"
+}
