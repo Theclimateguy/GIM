@@ -56,8 +56,14 @@ def update_emissions_from_economy(
     efficiency = max(0.5, energy.efficiency) if energy is not None else 1.0
     efficiency_factor = 1.0 / efficiency
 
+    stored_progress = getattr(agent.climate, "_structural_transition_progress", None)
+    if stored_progress is None:
+        structural_progress = max(0.0, float(time))
+    else:
+        structural_progress = max(max(0.0, float(time)), float(stored_progress))
+
     structural_multiplier = _structural_transition_multiplier(policy_reduction, fuel_tax_change)
-    structural_transition = math.exp(-cal.DECARB_RATE_STRUCTURAL * max(0.0, time) * structural_multiplier)
+    structural_transition = math.exp(-cal.DECARB_RATE_STRUCTURAL * structural_progress)
     tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
     tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
     intensity = base_intensity * tech_factor * efficiency_factor * structural_transition * tax_effect
@@ -66,6 +72,9 @@ def update_emissions_from_economy(
         0.0,
         gdp * intensity * (1.0 - reduction) * cal.EMISSIONS_SCALE,
     )
+    # Structural transition is cumulative and path-dependent: policy tools should
+    # accelerate future decarbonization rather than retroactively rewrite past years.
+    agent.climate._structural_transition_progress = structural_progress + structural_multiplier
 
 
 def _normalize_fractions(fractions: tuple[float, ...]) -> list[float]:

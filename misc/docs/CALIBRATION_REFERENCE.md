@@ -85,11 +85,12 @@ Operational meaning:
 - the tech channel captures cleaner production, process efficiency, and energy-efficiency improvements that come from higher `tech_level` or better resource efficiency
 - the structural channel captures broader energy-system transition that accumulates over time
 - policy tools can move the structural channel further: `climate_policy` and `fuel_tax_change` now increase the structural-transition multiplier on top of their immediate direct effects
+- that acceleration is cumulative and path-dependent: current policy improves future transition progress, but does not retroactively rewrite the prior decarb path
 
 Guardrails:
 
 - `tests/test_climate_forcing.py` proves the tech channel still lowers emissions even if structural decarb is set to zero
-- the same test file also proves policy tools accelerate the structural transition more at `t=10` than at `t=0`, which distinguishes long-run transition from one-step abatement
+- the same test file also proves policy tools accelerate future structural transition rather than retroactively amplifying the current year's full time factor
 
 ## 5. Manifest-Bound Climate Coefficients
 

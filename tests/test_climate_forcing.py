@@ -113,20 +113,43 @@ class ClimateForcingTests(unittest.TestCase):
     def test_policy_tools_accelerate_structural_transition_over_time(self) -> None:
         self.assertGreater(cal.DECARB_RATE_STRUCTURAL, 0.0)
 
-        no_policy_now = self._make_agent()
-        policy_now = self._make_agent()
-        no_policy_later = self._make_agent()
-        policy_later = self._make_agent()
+        no_policy = self._make_agent()
+        policy = self._make_agent()
 
-        update_emissions_from_economy(no_policy_now, time=0, policy_reduction=0.0, fuel_tax_change=0.0)
-        update_emissions_from_economy(policy_now, time=0, policy_reduction=0.15, fuel_tax_change=0.3)
-        update_emissions_from_economy(no_policy_later, time=10, policy_reduction=0.0, fuel_tax_change=0.0)
-        update_emissions_from_economy(policy_later, time=10, policy_reduction=0.15, fuel_tax_change=0.3)
+        update_emissions_from_economy(no_policy, time=0, policy_reduction=0.0, fuel_tax_change=0.0)
+        update_emissions_from_economy(policy, time=0, policy_reduction=0.15, fuel_tax_change=0.3)
+        ratio_now = policy.climate.co2_annual_emissions / no_policy.climate.co2_annual_emissions
 
-        ratio_now = policy_now.climate.co2_annual_emissions / no_policy_now.climate.co2_annual_emissions
-        ratio_later = policy_later.climate.co2_annual_emissions / no_policy_later.climate.co2_annual_emissions
+        update_emissions_from_economy(no_policy, time=1, policy_reduction=0.0, fuel_tax_change=0.0)
+        update_emissions_from_economy(policy, time=1, policy_reduction=0.15, fuel_tax_change=0.3)
+        ratio_later = policy.climate.co2_annual_emissions / no_policy.climate.co2_annual_emissions
 
         self.assertLess(ratio_later, ratio_now)
+
+    def test_current_policy_only_accelerates_future_structural_progress(self) -> None:
+        reduction = 0.15
+        fuel_tax_change = 0.3
+        no_policy = self._make_agent()
+        policy = self._make_agent()
+
+        update_emissions_from_economy(no_policy, time=10, policy_reduction=0.0, fuel_tax_change=0.0)
+        update_emissions_from_economy(
+            policy,
+            time=10,
+            policy_reduction=reduction,
+            fuel_tax_change=fuel_tax_change,
+        )
+
+        tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
+        tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
+        expected_ratio = (1.0 - reduction) * tax_effect
+        actual_ratio = policy.climate.co2_annual_emissions / no_policy.climate.co2_annual_emissions
+
+        self.assertAlmostEqual(actual_ratio, expected_ratio, places=6)
+        self.assertGreater(
+            policy.climate._structural_transition_progress,
+            no_policy.climate._structural_transition_progress,
+        )
 
 
 if __name__ == "__main__":
