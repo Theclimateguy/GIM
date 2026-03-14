@@ -272,6 +272,12 @@ def _chunked(values: List[str], chunk_size: int) -> List[List[str]]:
     return [values[i : i + chunk_size] for i in range(0, len(values), chunk_size)]
 
 
+def _uses_async_policy(policy: Callable[[Observation], Action] | None) -> bool:
+    if policy is None:
+        return False
+    return policy is llm_policy or bool(getattr(policy, "__gim_async_policy__", False))
+
+
 def _safe_apply_policy(
     world: WorldState,
     policies: Dict[str, Callable[[Observation], Action]],
@@ -300,6 +306,7 @@ def step_world(
     action_log: Optional[List[Dict[str, Any]]] = None,
     institution_log: Optional[List[Dict[str, Any]]] = None,
     apply_institutions: bool = True,
+    policy_progress: Optional[Callable[[str], None]] = None,
 ) -> WorldState:
     actions: Dict[str, Action] = {}
     security_intents: Dict[str, Tuple[str, Optional[str]]] = {}
@@ -319,16 +326,23 @@ def step_world(
         policy = policies.get(agent_id)
         if policy is None:
             continue
-        if policy is llm_policy:
+        if _uses_async_policy(policy):
             llm_agent_ids.append(agent_id)
             continue
 
-        action = _safe_apply_policy(world, policies, agent_id, memory_summary=None)
+        action = _safe_apply_policy(
+            world,
+            policies,
+            agent_id,
+            summarize_agent_memory(memory, agent_id),
+        )
         if apply_political_filters:
             action = apply_political_constraints(action, world.agents[agent_id])
         sec = action.foreign_policy.security_actions
         security_intents[agent_id] = (sec.type, sec.target)
         actions[agent_id] = action
+        if policy_progress is not None:
+            policy_progress(agent_id)
 
     if llm_agent_ids:
         max_workers = _int_env("LLM_MAX_CONCURRENCY", default=8, minimum=1)
@@ -359,6 +373,8 @@ def step_world(
                     sec = action.foreign_policy.security_actions
                     security_intents[agent_id] = (sec.type, sec.target)
                     actions[agent_id] = action
+                    if policy_progress is not None:
+                        policy_progress(agent_id)
 
     resolve_foreign_policy(world, actions)
     apply_sanctions_effects(world)

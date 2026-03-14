@@ -2,22 +2,28 @@
 
 `GIM_14` is the new local primary working repository for the simulator.
 
-It unifies the active yearly simulation core from `GIM_11_1` with the current compiled state and source-data pipeline that had been living in `GIM_12`. The goal of this repo is to become the clean working line for the next calibration and restructuring passes without deleting or rewriting the older version folders.
+It unifies the active yearly simulation core from `GIM_11_1`, the compiled state and source-data pipeline from `GIM_12`, and the question/game/reporting layer that had been built in `GIM_13`. The goal of this repo is to become the clean working line for the next calibration and restructuring passes without deleting or rewriting the older version folders.
 
-Important scope note:
+Current scope:
 
-- this repository already contains the active simulation engine, compiled state, pipeline inputs, map assets, and runnable CLI
-- this repository does not yet include the full `GIM_13` scenario/game layer
-- the calibration documents from the `GIM_13` line are carried forward here as migration references, so the next calibration work can continue on top of `GIM_14`
+- this repository contains the active world simulation engine, compiled state, source-data pipeline, and map assets
+- this repository now also contains the locally restored `GIM_13` scenario, policy-gaming, dashboard, briefing, equilibrium, and calibration-suite layer
+- `python -m gim` remains the world-simulation entrypoint, while `python -m gim question|game|metrics|console|brief|calibrate` restores the higher-level orchestration surface
+- calibration reference documents from the `GIM_13` line are carried forward here so the next empirical calibration work can continue directly on top of `GIM_14`
 
 ## 1. What The Model Can Do
 
-`GIM_14` currently supports the following core capabilities:
+`GIM_14` currently supports the following capabilities:
 
 - load a compiled multi-country world state from [data/agent_states.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states.csv)
+- load the larger `57`-actor compatibility state from [misc/data/agent_states_gim13.csv](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/data/agent_states_gim13.csv)
 - validate the state CSV before simulation via [world_factory.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/world_factory.py)
 - run yearly simulations with endogenous updates to economy, resources, climate, geopolitics, politics, society, institutions, and creditworthiness
 - choose between `simple`, `growth`, `llm`, and `auto` policy modes through the CLI and env vars
+- compile free-text questions into structured geopolitical scenarios
+- run static or simulated policy games from packaged JSON cases or free-text descriptions
+- generate crisis dashboards, Markdown briefs, equilibrium diagnostics, and JSON evaluation artifacts
+- run the operational `GIM_13` calibration suite locally through `python -m gim calibrate`
 - generate detailed CSV logs of world trajectories, agent actions, and institution activity
 - render an offline Leaflet credit-risk map from simulation logs
 - rebuild and audit the compiled state inputs using the bundled source-data pipeline in [data/agent_state_pipeline](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_state_pipeline)
@@ -31,14 +37,14 @@ GIM_14/
 │   ├── __init__.py
 │   ├── __main__.py
 │   ├── paths.py
-│   └── core/
+│   ├── core/
+│   └── game_theory/
 ├── data/
 ├── docs/
+├── misc/
 ├── scripts/
 ├── tests/
 ├── vendor/
-├── CALIBRATION_REFERENCE.md
-├── CALIBRATION_LAYER.md
 ├── pyproject.toml
 └── README.md
 ```
@@ -47,10 +53,12 @@ Main areas:
 
 - [gim/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim) is the installable Python package
 - [gim/core/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core) is the active yearly simulation engine
+- [gim/game_runner.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/game_runner.py), [gim/sim_bridge.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sim_bridge.py), and [gim/dashboard.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/dashboard.py) are the restored orchestration, policy-gaming, and reporting layer
 - [data/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data) holds the compiled state, raw pipeline cache, generated panels, and map geometry
+- [misc/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc) holds the compatibility data, packaged cases, calibration cases, and credit-map assets inherited from `GIM_13`
 - [scripts/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/scripts) holds helper scripts for state building, map rendering, and long runs
-- [docs/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs) holds migration notes plus imported methodology snapshots
-- [tests/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests) holds the current smoke/health checks for the new repo
+- [docs/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs) holds migration notes, calibration references, parity audit notes, and imported methodology snapshots
+- [tests/](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests) now holds both smoke checks and restored scenario/game/reporting regression tests
 
 ## 3. System View
 
@@ -136,10 +144,19 @@ flowchart TD
 
 ### 5.1 Entrypoints
 
-Main entrypoint:
+Main world-simulation entrypoint:
 
 ```bash
 python3 -m gim
+```
+
+Scenario and game entrypoints:
+
+```bash
+python3 -m gim question "Will Red Sea tensions escalate?"
+python3 -m gim game --case misc/cases/maritime_pressure_game.json --dashboard
+python3 -m gim metrics --agents Iran "United States"
+python3 -m gim calibrate --runs 1
 ```
 
 Helper script for 10-year LLM-backed runs:
@@ -208,14 +225,19 @@ Logs are written into `logs/` under the repo root.
 
 Calibration continuity from the `GIM_13` line is preserved here through:
 
-- [CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/CALIBRATION_REFERENCE.md)
-- [CALIBRATION_LAYER.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/CALIBRATION_LAYER.md)
+- [docs/CALIBRATION_REFERENCE.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_REFERENCE.md)
+- [docs/CALIBRATION_LAYER.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/docs/CALIBRATION_LAYER.md)
 
-These files are intentionally carried forward so the next calibration work can continue from the existing world-physics and policy-calibration thinking, even though the full `GIM_13` game/scenario runtime has not yet been ported into `GIM_14`.
+These files now describe the active calibration stack that runs directly inside `GIM_14`, including the restored historical backtest, decarb sensitivity, manifest binding, geo-calibration, and operational scenario suite.
 
 ## 9. Testing
 
-The current `GIM_14` health checks are in [tests/test_smoke.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_smoke.py).
+The current `GIM_14` regression surface includes:
+
+- smoke tests for the unified world-core CLI
+- restored `GIM_13` parity tests for `question`, `game`, `sim_bridge`, `dashboard`, `briefing`, `crisis_metrics`, `geo_calibration`, `equilibrium`, `case_builder`, and `compiled_policy`
+- restored calibration tests for manifest binding, climate forcing, country macro priors, historical backtest, decarb sensitivity, and operational calibration
+- optional-path skips for `requests` and `scipy`
 
 Run them with:
 
@@ -224,29 +246,40 @@ cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 -m unittest discover -s tests -v
 ```
 
-At the moment the suite verifies:
+At the moment the full local suite verifies:
 
 - default state availability
 - successful world loading
 - successful one-step simulation
-- successful CLI smoke execution
+- successful world CLI execution
+- question compilation and actor resolution on the large `GIM13` state
+- policy-game scoring and action overlays
+- simulated trajectories through `SimBridge`
+- HTML dashboard generation and Markdown brief generation
+- crisis metrics, geo-calibration, and equilibrium search plumbing
+- manifest-bound climate artifact loading
+- historical backtest and decarb sensitivity validation
+- operational calibration suite regression checks
+
+The latest local full run completed with `85 tests`, `OK`, `3 skipped`.
 
 ## 10. Migration Status
 
-`GIM_14` is now the clean working base for the next phase, but not the end-state architecture yet.
+`GIM_14` is now the clean working base for the next phase and locally restores the main `GIM_13` operational surface.
 
 Already done:
 
 - active core moved into a single installable package
 - active data/pipeline assets copied into the new repo
-- old archive ballast excluded from the new repo
-- CLI paths and helper scripts rewired to the new layout
-- smoke tests added and passing
+- compatibility `misc/data`, `misc/cases`, `misc/calibration_cases`, and dashboard assets restored
+- `question`, `game`, `metrics`, `console`, `brief`, and `calibrate` commands restored into `gim`
+- dashboard, briefing, equilibrium, geo-calibration, and compiled-policy modules restored
+- `historical_backtest`, `decarb_sensitivity`, `state_artifact`, `calibration_params`, and `country_params` restored into the active calibration layer
+- manifest and historical-fixture refresh scripts restored under `misc/calibration`
+- hybrid CLI added so `python -m gim` still runs the world simulator while subcommands run the higher-level orchestration layer
+- restored parity tests added and passing locally
 
 Still expected later:
 
-- port the `GIM_13` scenario/game layer if we still want that surface in `GIM_14`
-- port the richer calibration harnesses and historical backtests from the `GIM_13` line
 - clean historical names such as `build_gim13_agent_states.py`
-- expand tests beyond smoke checks into structural regression tests
-
+- keep expanding tests from restored compatibility into native `GIM_14` regression contracts

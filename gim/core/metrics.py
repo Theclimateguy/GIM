@@ -1,6 +1,7 @@
 import math
 from typing import Dict
 
+from . import calibration_params as cal
 from .core import AgentState, WorldState, effective_trade_intensity
 
 
@@ -52,9 +53,9 @@ def compute_relative_metrics(world: WorldState) -> None:
 def compute_debt_stress(agent: AgentState) -> float:
     gdp = max(agent.economy.gdp, 1e-6)
     debt_gdp = agent.economy.public_debt / gdp
-    raw = max(0.0, debt_gdp - 1.0)
+    raw = max(0.0, debt_gdp - cal.DEBT_STRESS_THRESHOLD)
     stress = raw * agent.risk.debt_crisis_prone
-    return float(min(stress, 3.0))
+    return float(min(stress, cal.DEBT_STRESS_CAP))
 
 
 def compute_protest_risk(agent: AgentState) -> float:
@@ -62,9 +63,13 @@ def compute_protest_risk(agent: AgentState) -> float:
     trust = agent.society.trust_gov
     gini = agent.society.inequality_gini
 
-    base = 0.6 * tension + 0.3 * (1.0 - trust) + 0.1 * (gini / 100.0)
+    base = (
+        cal.PROTEST_RISK_TENSION_W * tension
+        + cal.PROTEST_RISK_DISTRUST_W * (1.0 - trust)
+        + cal.PROTEST_RISK_GINI_W * (gini / 100.0)
+    )
     fragility = 1.0 - agent.risk.regime_stability
-    risk = base * (0.5 + 0.5 * fragility)
+    risk = base * (cal.PROTEST_RISK_FRAGILITY_BASE + cal.PROTEST_RISK_FRAGILITY_SENS * fragility)
 
     return float(max(0.0, min(risk, 1.0)))
 
@@ -74,7 +79,7 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
 
     # Initialize TFP from observed current state once.
     if not hasattr(economy, "tfp") or economy.tfp is None:
-        alpha, beta, gamma = 0.30, 0.60, 0.10
+        alpha, beta, gamma = cal.ALPHA_CAPITAL, cal.BETA_LABOR, cal.GAMMA_ENERGY
         capital = max(economy.capital, 1e-6)
         labor = max(economy.population / 1e9, 1e-3)
         energy = agent.resources.get("energy")
@@ -85,11 +90,6 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     gdp = max(economy.gdp, 1e-6)
     rd_share = economy.rd_spending / gdp if gdp > 0 else 0.0
 
-    phi = 2.0
-    psi = 0.3
-    tfp_drift = 0.01
-    diffusion_eta = 0.02
-
     avg_trade = 0.0
     count = 0
     for rel in world.relations.get(agent.id, {}).values():
@@ -98,8 +98,8 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     if count > 0:
         avg_trade /= count
 
-    spillover = 1.0 + psi * avg_trade
-    tfp_growth = phi * rd_share * spillover
+    spillover = 1.0 + cal.TFP_TRADE_SPILLOVER_SENS * avg_trade
+    tfp_growth = cal.TFP_RD_SHARE_SENS * rd_share * spillover
 
     tech_gap_weighted = 0.0
     tech_weight = 0.0
@@ -112,9 +112,9 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
         tech_gap_weighted += weight * gap
         tech_weight += weight
     avg_gap = tech_gap_weighted / tech_weight if tech_weight > 0 else 0.0
-    diffusion = diffusion_eta * avg_gap
+    diffusion = cal.TFP_DIFFUSION_SENS * avg_gap
 
-    tfp_growth = tfp_drift + tfp_growth + diffusion
-    tfp_growth = max(-0.05, min(tfp_growth, 0.05))
+    tfp_growth = cal.TFP_DRIFT + tfp_growth + diffusion
+    tfp_growth = max(cal.TFP_GROWTH_MIN, min(tfp_growth, cal.TFP_GROWTH_MAX))
 
     economy.tfp *= 1.0 + tfp_growth

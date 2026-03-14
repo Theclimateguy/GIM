@@ -1,0 +1,30 @@
+{
+  "id": "turkiye_fx_regime_2023",
+  "title": "Turkiye inflation and FX pressure",
+  "description": "Domestic instability risk in Turkiye during 2023 under persistent inflation, FX stress, and import dependence.",
+  "reference_period": "2023-01 to 2023-12",
+  "tags": ["historical", "domestic", "turkiye", "fx-stress"],
+  "scenario": {
+    "question": "Could inflation, FX pressure and domestic unrest destabilize Turkiye in 2023?",
+    "template": "regime_stress",
+    "base_year": 2023,
+    "horizon_months": 12,
+    "actors": ["Turkiye"]
+  },
+  "expectations": {
+    "top_outcomes": ["internal_destabilization", "controlled_suppression"],
+    "dominant_outcomes": ["internal_destabilization", "controlled_suppression"],
+    "drivers": ["tail_pressure", "social_stress", "energy_dependence", "resource_gap"],
+    "actor_metrics": {
+      "Turkiye": ["strategic_dependency", "regime_fragility", "protest_pressure", "oil_vulnerability"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.6,
+    "minimum_case_score": 0.74
+  },
+  "historical_signals": [
+    "The intended stress channels are inflation, FX pressure, and domestic stability, not interstate war.",
+    "Regime stress and strategic dependency should both remain visible in the crisis layer."
+  ]
+}

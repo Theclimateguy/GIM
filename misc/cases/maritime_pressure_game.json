@@ -1,0 +1,74 @@
+{
+  "id": "maritime-pressure-game",
+  "title": "Maritime pressure policy game",
+  "tags": ["mvp", "policy-gaming", "maritime"],
+  "assumptions": [
+    "The game keeps the current GIM_12 calibration as the baseline prior.",
+    "Extreme outcomes must remain causally grounded and physically interpretable."
+  ],
+  "scenario": {
+    "template": "maritime_deterrence",
+    "question": "How do deterrence, restraint and mediation strategies reshape maritime pressure on energy routes for the United States, China, Saudi Arabia and Turkey?",
+    "base_year": 2026,
+    "horizon_months": 18,
+    "actors": ["United States", "China", "Saudi Arabia", "Turkey"]
+  },
+  "players": [
+    {
+      "actor": "United States",
+      "objectives": {
+        "reduce_war_risk": 0.45,
+        "resource_access": 0.30,
+        "bargaining_power": 0.25
+      },
+      "allowed_actions": [
+        "signal_deterrence",
+        "signal_restraint",
+        "backchannel_offer",
+        "accept_mediation"
+      ]
+    },
+    {
+      "actor": "China",
+      "objectives": {
+        "resource_access": 0.45,
+        "reduce_war_risk": 0.35,
+        "bargaining_power": 0.20
+      },
+      "allowed_actions": [
+        "signal_restraint",
+        "backchannel_offer",
+        "accept_mediation",
+        "information_campaign"
+      ]
+    },
+    {
+      "actor": "Saudi Arabia",
+      "objectives": {
+        "regime_retention": 0.45,
+        "regional_influence": 0.30,
+        "resource_access": 0.25
+      },
+      "allowed_actions": [
+        "signal_deterrence",
+        "partial_mobilization",
+        "backchannel_offer",
+        "accept_mediation"
+      ]
+    },
+    {
+      "actor": "Turkey",
+      "objectives": {
+        "regional_influence": 0.40,
+        "reduce_war_risk": 0.35,
+        "bargaining_power": 0.25
+      },
+      "allowed_actions": [
+        "signal_deterrence",
+        "signal_restraint",
+        "covert_disruption",
+        "backchannel_offer"
+      ]
+    }
+  ]
+}

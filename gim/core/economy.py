@@ -1,5 +1,7 @@
+from . import calibration_params as cal
 from .climate import effective_damage_multiplier
 from .core import AgentState, WorldState, clamp01, effective_trade_intensity
+from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
 from .metrics import update_tfp_endogenous
 
 
@@ -9,14 +11,18 @@ def update_capital_endogenous(agent: AgentState) -> None:
 
     gdp = max(economy.gdp, 1e-6)
     capital = max(economy.capital, 1e-6)
-    depreciation = 0.05
+    depreciation = cal.CAPITAL_DEPRECIATION
 
-    base_savings = 0.24
+    base_savings = get_savings_rate(agent.name)
     stability = clamp01(risk.regime_stability)
     tension = clamp01(agent.society.social_tension)
 
-    savings_rate = base_savings * (0.7 + 0.6 * stability - 0.4 * tension)
-    savings_rate = max(0.05, min(0.40, savings_rate))
+    savings_rate = base_savings * (
+        cal.SAVINGS_BASELINE_OFFSET
+        + cal.SAVINGS_STABILITY_SENS * stability
+        - cal.SAVINGS_TENSION_SENS * tension
+    )
+    savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
 
     investment = savings_rate * gdp
     economy.capital = max(1e-6, (1.0 - depreciation) * capital + investment)
@@ -26,9 +32,9 @@ def update_economy_output(agent: AgentState, world: WorldState) -> None:
     economy = agent.economy
     update_tfp_endogenous(agent, world)
 
-    alpha = 0.3
-    beta = 0.60
-    gamma = 0.10
+    alpha = cal.ALPHA_CAPITAL
+    beta = cal.BETA_LABOR
+    gamma = cal.GAMMA_ENERGY
 
     capital = max(economy.capital, 1e-6)
     labor = max(economy.population / 1e9, 1e-3)
@@ -42,7 +48,7 @@ def update_economy_output(agent: AgentState, world: WorldState) -> None:
 
     tfp = getattr(economy, "tfp", getattr(economy, "_tfp", 1.0))
     tech_level = max(0.5, agent.technology.tech_level)
-    tech_factor = 1.0 + 0.6 * max(0.0, tech_level - 1.0)
+    tech_factor = 1.0 + cal.TECH_OUTPUT_SENS * max(0.0, tech_level - 1.0)
     gdp_potential = tfp * tech_factor * (capital**alpha) * (labor**beta) * (energy_input**gamma)
 
     if (not hasattr(economy, "_scale_factor")) or getattr(economy, "_scale_factor", None) is None:
@@ -59,7 +65,7 @@ def update_economy_output(agent: AgentState, world: WorldState) -> None:
     # slower when above. No exogenous growth term is introduced.
     gdp_now = max(economy.gdp, 1e-6)
     gap = (gdp_target - gdp_now) / gdp_now
-    adjust_speed = 0.30 + 0.35 * clamp01(max(0.0, gap))
+    adjust_speed = cal.GDP_ADJUST_SPEED_BASE + cal.GDP_ADJUST_SPEED_GAP_SENS * clamp01(max(0.0, gap))
     economy.gdp = (1.0 - adjust_speed) * economy.gdp + adjust_speed * gdp_target
 
     update_capital_endogenous(agent)
@@ -72,16 +78,20 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
     economy = agent.economy
     risk = agent.risk
 
-    base_rate = 0.02
+    base_rate = cal.BASE_INTEREST_RATE
 
     gdp = max(economy.gdp, 1e-6)
     debt_gdp = economy.public_debt / gdp
 
-    excess = max(0.0, debt_gdp - 0.6)
-    spread_raw = 0.03 * excess + 0.10 * (excess**2)
+    excess = max(0.0, debt_gdp - cal.DEBT_SPREAD_THRESHOLD)
+    spread_raw = cal.DEBT_SPREAD_LINEAR * excess + cal.DEBT_SPREAD_QUADRATIC * (excess**2)
 
     fragility = 1.0 - risk.regime_stability
-    spread = spread_raw * (0.5 + 0.5 * risk.debt_crisis_prone) * (0.7 + 0.6 * fragility)
+    spread = spread_raw * (
+        cal.DEBT_SPREAD_RISK_BASE + cal.DEBT_SPREAD_RISK_SENS * risk.debt_crisis_prone
+    ) * (
+        cal.DEBT_SPREAD_FRAGILITY_BASE + cal.DEBT_SPREAD_FRAGILITY_SENS * fragility
+    )
 
     contagion_spread = 0.0
     if world is not None:
@@ -93,17 +103,17 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
                 continue
             partner_gdp = max(partner.economy.gdp, 1e-6)
             partner_debt_gdp = partner.economy.public_debt / partner_gdp
-            partner_excess = max(0.0, partner_debt_gdp - 0.9)
+            partner_excess = max(0.0, partner_debt_gdp - cal.CONTAGION_DEBT_THRESHOLD)
             partner_stress = partner_excess * partner.risk.debt_crisis_prone
             weight = max(0.0, effective_trade_intensity(rel))
             stress_sum += weight * partner_stress
             total_weight += weight
         if total_weight > 0.0:
             avg_partner_stress = stress_sum / total_weight
-            contagion_spread = min(0.05, 0.02 * avg_partner_stress)
+            contagion_spread = min(cal.CONTAGION_SPREAD_CAP, cal.CONTAGION_SPREAD_SENS * avg_partner_stress)
 
-    rate = base_rate + min(spread, 0.25) + contagion_spread
-    return float(max(0.0, min(rate, 0.35)))
+    rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread
+    return float(max(0.0, min(rate, cal.RATE_MAX)))
 
 
 def update_public_finances(agent: AgentState, world: WorldState) -> None:
@@ -112,23 +122,26 @@ def update_public_finances(agent: AgentState, world: WorldState) -> None:
     gdp = max(economy.gdp, 1e-6)
 
     # Baseline fiscal drivers to avoid mechanical debt repayment.
-    base_social_share = 0.15
-    base_military_share = 0.035
-    climate_adaptation_share = 0.005 + 0.015 * max(0.0, agent.climate.climate_risk)
+    base_social_share = get_social_spend_share(agent.name)
+    base_military_share = cal.MILITARY_SPEND_BASE
+    climate_adaptation_share = cal.CLIMATE_ADAPT_BASE + cal.CLIMATE_ADAPT_RISK_SENS * max(
+        0.0,
+        agent.climate.climate_risk,
+    )
     economy.climate_adaptation_spending = gdp * climate_adaptation_share
 
     baseline_spending = gdp * (base_social_share + base_military_share + climate_adaptation_share)
     policy_spending = economy.social_spending + economy.military_spending + economy.rd_spending
     economy.gov_spending = max(0.0, baseline_spending + policy_spending)
 
-    economy.taxes = 0.22 * gdp
+    economy.taxes = get_tax_rate(agent.name) * gdp
     effective_rate = compute_effective_interest_rate(agent, world)
     economy.interest_payments = effective_rate * economy.public_debt
 
     primary_deficit = economy.gov_spending - economy.taxes
     total_deficit = primary_deficit + economy.interest_payments
 
-    max_new_debt = 0.05 * gdp
+    max_new_debt = cal.MAX_NEW_DEBT_GDP * gdp
     if total_deficit > 0:
         new_borrowing = min(total_deficit, max_new_debt)
     else:
@@ -137,4 +150,4 @@ def update_public_finances(agent: AgentState, world: WorldState) -> None:
 
     economy.public_debt += new_borrowing
 
-    economy.rd_spending *= 0.85
+    economy.rd_spending *= cal.RD_SPENDING_DECAY

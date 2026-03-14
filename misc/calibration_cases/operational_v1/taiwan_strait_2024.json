@@ -1,0 +1,31 @@
+{
+  "id": "taiwan_strait_2024",
+  "title": "Taiwan Strait coercion risk",
+  "description": "Escalation risk around Taiwan involving China, Taiwan, Japan, and the United States during 2024.",
+  "reference_period": "2024-01 to 2024-12",
+  "tags": ["historical", "east-asia", "taiwan", "maritime"],
+  "scenario": {
+    "question": "Could maritime coercion around Taiwan trigger escalation between China, Taiwan, Japan and the United States in 2024?",
+    "template": "maritime_deterrence",
+    "base_year": 2024,
+    "horizon_months": 12,
+    "actors": ["China", "Taiwan", "Japan", "United States"]
+  },
+  "expectations": {
+    "top_outcomes": ["maritime_chokepoint_crisis"],
+    "dominant_outcomes": ["maritime_chokepoint_crisis", "direct_strike_exchange", "broad_regional_escalation"],
+    "drivers": ["tail_pressure", "military_posture", "negotiation_capacity"],
+    "actor_metrics": {
+      "Taiwan": ["strategic_dependency", "oil_vulnerability", "regime_fragility"],
+      "Japan": ["strategic_dependency", "oil_vulnerability", "chokepoint_exposure"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.58,
+    "minimum_case_score": 0.72
+  },
+  "historical_signals": [
+    "The main signal is maritime and escalation pressure rather than immediate domestic collapse.",
+    "The scenario is intentionally framed as coercion risk, not a deterministic war forecast."
+  ]
+}
