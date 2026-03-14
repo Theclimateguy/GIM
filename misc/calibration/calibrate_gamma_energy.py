@@ -47,7 +47,8 @@ def main() -> None:
     if max(gdp_values) - min(gdp_values) < 1e-6 and max(co2_values) - min(co2_values) < 1e-6:
         print(
             "Surface is flat on the current historical backtest; "
-            "GAMMA_ENERGY is not identified by this harness and should stay unchanged for now."
+            "GAMMA_ENERGY is not identified by this harness. "
+            "Use calibrate_gamma_cross_section.py for the active estimate."
         )
     else:
         print(f"Recommended GAMMA_ENERGY: {best[0]:.2f}")

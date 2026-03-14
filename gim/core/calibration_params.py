@@ -11,6 +11,7 @@ from .state_artifact import ACTIVE_STATE_ARTIFACT
 #   [SIPRI23] SIPRI military spending database 2023
 #   [GCP2023] Global Carbon Project fossil CO2 history used for emissions-scale refresh
 #   [BACKTEST] Bundled 2015-2023 historical backtest calibration
+#   [XSECTION] Cross-sectional identification on the bundled 2015 country slice
 #   [PRIOR] Expert prior pending empirical calibration
 #   [ARTIFACT] Pipeline-bound compiled-state artifact; only change via state rebuild
 
@@ -23,6 +24,7 @@ SOURCE_TAG_NOTES = {
     "SIPRI23": "SIPRI military burden averages.",
     "GCP2023": "Global Carbon Project fossil CO2 history used to derive emissions scaling during manifest refresh.",
     "BACKTEST": "Historical backtest calibration against the bundled 2015-2023 GDP/CO2/temperature fixture.",
+    "XSECTION": "Cross-sectional identification against the bundled 2015 country slice.",
     "PRIOR": "Expert prior in the current model, not yet empirically calibrated.",
     "ARTIFACT": "Pipeline-bound compiled-state artifact that must only change with a state rebuild.",
 }
@@ -30,7 +32,7 @@ SOURCE_TAG_NOTES = {
 # Production block.
 ALPHA_CAPITAL = 0.30  # [PWT10]
 BETA_LABOR = 0.60  # [PWT10]
-GAMMA_ENERGY = 0.10  # [PRIOR] Flat on the current historical backtest surface; retained until a separate identification pass.
+GAMMA_ENERGY = 0.07  # [XSECTION] Literature-bounded cross-sectional fit on the bundled 2015 country slice.
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]
@@ -219,7 +221,7 @@ PROTEST_RISK_FRAGILITY_SENS = 0.50  # [PRIOR]
 CALIBRATION_STATUS = {
     "ALPHA_CAPITAL": "validated",
     "BETA_LABOR": "validated",
-    "GAMMA_ENERGY": "prior",
+    "GAMMA_ENERGY": "cross_section",
     "SAVINGS_BASE": "validated",
     "CAPITAL_DEPRECIATION": "validated",
     "TFP_RD_SHARE_SENS": "backtest",

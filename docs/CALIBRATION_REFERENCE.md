@@ -73,7 +73,8 @@ Current decarb sensitivity result:
 Current macro calibration result from the sequential `C1/C2/C3` pass:
 
 - `DECARB_RATE_STRUCTURAL` is now artifact-bound at `0.052`, with observed reference metadata carried in the manifest
-- `GAMMA_ENERGY` remains `0.10`; the current historical backtest surface is flat over the tested `0.04-0.12` grid, so this parameter is not identified by the bundled harness yet
+- `GAMMA_ENERGY` is now `0.07`; the historical replay is flat in time, so the active estimate comes from a separate bounded cross-sectional OLS on the bundled `2015` country slice
+- the same cross-sectional pass gives an unconstrained `gamma ~= 0.084`, but the active value is clipped to the literature corridor `0.04-0.07`
 - `TFP_RD_SHARE_SENS` moved from `2.0` to `0.5`, which materially improved both GDP and CO2 fit on the bundled `2015-2023` replay
 
 Current temperature calibration result from the sequential `T1/T2/T3` pass:
@@ -132,12 +133,11 @@ python3 -m unittest discover -s tests -v
 
 The following are still active calibration priorities rather than finished empirical estimates:
 
-- `GAMMA_ENERGY`
 - `GINI_FISCAL_SENS`
 - `CRISK_TEMP_SENSITIVITY`
 - `STRUCTURAL_TRANSITION_POLICY_SENS`
 - `STRUCTURAL_TRANSITION_TAX_SENS`
 
-`TFP_RD_SHARE_SENS` now has a backtest-calibrated working value, but still deserves a dedicated econometric pass rather than being treated as final.
+`GAMMA_ENERGY` now has a cross-sectional working value rather than a pure prior, and `TFP_RD_SHARE_SENS` now has a backtest-calibrated working value, but both still deserve a fuller econometric pass rather than being treated as final.
 
 Those are the right next targets for the next econometric or historical calibration passes inside `GIM_14`.

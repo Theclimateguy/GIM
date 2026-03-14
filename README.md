@@ -241,7 +241,7 @@ The latest completed climate/macro pass inside `GIM_14` delivered these working 
 It also left three explicit calibration conclusions in place:
 
 - `DECARB_RATE_STRUCTURAL` is active at `0.052`, while the manifest records the lower observed reference separately
-- `GAMMA_ENERGY` is still not identified by the bundled historical harness and remains unchanged pending a separate econometric pass
+- `GAMMA_ENERGY` is now `0.07`, identified from a bounded cross-sectional `2015` regression rather than from the time-series backtest
 - `TFP_RD_SHARE_SENS` is now `0.5` as the current backtest-calibrated working value
 
 The latest temperature pass added one more explicit conclusion:
