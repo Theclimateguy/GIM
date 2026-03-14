@@ -45,8 +45,11 @@ class StateArtifactBindingTests(unittest.TestCase):
             binding.emissions_reference_state_csv,
             (REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv").resolve(),
         )
-        self.assertEqual(binding.decarb_source, "legacy")
-        self.assertAlmostEqual(binding.decarb_reference_rate, 0.049)
+        self.assertAlmostEqual(binding.decarb_rate, 0.052)
+        self.assertEqual(binding.decarb_source, "observed")
+        self.assertAlmostEqual(binding.decarb_reference_rate, 0.031241083241479107)
+        self.assertEqual(binding.decarb_reference_start_year, 2015)
+        self.assertEqual(binding.decarb_reference_end_year, 2023)
 
     def test_calibration_params_use_manifest_bound_coefficients(self) -> None:
         self.assertAlmostEqual(cal.EMISSIONS_SCALE, PRIMARY_STATE_ARTIFACT.emissions_scale)

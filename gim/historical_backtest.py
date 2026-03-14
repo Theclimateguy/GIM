@@ -84,6 +84,12 @@ def _load_observed_fixture(path: Path = DEFAULT_OBSERVED_FIXTURE) -> dict[str, o
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_historical_observed_fixture(
+    path: Path = DEFAULT_OBSERVED_FIXTURE,
+) -> dict[str, object]:
+    return _load_observed_fixture(path)
+
+
 def load_historical_backtest_baseline(
     path: Path = DEFAULT_BASELINE_FIXTURE,
 ) -> HistoricalBacktestResult:
@@ -121,6 +127,47 @@ def _rmse(pairs: list[tuple[float, float]]) -> float:
         return 0.0
     mse = sum((predicted - actual) ** 2 for predicted, actual in pairs) / len(pairs)
     return math.sqrt(mse)
+
+
+def compute_observed_global_co2_intensity(
+    observed_fixture: str | Path = DEFAULT_OBSERVED_FIXTURE,
+) -> dict[int, float]:
+    observed = _load_observed_fixture(Path(observed_fixture))
+    start_year = int(observed["start_year"])
+    end_year = int(observed["end_year"])
+    co2 = _coerce_int_keyed_series(observed["global_co2_gtco2"])
+    gdp = {
+        int(year): sum(float(value) for value in values.values())
+        for year, values in observed["gdp_trillions_by_year"].items()
+    }
+    return {
+        year: co2[year] / max(gdp[year], 1e-9)
+        for year in range(start_year, end_year + 1)
+    }
+
+
+def estimate_observed_decarb_rate(
+    observed_fixture: str | Path = DEFAULT_OBSERVED_FIXTURE,
+    *,
+    method: str = "mean_pairwise",
+) -> float:
+    observed = _load_observed_fixture(Path(observed_fixture))
+    start_year = int(observed["start_year"])
+    end_year = int(observed["end_year"])
+    intensity = compute_observed_global_co2_intensity(observed_fixture)
+
+    if method == "end_to_end":
+        return float(
+            -math.log(intensity[end_year] / intensity[start_year]) / max(end_year - start_year, 1)
+        )
+    if method != "mean_pairwise":
+        raise ValueError(f"Unsupported observed decarb estimation method: {method}")
+
+    pairwise = [
+        -math.log(intensity[year] / intensity[start_year]) / max(year - start_year, 1)
+        for year in range(start_year + 1, end_year + 1)
+    ]
+    return float(sum(pairwise) / len(pairwise))
 
 
 def _seed_historical_globals(world: WorldState, observed: dict[str, object], start_year: int) -> None:
@@ -270,12 +317,15 @@ def format_historical_backtest_result(result: HistoricalBacktestResult, top_n: i
 
 
 __all__ = [
+    "compute_observed_global_co2_intensity",
+    "estimate_observed_decarb_rate",
     "DEFAULT_BASELINE_FIXTURE",
     "DEFAULT_INITIAL_STATE_CSV",
     "DEFAULT_OBSERVED_FIXTURE",
     "GDP_BACKTEST_ACTORS",
     "HistoricalBacktestResult",
     "format_historical_backtest_result",
+    "load_historical_observed_fixture",
     "load_historical_backtest_baseline",
     "run_historical_backtest",
 ]

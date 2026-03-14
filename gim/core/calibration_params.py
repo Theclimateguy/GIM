@@ -10,6 +10,7 @@ from .state_artifact import ACTIVE_STATE_ARTIFACT
 #   [DICE16] Nordhaus DICE-2016R2, used only where structure matches
 #   [SIPRI23] SIPRI military spending database 2023
 #   [GCP2023] Global Carbon Project fossil CO2 history used for emissions-scale refresh
+#   [BACKTEST] Bundled 2015-2023 historical backtest calibration
 #   [PRIOR] Expert prior pending empirical calibration
 #   [ARTIFACT] Pipeline-bound compiled-state artifact; only change via state rebuild
 
@@ -21,6 +22,7 @@ SOURCE_TAG_NOTES = {
     "DICE16": "DICE-2016R2 parameters only where the equation family is structurally aligned.",
     "SIPRI23": "SIPRI military burden averages.",
     "GCP2023": "Global Carbon Project fossil CO2 history used to derive emissions scaling during manifest refresh.",
+    "BACKTEST": "Historical backtest calibration against the bundled 2015-2023 GDP/CO2/temperature fixture.",
     "PRIOR": "Expert prior in the current model, not yet empirically calibrated.",
     "ARTIFACT": "Pipeline-bound compiled-state artifact that must only change with a state rebuild.",
 }
@@ -28,7 +30,7 @@ SOURCE_TAG_NOTES = {
 # Production block.
 ALPHA_CAPITAL = 0.30  # [PWT10]
 BETA_LABOR = 0.60  # [PWT10]
-GAMMA_ENERGY = 0.10  # [PRIOR]
+GAMMA_ENERGY = 0.10  # [PRIOR] Flat on the current historical backtest surface; retained until a separate identification pass.
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]
@@ -41,7 +43,7 @@ GDP_ADJUST_SPEED_BASE = 0.30  # [PRIOR]
 GDP_ADJUST_SPEED_GAP_SENS = 0.35  # [PRIOR]
 
 # TFP block.
-TFP_RD_SHARE_SENS = 2.0  # [PRIOR]
+TFP_RD_SHARE_SENS = 0.5  # [BACKTEST]
 TFP_TRADE_SPILLOVER_SENS = 0.30  # [PRIOR]
 TFP_DRIFT = 0.01  # [PRIOR]
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
@@ -218,7 +220,7 @@ CALIBRATION_STATUS = {
     "GAMMA_ENERGY": "prior",
     "SAVINGS_BASE": "validated",
     "CAPITAL_DEPRECIATION": "validated",
-    "TFP_RD_SHARE_SENS": "prior",
+    "TFP_RD_SHARE_SENS": "backtest",
     "TFP_TRADE_SPILLOVER_SENS": "prior",
     "TAX_RATE_BASE": "validated",
     "SOCIAL_SPEND_BASE": "validated",

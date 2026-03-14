@@ -73,6 +73,16 @@ cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/refresh_historical_backtest_fixtures.py
 ```
 
+Run the focused calibration helpers used in the latest climate/macro pass:
+
+```bash
+cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/calibrate_decarb_rate.py
+python3 misc/calibration/calibrate_gamma_energy.py
+python3 misc/calibration/calibrate_tfp_rd_share_sens.py
+python3 misc/calibration/refresh_historical_backtest_baseline.py
+```
+
 These commands are the only safe path for changing:
 
 - `EMISSIONS_SCALE`
@@ -121,3 +131,9 @@ python3 -m unittest tests.test_historical_backtest tests.test_decarb_sensitivity
 `GIM_14` should now be treated as the active repo for further calibration work, not just a migration shell.
 
 The remaining work is no longer “port the calibration layer”; it is “continue calibrating on top of the restored layer.”
+
+Current climate/macro calibration interpretation:
+
+- `DECARB_RATE_STRUCTURAL` is active at `0.052`, but its manifest now records an observed reference of `0.031241` over `2015-2023`
+- `GAMMA_ENERGY` is currently unidentifiable on the bundled historical replay and should not be moved just to satisfy the backtest
+- `TFP_RD_SHARE_SENS = 0.5` is the active backtest-improving value and should be the starting point for the next econometric pass

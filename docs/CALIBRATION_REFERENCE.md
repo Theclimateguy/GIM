@@ -55,15 +55,22 @@ This document is the calibration ledger for the active `GIM_14` repo.
 
 Current structural backtest baseline from [historical_backtest_baseline.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/fixtures/historical_backtest_baseline.json):
 
-- GDP RMSE: `1.266` trillion USD
-- Global CO2 RMSE: `2.115` GtCO2
+- GDP RMSE: `1.072` trillion USD
+- Global CO2 RMSE: `1.631` GtCO2
 - Temperature RMSE: `0.105` C
 
 Current decarb sensitivity result:
 
-- active structural decarb rate: `0.049`
-- observed comparison prior: `0.022`
-- observed prior currently worsens CO2 fit materially and is not the active manifest rate
+- active structural decarb rate: `0.052`
+- observed fixture reference: `0.031241` over `2015-2023`
+- the observed reference is stamped into the manifest, but the active residual structural rate stays above it because the current model splits decarbonization into tech/efficiency and structural-transition layers
+- observed reference rates near `0.031-0.036` still worsen CO2 fit materially on the current structure and therefore are not yet safe as the active artifact rate
+
+Current macro calibration result from the sequential `C1/C2/C3` pass:
+
+- `DECARB_RATE_STRUCTURAL` is now artifact-bound at `0.052`, with observed reference metadata carried in the manifest
+- `GAMMA_ENERGY` remains `0.10`; the current historical backtest surface is flat over the tested `0.04-0.12` grid, so this parameter is not identified by the bundled harness yet
+- `TFP_RD_SHARE_SENS` moved from `2.0` to `0.5`, which materially improved both GDP and CO2 fit on the bundled `2015-2023` replay
 
 Current operational scenario suite:
 
@@ -115,10 +122,11 @@ python3 -m unittest discover -s tests -v
 The following are still active calibration priorities rather than finished empirical estimates:
 
 - `GAMMA_ENERGY`
-- `TFP_RD_SHARE_SENS`
 - `GINI_FISCAL_SENS`
 - `CRISK_TEMP_SENSITIVITY`
 - `STRUCTURAL_TRANSITION_POLICY_SENS`
 - `STRUCTURAL_TRANSITION_TAX_SENS`
+
+`TFP_RD_SHARE_SENS` now has a backtest-calibrated working value, but still deserves a dedicated econometric pass rather than being treated as final.
 
 Those are the right next targets for the next econometric or historical calibration passes inside `GIM_14`.

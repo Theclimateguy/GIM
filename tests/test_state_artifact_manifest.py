@@ -33,7 +33,11 @@ class StateArtifactManifestTests(unittest.TestCase):
         binding = state_artifact.PRIMARY_STATE_ARTIFACT
         self.assertEqual(binding.rebuild_source, "data")
         self.assertAlmostEqual(binding.emissions_scale, derived, delta=1e-9)
-        self.assertEqual(binding.decarb_source, "legacy")
+        self.assertAlmostEqual(binding.decarb_rate, 0.052)
+        self.assertEqual(binding.decarb_source, "observed")
+        self.assertAlmostEqual(binding.decarb_reference_rate, 0.031241083241479107)
+        self.assertEqual(binding.decarb_reference_start_year, 2015)
+        self.assertEqual(binding.decarb_reference_end_year, 2023)
 
     def test_primary_load_can_warn_and_fallback_when_manifest_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

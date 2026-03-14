@@ -231,6 +231,18 @@ Calibration continuity from the `GIM_13` line is preserved here through:
 
 These files now describe the active calibration stack that runs directly inside `GIM_14`, including the restored historical backtest, decarb sensitivity, manifest binding, geo-calibration, and operational scenario suite.
 
+The latest completed climate/macro pass inside `GIM_14` delivered these working baselines on the bundled `2015-2023` replay:
+
+- GDP RMSE `1.072 T$`
+- global CO2 RMSE `1.631 GtCO2`
+- temperature RMSE `0.105 C`
+
+It also left three explicit calibration conclusions in place:
+
+- `DECARB_RATE_STRUCTURAL` is active at `0.052`, while the manifest records the lower observed reference separately
+- `GAMMA_ENERGY` is still not identified by the bundled historical harness and remains unchanged pending a separate econometric pass
+- `TFP_RD_SHARE_SENS` is now `0.5` as the current backtest-calibrated working value
+
 ## 8.1 Core Documentation Set
 
 The active documentation set for `GIM_14` is:

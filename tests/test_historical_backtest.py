@@ -37,8 +37,9 @@ class HistoricalBacktestTests(unittest.TestCase):
             baseline.global_co2_rmse_gtco2 * 1.10 + 1e-9,
         )
         self.assertLessEqual(result.temperature_rmse_c, baseline.temperature_rmse_c * 1.10 + 1e-9)
-        self.assertLess(result.gdp_rmse_trillions, 1.35)
-        self.assertLess(result.global_co2_rmse_gtco2, 2.20)
+        self.assertLess(result.gdp_rmse_trillions, 1.10)
+        self.assertLess(result.global_co2_rmse_gtco2, 1.70)
+        self.assertLess(result.temperature_rmse_c, 0.11)
 
         for country_name, baseline_rmse in baseline.country_gdp_rmse_trillions.items():
             self.assertLessEqual(

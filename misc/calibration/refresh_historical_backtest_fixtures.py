@@ -23,6 +23,7 @@ if str(CALIBRATION_DIR) not in sys.path:
     sys.path.insert(0, str(CALIBRATION_DIR))
 
 from gim.core.state_artifact import compute_emissions_scale_from_state_csv  # noqa: E402
+from gim.historical_backtest import estimate_observed_decarb_rate  # noqa: E402
 from refresh_state_artifact_manifest import (  # noqa: E402
     DEFAULT_BUILDER_REFERENCE,
     DEFAULT_HANDOFF_CONTRACT,
@@ -313,11 +314,16 @@ def _refresh_primary_artifact_manifest(
         observed_global_co2 = float(observed_global_co2_series[str(START_YEAR)])
     emissions_scale = compute_emissions_scale(state_2015_path, observed_global_co2)
     manifest_path = DEFAULT_STATE_CSV.with_suffix(".artifacts.json")
+    current_decarb_rate = 0.049
+    if manifest_path.exists():
+        raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        current_decarb_rate = float(raw_manifest["artifact_parameters"]["decarb_rate"])
+    observed_reference_rate = estimate_observed_decarb_rate(OBSERVED_OUTPUT, method="mean_pairwise")
     manifest = build_manifest(
         state_csv=DEFAULT_STATE_CSV,
         manifest_path=manifest_path,
         emissions_scale=emissions_scale,
-        decarb_rate=0.049,
+        decarb_rate=current_decarb_rate,
         target_year=2023,
         builder_reference=DEFAULT_BUILDER_REFERENCE,
         handoff_contract=DEFAULT_HANDOFF_CONTRACT,
@@ -325,8 +331,10 @@ def _refresh_primary_artifact_manifest(
         emissions_reference_year=START_YEAR,
         emissions_reference_gtco2=observed_global_co2,
         emissions_reference_state_csv=state_2015_path,
-        decarb_source="legacy",
-        decarb_reference_rate=0.049,
+        decarb_source="observed",
+        decarb_reference_rate=observed_reference_rate,
+        decarb_reference_start_year=START_YEAR,
+        decarb_reference_end_year=END_YEAR,
     )
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest_path

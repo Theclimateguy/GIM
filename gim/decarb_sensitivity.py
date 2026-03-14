@@ -3,16 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .core.state_artifact import ACTIVE_STATE_ARTIFACT
-from .historical_backtest import run_historical_backtest
+from .historical_backtest import estimate_observed_decarb_rate, run_historical_backtest
 
 
-IEA_OBSERVED_DECARB_RATE = 0.022
+OBSERVED_FIXTURE_DECARB_RATE = estimate_observed_decarb_rate(method="mean_pairwise")
 DEFAULT_DECARB_CANDIDATES = (
     ACTIVE_STATE_ARTIFACT.decarb_rate,
-    0.040,
-    0.030,
-    IEA_OBSERVED_DECARB_RATE,
-    0.018,
+    0.049,
+    0.056,
+    OBSERVED_FIXTURE_DECARB_RATE,
+    0.035506,
 )
 
 
@@ -34,8 +34,8 @@ def evaluate_decarb_sensitivity(
         result = run_historical_backtest(decarb_rate_override=rate)
         if abs(rate - active_rate) < 1e-12:
             label = "active"
-        elif abs(rate - IEA_OBSERVED_DECARB_RATE) < 1e-12:
-            label = "observed_iea"
+        elif abs(rate - OBSERVED_FIXTURE_DECARB_RATE) < 1e-12:
+            label = "observed_fixture"
         else:
             label = f"candidate_{rate:.3f}"
         points.append(
@@ -77,3 +77,13 @@ def format_decarb_sensitivity(points: list[DecarbSensitivityPoint]) -> str:
         )
     lines.append(f"Recommended rate: {recommended.decarb_rate:.3f} ({recommended.label})")
     return "\n".join(lines)
+
+
+__all__ = [
+    "DEFAULT_DECARB_CANDIDATES",
+    "DecarbSensitivityPoint",
+    "OBSERVED_FIXTURE_DECARB_RATE",
+    "evaluate_decarb_sensitivity",
+    "format_decarb_sensitivity",
+    "recommend_decarb_rate",
+]

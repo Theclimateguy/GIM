@@ -14,9 +14,6 @@ DEFAULT_STATE_CSV = REPO_ROOT / "data" / "agent_states_operational.csv"
 DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
 DEFAULT_BUILDER_REFERENCE = "GIM_14/scripts/build_gim13_agent_states.py"
-DEFAULT_OBSERVED_DECARB_RATE = 0.022
-DEFAULT_OBSERVED_DECARB_START_YEAR = 2010
-DEFAULT_OBSERVED_DECARB_END_YEAR = 2022
 DEFAULT_HANDOFF_CONTRACT = (
     "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, "
     "while DECARB_RATE may be stamped from either the legacy pipeline value or an observed prior. "
@@ -28,6 +25,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from gim.core.state_artifact import compute_emissions_scale_from_state_csv  # noqa: E402
+from gim.historical_backtest import estimate_observed_decarb_rate, load_historical_observed_fixture  # noqa: E402
 
 
 def _compute_sha256(path: Path) -> str:
@@ -101,6 +99,11 @@ def _load_observed_global_co2(observed_fixture: Path, year: int) -> float:
     return float(raw["global_co2_gtco2"][str(year)])
 
 
+def _load_observed_window(observed_fixture: Path) -> tuple[int, int]:
+    raw = load_historical_observed_fixture(observed_fixture)
+    return int(raw["start_year"]), int(raw["end_year"])
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Refresh the hash-locked state-artifact manifest used by the legacy climate layer."
@@ -122,7 +125,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--decarb-rate",
         type=float,
-        help="Explicit DECARB_RATE override. Used only when --decarb-source=manual.",
+        help="Explicit active DECARB_RATE override for the artifact manifest.",
     )
     parser.add_argument(
         "--decarb-source",
@@ -133,20 +136,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--observed-decarb-rate",
         type=float,
-        default=DEFAULT_OBSERVED_DECARB_RATE,
-        help="Observed decarbonization prior used when --decarb-source=observed.",
+        help="Observed decarbonization prior used when --decarb-source=observed. Defaults to a fit from the bundled observed fixture.",
     )
     parser.add_argument(
         "--observed-decarb-start-year",
         type=int,
-        default=DEFAULT_OBSERVED_DECARB_START_YEAR,
-        help="Start year for the observed decarbonization reference window.",
+        help="Start year for the observed decarbonization reference window. Defaults to the fixture start year.",
     )
     parser.add_argument(
         "--observed-decarb-end-year",
         type=int,
-        default=DEFAULT_OBSERVED_DECARB_END_YEAR,
-        help="End year for the observed decarbonization reference window.",
+        help="End year for the observed decarbonization reference window. Defaults to the fixture end year.",
     )
     parser.add_argument(
         "--target-year",
@@ -224,11 +224,25 @@ def main() -> None:
         decarb_reference_start_year = None
         decarb_reference_end_year = None
     elif args.decarb_source == "observed":
-        decarb_rate = float(args.observed_decarb_rate)
+        observed_start_year, observed_end_year = _load_observed_window(observed_fixture)
+        observed_reference_rate = (
+            float(args.observed_decarb_rate)
+            if args.observed_decarb_rate is not None
+            else estimate_observed_decarb_rate(observed_fixture, method="mean_pairwise")
+        )
+        decarb_rate = float(args.decarb_rate) if args.decarb_rate is not None else observed_reference_rate
         decarb_source = "observed"
-        decarb_reference_rate = decarb_rate
-        decarb_reference_start_year = int(args.observed_decarb_start_year)
-        decarb_reference_end_year = int(args.observed_decarb_end_year)
+        decarb_reference_rate = observed_reference_rate
+        decarb_reference_start_year = (
+            int(args.observed_decarb_start_year)
+            if args.observed_decarb_start_year is not None
+            else observed_start_year
+        )
+        decarb_reference_end_year = (
+            int(args.observed_decarb_end_year)
+            if args.observed_decarb_end_year is not None
+            else observed_end_year
+        )
     else:
         if args.decarb_rate is None:
             raise SystemExit("--decarb-rate is required when --decarb-source=manual")
