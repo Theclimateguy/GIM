@@ -149,6 +149,8 @@ The short operational version of this section is also available in `COMMAND_REFE
 | `brief` | Rebuild a Markdown brief from a saved JSON artifact | `--from-json <file>` | `decision_brief.md` |
 | `console` | Interactive wrapper over `question` and `game` | prompts | same outputs as the underlying mode |
 
+Separately from the scenario-regression suite, the repo now also carries an offline structural backtest harness in [historical_backtest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM_13/historical_backtest.py) and [test_historical_backtest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/tests/test_historical_backtest.py). That layer replays 2015-2023 yearly dynamics against bundled GDP, global CO2, and temperature targets.
+
 Common terminal invocations:
 
 ```bash

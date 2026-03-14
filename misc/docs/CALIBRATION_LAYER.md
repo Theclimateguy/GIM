@@ -342,6 +342,8 @@ The current layer does not do any of the following:
 
 It only scores outputs of the current model against a bundled expectation set.
 
+Since `v13.1.3-dev`, the repo also includes a separate structural validation harness in [historical_backtest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/GIM_13/historical_backtest.py) and [test_historical_backtest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/tests/test_historical_backtest.py). That layer uses numeric RMSE targets over 2015-2023 GDP, global CO2, and temperature series and should be treated as the first concrete step toward the Level 1 validation path described below.
+
 ## 13. How To Evolve It Beyond Cherry Picking
 
 If the goal is a stronger non-case-based calibration layer, the next step should be to split calibration into three levels.
