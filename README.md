@@ -119,6 +119,7 @@ In this top-level view, `ScenarioEvaluation` and `GameResult` stay grouped becau
 | `legacy/GIM_11_1/gim_11_1/policy.py` | Autonomous country-policy selection (`llm`, `simple`, `growth`) used by the sim path. |
 | `legacy/GIM_11_1/gim_11_1/world_factory.py` | CSV validation and construction of `WorldState`. |
 | `misc/data/agent_states_gim13.csv` | Primary compiled 57-actor state artifact consumed by `runtime.py` by default. |
+| `misc/data/agent_states_gim13.artifacts.json` | Sidecar manifest that hash-locks the compiled CSV and carries the pipeline-bound climate coefficients. |
 
 ## 3. Top-Level Execution
 
@@ -131,6 +132,8 @@ In this top-level view, `ScenarioEvaluation` and `GameResult` stay grouped becau
 3. Otherwise `GIM_12/agent_states.csv` as the legacy fallback.
 
 Operationally, `GIM_13` now treats the `57`-actor compiled state as the default world. The older `GIM_12/agent_states.csv` remains in the repository only as a fallback input.
+
+If `GIM13_STATE_CSV` points at a non-default compiled CSV, it should travel with a sibling `<state>.artifacts.json` manifest. The legacy climate layer reads `EMISSIONS_SCALE` and `DECARB_RATE` from that manifest so those coefficients cannot drift independently of the state-pipeline handoff.
 
 ### 3.2 Command Reference
 
@@ -1462,6 +1465,8 @@ The stack uses two distinct data layers:
 
 The compiled CSV is a model-facing artifact, not a raw statistical extract.
 
+The legacy climate layer also treats `EMISSIONS_SCALE` and `DECARB_RATE` as part of that compiled artifact, not as free-floating physics constants. They are now loaded from the matching state-artifact manifest and are therefore expected to change only when the compiled state is rebuilt.
+
 ### 7.2 Loader Contract
 
 The loader currently requires these columns:
@@ -1578,6 +1583,7 @@ Operationally, the state build process should be read as a six-stage compile bou
 In this repository, the runtime consumes only the compiled artifacts:
 
 - `misc/data/agent_states_gim13.csv`
+- `misc/data/agent_states_gim13.artifacts.json`
 - `GIM_12/agent_states.csv` only as fallback when the primary file is unavailable
 
 The raw source panel and upstream build tooling are conceptually outside the runtime path of this repo.
@@ -1593,6 +1599,7 @@ The compiled CSV must satisfy:
 - Hofstede values in `0..100`;
 - WVS axes in `0..10`;
 - aggregate rows built from raw totals, not normalized residual subtraction.
+- every compiled state CSV used by the legacy climate layer must carry a matching `.artifacts.json` sidecar whose hash and row count match the CSV.
 
 The current pipeline was specifically redesigned to avoid artifacts such as negative metals in aggregate rows.
 

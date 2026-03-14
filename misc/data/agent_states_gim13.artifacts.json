@@ -1,0 +1,14 @@
+{
+  "manifest_version": 1,
+  "state_csv": "agent_states_gim13.csv",
+  "state_csv_sha256": "4dfcf57357d51f2d742ff7128d474c278d4fca59b2a6439c329fb5a0c1f53534",
+  "state_row_count": 57,
+  "compiled_target_year": 2023,
+  "artifact_parameters": {
+    "emissions_scale": 1.8,
+    "decarb_rate": 0.049
+  },
+  "change_requires_pipeline_rebuild": true,
+  "builder_reference": "GIM/GIM_12/scripts/build_gim13_agent_states.py",
+  "handoff_contract": "EMISSIONS_SCALE and DECARB_RATE are compile-bound coefficients attached to the compiled state artifact. They do not carry standalone physical meaning and must only change when the state CSV is recompiled and this manifest is regenerated from the pipeline handoff."
+}

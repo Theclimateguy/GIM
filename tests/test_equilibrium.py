@@ -9,6 +9,13 @@ from GIM_13.game_runner import GameRunner
 from GIM_13.runtime import load_world
 from GIM_13.scenario_compiler import load_game_definition
 
+try:
+    import scipy.optimize  # noqa: F401
+
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CASE_PATH = REPO_ROOT / "misc" / "cases" / "maritime_pressure_game.json"
@@ -51,6 +58,7 @@ class EquilibriumTests(unittest.TestCase):
         self.assertEqual(set(weights), {player.player_id for player in self.game.players})
         self.assertAlmostEqual(sum(weights.values()), len(self.game.players), places=6)
 
+    @unittest.skipUnless(SCIPY_AVAILABLE, "requires scipy for the correlated-equilibrium solver path")
     def test_equilibrium_search_returns_ce_and_regret_metrics(self) -> None:
         result = run_equilibrium_search(
             runner=self.runner,
@@ -75,6 +83,7 @@ class EquilibriumTests(unittest.TestCase):
         self.assertAlmostEqual(result.trust_alpha, 0.5)
         self.assertIn("standard correlated-equilibrium incentive constraints", result.correlated_equilibrium.objective_description)
 
+    @unittest.skipUnless(SCIPY_AVAILABLE, "requires scipy for the correlated-equilibrium solver path")
     def test_format_equilibrium_result_includes_key_sections(self) -> None:
         result = run_equilibrium_search(
             runner=self.runner,

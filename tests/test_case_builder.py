@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 import unittest
 
-from GIM_13.case_builder import build_case_from_text, serialize_game_definition
+from GIM_13.case_builder import REQUESTS_AVAILABLE, build_case_from_text, serialize_game_definition
 from GIM_13.runtime import load_world
 
 
@@ -30,6 +30,7 @@ class CaseBuilderTests(unittest.TestCase):
         self.assertGreaterEqual(len(built.game.players), 2)
         self.assertTrue(all(player.allowed_actions for player in built.game.players))
 
+    @unittest.skipUnless(REQUESTS_AVAILABLE, "requires requests to exercise the LLM case-builder path")
     def test_llm_builder_cleans_invalid_template_actions_and_objectives(self) -> None:
         mocked_response = Mock()
         mocked_response.raise_for_status.return_value = None

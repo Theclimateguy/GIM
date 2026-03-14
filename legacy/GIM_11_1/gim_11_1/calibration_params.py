@@ -1,5 +1,7 @@
 import math
 
+from .state_artifact import ACTIVE_STATE_ARTIFACT
+
 # Tag legend:
 #   [PWT10] Penn World Tables 10.01
 #   [WDI23] World Bank WDI 2023
@@ -8,7 +10,7 @@ import math
 #   [DICE16] Nordhaus DICE-2016R2, used only where structure matches
 #   [SIPRI23] SIPRI military spending database 2023
 #   [PRIOR] Expert prior pending empirical calibration
-#   [ARTIFACT] Legacy normalization artifact pending re-derivation
+#   [ARTIFACT] Pipeline-bound compiled-state artifact; only change via state rebuild
 
 SOURCE_TAG_NOTES = {
     "PWT10": "Penn World Tables 10.01 cross-country medians and accounting priors.",
@@ -18,7 +20,7 @@ SOURCE_TAG_NOTES = {
     "DICE16": "DICE-2016R2 parameters only where the equation family is structurally aligned.",
     "SIPRI23": "SIPRI military burden averages.",
     "PRIOR": "Expert prior in the current model, not yet empirically calibrated.",
-    "ARTIFACT": "Legacy normalization artifact that should be re-derived from compiled data.",
+    "ARTIFACT": "Pipeline-bound compiled-state artifact that must only change with a state rebuild.",
 }
 
 # Production block.
@@ -77,9 +79,9 @@ HEAT_CAP_SURFACE = 20.0  # [DICE16]
 HEAT_CAP_DEEP = 100.0  # [DICE16]
 OCEAN_EXCHANGE = 0.7  # [DICE16]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
-EMISSIONS_SCALE = 1.8  # [ARTIFACT] TODO: re-derive from compiled state units.
+EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [ARTIFACT] Bound to active state manifest.
 TECH_DECARB_K = 0.12  # [PRIOR]
-DECARB_RATE = 0.049  # [ARTIFACT] TODO: re-derive during next state compile.
+DECARB_RATE = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Bound to active state manifest.
 CO2_INTENSITY_FLOOR = 0.02  # [PRIOR]
 FUEL_TAX_EMISSIONS_SENS = 0.12  # [PRIOR]
 FUEL_TAX_EFFECT_MIN = 0.60
