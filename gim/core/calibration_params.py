@@ -81,9 +81,11 @@ ECS_MAX = 4.0  # [IPCC_AR6]
 F_NONCO2_DEFAULT = 0.40  # [IPCC_AR6]
 F_NONCO2_BASE_YEAR = 2015  # [IPCC_AR6]
 F_NONCO2_TREND = 0.012  # [IPCC_AR6]
-HEAT_CAP_SURFACE = 20.0  # [DICE16]
+HEAT_CAP_SURFACE = 30.0  # [BACKTEST]
 HEAT_CAP_DEEP = 100.0  # [DICE16]
 OCEAN_EXCHANGE = 0.7  # [DICE16]
+TEMP_NATURAL_VARIABILITY_SIGMA = 0.08  # [BACKTEST]
+TEMP_BACKTEST_ENSEMBLE_SIZE = 8  # [BACKTEST]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
 EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived during manifest refresh and bound to the active state manifest.
 TECH_DECARB_K = 0.12  # [PRIOR]
@@ -232,8 +234,11 @@ CALIBRATION_STATUS = {
     "CARBON_POOL_TIMESCALES": "validated",
     "ECS_DEFAULT": "validated",
     "F_NONCO2_DEFAULT": "validated",
+    "HEAT_CAP_SURFACE": "backtest",
     "FORCING_LOG_COEFF": "validated",
     "EMISSIONS_SCALE": "validated",
+    "TEMP_NATURAL_VARIABILITY_SIGMA": "backtest",
+    "TEMP_BACKTEST_ENSEMBLE_SIZE": "backtest",
     "TECH_DECARB_K": "prior",
     "DECARB_RATE_STRUCTURAL": "artifact",
     "DECARB_RATE": "artifact",

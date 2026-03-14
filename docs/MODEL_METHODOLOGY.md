@@ -212,10 +212,17 @@ The model uses:
 - a four-pool carbon-cycle approximation
 - explicit global temperature update
 - non-CO2 forcing schedule
+- optional annual natural-variability shocks on global temperature
 - structural decarbonization and tech-efficiency decarbonization as separate channels
 
 This separation matters: tech decarb captures efficiency and technology effects, while
 structural decarb represents the broader energy transition path.
+
+For historical temperature calibration, `GIM_14` now treats interannual GMST variability
+as an explicit stochastic forcing term rather than forcing the two-box energy-balance core
+to explain all year-to-year variance deterministically. The bundled backtest uses an
+antithetic ensemble so the mean climate trajectory stays neutral while the variance target
+is still observable.
 
 ### 6.5 Economy Block
 

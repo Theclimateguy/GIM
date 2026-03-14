@@ -80,6 +80,8 @@ cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/calibrate_decarb_rate.py
 python3 misc/calibration/calibrate_gamma_energy.py
 python3 misc/calibration/calibrate_tfp_rd_share_sens.py
+python3 misc/calibration/calibrate_heat_cap_surface.py
+python3 misc/calibration/calibrate_temperature_variability.py
 python3 misc/calibration/refresh_historical_backtest_baseline.py
 ```
 
@@ -137,3 +139,4 @@ Current climate/macro calibration interpretation:
 - `DECARB_RATE_STRUCTURAL` is active at `0.052`, but its manifest now records an observed reference of `0.031241` over `2015-2023`
 - `GAMMA_ENERGY` is currently unidentifiable on the bundled historical replay and should not be moved just to satisfy the backtest
 - `TFP_RD_SHARE_SENS = 0.5` is the active backtest-improving value and should be the starting point for the next econometric pass
+- temperature is no longer treated as a purely deterministic fit target: `HEAT_CAP_SURFACE = 30.0`, the backtest deep-ocean anchor uses `T_surface - 0.60`, and natural variability is represented with `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08`

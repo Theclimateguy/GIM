@@ -99,17 +99,53 @@ def _resolve_nonco2_forcing(world: WorldState, f_nonco2: float | None) -> float:
     return max(0.0, forcing)
 
 
+def _resolve_temperature_variability_sigma(world: WorldState) -> float:
+    override = getattr(world.global_state, "_temperature_variability_sigma", None)
+    if override is not None:
+        return max(0.0, float(override))
+    if not getattr(world.global_state, "_enable_temperature_variability", False):
+        return 0.0
+    return max(0.0, cal.TEMP_NATURAL_VARIABILITY_SIGMA)
+
+
+def _sample_temperature_variability(world: WorldState, dt: float) -> float:
+    if dt <= 0.0:
+        return 0.0
+    sigma = _resolve_temperature_variability_sigma(world)
+    if sigma <= 0.0:
+        return 0.0
+    base_year = getattr(world.global_state, "_calendar_year_base", 2023)
+    seed_base = int(getattr(world.global_state, "_temperature_variability_seed", 0))
+    sign = float(getattr(world.global_state, "_temperature_variability_sign", 1.0))
+    year = base_year + max(0, int(world.time))
+    rng = random.Random(seed_base + year)
+    return sign * rng.gauss(0.0, sigma * math.sqrt(dt))
+
+
 def update_global_climate(
     world: WorldState,
     dt: float = 1.0,
-    ecs: float = cal.ECS_DEFAULT,
+    ecs: float | None = None,
     f_nonco2: float | None = None,
-    heat_cap_surface: float = cal.HEAT_CAP_SURFACE,
-    heat_cap_deep: float = cal.HEAT_CAP_DEEP,
-    ocean_exchange: float = cal.OCEAN_EXCHANGE,
-    carbon_pool_fractions: tuple[float, ...] = cal.CARBON_POOL_FRACTIONS,
-    carbon_pool_timescales: tuple[float, ...] = cal.CARBON_POOL_TIMESCALES,
+    heat_cap_surface: float | None = None,
+    heat_cap_deep: float | None = None,
+    ocean_exchange: float | None = None,
+    carbon_pool_fractions: tuple[float, ...] | None = None,
+    carbon_pool_timescales: tuple[float, ...] | None = None,
 ) -> None:
+    if ecs is None:
+        ecs = cal.ECS_DEFAULT
+    if heat_cap_surface is None:
+        heat_cap_surface = cal.HEAT_CAP_SURFACE
+    if heat_cap_deep is None:
+        heat_cap_deep = cal.HEAT_CAP_DEEP
+    if ocean_exchange is None:
+        ocean_exchange = cal.OCEAN_EXCHANGE
+    if carbon_pool_fractions is None:
+        carbon_pool_fractions = cal.CARBON_POOL_FRACTIONS
+    if carbon_pool_timescales is None:
+        carbon_pool_timescales = cal.CARBON_POOL_TIMESCALES
+
     total_emissions = sum(agent.climate.co2_annual_emissions for agent in world.agents.values())
 
     fractions = _normalize_fractions(carbon_pool_fractions)
@@ -150,6 +186,7 @@ def update_global_climate(
     t_ocean = world.global_state.temperature_ocean
     dts = (f_total - climate_feedback * t_surface - ocean_exchange * (t_surface - t_ocean))
     dts *= dt / max(heat_cap_surface, 1e-6)
+    dts += _sample_temperature_variability(world, dt)
     dtd = ocean_exchange * (t_surface - t_ocean) * dt / max(heat_cap_deep, 1e-6)
     world.global_state.temperature_global = t_surface + dts
     world.global_state.temperature_ocean = t_ocean + dtd

@@ -61,7 +61,7 @@ class LegacyCalibrationBaselineTests(unittest.TestCase):
             self.assertGreater(annual_growth, -0.05, agent_id)
             self.assertLess(annual_growth, 0.15, agent_id)
 
-    def test_simulation_5yr_temperature_monotone(self) -> None:
+    def test_simulation_5yr_temperature_stays_in_plausible_band(self) -> None:
         world = self._make_world()
         policies = make_policy_map(world.agents.keys(), mode="simple")
         temps = [world.global_state.temperature_global]
@@ -73,7 +73,9 @@ class LegacyCalibrationBaselineTests(unittest.TestCase):
             temps.append(world.global_state.temperature_global)
 
         self.assertTrue(any(total > 0.0 for total in emissions))
-        self.assertEqual(temps, sorted(temps))
+        self.assertGreater(min(temps), -1.0)
+        self.assertLess(max(temps), 4.0)
+        self.assertLess(abs(temps[-1] - temps[0]), 0.6)
 
 
 if __name__ == "__main__":

@@ -38,6 +38,7 @@ This document is the calibration ledger for the active `GIM_14` repo.
 - Temperature:
   - target data: HadCRUT5-based preindustrial anomaly series in the same observed fixture
   - forcing logic: non-CO2 forcing schedule is calendar-based inside [climate.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/climate.py)
+  - calibration mode: backtest now uses an `8`-member antithetic ensemble with annual temperature variability, because deterministic two-box physics alone cannot reproduce observed interannual GMST variance
 - Country fiscal structure:
   - target data: WDI/OECD-style country averages captured in [country_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/country_params.py)
   - current behavior: `tax` and `social spend` are country overrides; `savings` is capped as a conservative downward correction until the full econometric pass
@@ -55,9 +56,12 @@ This document is the calibration ledger for the active `GIM_14` repo.
 
 Current structural backtest baseline from [historical_backtest_baseline.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/fixtures/historical_backtest_baseline.json):
 
-- GDP RMSE: `1.072` trillion USD
-- Global CO2 RMSE: `1.631` GtCO2
-- Temperature RMSE: `0.105` C
+- GDP RMSE: `1.074` trillion USD
+- Global CO2 RMSE: `1.632` GtCO2
+- Temperature RMSE: `0.136` C
+- Temperature bias: `-0.005` C
+- Temperature interannual std: predicted `0.093` C vs observed `0.103` C
+- Temperature ensemble: `8` members with `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08`
 
 Current decarb sensitivity result:
 
@@ -71,6 +75,13 @@ Current macro calibration result from the sequential `C1/C2/C3` pass:
 - `DECARB_RATE_STRUCTURAL` is now artifact-bound at `0.052`, with observed reference metadata carried in the manifest
 - `GAMMA_ENERGY` remains `0.10`; the current historical backtest surface is flat over the tested `0.04-0.12` grid, so this parameter is not identified by the bundled harness yet
 - `TFP_RD_SHARE_SENS` moved from `2.0` to `0.5`, which materially improved both GDP and CO2 fit on the bundled `2015-2023` replay
+
+Current temperature calibration result from the sequential `T1/T2/T3` pass:
+
+- `historical_backtest.py` now seeds the deep ocean at `T_surface - 0.60` for the `2015` replay instead of the older ad hoc `-0.40`
+- `HEAT_CAP_SURFACE` moved to `30.0`, which removed the old deterministic warming bias without freezing the surface box
+- `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08` is now active in the climate block, and the historical harness evaluates temperature on an antithetic ensemble rather than a single deterministic realization
+- temperature calibration should now be read as a three-part target: mean bias, interannual std, and ensemble RMSE
 
 Current operational scenario suite:
 

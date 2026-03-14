@@ -115,7 +115,9 @@ def main() -> None:
 
     seed_raw = os.getenv("SIM_SEED")
     if seed_raw is not None:
-        random.seed(int(seed_raw))
+        seed = int(seed_raw)
+        random.seed(seed)
+        world.global_state._temperature_variability_seed = seed
         print(f"Using SIM_SEED={seed_raw}")
 
     policies = make_policy_map(world.agents.keys(), mode=policy_mode)

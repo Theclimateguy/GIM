@@ -87,6 +87,68 @@ class ClimateForcingTests(unittest.TestCase):
         update_global_climate(world, dt=0.0, f_nonco2=0.25)
         self.assertAlmostEqual(world.global_state.forcing_total, 0.25, places=6)
 
+    def test_heat_cap_surface_is_resolved_at_call_time(self) -> None:
+        world_fast = self._make_world()
+        world_slow = self._make_world()
+
+        original_surface = cal.HEAT_CAP_SURFACE
+        try:
+            cal.HEAT_CAP_SURFACE = 10.0
+            update_global_climate(world_fast, dt=1.0, f_nonco2=0.4)
+
+            cal.HEAT_CAP_SURFACE = 50.0
+            update_global_climate(world_slow, dt=1.0, f_nonco2=0.4)
+        finally:
+            cal.HEAT_CAP_SURFACE = original_surface
+
+        self.assertGreater(
+            abs(world_fast.global_state.temperature_global - 1.0),
+            abs(world_slow.global_state.temperature_global - 1.0),
+        )
+
+    def test_temperature_variability_uses_seeded_annual_shocks(self) -> None:
+        world_left = self._make_world()
+        world_left.global_state._calendar_year_base = 2015
+        world_left.global_state._enable_temperature_variability = True
+        world_left.global_state._temperature_variability_seed = 11
+        world_left.time = 2
+
+        world_right = self._make_world()
+        world_right.global_state._calendar_year_base = 2015
+        world_right.global_state._enable_temperature_variability = True
+        world_right.global_state._temperature_variability_seed = 11
+        world_right.time = 2
+
+        update_global_climate(world_left, dt=1.0, f_nonco2=0.4)
+        update_global_climate(world_right, dt=1.0, f_nonco2=0.4)
+        self.assertAlmostEqual(
+            world_left.global_state.temperature_global,
+            world_right.global_state.temperature_global,
+            places=12,
+        )
+
+        world_other_seed = self._make_world()
+        world_other_seed.global_state._calendar_year_base = 2015
+        world_other_seed.global_state._enable_temperature_variability = True
+        world_other_seed.global_state._temperature_variability_seed = 12
+        world_other_seed.time = 2
+        update_global_climate(world_other_seed, dt=1.0, f_nonco2=0.4)
+
+        self.assertNotAlmostEqual(
+            world_left.global_state.temperature_global,
+            world_other_seed.global_state.temperature_global,
+            places=9,
+        )
+
+    def test_dt_zero_suppresses_temperature_variability(self) -> None:
+        world = self._make_world()
+        world.global_state._enable_temperature_variability = True
+        world.global_state._temperature_variability_seed = 5
+        original_temp = world.global_state.temperature_global
+
+        update_global_climate(world, dt=0.0, f_nonco2=0.4)
+        self.assertAlmostEqual(world.global_state.temperature_global, original_temp, places=12)
+
     def test_tech_decarb_channel_works_without_structural_rate(self) -> None:
         original_structural = cal.DECARB_RATE_STRUCTURAL
         original_alias = cal.DECARB_RATE

@@ -233,15 +233,20 @@ These files now describe the active calibration stack that runs directly inside 
 
 The latest completed climate/macro pass inside `GIM_14` delivered these working baselines on the bundled `2015-2023` replay:
 
-- GDP RMSE `1.072 T$`
-- global CO2 RMSE `1.631 GtCO2`
-- temperature RMSE `0.105 C`
+- GDP RMSE `1.074 T$`
+- global CO2 RMSE `1.632 GtCO2`
+- temperature RMSE `0.136 C`
+- temperature bias `-0.005 C` with predicted interannual std `0.093 C` versus observed `0.103 C`
 
 It also left three explicit calibration conclusions in place:
 
 - `DECARB_RATE_STRUCTURAL` is active at `0.052`, while the manifest records the lower observed reference separately
 - `GAMMA_ENERGY` is still not identified by the bundled historical harness and remains unchanged pending a separate econometric pass
 - `TFP_RD_SHARE_SENS` is now `0.5` as the current backtest-calibrated working value
+
+The latest temperature pass added one more explicit conclusion:
+
+- temperature realism is now handled as an ensemble problem, not a single deterministic path; `HEAT_CAP_SURFACE = 30.0`, the backtest deep-ocean anchor uses `T_surface - 0.60`, and annual natural variability is modeled with `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08`
 
 ## 8.1 Core Documentation Set
 

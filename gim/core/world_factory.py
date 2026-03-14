@@ -398,6 +398,10 @@ def make_world_from_csv(path: str = "agent_states.csv", max_agents: int | None =
         temperature_ocean=TGLOBAL_2023_C - 0.4,
         baseline_gdp_pc=baseline_gdp_pc,
     )
+    global_state._calendar_year_base = 2023
+    global_state._enable_temperature_variability = True
+    global_state._temperature_variability_seed = 0
+    global_state._temperature_variability_sign = 1.0
 
     world = WorldState(time=0, agents=agents, global_state=global_state, relations=relations)
 
