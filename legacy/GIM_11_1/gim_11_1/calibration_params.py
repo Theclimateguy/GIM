@@ -85,7 +85,12 @@ OCEAN_EXCHANGE = 0.7  # [DICE16]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
 EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived during manifest refresh and bound to the active state manifest.
 TECH_DECARB_K = 0.12  # [PRIOR]
-DECARB_RATE = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Bound to active state manifest.
+DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Residual structural energy-transition rate, separate from tech and efficiency channels.
+DECARB_RATE = DECARB_RATE_STRUCTURAL  # Backward-compatible alias pending a full rename across the legacy layer.
+STRUCTURAL_TRANSITION_POLICY_SENS = 0.50  # [PRIOR]
+STRUCTURAL_TRANSITION_TAX_SENS = 0.05  # [PRIOR]
+STRUCTURAL_TRANSITION_MULT_MIN = 1.0
+STRUCTURAL_TRANSITION_MULT_MAX = 1.15
 CO2_INTENSITY_FLOOR = 0.02  # [PRIOR]
 FUEL_TAX_EMISSIONS_SENS = 0.12  # [PRIOR]
 FUEL_TAX_EFFECT_MIN = 0.60
@@ -228,7 +233,10 @@ CALIBRATION_STATUS = {
     "FORCING_LOG_COEFF": "validated",
     "EMISSIONS_SCALE": "validated",
     "TECH_DECARB_K": "prior",
+    "DECARB_RATE_STRUCTURAL": "artifact",
     "DECARB_RATE": "artifact",
+    "STRUCTURAL_TRANSITION_POLICY_SENS": "prior",
+    "STRUCTURAL_TRANSITION_TAX_SENS": "prior",
     "DAMAGE_QUAD_COEFF": "prior",
     "DAMAGE_BENEFIT_PEAK": "questionable",
     "DAMAGE_BENEFIT_MAX": "questionable",

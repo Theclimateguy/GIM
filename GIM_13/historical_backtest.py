@@ -156,15 +156,19 @@ def _seed_historical_globals(world: WorldState, observed: dict[str, object], sta
 class _temporary_decarb_rate:
     def __init__(self, value: float | None):
         self._value = value
-        self._original = cal.DECARB_RATE
+        self._original_structural = cal.DECARB_RATE_STRUCTURAL
+        self._original_alias = cal.DECARB_RATE
 
     def __enter__(self) -> None:
         if self._value is not None:
-            cal.DECARB_RATE = float(self._value)
+            override = float(self._value)
+            cal.DECARB_RATE_STRUCTURAL = override
+            cal.DECARB_RATE = override
         return None
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        cal.DECARB_RATE = self._original
+        cal.DECARB_RATE_STRUCTURAL = self._original_structural
+        cal.DECARB_RATE = self._original_alias
 
 
 def run_historical_backtest(

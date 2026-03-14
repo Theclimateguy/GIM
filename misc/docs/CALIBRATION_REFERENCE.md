@@ -27,7 +27,8 @@ Those two tracks share the same repo, but they use different targets, artifacts,
 | ECS and forcing coefficient | IPCC AR6 | Direct structural import | `legacy/GIM_11_1/gim_11_1/calibration_params.py` | validated |
 | Non-CO2 forcing | IPCC AR6 aggregate forcing path | Calendar-anchored linear schedule from 2015 baseline | `legacy/GIM_11_1/gim_11_1/climate.py` | active |
 | `EMISSIONS_SCALE` | Global Carbon Project 2015 fossil CO2 plus 2015 state fixture | Data-derived ratio `observed_global_co2 / sum(agent co2_annual_emissions)` during manifest refresh | `misc/data/agent_states_gim13.artifacts.json`, `misc/calibration/refresh_state_artifact_manifest.py` | active |
-| `DECARB_RATE` | Legacy pipeline value, plus observed candidate from IEA-style prior | Manifest carries source metadata; observed candidate is evaluated through sensitivity harness before any switch | `misc/data/agent_states_gim13.artifacts.json`, `GIM_13/decarb_sensitivity.py` | active legacy / observed rejected for now |
+| Tech decarb channel (`TECH_DECARB_K`, resource efficiency) | Internal technology and efficiency state | Emissions intensity falls with `tech_level` and `resource.efficiency`; this is the technology and energy-efficiency channel | `legacy/GIM_11_1/gim_11_1/climate.py`, `tests/test_climate_forcing.py` | active prior |
+| Structural transition channel (`DECARB_RATE_STRUCTURAL`, alias `DECARB_RATE`) | Legacy pipeline value, plus observed candidate from IEA-style prior | Manifest carries source metadata; base structural transition is time-driven and can be accelerated by `climate_policy` plus `fuel_tax_change` | `misc/data/agent_states_gim13.artifacts.json`, `legacy/GIM_11_1/gim_11_1/climate.py`, `GIM_13/decarb_sensitivity.py` | active legacy / observed rejected for now |
 
 ## 3. Crisis and Political Calibration
 
@@ -72,6 +73,24 @@ Interpretation:
 - CO2 fit improved materially after data-derived `EMISSIONS_SCALE`.
 - Temperature fit remains limited by the simplicity of the current climate/emissions dynamics, not by a missing `non-CO2` constant alone.
 
+## 4A. Decarbonization Semantics
+
+The emissions block now uses two distinct decarbonization layers:
+
+- tech and efficiency decarbonization: `TECH_DECARB_K` plus `resource.efficiency`
+- structural energy transition: `DECARB_RATE_STRUCTURAL` with backward-compatible alias `DECARB_RATE`
+
+Operational meaning:
+
+- the tech channel captures cleaner production, process efficiency, and energy-efficiency improvements that come from higher `tech_level` or better resource efficiency
+- the structural channel captures broader energy-system transition that accumulates over time
+- policy tools can move the structural channel further: `climate_policy` and `fuel_tax_change` now increase the structural-transition multiplier on top of their immediate direct effects
+
+Guardrails:
+
+- `tests/test_climate_forcing.py` proves the tech channel still lowers emissions even if structural decarb is set to zero
+- the same test file also proves policy tools accelerate the structural transition more at `t=10` than at `t=0`, which distinguishes long-run transition from one-step abatement
+
 ## 5. Manifest-Bound Climate Coefficients
 
 The compiled state now has a hash-locked sidecar manifest:
@@ -89,7 +108,8 @@ That manifest currently stores:
 Important distinction:
 
 - `EMISSIONS_SCALE` is now refreshed from data.
-- `DECARB_RATE` is still an artifact-controlled active coefficient with explicit provenance metadata.
+- `DECARB_RATE_STRUCTURAL` is still an artifact-controlled active coefficient with explicit provenance metadata.
+- `DECARB_RATE` remains only as a backward-compatible alias while the legacy layer is being renamed.
 
 This means the repo already knows how to stamp an observed decarb prior into a manifest, but the default manifest intentionally does not do so yet because the current structural backtest rejects it.
 
@@ -131,6 +151,7 @@ Structural backtest and manifest checks:
 
 ```bash
 python3 -m unittest \
+  tests.test_climate_forcing \
   tests.test_historical_backtest \
   tests.test_state_artifact_binding \
   tests.test_state_artifact_manifest \
@@ -147,7 +168,8 @@ python3 -m unittest discover -s tests -v
 
 The following areas are still prior-heavy or intentionally held back:
 
-- `DECARB_RATE`: observed prior is measured but not activated
+- `DECARB_RATE_STRUCTURAL`: observed prior is measured but not activated
+- `STRUCTURAL_TRANSITION_POLICY_SENS` / `STRUCTURAL_TRANSITION_TAX_SENS`: policy acceleration layer is active but still prior-set
 - `GAMMA_ENERGY`: still a structural prior
 - `TFP_RD_SHARE_SENS`: still a structural prior
 - `DAMAGE_QUAD_COEFF`: still a structural prior

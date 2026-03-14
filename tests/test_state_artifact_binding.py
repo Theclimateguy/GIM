@@ -55,6 +55,7 @@ class StateArtifactBindingTests(unittest.TestCase):
 
     def test_calibration_params_use_manifest_bound_coefficients(self) -> None:
         self.assertAlmostEqual(cal.EMISSIONS_SCALE, PRIMARY_STATE_ARTIFACT.emissions_scale)
+        self.assertAlmostEqual(cal.DECARB_RATE_STRUCTURAL, PRIMARY_STATE_ARTIFACT.decarb_rate)
         self.assertAlmostEqual(cal.DECARB_RATE, PRIMARY_STATE_ARTIFACT.decarb_rate)
 
     def test_explicit_state_csv_can_load_sibling_manifest(self) -> None:

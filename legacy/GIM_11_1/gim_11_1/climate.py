@@ -27,6 +27,15 @@ def _climate_resilience(agent: AgentState) -> float:
     )
 
 
+def _structural_transition_multiplier(
+    policy_reduction: float,
+    fuel_tax_change: float,
+) -> float:
+    multiplier = 1.0 + cal.STRUCTURAL_TRANSITION_POLICY_SENS * max(0.0, policy_reduction)
+    multiplier += cal.STRUCTURAL_TRANSITION_TAX_SENS * max(0.0, fuel_tax_change)
+    return min(cal.STRUCTURAL_TRANSITION_MULT_MAX, max(cal.STRUCTURAL_TRANSITION_MULT_MIN, multiplier))
+
+
 def update_emissions_from_economy(
     agent: AgentState,
     time: int,
@@ -47,10 +56,11 @@ def update_emissions_from_economy(
     efficiency = max(0.5, energy.efficiency) if energy is not None else 1.0
     efficiency_factor = 1.0 / efficiency
 
-    time_factor = math.exp(-cal.DECARB_RATE * max(0.0, time))
+    structural_multiplier = _structural_transition_multiplier(policy_reduction, fuel_tax_change)
+    structural_transition = math.exp(-cal.DECARB_RATE_STRUCTURAL * max(0.0, time) * structural_multiplier)
     tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
     tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
-    intensity = base_intensity * tech_factor * efficiency_factor * time_factor * tax_effect
+    intensity = base_intensity * tech_factor * efficiency_factor * structural_transition * tax_effect
     reduction = max(0.0, min(cal.POLICY_REDUCTION_MAX, policy_reduction))
     agent.climate.co2_annual_emissions = max(
         0.0,
