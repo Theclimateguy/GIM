@@ -1,0 +1,29 @@
+{
+  "id": "australia_stability_2023",
+  "title": "Australia stable baseline",
+  "description": "Low-stress baseline case for Australia in 2023, used as a non-crisis calibration anchor in the operational suite.",
+  "reference_period": "2023-01 to 2024-12",
+  "tags": ["historical", "stable", "negative", "australia"],
+  "scenario": {
+    "question": "Is Australia likely to remain broadly stable without a major crisis over the next two years?",
+    "base_year": 2023,
+    "horizon_months": 24,
+    "actors": ["Australia"]
+  },
+  "expectations": {
+    "top_outcomes": ["status_quo"],
+    "dominant_outcomes": ["status_quo", "negotiated_deescalation"],
+    "drivers": ["military_posture", "policy_space", "negotiation_capacity"],
+    "actor_metrics": {
+      "Australia": ["conflict_escalation_pressure", "strategic_dependency"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.4,
+    "minimum_case_score": 0.72
+  },
+  "historical_signals": [
+    "Status_quo should dominate over direct escalation in a normal low-stress horizon.",
+    "The case exists to detect false positives when the suite drifts toward alarmism."
+  ]
+}

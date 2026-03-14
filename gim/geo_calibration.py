@@ -1003,6 +1003,52 @@ def collect_geo_weight_paths() -> Dict[str, GeoWeight]:
     }
 
 
+def _resolve_weight_slot(path: str) -> tuple[dict[str, object], str]:
+    parts = path.split(":", 2)
+    if len(parts) < 2:
+        raise KeyError(f"Invalid geo-weight path: {path}")
+
+    category = parts[0]
+    key = parts[1]
+    subkey = parts[2] if len(parts) > 2 else ""
+
+    collection = WEIGHT_COLLECTIONS.get(category)
+    if collection is None or not isinstance(collection, dict):
+        raise KeyError(f"Unknown geo-weight category: {category}")
+
+    if not subkey:
+        return collection, key
+
+    target = collection[key]
+    leaf_parts = subkey.split(".")
+    for part in leaf_parts[:-1]:
+        if not isinstance(target, dict):
+            raise KeyError(f"Path does not resolve to a mutable geo-weight mapping: {path}")
+        target = target[part]
+    if not isinstance(target, dict):
+        raise KeyError(f"Path does not resolve to a mutable geo-weight mapping: {path}")
+    return target, leaf_parts[-1]
+
+
+def replace_geo_weight_path(path: str, weight: GeoWeight) -> GeoWeight:
+    container, leaf_key = _resolve_weight_slot(path)
+    current = container[leaf_key]
+    if not isinstance(current, GeoWeight):
+        raise KeyError(f"Geo-weight path does not point to a GeoWeight: {path}")
+    container[leaf_key] = weight
+    return current
+
+
+def set_geo_weight_value(path: str, value: float, *, source: str | None = None) -> GeoWeight:
+    current = collect_geo_weight_paths()[path]
+    updated = GeoWeight(
+        value=value,
+        ci95=current.ci95,
+        source=source or current.source,
+    )
+    return replace_geo_weight_path(path, updated)
+
+
 def lookup_value(mapping: Dict[str, GeoWeight], key: str) -> float:
     return mapping[key].value
 

@@ -373,7 +373,7 @@ If someone needs to understand the model quickly, the most useful order is:
 - Климат (`ClimateSubState`): `climate_risk`, `co2_annual_emissions`, `biodiversity_local`.
 - Культура (`CulturalState`): Hofstede/World Values + `regime_type`.
 - Технологии (`TechnologyState`): `tech_level`, `military_power`, `security_index`.
-- Риски (`RiskState`): `water_stress`, `regime_stability`, `debt_crisis_prone`, `conflict_proneness`.
+- Риски (`RiskState`): `water_stress`, `regime_stability`, `debt_crisis_prone`, `conflict_proneness`, `debt_crisis_active_years`, `regime_crisis_active_years`.
 - Политика (`PoliticalState`): `legitimacy`, `protest_pressure`, `hawkishness`, `protectionism`, `coalition_openness`, `sanction_propensity`, `policy_space`, `last_block_change`.
 - Санкции: `active_sanctions`, `sanction_years`.
 - Кредитный блок: `credit_rating`, `credit_zone`, `credit_risk_score`, `credit_rating_details`.
@@ -948,6 +948,11 @@ gini_next = gini
 - коллапс режима при `trust<0.2` и `tension>0.8`,
 - долговой кризис при `debt/GDP>1.2` и `interest_rate>0.12`.
 
+В `GIM_14` эти кризисы больше не моделируются как одношаговые флаги. Оба процесса имеют три фазы:
+- onset: первый год шока применяет основной удар по GDP / capital / debt и политическим переменным,
+- persistence: пока условия кризиса или низкая устойчивость сохраняются, счётчик активных лет растёт и каждый следующий шаг применяется более мягкий повторный урон,
+- recovery: при выходе из триггерной зоны счётчик сбрасывается и кризис-флаг исчезает из наблюдения.
+
 ## 7.15 Институты (`institutions.py`)
 
 Набор организаций: `UN, UNSC, IMF, WorldBank, FSB, WTO, EU, USMCA, ASEAN, UNFCCC, GCF, IPCC, NATO, WHO, ILO, UNEP_UNESCO`.
@@ -995,12 +1000,14 @@ budget = base_budget_share * total_gdp * legitimacy
 
 - `reserve_years[resource] = own_reserve / production`,
 - `debt_stress = min(max(debt_gdp-1,0) * debt_crisis_prone, 3)`,
-- `protest_risk = f(tension, trust, gini, regime_fragility)` в `[0,1]`.
+- `protest_risk = f(tension, trust, gini, regime_fragility)` в `[0,1]`,
+- `crisis_flags = {debt_crisis, debt_stress_elevated, regime_crisis, political_instability, climate_shock, active_war, sanctions_pressure}`.
 
 Эти метрики используются в:
 - политической динамике,
 - наблюдении policy-движка,
-- кредитном скоринге.
+- кредитном скоринге,
+- кризисных дешбордах и Markdown brief'ах.
 
 ## 8.3 Политические метрики
 

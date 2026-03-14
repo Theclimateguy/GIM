@@ -1,0 +1,1057 @@
+{
+  "suite_id": "operational_v1",
+  "state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv",
+  "baseline_case_count": 11,
+  "baseline_pass_count": 11,
+  "baseline_average_score": 0.9602272727272727,
+  "entries": [
+    {
+      "path": "outcome_driver:broad_regional_escalation:actor_count_pressure",
+      "baseline_value": 0.3,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.24,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.36,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:broad_regional_escalation:conflict_stress",
+      "baseline_value": 0.35,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.27999999999999997,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.42,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:broad_regional_escalation:multi_block_pressure",
+      "baseline_value": 0.25,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.2,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.3,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:controlled_suppression:military_posture",
+      "baseline_value": 0.35,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.27999999999999997,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.42,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:controlled_suppression:negotiation_capacity",
+      "baseline_value": -0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.16000000000000003,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.24,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:controlled_suppression:social_stress",
+      "baseline_value": 0.75,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.6000000000000001,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.8999999999999999,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:direct_strike_exchange:conflict_stress",
+      "baseline_value": 0.9,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.015151515151515027,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.7200000000000001,
+          "average_score": 0.9450757575757577,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 1.08,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": [
+            "red_sea_maritime_2024"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:direct_strike_exchange:military_posture",
+      "baseline_value": 0.5,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.015151515151515027,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.4,
+          "average_score": 0.9450757575757577,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.6,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": [
+            "red_sea_maritime_2024"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:direct_strike_exchange:sanctions_pressure",
+      "baseline_value": 0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.16000000000000003,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.24,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:internal_destabilization:debt_stress",
+      "baseline_value": 0.45,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.36000000000000004,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.54,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:internal_destabilization:policy_space",
+      "baseline_value": -0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.16000000000000003,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.24,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:internal_destabilization:resource_gap",
+      "baseline_value": 0.35,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.27999999999999997,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.42,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:internal_destabilization:social_stress",
+      "baseline_value": 0.95,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.76,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 1.14,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:limited_proxy_escalation:actor_count_pressure",
+      "baseline_value": 0.15,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.12,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.18,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:limited_proxy_escalation:conflict_stress",
+      "baseline_value": 0.85,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.015151515151515027,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.68,
+          "average_score": 0.9450757575757577,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 1.02,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:limited_proxy_escalation:sanctions_pressure",
+      "baseline_value": 0.25,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.2,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.3,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:maritime_chokepoint_crisis:conflict_stress",
+      "baseline_value": 0.4,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.32000000000000006,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": [
+            "red_sea_maritime_2024"
+          ]
+        },
+        {
+          "factor": 1.2,
+          "value": 0.48,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:maritime_chokepoint_crisis:energy_dependence",
+      "baseline_value": 1.1,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.011363636363636354,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.8800000000000001,
+          "average_score": 0.9488636363636364,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 1.32,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:maritime_chokepoint_crisis:resource_gap",
+      "baseline_value": 0.25,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.2,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.3,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:negotiated_deescalation:conflict_stress",
+      "baseline_value": -0.15,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.12,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.18,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:negotiated_deescalation:negotiation_capacity",
+      "baseline_value": 0.8,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.011363636363636354,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.6400000000000001,
+          "average_score": 0.9488636363636364,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.96,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:negotiated_deescalation:tail_pressure",
+      "baseline_value": -0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.16000000000000003,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.24,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:status_quo:conflict_stress",
+      "baseline_value": -0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.16000000000000003,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.24,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:status_quo:policy_space",
+      "baseline_value": 0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.16000000000000003,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.24,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:status_quo:resource_gap",
+      "baseline_value": -0.15,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.12,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.18,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_driver:status_quo:social_stress",
+      "baseline_value": -0.35,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.27999999999999997,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.42,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:broad_regional_escalation",
+      "baseline_value": -0.35,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.27999999999999997,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.42,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:controlled_suppression",
+      "baseline_value": 0.05,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.04000000000000001,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.06,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:direct_strike_exchange",
+      "baseline_value": -0.1,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.08000000000000002,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.12,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:internal_destabilization",
+      "baseline_value": -0.05,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.04000000000000001,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.06,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:limited_proxy_escalation",
+      "baseline_value": 0.0,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.0,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.0,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:maritime_chokepoint_crisis",
+      "baseline_value": -0.15,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": -0.12,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": -0.18,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": [
+            "red_sea_maritime_2024"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:negotiated_deescalation",
+      "baseline_value": 0.25,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.2,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.3,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_intercept:status_quo",
+      "baseline_value": 1.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.015151515151515027,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.96,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 1.44,
+          "average_score": 0.9450757575757577,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_link:broad_regional_escalation:direct_strike_exchange",
+      "baseline_value": 0.3,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.24,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.36,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "outcome_link:broad_regional_escalation:limited_proxy_escalation",
+      "baseline_value": 0.2,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.16000000000000003,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.24,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "tail_risk:critical_focus_bonus",
+      "baseline_value": 0.18,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.144,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.216,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "tail_risk:critical_pressure_sensitivity",
+      "baseline_value": 0.35,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.27999999999999997,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.42,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "tail_risk:critical_pressure_threshold",
+      "baseline_value": 1.25,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.007575757575757569,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 1.0,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 1.5,
+          "average_score": 0.9526515151515151,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    },
+    {
+      "path": "tail_risk:status_quo_penalty",
+      "baseline_value": 0.1,
+      "sensitivity_flag": "low",
+      "max_abs_average_score_delta": 0.0,
+      "perturbations": [
+        {
+          "factor": 0.8,
+          "value": 0.08000000000000002,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        },
+        {
+          "factor": 1.2,
+          "value": 0.12,
+          "average_score": 0.9602272727272727,
+          "pass_count": 11,
+          "case_count": 11,
+          "changed_pass_fail_cases": [],
+          "changed_top_outcome_cases": []
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,7 @@ Main files:
 - [gim/geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/geo_calibration.py)
 - [gim/calibration_validator.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration_validator.py)
 - [gim/calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration.py)
+- [gim/sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sensitivity_sweep.py)
 - [misc/calibration_cases/operational_v1](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v1)
 
 What it checks:
@@ -40,6 +41,10 @@ What it checks:
 - dominant outcome plausibility
 - driver overlap with historical intuition
 - crisis dashboard behavior under known cases
+- false-alarm resistance through stable `status_quo` controls
+- multi-year debt and regime crisis persistence
+- observation/reporting visibility through `competitive.crisis_flags`
+- outcome-layer robustness under `+-20%` weight perturbations
 - sanity bounds for geo weights and action shifts
 
 ## 2. Runtime Flow
@@ -86,6 +91,13 @@ python3 misc/calibration/calibrate_temperature_variability.py
 python3 misc/calibration/refresh_historical_backtest_baseline.py
 ```
 
+Run the crisis-layer sensitivity sweep:
+
+```bash
+cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/sensitivity_sweep.py --out misc/calibration/geo_sensitivity_operational_v1.json
+```
+
 These commands are the only safe path for changing:
 
 - `EMISSIONS_SCALE`
@@ -105,6 +117,8 @@ Key calibration tests:
 - [test_decarb_sensitivity.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_decarb_sensitivity.py)
 - [test_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_calibration.py)
 - [test_geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_geo_calibration.py)
+- [test_crisis_persistence.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_crisis_persistence.py)
+- [test_sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_sensitivity_sweep.py)
 
 ## 5. Practical Command Set
 
@@ -141,3 +155,9 @@ Current climate/macro calibration interpretation:
 - `GAMMA_ENERGY = 0.07` now comes from a dedicated `2015` cross-sectional fit, because the bundled historical replay does not identify it over time
 - `TFP_RD_SHARE_SENS = 0.5` is the active backtest-improving value and should be the starting point for the next econometric pass
 - temperature is no longer treated as a purely deterministic fit target: `HEAT_CAP_SURFACE = 30.0`, the backtest deep-ocean anchor uses `T_surface - 0.60`, and natural variability is represented with `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08`
+
+Current crisis/political calibration interpretation:
+
+- `operational_v1` is no longer a crisis-only suite; it now mixes `7` historical stress cases with `4` stable negative controls
+- the stable controls are there to catch drift toward alarmist `status_quo` regressions, not to maximize criticality
+- the outcome sensitivity sweep currently finds no pass/fail flips under `+-20%` perturbations on the outcome layer, which means the suite is robust but also that several weights remain only moderately identified

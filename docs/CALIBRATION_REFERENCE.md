@@ -22,6 +22,7 @@ This document is the calibration ledger for the active `GIM_14` repo.
 | Decarb sensitivity | [gim/decarb_sensitivity.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/decarb_sensitivity.py) | Compares alternative structural decarb priors | active |
 | Geo calibration | [gim/geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/geo_calibration.py) | Bayesian-style calibrated geopolitical weights | active |
 | Operational suite | [gim/calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration.py) | Scenario regression suite over packaged historical cases | active |
+| Outcome sensitivity sweep | [gim/sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sensitivity_sweep.py) | Perturbs outcome-layer weights and measures suite robustness | active |
 | Manifest refresh | [misc/calibration/refresh_state_artifact_manifest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/refresh_state_artifact_manifest.py) | Rebuilds the artifact manifest from observed references | active |
 | Backtest refresh | [misc/calibration/refresh_historical_backtest_fixtures.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/refresh_historical_backtest_fixtures.py) | Rebuilds bundled historical fixtures and stamps the primary manifest | active |
 
@@ -51,6 +52,10 @@ This document is the calibration ledger for the active `GIM_14` repo.
 - Geo priors:
   - source tables: [gim/geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/geo_calibration.py)
   - validator: [gim/calibration_validator.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration_validator.py)
+- Chronic crisis state:
+  - runtime logic: [gim/core/social.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/social.py)
+  - visible outputs: [gim/core/metrics.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/metrics.py) and [gim/core/observation.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/observation.py)
+  - current behavior: debt and regime crises now have explicit onset, persistence, recovery, and multi-year counters instead of one-step hidden flags
 
 ## 3. Current Baselines
 
@@ -87,8 +92,24 @@ Current temperature calibration result from the sequential `T1/T2/T3` pass:
 Current operational scenario suite:
 
 - suite id: `operational_v1`
-- packaged historical cases: `7`
-- latest local run: `7/7` passed
+- packaged historical cases: `11`
+- suite mix: `7` crisis/historical stress cases + `4` stable negative-control cases
+- latest local run: `11/11` passed
+
+Current crisis-state calibration result:
+
+- debt crises are now stateful and can persist for up to `8` years with repeated GDP / trust / tension damage
+- regime crises are now stateful and can persist for up to `5` years with repeated GDP / capital damage
+- crisis visibility is part of the observation contract through `competitive.crisis_flags` and the `CRISIS:` summary suffix
+- credit-risk scoring now reads explicit crisis state from `RiskState` instead of transient private attributes
+
+Current sensitivity-sweep result:
+
+- the sweep now runs across `40` outcome-layer weights from `outcome_intercept`, `outcome_driver`, `outcome_link`, and `tail_risk`
+- latest report: [geo_sensitivity_operational_v1.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/geo_sensitivity_operational_v1.json)
+- under `+-20%` perturbations, the current `11`-case suite produced no pass/fail flips
+- the largest average-score movement on the present suite was `0.015`, concentrated in `direct_strike_exchange` conflict/military weights, `limited_proxy_escalation` conflict weight, and the `status_quo` intercept
+- interpretation: the suite is now robust against small manual retuning, but several outcome weights are still only weakly identified and will need richer historical cases if we want sharper coefficient ranking
 
 ## 4. Artifact Rules
 
@@ -120,6 +141,13 @@ Operational suite:
 ```bash
 cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 -m gim calibrate --runs 1
+```
+
+Outcome sensitivity sweep:
+
+```bash
+cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/sensitivity_sweep.py --out misc/calibration/geo_sensitivity_operational_v1.json
 ```
 
 Full local suite:

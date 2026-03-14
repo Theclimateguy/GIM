@@ -2,6 +2,7 @@ from dataclasses import asdict
 
 from .core import Observation, WorldState
 from .metrics import (
+    compute_crisis_flags,
     compute_debt_stress,
     compute_protest_risk,
     compute_reserve_years,
@@ -43,6 +44,7 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         "reserve_years": compute_reserve_years(agent),
         "debt_stress": compute_debt_stress(agent),
         "protest_risk": compute_protest_risk(agent),
+        "crisis_flags": compute_crisis_flags(agent, world),
     }
     self_state["competitive"] = competitive
 
@@ -85,9 +87,12 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
     if world.institution_reports:
         external_actors["institution_reports"] = world.institution_reports
 
+    active_crises = [str(flag["type"]) for flag in competitive["crisis_flags"]]
+    crisis_str = f" | CRISIS: {', '.join(active_crises)}" if active_crises else ""
     summary = (
         f"Year {world.time} | GDP: {agent.economy.gdp:.1f}T | "
         f"Pop: {agent.economy.population / 1e6:.0f}M"
+        f"{crisis_str}"
     )
 
     return Observation(

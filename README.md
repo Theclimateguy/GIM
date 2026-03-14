@@ -231,6 +231,8 @@ Calibration continuity from the `GIM_13` line is preserved here through:
 
 These files now describe the active calibration stack that runs directly inside `GIM_14`, including the restored historical backtest, decarb sensitivity, manifest binding, geo-calibration, and operational scenario suite.
 
+The crisis suite now also includes stable negative-control cases and an explicit outcome-weight sensitivity sweep, so `python3 -m gim calibrate` is no longer evaluating only high-stress historical episodes.
+
 The latest completed climate/macro pass inside `GIM_14` delivered these working baselines on the bundled `2015-2023` replay:
 
 - GDP RMSE `1.074 T$`
@@ -247,6 +249,11 @@ It also left three explicit calibration conclusions in place:
 The latest temperature pass added one more explicit conclusion:
 
 - temperature realism is now handled as an ensemble problem, not a single deterministic path; `HEAT_CAP_SURFACE = 30.0`, the backtest deep-ocean anchor uses `T_surface - 0.60`, and annual natural variability is modeled with `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08`
+
+The latest crisis calibration pass added two more working conclusions:
+
+- `operational_v1` now has `11` packaged cases, including `4` stable `status_quo` controls
+- the new `misc/calibration/sensitivity_sweep.py` probe found no pass/fail flips under `+-20%` perturbations of the outcome layer on the current suite, which is a good robustness signal but also a reminder that richer historical crisis cases are still needed for sharper identification
 
 ## 8.1 Core Documentation Set
 

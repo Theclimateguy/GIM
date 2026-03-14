@@ -74,6 +74,80 @@ def compute_protest_risk(agent: AgentState) -> float:
     return float(max(0.0, min(risk, 1.0)))
 
 
+def compute_crisis_flags(agent: AgentState, world: WorldState) -> list[dict[str, object]]:
+    flags: list[dict[str, object]] = []
+    gdp = max(agent.economy.gdp, 1e-6)
+
+    debt_years = agent.risk.debt_crisis_active_years
+    if debt_years > 0:
+        flags.append(
+            {
+                "type": "debt_crisis",
+                "active_years": debt_years,
+                "severity": "high" if debt_years >= 3 else "moderate",
+            }
+        )
+    elif agent.economy.public_debt / gdp > cal.DEBT_CRISIS_DEBT_THRESHOLD * 0.85:
+        flags.append(
+            {
+                "type": "debt_stress_elevated",
+                "active_years": 0,
+                "severity": "watch",
+            }
+        )
+
+    regime_years = agent.risk.regime_crisis_active_years
+    if regime_years > 0:
+        flags.append(
+            {
+                "type": "regime_crisis",
+                "active_years": regime_years,
+                "severity": "critical",
+            }
+        )
+    elif agent.society.trust_gov < 0.30 and agent.society.social_tension > 0.65:
+        flags.append(
+            {
+                "type": "political_instability",
+                "active_years": 0,
+                "severity": "watch",
+            }
+        )
+
+    if agent.economy.climate_shock_years > 0:
+        flags.append(
+            {
+                "type": "climate_shock",
+                "active_years": agent.economy.climate_shock_years,
+                "severity": "moderate",
+            }
+        )
+
+    for other_id, relation in world.relations.get(agent.id, {}).items():
+        if relation.at_war:
+            flags.append(
+                {
+                    "type": "active_war",
+                    "with": other_id,
+                    "war_years": relation.war_years,
+                    "severity": "critical",
+                }
+            )
+            break
+
+    sanctioning_count = sum(1 for other in world.agents.values() if agent.id in other.active_sanctions)
+    if sanctioning_count >= 2:
+        flags.append(
+            {
+                "type": "sanctions_pressure",
+                "sanctioning_count": sanctioning_count,
+                "severity": "high" if sanctioning_count >= 4 else "moderate",
+            }
+        )
+
+    return flags
+
+
 def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     economy = agent.economy
 

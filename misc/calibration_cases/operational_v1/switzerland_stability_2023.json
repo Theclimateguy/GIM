@@ -1,0 +1,29 @@
+{
+  "id": "switzerland_stability_2023",
+  "title": "Switzerland stable baseline",
+  "description": "Low-stress baseline case for Switzerland in 2023 with status_quo expected to dominate despite background route exposure.",
+  "reference_period": "2023-01 to 2024-12",
+  "tags": ["historical", "stable", "negative", "switzerland"],
+  "scenario": {
+    "question": "Is Switzerland likely to remain broadly stable without a major crisis over the next two years?",
+    "base_year": 2023,
+    "horizon_months": 24,
+    "actors": ["Switzerland"]
+  },
+  "expectations": {
+    "top_outcomes": ["status_quo"],
+    "dominant_outcomes": ["status_quo", "maritime_chokepoint_crisis"],
+    "drivers": ["tail_pressure", "policy_space", "negotiation_capacity"],
+    "actor_metrics": {
+      "Switzerland": ["strategic_dependency", "oil_vulnerability"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.4,
+    "minimum_case_score": 0.72
+  },
+  "historical_signals": [
+    "The stable baseline should keep status_quo dominant over route and conflict spillovers.",
+    "Oil vulnerability may remain visible, but it should not overturn the baseline ordering."
+  ]
+}

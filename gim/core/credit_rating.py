@@ -128,7 +128,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
     debt_gdp = _safe_div(agent.economy.public_debt, gdp)
     interest_rate = compute_effective_interest_rate(agent, world)
     debt_stress = clamp01(compute_debt_stress(agent) / 3.0)
-    debt_crisis_now = 1.0 if bool(getattr(agent, "_debt_crisis_this_step", False)) else 0.0
+    debt_crisis_now = 1.0 if agent.risk.debt_crisis_active_years > 0 else 0.0
 
     gdp_trend = float(memory_summary.get("gdp_trend", 0.0))
     gdp_trend_ratio = _safe_div(gdp_trend, gdp)
@@ -150,7 +150,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
     trust = clamp01(agent.society.trust_gov)
     tension = clamp01(agent.society.social_tension)
     regime_fragility = 1.0 - clamp01(agent.risk.regime_stability)
-    collapsed_now = 1.0 if bool(getattr(agent, "_collapsed_this_step", False)) else 0.0
+    collapsed_now = 1.0 if agent.risk.regime_crisis_active_years > 0 else 0.0
 
     tension_trend = float(memory_summary.get("tension_trend", 0.0))
     trust_trend = float(memory_summary.get("trust_trend", 0.0))

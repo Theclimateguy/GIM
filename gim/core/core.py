@@ -100,6 +100,8 @@ class RiskState:
     regime_stability: float
     debt_crisis_prone: float
     conflict_proneness: float
+    debt_crisis_active_years: int = 0
+    regime_crisis_active_years: int = 0
 
 
 @dataclass

@@ -162,11 +162,24 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
 def check_regime_stability(agent: AgentState) -> None:
     trust_threshold = cal.REGIME_COLLAPSE_TRUST_THRESHOLD
     tension_threshold = cal.REGIME_COLLAPSE_TENSION_THRESHOLD
+    recovery_stability = max(0.5, cal.REGIME_COLLAPSE_TRUST_FLOOR * 2.0)
 
-    if agent.society.trust_gov < trust_threshold and agent.society.social_tension > tension_threshold:
-        if not hasattr(agent, "_collapsed_this_step") or not agent._collapsed_this_step:
-            agent._collapsed_this_step = True
-
+    onset_trigger = (
+        agent.society.trust_gov < trust_threshold
+        and agent.society.social_tension > tension_threshold
+    )
+    persistence_trigger = (
+        agent.risk.regime_crisis_active_years > 0
+        and agent.risk.regime_stability < recovery_stability
+    )
+    in_crisis = onset_trigger or persistence_trigger
+    if in_crisis:
+        agent.risk.regime_crisis_active_years = min(
+            agent.risk.regime_crisis_active_years + 1,
+            cal.REGIME_CRISIS_MAX_YEARS,
+        )
+        crisis_year = agent.risk.regime_crisis_active_years
+        if crisis_year == 1:
             agent.economy.capital *= cal.REGIME_COLLAPSE_CAPITAL_MULT
             agent.economy.gdp *= cal.REGIME_COLLAPSE_GDP_MULT
             agent.economy.public_debt *= cal.REGIME_COLLAPSE_DEBT_MULT
@@ -180,8 +193,11 @@ def check_regime_stability(agent: AgentState) -> None:
                 0.0,
                 agent.risk.regime_stability - cal.REGIME_COLLAPSE_STABILITY_HIT,
             )
-    elif hasattr(agent, "_collapsed_this_step"):
-        agent._collapsed_this_step = False
+        else:
+            agent.economy.capital *= cal.REGIME_CRISIS_PERSIST_CAPITAL_MULT
+            agent.economy.gdp *= cal.REGIME_CRISIS_PERSIST_GDP_MULT
+    else:
+        agent.risk.regime_crisis_active_years = 0
 
 
 def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
@@ -193,10 +209,17 @@ def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
     debt_gdp = economy.public_debt / gdp
     interest_rate = compute_effective_interest_rate(agent, world)
 
-    if debt_gdp > cal.DEBT_CRISIS_DEBT_THRESHOLD and interest_rate > cal.DEBT_CRISIS_RATE_THRESHOLD:
-        if not hasattr(agent, "_debt_crisis_this_step") or not agent._debt_crisis_this_step:
-            agent._debt_crisis_this_step = True
-
+    in_crisis = (
+        debt_gdp > cal.DEBT_CRISIS_DEBT_THRESHOLD
+        and interest_rate > cal.DEBT_CRISIS_RATE_THRESHOLD
+    )
+    if in_crisis:
+        risk.debt_crisis_active_years = min(
+            risk.debt_crisis_active_years + 1,
+            cal.DEBT_CRISIS_MAX_YEARS,
+        )
+        crisis_year = risk.debt_crisis_active_years
+        if crisis_year == 1:
             economy.public_debt *= cal.DEBT_CRISIS_DEBT_MULT
             economy.gdp *= cal.DEBT_CRISIS_GDP_MULT
             economy.unemployment = min(
@@ -207,5 +230,9 @@ def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
             society.trust_gov = max(0.0, society.trust_gov - cal.DEBT_CRISIS_TRUST_HIT)
             society.social_tension = min(1.0, society.social_tension + cal.DEBT_CRISIS_TENSION_HIT)
             risk.regime_stability = max(0.0, risk.regime_stability - cal.DEBT_CRISIS_STABILITY_HIT)
-    elif hasattr(agent, "_debt_crisis_this_step"):
-        agent._debt_crisis_this_step = False
+        else:
+            economy.gdp *= cal.DEBT_CRISIS_PERSIST_GDP_MULT
+            society.trust_gov = max(0.0, society.trust_gov - cal.DEBT_CRISIS_PERSIST_TRUST_HIT)
+            society.social_tension = min(1.0, society.social_tension + cal.DEBT_CRISIS_PERSIST_TENSION_HIT)
+    else:
+        risk.debt_crisis_active_years = 0

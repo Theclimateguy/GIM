@@ -24,6 +24,7 @@ from .logging_utils import (
 )
 from .memory import summarize_agent_memory, update_agent_memory
 from .metrics import (
+    compute_crisis_flags,
     compute_debt_stress,
     compute_protest_risk,
     compute_relative_metrics,

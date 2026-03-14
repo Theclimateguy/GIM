@@ -377,6 +377,7 @@ def run_operational_calibration(
     state_csv: str | None = None,
     max_countries: int | None = None,
     config: CalibrationRunConfig | None = None,
+    case_ids: set[str] | None = None,
 ) -> CalibrationSuiteResult:
     active_config = config or CalibrationRunConfig()
     if active_config.n_runs < 1:
@@ -387,6 +388,8 @@ def run_operational_calibration(
     bridge = SimBridge() if active_config.use_sim and active_config.horizon_years > 0 else None
 
     case_specs = [_load_case(path) for path in discover_calibration_cases(suite_id)]
+    if case_ids is not None:
+        case_specs = [case for case in case_specs if case.id in case_ids]
     results: list[CalibrationCaseResult] = []
 
     for case in case_specs:

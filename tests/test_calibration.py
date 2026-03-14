@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import unittest
 
 from gim.__main__ import build_parser
@@ -20,7 +21,19 @@ class GIM13CalibrationTests(unittest.TestCase):
         suites = discover_calibration_suites()
         self.assertIn(DEFAULT_CALIBRATION_SUITE, suites)
         cases = discover_calibration_cases(DEFAULT_CALIBRATION_SUITE)
-        self.assertGreaterEqual(len(cases), 6)
+        self.assertGreaterEqual(len(cases), 10)
+
+    def test_operational_suite_includes_stable_status_quo_cases(self) -> None:
+        cases = [
+            json.loads(path.read_text())
+            for path in discover_calibration_cases(DEFAULT_CALIBRATION_SUITE)
+        ]
+        status_quo_cases = [
+            case
+            for case in cases
+            if "status_quo" in case.get("expectations", {}).get("top_outcomes", [])
+        ]
+        self.assertGreaterEqual(len(status_quo_cases), 4)
 
     def test_calibrate_subcommand_is_registered(self) -> None:
         parser = build_parser()
@@ -31,10 +44,26 @@ class GIM13CalibrationTests(unittest.TestCase):
     def test_operational_calibration_runs_on_primary_state(self) -> None:
         result = run_operational_calibration(state_csv=str(PRIMARY_STATE))
         self.assertEqual(result.case_count, len(result.results))
-        self.assertGreaterEqual(result.case_count, 6)
+        self.assertGreaterEqual(result.case_count, 10)
         self.assertGreaterEqual(result.pass_count, result.case_count - 1)
         self.assertGreater(result.average_score, 0.75)
-        self.assertGreater(result.average_criticality_score, 0.50)
+        self.assertGreater(result.average_criticality_score, 0.45)
+
+    def test_stable_cases_pass_with_status_quo_top_outcome(self) -> None:
+        stable_case_ids = {
+            "norway_stability_2023",
+            "switzerland_stability_2023",
+            "canada_stability_2023",
+            "australia_stability_2023",
+        }
+        result = run_operational_calibration(
+            state_csv=str(PRIMARY_STATE),
+            case_ids=stable_case_ids,
+        )
+        self.assertEqual(result.pass_count, result.case_count)
+        for case_result in result.results:
+            with self.subTest(case_id=case_result.case_id):
+                self.assertEqual(case_result.snapshot.dominant_outcomes[0], "status_quo")
 
     def test_operational_calibration_supports_simulation_config(self) -> None:
         result = run_operational_calibration(
@@ -47,7 +76,7 @@ class GIM13CalibrationTests(unittest.TestCase):
             ),
         )
         self.assertEqual(result.case_count, len(result.results))
-        self.assertGreaterEqual(result.case_count, 6)
+        self.assertGreaterEqual(result.case_count, 10)
         self.assertTrue(all(case_result.std_score >= 0.0 for case_result in result.results))
 
 
