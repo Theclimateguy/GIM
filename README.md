@@ -1,4 +1,4 @@
-# GIM_13 v13.1.0
+# GIM_13 v13.1.2
 
 This document consolidates the current logic of the model stack across `GIM_13`, the compiled `GIM_12` agent state, and the legacy yearly core `GIM_11_1`.
 
@@ -8,7 +8,7 @@ Scope:
 - `GIM_12` provides the compiled world state and data pipeline.
 - `GIM_11_1` remains the actual yearly state-transition engine.
 
-Unless explicitly marked as conceptual, formulas and rules below reflect the current codebase as of March 13, 2026, release `v13.1.0`. If code and this document diverge, code is authoritative.
+Unless explicitly marked as conceptual, formulas and rules below reflect the current codebase as of March 13, 2026, release `v13.1.2`. If code and this document diverge, code is authoritative.
 
 ## 0. Repository Layout
 

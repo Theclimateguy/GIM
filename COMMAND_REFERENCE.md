@@ -1,4 +1,4 @@
-# GIM_13 Command Reference v13.1.0
+# GIM_13 Command Reference v13.1.2
 
 This file is the quick operational reference for the CLI.  
 The full model logic, formulas, reporting contract, and data contract remain in [README.md](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/README.md).
