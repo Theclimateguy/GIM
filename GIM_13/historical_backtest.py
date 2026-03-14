@@ -142,6 +142,7 @@ def _seed_historical_globals(world: WorldState, observed: dict[str, object], sta
     world.global_state.temperature_global = temperature_c[start_year]
     world.global_state.temperature_ocean = temperature_c[start_year] - 0.4
     world.global_state.carbon_pools = []
+    world.global_state._calendar_year_base = start_year
 
 
 def run_historical_backtest(

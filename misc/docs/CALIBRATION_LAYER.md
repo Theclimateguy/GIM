@@ -23,7 +23,7 @@ It is not designed as:
 - a backtest over annual macro time series;
 - a proof that the model is scientifically calibrated in the IAM sense.
 
-That said, the repo now has a separate structural backtest path for macro and climate fit. The latest pass also introduces country-level fiscal priors in [country_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/legacy/GIM_11_1/gim_11_1/country_params.py), with savings currently applied only as a downward correction to the pooled baseline so the legacy capital block does not overreact to high-saving economies before the dedicated econometric pass.
+That said, the repo now has a separate structural backtest path for macro and climate fit. The latest pass also introduces country-level fiscal priors in [country_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_13/legacy/GIM_11_1/gim_11_1/country_params.py), with savings currently applied only as a downward correction to the pooled baseline so the legacy capital block does not overreact to high-saving economies before the dedicated econometric pass. The climate side now carries a simple calendar-anchored `non-CO2` forcing schedule, which improves physical realism but still does not model ENSO or volcanic interannual noise.
 
 ## 2. Role in the Stack
 

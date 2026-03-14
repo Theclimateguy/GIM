@@ -70,11 +70,21 @@ def _init_carbon_pools(world: WorldState, fractions: list[float]) -> None:
     world.global_state.carbon_pools = [excess * frac for frac in fractions]
 
 
+def _resolve_nonco2_forcing(world: WorldState, f_nonco2: float | None) -> float:
+    if f_nonco2 is not None:
+        return max(0.0, f_nonco2)
+    base_year = getattr(world.global_state, "_calendar_year_base", 2023)
+    year = base_year + max(0, int(world.time))
+    year_offset = year - cal.F_NONCO2_BASE_YEAR
+    forcing = cal.F_NONCO2_DEFAULT + cal.F_NONCO2_TREND * year_offset
+    return max(0.0, forcing)
+
+
 def update_global_climate(
     world: WorldState,
     dt: float = 1.0,
     ecs: float = cal.ECS_DEFAULT,
-    f_nonco2: float = cal.F_NONCO2_DEFAULT,
+    f_nonco2: float | None = None,
     heat_cap_surface: float = cal.HEAT_CAP_SURFACE,
     heat_cap_deep: float = cal.HEAT_CAP_DEEP,
     ocean_exchange: float = cal.OCEAN_EXCHANGE,
@@ -111,6 +121,7 @@ def update_global_climate(
     c_ppm = max(1e-6, world.global_state.co2 / GTCO2_PER_PPM)
     c0_ppm = CO2_PREINDUSTRIAL_GT / GTCO2_PER_PPM
     f_co2 = cal.FORCING_LOG_COEFF * math.log(c_ppm / c0_ppm)
+    f_nonco2 = _resolve_nonco2_forcing(world, f_nonco2)
     f_total = f_co2 + f_nonco2
     world.global_state.forcing_total = f_total
 
