@@ -1,0 +1,38 @@
+iso3,name,model_region,alliance_block,regime_type,gdp_usd_current,population,fx_reserves_usd,public_debt_pct_gdp,co2_mtco2e,note
+TWN,Taiwan,East Asia,Western,Democracy,756000000000,23400000,577932000000,25.67,280,Manual Taiwan macro seed with official debt and reserves backfill.
+HKG,Hong Kong SAR,East Asia,Eurasian,Hybrid,,,,,,Align with China for bloc logic.
+MAC,Macao SAR,East Asia,Eurasian,Hybrid,,,,,,Align with China for bloc logic.
+CHN,China,East Asia,Eurasian,Autocracy,,,,,,Manual regime and bloc override.
+RUS,Russia,Europe,Eurasian,Autocracy,,,,,,Manual regime and bloc override.
+BLR,Belarus,Europe,Eurasian,Autocracy,,,,,,Manual regime and bloc override.
+IRN,Iran,Middle East,Eurasian,Autocracy,,,,,,Manual regime and bloc override.
+IND,India,South Asia,IndoPacific,Democracy,,,,,,Manual bloc override.
+IDN,Indonesia,East Asia,IndoPacific,Democracy,,,,,,Manual bloc override.
+VNM,Viet Nam,East Asia,IndoPacific,Autocracy,,,,,,Manual bloc override.
+THA,Thailand,East Asia,IndoPacific,Hybrid,,,,,,Manual bloc override.
+MYS,Malaysia,East Asia,IndoPacific,Hybrid,,,,,,Manual bloc override.
+PHL,Philippines,East Asia,IndoPacific,Democracy,,,,,,Manual bloc override.
+SGP,Singapore,East Asia,IndoPacific,Hybrid,,,,,,Manual bloc override.
+JPN,Japan,East Asia,Western,Democracy,,,,,,Manual bloc override.
+KOR,"Korea, Rep.",East Asia,Western,Democracy,,,,,,Manual bloc override.
+AUS,Australia,Oceania,Western,Democracy,,,,,,Manual bloc override.
+NZL,New Zealand,Oceania,Western,Democracy,,,,,,Manual bloc override.
+ISR,Israel,Middle East,Western,Democracy,,,,,,Manual bloc override.
+TUR,Turkiye,Europe,MENA,Hybrid,,,,,,Manual bloc override.
+SAU,Saudi Arabia,Middle East,MENA,Autocracy,,,,,,Manual bloc override.
+ARE,United Arab Emirates,Middle East,MENA,Autocracy,,,,,,Manual bloc override.
+QAT,Qatar,Middle East,MENA,Autocracy,,,,,,Manual bloc override.
+KWT,Kuwait,Middle East,MENA,Autocracy,,,,,,Manual bloc override.
+OMN,Oman,Middle East,MENA,Autocracy,,,,,,Manual bloc override.
+BHR,Bahrain,Middle East,MENA,Autocracy,,,,,,Manual bloc override.
+EGY,"Egypt, Arab Rep.",Middle East,MENA,Autocracy,,,,,,Manual bloc and region override.
+MAR,Morocco,Middle East,MENA,Hybrid,,,,,,Manual region override.
+DZA,Algeria,Middle East,MENA,Autocracy,,,,,,Manual region override.
+TUN,Tunisia,Middle East,MENA,Hybrid,,,,,,Manual region override.
+LBY,Libya,Middle East,MENA,Autocracy,,,,,,Manual region override.
+MEX,Mexico,North America,Latin,Democracy,,,,,,Manual bloc override.
+BRA,Brazil,South America,Latin,Democracy,,,,,,Manual bloc override.
+ARG,Argentina,South America,Latin,Democracy,,,,,,Manual bloc override.
+CHL,Chile,South America,Latin,Democracy,,,,,,Manual bloc override.
+COL,Colombia,South America,Latin,Democracy,,,,,,Manual bloc override.
+PER,Peru,South America,Latin,Hybrid,,,,,,Manual bloc override.
