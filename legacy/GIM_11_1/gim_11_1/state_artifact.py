@@ -26,6 +26,10 @@ class StateArtifactBinding:
     emissions_reference_year: int | None = None
     emissions_reference_gtco2: float | None = None
     emissions_reference_state_csv: Path | None = None
+    decarb_source: str = "legacy"
+    decarb_reference_rate: float | None = None
+    decarb_reference_start_year: int | None = None
+    decarb_reference_end_year: int | None = None
 
 
 LEGACY_EMISSIONS_SCALE = 1.8
@@ -217,6 +221,20 @@ def load_state_artifact(
         emissions_reference_state_csv=_resolve_optional_manifest_path(
             manifest_path,
             raw.get("emissions_reference", {}).get("state_csv"),
+        ),
+        decarb_source=str(raw.get("decarb_reference", {}).get("source", "legacy")),
+        decarb_reference_rate=(
+            float(raw["decarb_reference"]["rate"]) if raw.get("decarb_reference", {}).get("rate") is not None else None
+        ),
+        decarb_reference_start_year=(
+            int(raw["decarb_reference"]["start_year"])
+            if raw.get("decarb_reference", {}).get("start_year") is not None
+            else None
+        ),
+        decarb_reference_end_year=(
+            int(raw["decarb_reference"]["end_year"])
+            if raw.get("decarb_reference", {}).get("end_year") is not None
+            else None
         ),
     )
 

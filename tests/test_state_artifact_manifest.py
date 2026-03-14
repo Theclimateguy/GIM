@@ -15,6 +15,7 @@ if str(LEGACY_CORE) not in sys.path:
     sys.path.insert(0, str(LEGACY_CORE))
 
 import gim_11_1.state_artifact as state_artifact  # noqa: E402
+from misc.calibration.refresh_state_artifact_manifest import build_manifest  # noqa: E402
 
 
 PRIMARY_MANIFEST = REPO_ROOT / "misc" / "data" / "agent_states_gim13.artifacts.json"
@@ -37,6 +38,7 @@ class StateArtifactManifestTests(unittest.TestCase):
         binding = state_artifact.PRIMARY_STATE_ARTIFACT
         self.assertEqual(binding.rebuild_source, "data")
         self.assertAlmostEqual(binding.emissions_scale, derived, delta=1e-9)
+        self.assertEqual(binding.decarb_source, "legacy")
 
     def test_primary_load_can_warn_and_fallback_when_manifest_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -53,6 +55,34 @@ class StateArtifactManifestTests(unittest.TestCase):
         self.assertEqual(binding.rebuild_source, "legacy")
         self.assertAlmostEqual(binding.emissions_scale, state_artifact.LEGACY_EMISSIONS_SCALE)
         self.assertTrue(any("legacy artifact values" in str(item.message) for item in caught))
+
+    def test_manifest_builder_can_stamp_observed_decarb_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            state_csv = tmp / "state.csv"
+            state_csv.write_text("id,value\nA,1\n", encoding="utf-8")
+            manifest = build_manifest(
+                state_csv=state_csv,
+                manifest_path=tmp / "state.artifacts.json",
+                emissions_scale=0.98,
+                decarb_rate=0.022,
+                target_year=2023,
+                builder_reference="test",
+                handoff_contract="test contract",
+                rebuild_source="data",
+                emissions_reference_year=2015,
+                emissions_reference_gtco2=35.4,
+                emissions_reference_state_csv=REFERENCE_STATE,
+                decarb_source="observed",
+                decarb_reference_rate=0.022,
+                decarb_reference_start_year=2010,
+                decarb_reference_end_year=2022,
+            )
+
+        self.assertEqual(manifest["decarb_reference"]["source"], "observed")
+        self.assertEqual(manifest["decarb_reference"]["rate"], 0.022)
+        self.assertEqual(manifest["decarb_reference"]["start_year"], 2010)
+        self.assertEqual(manifest["decarb_reference"]["end_year"], 2022)
 
 
 if __name__ == "__main__":

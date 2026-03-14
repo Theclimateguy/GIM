@@ -153,12 +153,27 @@ def _seed_historical_globals(world: WorldState, observed: dict[str, object], sta
     world.global_state._calendar_year_base = start_year
 
 
+class _temporary_decarb_rate:
+    def __init__(self, value: float | None):
+        self._value = value
+        self._original = cal.DECARB_RATE
+
+    def __enter__(self) -> None:
+        if self._value is not None:
+            cal.DECARB_RATE = float(self._value)
+        return None
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        cal.DECARB_RATE = self._original
+
+
 def run_historical_backtest(
     *,
     state_csv: str | Path = DEFAULT_INITIAL_STATE_CSV,
     observed_fixture: str | Path = DEFAULT_OBSERVED_FIXTURE,
     policy_mode: str = DEFAULT_POLICY_MODE,
     enable_extreme_events: bool = False,
+    decarb_rate_override: float | None = None,
 ) -> HistoricalBacktestResult:
     state_csv_path = Path(state_csv)
     observed_path = Path(observed_fixture)
@@ -179,37 +194,38 @@ def run_historical_backtest(
     actual_global_co2_gtco2 = _coerce_int_keyed_series(observed["global_co2_gtco2"])
     actual_temperature_c = _coerce_int_keyed_series(observed["temperature_c_preindustrial"])
 
-    world = make_world_from_csv(str(state_csv_path))
-    _seed_historical_globals(world, observed, start_year)
-    if _should_anchor_emissions_intensity():
-        _anchor_emissions_intensity(world)
+    with _temporary_decarb_rate(decarb_rate_override):
+        world = make_world_from_csv(str(state_csv_path))
+        _seed_historical_globals(world, observed, start_year)
+        if _should_anchor_emissions_intensity():
+            _anchor_emissions_intensity(world)
 
-    policies = make_policy_map(world.agents.keys(), mode=policy_mode)
+        policies = make_policy_map(world.agents.keys(), mode=policy_mode)
 
-    predicted_gdp_trillions: dict[int, dict[str, float]] = {
-        start_year: {
-            agent.name: agent.economy.gdp
-            for agent in world.agents.values()
-            if agent.name in GDP_BACKTEST_ACTORS
+        predicted_gdp_trillions: dict[int, dict[str, float]] = {
+            start_year: {
+                agent.name: agent.economy.gdp
+                for agent in world.agents.values()
+                if agent.name in GDP_BACKTEST_ACTORS
+            }
         }
-    }
-    predicted_global_co2_gtco2 = {
-        start_year: sum(agent.climate.co2_annual_emissions for agent in world.agents.values())
-    }
-    predicted_temperature_c = {start_year: world.global_state.temperature_global}
-
-    for offset in range(1, end_year - start_year + 1):
-        year = start_year + offset
-        world = step_world(world, policies, enable_extreme_events=enable_extreme_events)
-        predicted_gdp_trillions[year] = {
-            agent.name: agent.economy.gdp
-            for agent in world.agents.values()
-            if agent.name in GDP_BACKTEST_ACTORS
+        predicted_global_co2_gtco2 = {
+            start_year: sum(agent.climate.co2_annual_emissions for agent in world.agents.values())
         }
-        predicted_global_co2_gtco2[year] = sum(
-            agent.climate.co2_annual_emissions for agent in world.agents.values()
-        )
-        predicted_temperature_c[year] = world.global_state.temperature_global
+        predicted_temperature_c = {start_year: world.global_state.temperature_global}
+
+        for offset in range(1, end_year - start_year + 1):
+            year = start_year + offset
+            world = step_world(world, policies, enable_extreme_events=enable_extreme_events)
+            predicted_gdp_trillions[year] = {
+                agent.name: agent.economy.gdp
+                for agent in world.agents.values()
+                if agent.name in GDP_BACKTEST_ACTORS
+            }
+            predicted_global_co2_gtco2[year] = sum(
+                agent.climate.co2_annual_emissions for agent in world.agents.values()
+            )
+            predicted_temperature_c[year] = world.global_state.temperature_global
 
     gdp_pairs = [
         (predicted_gdp_trillions[year][country], actual_gdp_trillions[year][country])

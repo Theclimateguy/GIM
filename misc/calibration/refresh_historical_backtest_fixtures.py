@@ -325,6 +325,8 @@ def _refresh_primary_artifact_manifest(
         emissions_reference_year=START_YEAR,
         emissions_reference_gtco2=observed_global_co2,
         emissions_reference_state_csv=state_2015_path,
+        decarb_source="legacy",
+        decarb_reference_rate=0.049,
     )
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest_path

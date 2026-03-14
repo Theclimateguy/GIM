@@ -14,9 +14,12 @@ DEFAULT_STATE_CSV = REPO_ROOT / "misc" / "data" / "agent_states_gim13.csv"
 DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
 DEFAULT_BUILDER_REFERENCE = "GIM/GIM_12/scripts/build_gim13_agent_states.py"
+DEFAULT_OBSERVED_DECARB_RATE = 0.022
+DEFAULT_OBSERVED_DECARB_START_YEAR = 2010
+DEFAULT_OBSERVED_DECARB_END_YEAR = 2022
 DEFAULT_HANDOFF_CONTRACT = (
     "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, "
-    "while DECARB_RATE remains compile-bound until the dedicated decarbonization pass lands. "
+    "while DECARB_RATE may be stamped from either the legacy pipeline value or an observed prior. "
     "These coefficients must only change when the state CSV or the refresh inputs change and the "
     "manifest is regenerated."
 )
@@ -54,6 +57,10 @@ def build_manifest(
     emissions_reference_year: int | None = None,
     emissions_reference_gtco2: float | None = None,
     emissions_reference_state_csv: Path | None = None,
+    decarb_source: str = "legacy",
+    decarb_reference_rate: float | None = None,
+    decarb_reference_start_year: int | None = None,
+    decarb_reference_end_year: int | None = None,
 ) -> dict[str, object]:
     emissions_reference = None
     if (
@@ -81,6 +88,12 @@ def build_manifest(
         "handoff_contract": handoff_contract,
         "rebuild_source": rebuild_source,
         "emissions_reference": emissions_reference,
+        "decarb_reference": {
+            "source": decarb_source,
+            "rate": decarb_reference_rate,
+            "start_year": decarb_reference_start_year,
+            "end_year": decarb_reference_end_year,
+        },
     }
 
 
@@ -110,8 +123,31 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--decarb-rate",
         type=float,
-        default=0.049,
-        help="Pipeline-bound DECARB_RATE to stamp into the manifest.",
+        help="Explicit DECARB_RATE override. Used only when --decarb-source=manual.",
+    )
+    parser.add_argument(
+        "--decarb-source",
+        choices=("legacy", "observed", "manual"),
+        default="legacy",
+        help="How to stamp DECARB_RATE into the manifest.",
+    )
+    parser.add_argument(
+        "--observed-decarb-rate",
+        type=float,
+        default=DEFAULT_OBSERVED_DECARB_RATE,
+        help="Observed decarbonization prior used when --decarb-source=observed.",
+    )
+    parser.add_argument(
+        "--observed-decarb-start-year",
+        type=int,
+        default=DEFAULT_OBSERVED_DECARB_START_YEAR,
+        help="Start year for the observed decarbonization reference window.",
+    )
+    parser.add_argument(
+        "--observed-decarb-end-year",
+        type=int,
+        default=DEFAULT_OBSERVED_DECARB_END_YEAR,
+        help="End year for the observed decarbonization reference window.",
     )
     parser.add_argument(
         "--target-year",
@@ -182,11 +218,32 @@ def main() -> None:
         emissions_reference_gtco2 = None
         emissions_reference_state_csv = None
 
+    if args.decarb_source == "legacy":
+        decarb_rate = 0.049 if args.decarb_rate is None else float(args.decarb_rate)
+        decarb_source = "legacy"
+        decarb_reference_rate = decarb_rate
+        decarb_reference_start_year = None
+        decarb_reference_end_year = None
+    elif args.decarb_source == "observed":
+        decarb_rate = float(args.observed_decarb_rate)
+        decarb_source = "observed"
+        decarb_reference_rate = decarb_rate
+        decarb_reference_start_year = int(args.observed_decarb_start_year)
+        decarb_reference_end_year = int(args.observed_decarb_end_year)
+    else:
+        if args.decarb_rate is None:
+            raise SystemExit("--decarb-rate is required when --decarb-source=manual")
+        decarb_rate = float(args.decarb_rate)
+        decarb_source = "manual"
+        decarb_reference_rate = decarb_rate
+        decarb_reference_start_year = None
+        decarb_reference_end_year = None
+
     manifest = build_manifest(
         state_csv=state_csv,
         manifest_path=manifest_path,
         emissions_scale=emissions_scale,
-        decarb_rate=args.decarb_rate,
+        decarb_rate=decarb_rate,
         target_year=args.target_year,
         builder_reference=args.builder_reference,
         handoff_contract=args.handoff_contract,
@@ -194,6 +251,10 @@ def main() -> None:
         emissions_reference_year=emissions_reference_year,
         emissions_reference_gtco2=emissions_reference_gtco2,
         emissions_reference_state_csv=emissions_reference_state_csv,
+        decarb_source=decarb_source,
+        decarb_reference_rate=decarb_reference_rate,
+        decarb_reference_start_year=decarb_reference_start_year,
+        decarb_reference_end_year=decarb_reference_end_year,
     )
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

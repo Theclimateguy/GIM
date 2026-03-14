@@ -10,11 +10,17 @@
   },
   "change_requires_pipeline_rebuild": true,
   "builder_reference": "GIM/GIM_12/scripts/build_gim13_agent_states.py",
-  "handoff_contract": "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, while DECARB_RATE remains compile-bound until the dedicated decarbonization pass lands. These coefficients must only change when the state CSV or the refresh inputs change and the manifest is regenerated.",
+  "handoff_contract": "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, while DECARB_RATE may be stamped from either the legacy pipeline value or an observed prior. These coefficients must only change when the state CSV or the refresh inputs change and the manifest is regenerated.",
   "rebuild_source": "data",
   "emissions_reference": {
     "year": 2015,
     "global_co2_gtco2": 35.40489697074173,
     "state_csv": "../../tests/fixtures/historical_backtest_state_2015.csv"
+  },
+  "decarb_reference": {
+    "source": "legacy",
+    "rate": 0.049,
+    "start_year": null,
+    "end_year": null
   }
 }
