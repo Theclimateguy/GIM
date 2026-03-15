@@ -162,17 +162,10 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
 def check_regime_stability(agent: AgentState) -> None:
     trust_threshold = cal.REGIME_COLLAPSE_TRUST_THRESHOLD
     tension_threshold = cal.REGIME_COLLAPSE_TENSION_THRESHOLD
-    recovery_stability = max(0.5, cal.REGIME_COLLAPSE_TRUST_FLOOR * 2.0)
-
-    onset_trigger = (
+    in_crisis = (
         agent.society.trust_gov < trust_threshold
         and agent.society.social_tension > tension_threshold
     )
-    persistence_trigger = (
-        agent.risk.regime_crisis_active_years > 0
-        and agent.risk.regime_stability < recovery_stability
-    )
-    in_crisis = onset_trigger or persistence_trigger
     if in_crisis:
         agent.risk.regime_crisis_active_years = min(
             agent.risk.regime_crisis_active_years + 1,

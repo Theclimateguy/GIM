@@ -87,7 +87,11 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
     if world.institution_reports:
         external_actors["institution_reports"] = world.institution_reports
 
-    active_crises = [str(flag["type"]) for flag in competitive["crisis_flags"]]
+    active_crises = [
+        str(flag["type"])
+        for flag in competitive["crisis_flags"]
+        if int(flag.get("active_years", 1)) > 0
+    ]
     crisis_str = f" | CRISIS: {', '.join(active_crises)}" if active_crises else ""
     summary = (
         f"Year {world.time} | GDP: {agent.economy.gdp:.1f}T | "

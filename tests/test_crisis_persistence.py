@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+from gim.core import calibration_params as cal
 from gim.core.core import (
     AgentState,
     ClimateSubState,
@@ -120,10 +121,49 @@ class CrisisPersistenceTests(unittest.TestCase):
 
         self.assertEqual(agent.risk.regime_crisis_active_years, 1)
 
+        agent.society.trust_gov = 0.10
+        agent.society.social_tension = 0.92
         check_regime_stability(agent)
         self.assertEqual(agent.risk.regime_crisis_active_years, 2)
         self.assertLess(agent.economy.gdp, first_gdp)
         self.assertLess(agent.economy.capital, first_capital)
+
+    def test_debt_onset_is_harsher_than_persistence(self) -> None:
+        self.assertLess(cal.DEBT_CRISIS_GDP_MULT, cal.DEBT_CRISIS_PERSIST_GDP_MULT)
+
+    def test_debt_crisis_counter_is_capped(self) -> None:
+        agent = self._make_agent(trust_gov=0.35, social_tension=0.70)
+        world = self._make_world(agent)
+        agent.risk.debt_crisis_active_years = cal.DEBT_CRISIS_MAX_YEARS
+
+        check_debt_crisis(agent, world)
+
+        self.assertEqual(agent.risk.debt_crisis_active_years, cal.DEBT_CRISIS_MAX_YEARS)
+
+    def test_no_hidden_crisis_state_attributes_are_created(self) -> None:
+        agent = self._make_agent(trust_gov=0.35, social_tension=0.70)
+        world = self._make_world(agent)
+
+        check_debt_crisis(agent, world)
+        check_regime_stability(agent)
+
+        self.assertFalse(hasattr(agent, "_debt_crisis_this_step"))
+        self.assertFalse(hasattr(agent, "_collapsed_this_step"))
+
+    def test_stable_agent_has_no_crisis_flags(self) -> None:
+        agent = self._make_agent(
+            public_debt=0.3,
+            trust_gov=0.62,
+            social_tension=0.22,
+            regime_stability=0.82,
+            debt_crisis_prone=0.2,
+        )
+        world = self._make_world(agent)
+
+        obs = build_observation(world, agent.id)
+
+        self.assertEqual(obs.self_state["competitive"]["crisis_flags"], [])
+        self.assertNotIn("CRISIS:", obs.summary)
 
     def test_observation_contains_crisis_flags(self) -> None:
         focal = self._make_agent(climate_shock_years=2)
