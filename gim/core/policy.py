@@ -318,6 +318,22 @@ If present, you may also use:
     "last_actions": [ { "time": int, "last_action": {...} } ]
   }
 This summarizes your recent trajectory and should inform medium-term planning.
+
+If present, you may also use:
+  "memory": {
+    "policy_history": [
+      {
+        "step": int,
+        "action": str,
+        "gdp_delta": float | null,
+        "debt_gdp_delta": float | null,
+        "trust_delta": float | null,
+        "tension_delta": float | null,
+        "crises_after": [str, ...]
+      }
+    ]
+  }
+This is a short causal memory of what your recent policies actually did.
 """
 
 
@@ -421,13 +437,9 @@ LLM_POLICY_PROMPT_TEMPLATE = (
 
 
 def llm_policy(obs: Observation, memory_summary: Optional[Dict[str, Any]] = None) -> Action:
-    payload: Dict[str, Any] = {
-        "agent_id": obs.agent_id,
-        "time": obs.time,
-        "self_state": obs.self_state,
-        "resource_balance": obs.resource_balance,
-        "external_actors": obs.external_actors,
-    }
+    payload: Dict[str, Any] = obs.main_payload()
+    if obs.memory:
+        payload["memory"] = obs.memory
     if memory_summary is not None:
         payload["memory_summary"] = memory_summary
 

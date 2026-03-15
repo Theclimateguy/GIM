@@ -44,6 +44,7 @@ TECH_OUTPUT_SENS = 0.60  # [PRIOR]
 GDP_ADJUST_SPEED_BASE = 0.30  # [PRIOR]
 GDP_ADJUST_SPEED_GAP_SENS = 0.35  # [PRIOR]
 OBS_MAX_NEIGHBORS = 8  # [PRIOR]
+POLICY_LOG_DEPTH = 3  # [PRIOR] Visible action/outcome memory horizon for agent prompts.
 
 # TFP block.
 TFP_RD_SHARE_SENS = 0.5  # [BACKTEST]
@@ -246,6 +247,7 @@ CALIBRATION_STATUS = {
     "TFP_RD_SHARE_SENS": "backtest",
     "TFP_TRADE_SPILLOVER_SENS": "prior",
     "OBS_MAX_NEIGHBORS": "prior",
+    "POLICY_LOG_DEPTH": "prior",
     "TAX_RATE_BASE": "validated",
     "SOCIAL_SPEND_BASE": "validated",
     "MILITARY_SPEND_BASE": "validated",

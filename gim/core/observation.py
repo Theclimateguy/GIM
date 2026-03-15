@@ -128,6 +128,31 @@ def build_peer_standing(
     }
 
 
+def build_policy_history(agent) -> list[dict[str, object]]:
+    history: list[dict[str, object]] = []
+    for record in agent.policy_log:
+        history.append(
+            {
+                "step": int(record.step),
+                "action": str(record.action),
+                "gdp_delta": round(float(record.gdp_delta), 3) if record.gdp_delta is not None else None,
+                "debt_gdp_delta": (
+                    round(float(record.debt_gdp_delta), 3)
+                    if record.debt_gdp_delta is not None
+                    else None
+                ),
+                "trust_delta": round(float(record.trust_delta), 3) if record.trust_delta is not None else None,
+                "tension_delta": (
+                    round(float(record.tension_delta), 3)
+                    if record.tension_delta is not None
+                    else None
+                ),
+                "crises_after": [str(flag) for flag in record.crisis_flags_after],
+            }
+        )
+    return history
+
+
 def _inbound_sanctions(world: WorldState, agent_id: str) -> dict[str, dict[str, object]]:
     inbound: dict[str, dict[str, object]] = {}
     for other_id, other in world.agents.items():
@@ -280,6 +305,9 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         f"Pop: {agent.economy.population / 1e6:.0f}M"
         f"{crisis_str}"
     )
+    memory = {
+        "policy_history": build_policy_history(agent),
+    }
 
     return Observation(
         agent_id=agent_id,
@@ -288,4 +316,5 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         resource_balance=resource_balance,
         external_actors=external_actors,
         summary=summary,
+        memory=memory,
     )

@@ -26,6 +26,19 @@ from gim.core.social import check_debt_crisis, check_regime_stability
 
 
 class CrisisPersistenceTests(unittest.TestCase):
+    def _austerity_policy(self, agent_id: str):
+        def policy(obs, memory_summary=None):  # noqa: ARG001
+            return Action(
+                agent_id=agent_id,
+                time=obs.time,
+                domestic_policy=DomesticPolicy(0.0, -0.012, 0.0, 0.0, "none"),
+                foreign_policy=ForeignPolicy(),
+                finance=FinancePolicy(0.0, 0.0),
+                explanation="Tighten fiscal policy to stabilize debt.",
+            )
+
+        return policy
+
     def _make_agent(
         self,
         *,
@@ -331,6 +344,42 @@ class CrisisPersistenceTests(unittest.TestCase):
 
         self.assertGreaterEqual(peak_years, 3)
         self.assertLess(world.agents[focal.id].economy.gdp, initial_gdp)
+
+    def test_policy_memory_records_regime_crisis_after_austerity(self) -> None:
+        focal = self._make_agent(
+            public_debt=2.8,
+            trust_gov=0.18,
+            social_tension=0.84,
+            regime_stability=0.20,
+        )
+        peer = self._make_agent(
+            agent_id="B",
+            name="Agent B",
+            public_debt=0.4,
+            trust_gov=0.55,
+            social_tension=0.25,
+            regime_stability=0.75,
+            debt_crisis_prone=0.2,
+        )
+        world = self._make_world(focal, peer)
+        policies = {
+            focal.id: self._austerity_policy(focal.id),
+            peer.id: self._austerity_policy(peer.id),
+        }
+
+        step_world(
+            world,
+            policies,
+            enable_extreme_events=False,
+            apply_political_filters=False,
+            apply_institutions=False,
+        )
+        obs = build_observation(world, focal.id)
+        history = obs.memory["policy_history"]
+
+        self.assertTrue(history)
+        self.assertEqual(history[-1]["action"], "fiscal_austerity")
+        self.assertIn("regime_crisis", history[-1]["crises_after"])
 
 
 if __name__ == "__main__":

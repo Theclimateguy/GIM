@@ -129,6 +129,18 @@ class PoliticalState:
 
 
 @dataclass
+class PolicyRecord:
+    step: int
+    action: str
+    action_params: Dict[str, Any]
+    gdp_delta: Optional[float]
+    debt_gdp_delta: Optional[float]
+    trust_delta: Optional[float]
+    tension_delta: Optional[float]
+    crisis_flags_after: List[str] = field(default_factory=list)
+
+
+@dataclass
 class AgentState:
     id: str
     type: str
@@ -150,6 +162,7 @@ class AgentState:
     credit_risk_score: float = 0.5
     credit_rating_details: Dict[str, float] = field(default_factory=dict)
     memory_id: Optional[str] = None
+    policy_log: List[PolicyRecord] = field(default_factory=list)
 
 
 @dataclass
@@ -227,6 +240,17 @@ class Observation:
     resource_balance: Dict[str, Dict[str, float]]
     external_actors: Dict[str, Any]
     summary: str = ""
+    memory: Dict[str, Any] = field(default_factory=dict)
+
+    def main_payload(self) -> Dict[str, Any]:
+        return {
+            "agent_id": self.agent_id,
+            "time": self.time,
+            "self_state": self.self_state,
+            "resource_balance": self.resource_balance,
+            "external_actors": self.external_actors,
+            "summary": self.summary,
+        }
 
 
 @dataclass

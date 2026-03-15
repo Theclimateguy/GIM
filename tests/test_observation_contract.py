@@ -6,10 +6,14 @@ import unittest
 
 from gim.core import calibration_params as cal
 from gim.core.core import (
+    Action,
     AgentState,
     ClimateSubState,
     CulturalState,
+    DomesticPolicy,
     EconomyState,
+    FinancePolicy,
+    ForeignPolicy,
     GlobalState,
     RelationState,
     ResourceSubState,
@@ -19,10 +23,53 @@ from gim.core.core import (
     WorldState,
 )
 from gim.core.observation import build_observation
+from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
 
 class ObservationContractTests(unittest.TestCase):
+    def _status_quo_policy(self, agent_id: str):
+        def policy(obs):
+            return Action(
+                agent_id=agent_id,
+                time=obs.time,
+                domestic_policy=DomesticPolicy(
+                    tax_fuel_change=0.0,
+                    social_spending_change=0.0,
+                    military_spending_change=0.0,
+                    rd_investment_change=0.0,
+                    climate_policy="none",
+                ),
+                foreign_policy=ForeignPolicy(),
+                finance=FinancePolicy(
+                    borrow_from_global_markets=0.0,
+                    use_fx_reserves_change=0.0,
+                ),
+            )
+
+        return policy
+
+    def _austerity_policy(self, agent_id: str):
+        def policy(obs):
+            return Action(
+                agent_id=agent_id,
+                time=obs.time,
+                domestic_policy=DomesticPolicy(
+                    tax_fuel_change=0.0,
+                    social_spending_change=-0.012,
+                    military_spending_change=0.0,
+                    rd_investment_change=0.0,
+                    climate_policy="none",
+                ),
+                foreign_policy=ForeignPolicy(),
+                finance=FinancePolicy(
+                    borrow_from_global_markets=0.0,
+                    use_fx_reserves_change=0.0,
+                ),
+            )
+
+        return policy
+
     def _make_agent(
         self,
         *,
@@ -96,7 +143,7 @@ class ObservationContractTests(unittest.TestCase):
 
         for agent_id in list(world.agents)[:20]:
             obs = build_observation(world, agent_id)
-            sizes.append(len(json.dumps(obs.__dict__, ensure_ascii=False)))
+            sizes.append(len(json.dumps(obs.main_payload(), ensure_ascii=False)))
 
         self.assertLess(mean(sizes), 8192)
         self.assertLess(max(sizes), 8192)
@@ -222,3 +269,70 @@ class ObservationContractTests(unittest.TestCase):
         self.assertIsInstance(peer_standing["debt_gdp_vs_median"], float)
         self.assertIsInstance(peer_standing["trust_vs_median"], float)
         self.assertIsInstance(peer_standing["climate_damage_rank"], int)
+
+    def test_policy_history_empty_on_step0(self) -> None:
+        focal = self._make_agent(agent_id="A")
+        peer = self._make_agent(agent_id="B")
+        world = self._make_world(focal, peer)
+
+        obs = build_observation(world, focal.id)
+
+        self.assertEqual(obs.memory["policy_history"], [])
+
+    def test_policy_history_populated_after_steps(self) -> None:
+        focal = self._make_agent(agent_id="A", trust_gov=0.18, social_tension=0.82)
+        focal.economy.public_debt = 2.4
+        peer = self._make_agent(agent_id="B")
+        world = self._make_world(focal, peer)
+        policies = {
+            focal.id: self._austerity_policy(focal.id),
+            peer.id: self._status_quo_policy(peer.id),
+        }
+
+        for _ in range(3):
+            step_world(world, policies, memory={})
+
+        obs = build_observation(world, focal.id)
+        history = obs.memory["policy_history"]
+
+        self.assertEqual(len(history), 3)
+        record = history[0]
+        self.assertIn("action", record)
+        self.assertIn("gdp_delta", record)
+        self.assertIn("crises_after", record)
+
+    def test_policy_history_rolling_window(self) -> None:
+        focal = self._make_agent(agent_id="A", trust_gov=0.18, social_tension=0.82)
+        focal.economy.public_debt = 2.4
+        peer = self._make_agent(agent_id="B")
+        world = self._make_world(focal, peer)
+        policies = {
+            focal.id: self._austerity_policy(focal.id),
+            peer.id: self._status_quo_policy(peer.id),
+        }
+
+        for _ in range(5):
+            step_world(world, policies, memory={})
+
+        obs = build_observation(world, focal.id)
+        history = obs.memory["policy_history"]
+
+        self.assertEqual(len(history), cal.POLICY_LOG_DEPTH)
+        self.assertEqual(history[-1]["step"], 5)
+
+    def test_policy_history_no_private_field_leak(self) -> None:
+        focal = self._make_agent(agent_id="A", trust_gov=0.18, social_tension=0.82)
+        focal.economy.public_debt = 2.4
+        peer = self._make_agent(agent_id="B")
+        world = self._make_world(focal, peer)
+        policies = {
+            focal.id: self._austerity_policy(focal.id),
+            peer.id: self._status_quo_policy(peer.id),
+        }
+
+        for _ in range(2):
+            step_world(world, policies, memory={})
+
+        obs = build_observation(world, focal.id)
+        for record in obs.memory["policy_history"]:
+            self.assertFalse(any(key.startswith("_") for key in record))

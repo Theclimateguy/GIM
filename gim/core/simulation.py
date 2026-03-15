@@ -6,15 +6,16 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from . import calibration_params as cal
 from .actions import apply_action, apply_trade_deals
 from .climate import apply_climate_extreme_events, update_climate_risks, update_global_climate
 from .credit_rating import update_credit_ratings
-from .core import Action, AgentMemory, Observation, WorldState
+from .core import Action, AgentMemory, Observation, PolicyRecord, WorldState
 from .economy import update_economy_output, update_public_finances
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
 from .memory import summarize_agent_memory, update_agent_memory
-from .metrics import compute_relative_metrics
+from .metrics import compute_crisis_flags, compute_relative_metrics
 from .observation import build_observation
 from .political_dynamics import (
     apply_political_constraints,
@@ -329,6 +330,90 @@ def _persist_trend_baselines(
             delattr(agent.economy, "_gdp_step_start")
 
 
+def _policy_record_label(action: Action) -> tuple[str, Dict[str, Any]]:
+    domestic = action.domestic_policy
+    foreign = action.foreign_policy
+    labels: List[str] = []
+    params: Dict[str, Any] = {}
+
+    if domestic.social_spending_change <= -0.005:
+        labels.append("fiscal_austerity")
+        params["social_spending_change"] = round(domestic.social_spending_change, 3)
+    elif domestic.social_spending_change >= 0.005:
+        labels.append("social_support")
+        params["social_spending_change"] = round(domestic.social_spending_change, 3)
+
+    if domestic.military_spending_change >= 0.005:
+        labels.append("military_buildup")
+        params["military_spending_change"] = round(domestic.military_spending_change, 3)
+    elif domestic.rd_investment_change >= 0.002:
+        labels.append("innovation_push")
+        params["rd_investment_change"] = round(domestic.rd_investment_change, 3)
+
+    if domestic.tax_fuel_change >= 0.5:
+        labels.append("raise_fuel_tax")
+        params["tax_fuel_change"] = round(domestic.tax_fuel_change, 2)
+    elif domestic.tax_fuel_change <= -0.5:
+        labels.append("cut_fuel_tax")
+        params["tax_fuel_change"] = round(domestic.tax_fuel_change, 2)
+
+    if domestic.climate_policy != "none":
+        labels.append(f"climate_{domestic.climate_policy}")
+        params["climate_policy"] = domestic.climate_policy
+
+    if foreign.sanctions_actions:
+        labels.append("sanctions")
+        params["sanctions_count"] = len(foreign.sanctions_actions)
+    if foreign.trade_restrictions:
+        labels.append("trade_restrictions")
+        params["trade_restrictions_count"] = len(foreign.trade_restrictions)
+    if foreign.proposed_trade_deals:
+        labels.append("trade_rebalancing")
+        params["trade_deals_count"] = len(foreign.proposed_trade_deals)
+    if foreign.security_actions.type != "none":
+        labels.append(str(foreign.security_actions.type))
+        params["security_action"] = foreign.security_actions.type
+
+    if not labels:
+        return "status_quo", {}
+    return "+".join(labels[:2]), params
+
+
+def _append_policy_records(
+    world: WorldState,
+    actions: Dict[str, Action],
+    baselines: Dict[str, Dict[str, float]],
+) -> None:
+    for agent_id, agent in world.agents.items():
+        action = actions.get(agent_id)
+        if action is None:
+            continue
+        baseline = baselines.get(agent_id)
+        if baseline is None:
+            continue
+
+        gdp_now = float(agent.economy.gdp)
+        debt_gdp_now = float(agent.economy.public_debt / max(gdp_now, 1e-6))
+        action_label, action_params = _policy_record_label(action)
+        record = PolicyRecord(
+            step=int(world.time) + 1,
+            action=action_label,
+            action_params=action_params,
+            gdp_delta=float((gdp_now - baseline["gdp"]) / max(baseline["gdp"], 1e-6)),
+            debt_gdp_delta=float(debt_gdp_now - baseline["debt_gdp"]),
+            trust_delta=float(agent.society.trust_gov - baseline["trust"]),
+            tension_delta=float(agent.society.social_tension - baseline["tension"]),
+            crisis_flags_after=[
+                str(flag["type"])
+                for flag in compute_crisis_flags(agent, world)
+                if int(flag.get("active_years", 1)) > 0
+            ],
+        )
+        agent.policy_log.append(record)
+        if len(agent.policy_log) > cal.POLICY_LOG_DEPTH:
+            agent.policy_log = agent.policy_log[-cal.POLICY_LOG_DEPTH :]
+
+
 def _uses_async_policy(policy: Callable[[Observation], Action] | None) -> bool:
     if policy is None:
         return False
@@ -480,6 +565,7 @@ def step_world(
     compute_relative_metrics(world)
     update_agent_memory(memory, world, actions)
     update_credit_ratings(world, memory)
+    _append_policy_records(world, actions, trend_baselines)
     _persist_trend_baselines(world, trend_baselines)
 
     world.time += 1

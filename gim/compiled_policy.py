@@ -149,6 +149,7 @@ def _context_payload(obs: Observation, memory_summary: dict[str, Any] | None) ->
         "resource_balance": obs.resource_balance,
         "primary_rival": rival,
         "best_available_partner": partner,
+        "memory": obs.memory or {"policy_history": []},
         "memory_summary": memory_summary or {"horizon": 0},
     }
 
