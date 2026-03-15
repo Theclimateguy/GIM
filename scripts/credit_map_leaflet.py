@@ -10,7 +10,9 @@ def find_latest_world_log(logs_dir: Path) -> Path:
     if not logs_dir.exists():
         raise FileNotFoundError(f"Logs directory not found: {logs_dir}")
     candidates = [
-        p for p in logs_dir.glob("*.csv") if "_t" in p.stem and not p.stem.endswith("_actions") and not p.stem.endswith("_institutions")
+        p
+        for p in logs_dir.rglob("*.csv")
+        if "_t" in p.stem and not p.stem.endswith("_actions") and not p.stem.endswith("_institutions")
     ]
     if not candidates:
         raise FileNotFoundError(f"No world state CSV logs found in: {logs_dir}")
@@ -198,7 +200,7 @@ def build_html(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build a GIM_12 Leaflet credit-rating map for the final simulation year")
-    parser.add_argument("--logs-dir", default="logs")
+    parser.add_argument("--logs-dir", default="results")
     parser.add_argument("--agents-csv", default="agent_states.csv")
     parser.add_argument("--log", default=None, help="Explicit world log CSV path")
     parser.add_argument("--output", default=None, help="Output HTML path")

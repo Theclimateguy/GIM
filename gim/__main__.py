@@ -1,6 +1,5 @@
 from argparse import ArgumentParser
 from dataclasses import asdict
-from datetime import datetime
 import json
 from pathlib import Path
 import sys
@@ -28,6 +27,7 @@ from .explanations import (
 )
 from .game_theory.equilibrium_runner import run_equilibrium_search
 from .game_runner import GameRunner
+from .results import build_run_artifacts, resolve_run_output_path, write_json_artifact, write_run_manifest
 from .runtime import MISC_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
 from .sim_bridge import SimBridge, SimProgress
@@ -213,13 +213,14 @@ def _resolve_question_text(args) -> str:
 def _dashboard_config(
     args,
     *,
+    output_path: str,
     use_sim: bool,
     show_game_results: bool,
     run_timestamp: str,
     run_id: str,
 ) -> DashboardConfig:
     return DashboardConfig(
-        output_path=args.dashboard_output,
+        output_path=output_path,
         show_trajectory=use_sim and getattr(args, "horizon", 0) > 0,
         show_game_results=show_game_results,
         show_narrative=bool(getattr(args, "narrative", False)),
@@ -235,13 +236,14 @@ def _dashboard_config(
 def _brief_config(
     args,
     *,
+    output_path: str,
     use_sim: bool,
     include_game_results: bool,
     run_timestamp: str,
     run_id: str,
 ) -> BriefConfig:
     return BriefConfig(
-        output_path=args.brief_output,
+        output_path=output_path,
         include_trajectory=use_sim and getattr(args, "horizon", 0) > 0,
         include_game_results=include_game_results,
         execution_label="sim" if use_sim else "static",
@@ -251,13 +253,6 @@ def _brief_config(
         n_runs=1,
         horizon_years=getattr(args, "horizon", 0),
     )
-
-
-def _build_run_metadata(command: str) -> tuple[str, str]:
-    stamp = datetime.now()
-    run_timestamp = stamp.strftime("%Y-%m-%d %H:%M")
-    run_id = f"{command}-{stamp.strftime('%Y%m%d-%H%M%S')}"
-    return run_timestamp, run_id
 
 
 def _terminal_progress_logger() -> Callable[[SimProgress], None]:
@@ -302,6 +297,14 @@ def _emit_sanity_suite(json_output: bool) -> None:
         print("Sanity suite reported fatal calibration issues.", file=stream)
 
 
+def _artifact_stream(json_output: bool):
+    return sys.stderr if json_output else sys.stdout
+
+
+def _emit_artifact_notice(message: str, *, json_output: bool) -> None:
+    print(message, file=_artifact_stream(json_output))
+
+
 def main() -> None:
     orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief"}
     argv = sys.argv[1:]
@@ -322,11 +325,29 @@ def main() -> None:
         run_console(state_csv=args.state_csv, max_countries=args.max_countries)
         return
     if args.command == "brief":
+        run_artifacts = build_run_artifacts(args.command)
+        output_path = resolve_run_output_path(run_artifacts.run_dir, args.output, "decision_brief.md")
         output_path = AnalyticsBriefRenderer().write_from_json(
             input_path=args.from_json,
-            config=BriefConfig(output_path=args.output),
+            config=BriefConfig(output_path=str(output_path)),
+        )
+        manifest_path = write_run_manifest(
+            {
+                "command": args.command,
+                "run_id": run_artifacts.run_id,
+                "run_timestamp": run_artifacts.run_timestamp,
+                "artifacts_dir": str(run_artifacts.run_dir),
+                "inputs": {
+                    "from_json": str(Path(args.from_json).expanduser().resolve()),
+                },
+                "outputs": {
+                    "brief_markdown": str(Path(output_path).resolve()),
+                },
+            },
+            run_artifacts.run_dir,
         )
         print(f"Analytical brief written to {output_path}")
+        print(f"Run manifest written to {manifest_path}")
         return
     if args.command == "calibrate":
         _emit_sanity_suite(args.json_output)
@@ -354,7 +375,7 @@ def main() -> None:
 
     if args.command == "question":
         use_sim = _should_use_simulation(args)
-        run_timestamp, run_id = _build_run_metadata(args.command)
+        run_artifacts = build_run_artifacts(args.command)
         scenario = compile_question(
             question=_resolve_question_text(args),
             world=world,
@@ -377,9 +398,28 @@ def main() -> None:
             )
         else:
             evaluation = runner.evaluate_scenario(scenario)
+        evaluation_json_path = write_json_artifact(
+            {
+                "scenario": asdict(scenario),
+                "evaluation": asdict(evaluation),
+                "game_result": None,
+                "equilibrium_result": None,
+                "trajectory": [asdict(state) for state in trajectory],
+                "dashboard_config": {
+                    "execution_label": "sim" if use_sim else "static",
+                    "policy_mode_label": _policy_mode_label(args, use_sim),
+                    "run_timestamp": run_artifacts.run_timestamp,
+                    "run_id": run_artifacts.run_id,
+                    "n_runs": 1,
+                    "horizon_years": getattr(args, "horizon", 0),
+                },
+            },
+            run_artifacts.run_dir / "evaluation.json",
+        )
         written = None
         brief_path = None
         if args.dashboard:
+            dashboard_output = resolve_run_output_path(run_artifacts.run_dir, args.dashboard_output, "dashboard.html")
             written = write_dashboard_artifacts(
                 renderer=DashboardRenderer(),
                 evaluation=evaluation,
@@ -389,14 +429,16 @@ def main() -> None:
                 scenario_def=scenario,
                 config=_dashboard_config(
                     args,
+                    output_path=str(dashboard_output),
                     use_sim=use_sim,
                     show_game_results=False,
-                    run_timestamp=run_timestamp,
-                    run_id=run_id,
+                    run_timestamp=run_artifacts.run_timestamp,
+                    run_id=run_artifacts.run_id,
                 ),
-                save_json=args.json_output,
+                save_json=False,
             )
         if args.brief:
+            brief_output = resolve_run_output_path(run_artifacts.run_dir, args.brief_output, "decision_brief.md")
             brief_path = write_brief_artifact(
                 renderer=AnalyticsBriefRenderer(),
                 evaluation=evaluation,
@@ -406,25 +448,61 @@ def main() -> None:
                 scenario_def=scenario,
                 config=_brief_config(
                     args,
+                    output_path=str(brief_output),
                     use_sim=use_sim,
                     include_game_results=False,
-                    run_timestamp=run_timestamp,
-                    run_id=run_id,
+                    run_timestamp=run_artifacts.run_timestamp,
+                    run_id=run_artifacts.run_id,
                 ),
             )
+        manifest_path = write_run_manifest(
+            {
+                "command": args.command,
+                "run_id": run_artifacts.run_id,
+                "run_timestamp": run_artifacts.run_timestamp,
+                "artifacts_dir": str(run_artifacts.run_dir),
+                "inputs": {
+                    "question": _resolve_question_text(args),
+                    "actors": list(args.actors or []),
+                    "base_year": args.base_year,
+                    "horizon_months": args.horizon_months,
+                    "template": args.template,
+                    "state_csv": args.state_csv,
+                    "max_countries": args.max_countries,
+                    "use_sim": use_sim,
+                    "horizon_years": args.horizon,
+                    "background_policy": getattr(args, "background_policy", None),
+                    "llm_refresh": getattr(args, "llm_refresh", None),
+                    "llm_refresh_years": getattr(args, "llm_refresh_years", None),
+                },
+                "outputs": {
+                    "evaluation_json": str(evaluation_json_path.resolve()),
+                    "dashboard_html": written["html"] if written is not None else None,
+                    "brief_markdown": str(Path(brief_path).resolve()) if brief_path is not None else None,
+                },
+            },
+            run_artifacts.run_dir,
+        )
         if args.json_output:
             print(json.dumps(asdict(evaluation), indent=2, ensure_ascii=False))
+            _emit_artifact_notice(f"JSON artifact written to {evaluation_json_path}", json_output=True)
+            if written is not None:
+                _emit_artifact_notice(f"Dashboard written to {written['html']}", json_output=True)
+            if brief_path is not None:
+                _emit_artifact_notice(f"Analytical brief written to {brief_path}", json_output=True)
+            _emit_artifact_notice(f"Run manifest written to {manifest_path}", json_output=True)
             return
         print(format_question_evaluation(evaluation))
+        print(f"\nJSON artifact written to {evaluation_json_path}")
         if written is not None:
             print(f"\nDashboard written to {written['html']}")
-            if "json" in written:
-                print(f"JSON artifact written to {written['json']}")
         if brief_path is not None:
             print(f"Analytical brief written to {brief_path}")
+        print(f"Run manifest written to {manifest_path}")
         return
 
     if args.command == "metrics":
+        run_artifacts = build_run_artifacts(args.command)
         if args.agents:
             actor_ids, _actor_names, unresolved = resolve_actor_names(world, args.agents)
             if unresolved:
@@ -439,25 +517,47 @@ def main() -> None:
                 )[:5]
             ]
         dashboard = metrics_engine.compute_dashboard(world, agent_ids=actor_ids)
+        metrics_json_path = write_json_artifact(asdict(dashboard), run_artifacts.run_dir / "metrics.json")
+        manifest_path = write_run_manifest(
+            {
+                "command": args.command,
+                "run_id": run_artifacts.run_id,
+                "run_timestamp": run_artifacts.run_timestamp,
+                "artifacts_dir": str(run_artifacts.run_dir),
+                "inputs": {
+                    "agents": list(args.agents or []),
+                    "state_csv": args.state_csv,
+                    "max_countries": args.max_countries,
+                },
+                "outputs": {
+                    "metrics_json": str(metrics_json_path.resolve()),
+                },
+            },
+            run_artifacts.run_dir,
+        )
         if args.json_output:
             print(json.dumps(asdict(dashboard), indent=2, ensure_ascii=False))
+            _emit_artifact_notice(f"Metrics JSON written to {metrics_json_path}", json_output=True)
+            _emit_artifact_notice(f"Run manifest written to {manifest_path}", json_output=True)
             return
         print(format_crisis_dashboard(dashboard))
+        print(f"\nMetrics JSON written to {metrics_json_path}")
+        print(f"Run manifest written to {manifest_path}")
         return
 
+    run_artifacts = build_run_artifacts(args.command)
     built_case_path = None
     if getattr(args, "description", None):
         build = build_case_from_text(args.description, world, prefer_llm=True)
         game = build.game
         if build.note:
             print(build.note, file=sys.stderr)
-        if args.save_case:
-            built_case_path = write_case_payload(build.payload, args.save_case)
+        case_output = resolve_run_output_path(run_artifacts.run_dir, args.save_case, "generated_case.json")
+        built_case_path = write_case_payload(build.payload, case_output)
     else:
         case_path = _resolve_case_path(args.case)
         game = load_game_definition(case_path, world)
     use_sim = _should_use_simulation(args)
-    run_timestamp, run_id = _build_run_metadata(args.command)
     if use_sim:
         bridge = SimBridge()
         result = bridge.run_game(
@@ -486,9 +586,17 @@ def main() -> None:
             trust_alpha=args.trust_alpha,
             stage_game=result,
         )
+    game_json_path = write_json_artifact(
+        {
+            "game_result": asdict(result),
+            "equilibrium_result": asdict(equilibrium_result) if equilibrium_result is not None else None,
+        },
+        run_artifacts.run_dir / "game_result.json",
+    )
     written = None
     brief_path = None
     if args.dashboard:
+        dashboard_output = resolve_run_output_path(run_artifacts.run_dir, args.dashboard_output, "dashboard.html")
         written = write_dashboard_artifacts(
             renderer=DashboardRenderer(),
             evaluation=result.best_combination.evaluation,
@@ -498,14 +606,16 @@ def main() -> None:
             scenario_def=game.scenario,
             config=_dashboard_config(
                 args,
+                output_path=str(dashboard_output),
                 use_sim=use_sim,
                 show_game_results=True,
-                run_timestamp=run_timestamp,
-                run_id=run_id,
+                run_timestamp=run_artifacts.run_timestamp,
+                run_id=run_artifacts.run_id,
             ),
-            save_json=args.json_output,
+            save_json=False,
         )
     if args.brief:
+        brief_output = resolve_run_output_path(run_artifacts.run_dir, args.brief_output, "decision_brief.md")
         brief_path = write_brief_artifact(
             renderer=AnalyticsBriefRenderer(),
             evaluation=result.best_combination.evaluation,
@@ -515,27 +625,68 @@ def main() -> None:
             scenario_def=game.scenario,
             config=_brief_config(
                 args,
+                output_path=str(brief_output),
                 use_sim=use_sim,
                 include_game_results=True,
-                run_timestamp=run_timestamp,
-                run_id=run_id,
+                run_timestamp=run_artifacts.run_timestamp,
+                run_id=run_artifacts.run_id,
             ),
         )
+    manifest_path = write_run_manifest(
+        {
+            "command": args.command,
+            "run_id": run_artifacts.run_id,
+            "run_timestamp": run_artifacts.run_timestamp,
+            "artifacts_dir": str(run_artifacts.run_dir),
+            "inputs": {
+                "case": args.case,
+                "description": args.description,
+                "save_case": args.save_case,
+                "state_csv": args.state_csv,
+                "max_countries": args.max_countries,
+                "use_sim": use_sim,
+                "horizon_years": args.horizon,
+                "background_policy": getattr(args, "background_policy", None),
+                "llm_refresh": getattr(args, "llm_refresh", None),
+                "llm_refresh_years": getattr(args, "llm_refresh_years", None),
+                "equilibrium": args.equilibrium,
+                "episodes": args.episodes,
+                "threshold": args.threshold,
+                "trust_alpha": args.trust_alpha,
+                "max_combinations": args.max_combinations,
+            },
+            "outputs": {
+                "generated_case_json": str(Path(built_case_path).resolve()) if built_case_path is not None else None,
+                "game_result_json": str(game_json_path.resolve()),
+                "dashboard_html": written["html"] if written is not None else None,
+                "brief_markdown": str(Path(brief_path).resolve()) if brief_path is not None else None,
+            },
+        },
+        run_artifacts.run_dir,
+    )
     if args.json_output:
         print(json.dumps(_serialize_game_output(result, equilibrium_result), indent=2, ensure_ascii=False))
+        _emit_artifact_notice(f"Game JSON artifact written to {game_json_path}", json_output=True)
+        if built_case_path is not None:
+            _emit_artifact_notice(f"Generated case written to {built_case_path}", json_output=True)
+        if written is not None:
+            _emit_artifact_notice(f"Dashboard written to {written['html']}", json_output=True)
+        if brief_path is not None:
+            _emit_artifact_notice(f"Analytical brief written to {brief_path}", json_output=True)
+        _emit_artifact_notice(f"Run manifest written to {manifest_path}", json_output=True)
         return
     print(format_game_result(result))
     if equilibrium_result is not None:
         print()
         print(format_equilibrium_result(equilibrium_result))
+    print(f"\nGame JSON artifact written to {game_json_path}")
     if written is not None:
         print(f"\nDashboard written to {written['html']}")
-        if "json" in written:
-            print(f"JSON artifact written to {written['json']}")
     if brief_path is not None:
         print(f"Analytical brief written to {brief_path}")
     if built_case_path is not None:
         print(f"Generated case written to {built_case_path}")
+    print(f"Run manifest written to {manifest_path}")
 
 
 if __name__ == "__main__":

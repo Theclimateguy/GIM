@@ -89,7 +89,7 @@ flowchart TD
     J --> S["credit_rating.py"]
 
     J --> T["logging_utils.py<br/>CSV outputs"]
-    T --> U["logs/*.csv"]
+    T --> U["results/<run-id>/*.csv"]
     U --> V["scripts/credit_map_leaflet.py"]
     V --> W["offline credit map"]
 ```
@@ -220,7 +220,9 @@ When logging is enabled, the model writes:
 - institution logs
 - optional offline credit map HTML
 
-Logs are written into `logs/` under the repo root.
+Real run artifacts are written into `results/<run-id>/` under the repo root, including
+world CSVs, action logs, institution logs, optional credit maps, orchestration JSON,
+dashboards, briefs, and run manifests.
 
 ## 8. Calibration Documents
 

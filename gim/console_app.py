@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime
 import json
 from math import prod
@@ -14,6 +14,7 @@ from .dashboard import DashboardConfig, DashboardRenderer, write_dashboard_artif
 from .explanations import format_equilibrium_result, format_game_result, format_question_evaluation
 from .game_theory.equilibrium_runner import run_equilibrium_search
 from .game_runner import GameRunner
+from .results import build_run_artifacts, resolve_run_output_path, write_json_artifact, write_run_manifest
 from .runtime import MISC_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
 from .sim_bridge import SimBridge, SimProgress
@@ -21,7 +22,6 @@ from .types import GameDefinition
 
 
 CASES_DIR = MISC_ROOT / "cases"
-GENERATED_CASES_DIR = MISC_ROOT / "local" / "cases"
 BUILD_NEW_GAME = "__build_new_game__"
 BACKGROUND_POLICY_CHOICES = ("compiled-llm", "llm", "simple", "growth")
 LLM_REFRESH_CHOICES = ("trigger", "periodic", "never")
@@ -149,6 +149,7 @@ def count_action_combinations(game: GameDefinition) -> int:
 
 def _maybe_write_dashboard(
     *,
+    run_dir: Path,
     evaluation,
     game_result,
     equilibrium_result,
@@ -159,10 +160,11 @@ def _maybe_write_dashboard(
     policy_mode_label: str,
     run_timestamp: str,
     run_id: str,
-) -> None:
+ ) -> str | None:
     if not _prompt_yes_no("Write dashboard (includes Decision Brief)", default=False):
-        return
-    output_path = _prompt("Dashboard output [dashboard.html]: ").strip() or "dashboard.html"
+        return None
+    default_output = resolve_run_output_path(run_dir, None, "dashboard.html")
+    output_path = _prompt(f"Dashboard output [{default_output}]: ").strip() or str(default_output)
     written = write_dashboard_artifacts(
         renderer=DashboardRenderer(),
         evaluation=evaluation,
@@ -184,10 +186,12 @@ def _maybe_write_dashboard(
         save_json=False,
     )
     _log(f"Dashboard written to {written['html']}")
+    return written["html"]
 
 
 def _maybe_write_brief(
     *,
+    run_dir: Path,
     evaluation,
     game_result,
     equilibrium_result,
@@ -198,10 +202,11 @@ def _maybe_write_brief(
     policy_mode_label: str,
     run_timestamp: str,
     run_id: str,
-) -> None:
+ ) -> str | None:
     if not _prompt_yes_no("Write standalone analytical brief", default=False):
-        return
-    output_path = _prompt("Brief output [decision_brief.md]: ").strip() or "decision_brief.md"
+        return None
+    default_output = resolve_run_output_path(run_dir, None, "decision_brief.md")
+    output_path = _prompt(f"Brief output [{default_output}]: ").strip() or str(default_output)
     written = write_brief_artifact(
         renderer=AnalyticsBriefRenderer(),
         evaluation=evaluation,
@@ -222,6 +227,7 @@ def _maybe_write_brief(
         ),
     )
     _log(f"Analytical brief written to {written}")
+    return written
 
 
 @dataclass
@@ -265,6 +271,7 @@ def _run_question_flow(session: ConsoleSession) -> None:
     horizon_months = _prompt_optional_int("Horizon months [24]: ", default=24) or 24
     horizon_years = _prompt_non_negative_int("Simulation years [0 = static]: ", default=0)
     template = _prompt("Template [auto]: ").strip() or None
+    run_artifacts = build_run_artifacts("question")
 
     started = perf_counter()
     _log("Compiling scenario from question")
@@ -313,13 +320,30 @@ def _run_question_flow(session: ConsoleSession) -> None:
         policy_mode_label = "snapshot"
     elapsed = perf_counter() - started
     _log(f"Evaluation complete in {elapsed:.2f}s")
-    run_stamp = datetime.now()
-    run_timestamp = run_stamp.strftime("%Y-%m-%d %H:%M")
-    run_id = f"question-{run_stamp.strftime('%Y%m%d-%H%M%S')}"
+    evaluation_json_path = write_json_artifact(
+        {
+            "scenario": asdict(scenario),
+            "evaluation": asdict(evaluation),
+            "game_result": None,
+            "equilibrium_result": None,
+            "trajectory": [asdict(state) for state in trajectory],
+            "dashboard_config": {
+                "execution_label": "sim" if horizon_years > 0 else "static",
+                "policy_mode_label": policy_mode_label,
+                "run_timestamp": run_artifacts.run_timestamp,
+                "run_id": run_artifacts.run_id,
+                "n_runs": 1,
+                "horizon_years": horizon_years,
+            },
+        },
+        run_artifacts.run_dir / "evaluation.json",
+    )
 
     print()
     print(format_question_evaluation(evaluation))
-    _maybe_write_dashboard(
+    _log(f"JSON artifact written to {evaluation_json_path}")
+    dashboard_path = _maybe_write_dashboard(
+        run_dir=run_artifacts.run_dir,
         evaluation=evaluation,
         game_result=None,
         equilibrium_result=None,
@@ -328,10 +352,11 @@ def _run_question_flow(session: ConsoleSession) -> None:
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
         policy_mode_label=policy_mode_label,
-        run_timestamp=run_timestamp,
-        run_id=run_id,
+        run_timestamp=run_artifacts.run_timestamp,
+        run_id=run_artifacts.run_id,
     )
-    _maybe_write_brief(
+    brief_path = _maybe_write_brief(
+        run_dir=run_artifacts.run_dir,
         evaluation=evaluation,
         game_result=None,
         equilibrium_result=None,
@@ -340,9 +365,32 @@ def _run_question_flow(session: ConsoleSession) -> None:
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
         policy_mode_label=policy_mode_label,
-        run_timestamp=run_timestamp,
-        run_id=run_id,
+        run_timestamp=run_artifacts.run_timestamp,
+        run_id=run_artifacts.run_id,
     )
+    manifest_path = write_run_manifest(
+        {
+            "command": "question",
+            "run_id": run_artifacts.run_id,
+            "run_timestamp": run_artifacts.run_timestamp,
+            "artifacts_dir": str(run_artifacts.run_dir),
+            "inputs": {
+                "question": question,
+                "actors": actors,
+                "base_year": base_year,
+                "horizon_months": horizon_months,
+                "template": template,
+                "horizon_years": horizon_years,
+            },
+            "outputs": {
+                "evaluation_json": str(evaluation_json_path.resolve()),
+                "dashboard_html": str(Path(dashboard_path).resolve()) if dashboard_path is not None else None,
+                "brief_markdown": str(Path(brief_path).resolve()) if brief_path is not None else None,
+            },
+        },
+        run_artifacts.run_dir,
+    )
+    _log(f"Run manifest written to {manifest_path}")
 
 
 def _select_case() -> Path | str | None:
@@ -377,7 +425,7 @@ def _select_case() -> Path | str | None:
         print("Choose a case number, `n`, `p`, or `b`.")
 
 
-def _run_game_builder_flow(session: ConsoleSession) -> GameDefinition | None:
+def _run_game_builder_flow(session: ConsoleSession, *, run_dir: Path) -> GameDefinition | None:
     runner = session.ensure_runner()
     assert session.world is not None
     del runner
@@ -397,7 +445,7 @@ def _run_game_builder_flow(session: ConsoleSession) -> GameDefinition | None:
     _log(f"Players: {', '.join(player.display_name for player in game.players)}")
 
     if _prompt_yes_no("Save generated case JSON", default=True):
-        default_path = GENERATED_CASES_DIR / f"{game.id}.json"
+        default_path = resolve_run_output_path(run_dir, None, f"{game.id}.json")
         output_path = _prompt(f"Case output [{default_path}]: ").strip() or str(default_path)
         saved_path = write_case_payload(build.payload, output_path)
         _log(f"Case JSON written to {saved_path}")
@@ -413,12 +461,17 @@ def _run_game_flow(session: ConsoleSession) -> None:
     if case_selection is None:
         return
 
+    run_artifacts = build_run_artifacts("game")
     started = perf_counter()
+    built_case_path = None
     if case_selection == BUILD_NEW_GAME:
-        game = _run_game_builder_flow(session)
+        game = _run_game_builder_flow(session, run_dir=run_artifacts.run_dir)
         if game is None:
             return
         _log(f"Interactive game ready: {game.title}")
+        default_case_path = run_artifacts.run_dir / f"{game.id}.json"
+        if default_case_path.exists():
+            built_case_path = default_case_path
     else:
         case_path = case_selection
         _log(f"Loading game case from {case_path}")
@@ -482,16 +535,22 @@ def _run_game_flow(session: ConsoleSession) -> None:
         )
     elapsed = perf_counter() - started
     _log(f"Game evaluation complete in {elapsed:.2f}s")
-    run_stamp = datetime.now()
-    run_timestamp = run_stamp.strftime("%Y-%m-%d %H:%M")
-    run_id = f"game-{run_stamp.strftime('%Y%m%d-%H%M%S')}"
+    game_json_path = write_json_artifact(
+        {
+            "game_result": asdict(result),
+            "equilibrium_result": asdict(equilibrium_result) if equilibrium_result is not None else None,
+        },
+        run_artifacts.run_dir / "game_result.json",
+    )
 
     print()
     print(format_game_result(result))
     if equilibrium_result is not None:
         print()
         print(format_equilibrium_result(equilibrium_result))
-    _maybe_write_dashboard(
+    _log(f"Game JSON artifact written to {game_json_path}")
+    dashboard_path = _maybe_write_dashboard(
+        run_dir=run_artifacts.run_dir,
         evaluation=result.best_combination.evaluation,
         game_result=result,
         equilibrium_result=equilibrium_result,
@@ -500,10 +559,11 @@ def _run_game_flow(session: ConsoleSession) -> None:
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
         policy_mode_label=policy_mode_label,
-        run_timestamp=run_timestamp,
-        run_id=run_id,
+        run_timestamp=run_artifacts.run_timestamp,
+        run_id=run_artifacts.run_id,
     )
-    _maybe_write_brief(
+    brief_path = _maybe_write_brief(
+        run_dir=run_artifacts.run_dir,
         evaluation=result.best_combination.evaluation,
         game_result=result,
         equilibrium_result=equilibrium_result,
@@ -512,9 +572,30 @@ def _run_game_flow(session: ConsoleSession) -> None:
         horizon_years=horizon_years,
         use_sim=horizon_years > 0,
         policy_mode_label=policy_mode_label,
-        run_timestamp=run_timestamp,
-        run_id=run_id,
+        run_timestamp=run_artifacts.run_timestamp,
+        run_id=run_artifacts.run_id,
     )
+    manifest_path = write_run_manifest(
+        {
+            "command": "game",
+            "run_id": run_artifacts.run_id,
+            "run_timestamp": run_artifacts.run_timestamp,
+            "artifacts_dir": str(run_artifacts.run_dir),
+            "inputs": {
+                "selected_case": str(case_selection) if case_selection != BUILD_NEW_GAME else "generated",
+                "horizon_years": horizon_years,
+                "equilibrium": equilibrium_result is not None,
+            },
+            "outputs": {
+                "generated_case_json": str(Path(built_case_path).resolve()) if built_case_path is not None else None,
+                "game_result_json": str(game_json_path.resolve()),
+                "dashboard_html": str(Path(dashboard_path).resolve()) if dashboard_path is not None else None,
+                "brief_markdown": str(Path(brief_path).resolve()) if brief_path is not None else None,
+            },
+        },
+        run_artifacts.run_dir,
+    )
+    _log(f"Run manifest written to {manifest_path}")
 
 
 def run_console(state_csv: str | None = None, max_countries: int | None = None) -> None:

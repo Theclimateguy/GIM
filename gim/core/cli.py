@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 import os
 import random
 import subprocess
@@ -6,6 +7,7 @@ import sys
 from pathlib import Path
 
 from ..paths import DEFAULT_STATE_CSV, LEAFLET_CSS, LEAFLET_JS, MAP_SCRIPT, WORLD_GEOJSON
+from ..results import build_run_artifacts, write_run_manifest
 from .logging_utils import (
     log_actions_to_csv,
     log_institutions_to_csv,
@@ -138,9 +140,12 @@ def main() -> None:
     enable_extreme_events = not _is_truthy(os.getenv("DISABLE_EXTREME_EVENTS"))
     save_csv_logs = _bool_env("SAVE_CSV_LOGS", default=False)
     generate_credit_map = _bool_env("GENERATE_CREDIT_MAP", default=True)
+    run_artifacts = build_run_artifacts("world")
+    print(f"Artifacts directory: {run_artifacts.run_dir}")
     print(f"\nRunning {years}-year simulation...")
     print("Progress:")
 
+    time_start = world.time
     total_gdp_start = sum(agent.economy.gdp for agent in world.agents.values())
     total_pop_start = sum(agent.economy.population for agent in world.agents.values())
     temp_start = world.global_state.temperature_global
@@ -163,11 +168,19 @@ def main() -> None:
 
     print("\n\nSimulation complete")
 
+    csv_path: str | None = None
+    actions_path: str | None = None
+    institutions_path: str | None = None
+    map_path: str | None = None
     if save_csv_logs:
         sim_id = make_sim_id(MODEL_DISPLAY_NAME)
-        csv_path = log_world_to_csv(history, sim_id)
-        actions_path = log_actions_to_csv(action_log or [], sim_id)
-        institutions_path = log_institutions_to_csv(institution_log or [], sim_id)
+        csv_path = log_world_to_csv(history, sim_id, base_dir=str(run_artifacts.run_dir))
+        actions_path = log_actions_to_csv(action_log or [], sim_id, base_dir=str(run_artifacts.run_dir))
+        institutions_path = log_institutions_to_csv(
+            institution_log or [],
+            sim_id,
+            base_dir=str(run_artifacts.run_dir),
+        )
         print(f"\nResults saved to: {csv_path}")
         print(f"Actions log saved to: {actions_path}")
         print(f"Institutions log saved to: {institutions_path}")
@@ -195,6 +208,47 @@ def main() -> None:
         f"+{world.global_state.temperature_global:.4f}C"
     )
     print("=" * 70)
+    manifest_path = write_run_manifest(
+        {
+            "command": "world",
+            "run_id": run_artifacts.run_id,
+            "run_timestamp": run_artifacts.run_timestamp,
+            "artifacts_dir": str(run_artifacts.run_dir),
+            "inputs": {
+                "state_csv": str(Path(state_csv).resolve()),
+                "max_countries": max_countries,
+                "policy_mode": policy_mode,
+                "llm_enabled": use_llm,
+                "llm_enablement_reason": llm_reason,
+                "sim_years": years,
+                "sim_seed": int(seed_raw) if seed_raw is not None else None,
+                "save_csv_logs": save_csv_logs,
+                "generate_credit_map": generate_credit_map,
+                "extreme_events_enabled": enable_extreme_events,
+            },
+            "summary": {
+                "time_start": time_start,
+                "time_end": world.time,
+                "world_gdp_start": total_gdp_start,
+                "world_gdp_end": total_gdp_end,
+                "world_gdp_growth_pct": gdp_growth,
+                "population_start": total_pop_start,
+                "population_end": total_pop_end,
+                "population_growth_pct": pop_growth,
+                "temperature_start": temp_start,
+                "temperature_end": world.global_state.temperature_global,
+                "created_at": datetime.now().isoformat(timespec="seconds"),
+            },
+            "outputs": {
+                "world_csv": csv_path,
+                "actions_csv": actions_path,
+                "institutions_csv": institutions_path,
+                "credit_map_html": map_path,
+            },
+        },
+        run_artifacts.run_dir,
+    )
+    print(f"Run manifest written to: {manifest_path}")
 
 
 if __name__ == "__main__":
