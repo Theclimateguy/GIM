@@ -1,0 +1,58 @@
+{
+  "case_id": "france_gilets_jaunes_2018",
+  "title": "France gilets jaunes near-miss",
+  "description": "France 2018-2019 protest wave: high social tension contained through policy response, leaving the regime intact.",
+  "reference_period": "2018-Q4 to 2019-Q1",
+  "tags": ["historical", "near_miss", "protests", "france"],
+  "question": "Could protest pressure and fuel-tax unrest destabilize France during the 2018 gilets jaunes crisis?",
+  "template": "generic_tail_risk",
+  "risk_bias_overrides": {
+    "status_quo": -0.05,
+    "internal_destabilization": 0.10,
+    "controlled_suppression": -0.20,
+    "negotiated_deescalation": -0.05
+  },
+  "scenario_year": 2018,
+  "horizon_months": 12,
+  "agents": ["France"],
+  "initial_state_overrides": {
+    "France": {
+      "economy.public_debt_gdp": 0.98,
+      "economy.unemployment": 0.089,
+      "society.trust_gov": 0.27,
+      "society.social_tension": 0.72,
+      "society.inequality_gini": 32.4,
+      "political.policy_space": 0.61,
+      "political.protest_pressure": 0.74,
+      "political.legitimacy": 0.52,
+      "risk.regime_stability": 0.71,
+      "culture.pdi": 68.0,
+      "culture.survival_self_expression": 7.1
+    }
+  },
+  "observed_pressure": {
+    "conflict_stress": 0.09,
+    "social_stress": 0.72,
+    "debt_stress": 0.41,
+    "resource_gap": 0.08,
+    "policy_space": 0.61,
+    "negotiation_capacity": 0.44,
+    "sanctions_pressure": 0.01,
+    "actor_count_pressure": 0.05,
+    "military_posture": 0.35,
+    "energy_dependence": 0.18,
+    "tail_pressure": 1.18
+  },
+  "expected_outcomes": {
+    "dominant": "status_quo",
+    "secondary": "internal_destabilization",
+    "excluded": ["direct_strike_exchange", "broad_regional_escalation"]
+  },
+  "criticality": "high",
+  "discriminating_weights": [
+    "status_quo:policy_space",
+    "status_quo:social_stress",
+    "internal_destabilization:social_stress"
+  ],
+  "notes": "Policy response wins over unrest. If policy-space support weakens too much, this case should flip into internal destabilization."
+}

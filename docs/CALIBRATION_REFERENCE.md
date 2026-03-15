@@ -96,6 +96,17 @@ Current operational scenario suite:
 - suite mix: `7` crisis/historical stress cases + `4` stable negative-control cases
 - latest local run: `11/11` passed
 
+Current crisis near-miss suite:
+
+- suite id: `operational_v2`
+- packaged historical cases: `5`
+- scope: Brazil `2002`, South Korea `1997`, Turkey `2018`, Argentina `2001`, France `2018`
+- latest local run: `5/5` passed
+- dominant labels now match the intended near-miss interpretation:
+  - Brazil / South Korea -> `negotiated_deescalation`
+  - Turkey / Argentina -> `internal_destabilization`
+  - France -> `status_quo`
+
 Current crisis-state calibration result:
 
 - debt crises are now stateful and can persist for up to `8` years with repeated GDP / trust / tension damage
@@ -110,6 +121,18 @@ Current sensitivity-sweep result:
 - under `+-20%` perturbations, the current `11`-case suite produced no pass/fail flips
 - the largest average-score movement on the present suite was `0.015`, concentrated in `direct_strike_exchange` conflict/military weights, `limited_proxy_escalation` conflict weight, and the `status_quo` intercept
 - interpretation: the suite is now robust against small manual retuning, but several outcome weights are still only weakly identified and will need richer historical cases if we want sharper coefficient ranking
+
+Current operational_v2 sensitivity result:
+
+- when a suite defines `discriminating_weights`, the sweep now defaults to that smaller set instead of the full `40`-weight outcome layer
+- latest local run on `operational_v2`: `6 / 8` discriminating paths flagged `high`
+- strongest flips now appear in:
+  - `outcome_driver:negotiated_deescalation:negotiation_capacity`
+  - `outcome_driver:status_quo:policy_space`
+  - `outcome_driver:status_quo:social_stress`
+  - `outcome_driver:internal_destabilization:debt_stress`
+  - `outcome_driver:internal_destabilization:social_stress`
+  - `outcome_intercept:status_quo`
 
 ## 4. Artifact Rules
 

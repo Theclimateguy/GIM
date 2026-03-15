@@ -402,6 +402,8 @@ class SimBridge:
         self,
         trajectory: list[WorldState],
         scenario_def: ScenarioDefinition,
+        *,
+        aggregate_overrides: dict[str, float] | None = None,
     ) -> ScenarioEvaluation:
         """
         Score the terminal state with the existing GameRunner and replace crisis metrics with
@@ -414,7 +416,11 @@ class SimBridge:
         initial_world = trajectory[0]
         terminal_world = trajectory[-1]
         terminal_runner = GameRunner(terminal_world)
-        evaluation = terminal_runner.evaluate_scenario(scenario_def, selected_actions={})
+        evaluation = terminal_runner.evaluate_scenario(
+            scenario_def,
+            selected_actions={},
+            aggregate_overrides=aggregate_overrides,
+        )
 
         agent_ids = self._selected_agent_ids(initial_world, scenario_def)
         baseline_dashboard = self.metrics_engine.compute_dashboard(initial_world, agent_ids=agent_ids)
@@ -450,6 +456,7 @@ class SimBridge:
         llm_refresh: str = "trigger",
         llm_refresh_years: int = 2,
         progress_callback: Callable[[SimProgress], None] | None = None,
+        aggregate_overrides: dict[str, float] | None = None,
     ) -> tuple[ScenarioEvaluation, list[WorldState]]:
         policy_map = self.build_policy_map(
             world,
@@ -477,7 +484,11 @@ class SimBridge:
         )
         if tracker is not None:
             tracker.complete("Scenario simulation complete")
-        return self.score_trajectory(trajectory, scenario_def), trajectory
+        return self.score_trajectory(
+            trajectory,
+            scenario_def,
+            aggregate_overrides=aggregate_overrides,
+        ), trajectory
 
     def run_game(
         self,

@@ -1,0 +1,60 @@
+{
+  "case_id": "turkey_fx_crisis_2018",
+  "title": "Turkey FX crisis containment",
+  "description": "Turkey 2018 FX crisis: intense social and external stress with regime retention, but no negotiated external stabilization and no outright collapse.",
+  "reference_period": "2018-Q2 to 2018-Q4",
+  "tags": ["historical", "near_miss", "fx", "turkiye"],
+  "question": "Could inflation, FX stress and sanctions pressure destabilize Turkey during the 2018 lira crisis?",
+  "template": "generic_tail_risk",
+  "risk_bias_overrides": {
+    "status_quo": -0.15,
+    "internal_destabilization": 0.00,
+    "controlled_suppression": 0.00,
+    "negotiated_deescalation": -0.15
+  },
+  "scenario_year": 2018,
+  "horizon_months": 12,
+  "agents": ["Turkiye"],
+  "initial_state_overrides": {
+    "Turkiye": {
+      "economy.inflation": 0.156,
+      "economy.unemployment": 0.107,
+      "economy.public_debt_gdp": 0.31,
+      "economy.fx_reserves": 0.041,
+      "risk.debt_crisis_prone": 0.58,
+      "risk.regime_stability": 0.61,
+      "society.trust_gov": 0.47,
+      "society.social_tension": 0.66,
+      "society.inequality_gini": 41.9,
+      "culture.pdi": 66.0,
+      "culture.regime_type": "Autocracy",
+      "political.hawkishness": 0.72,
+      "political.policy_space": 0.38
+    }
+  },
+  "observed_pressure": {
+    "conflict_stress": 0.22,
+    "social_stress": 0.66,
+    "debt_stress": 0.58,
+    "resource_gap": 0.38,
+    "policy_space": 0.38,
+    "negotiation_capacity": 0.28,
+    "sanctions_pressure": 0.31,
+    "actor_count_pressure": 0.10,
+    "military_posture": 0.62,
+    "energy_dependence": 0.42,
+    "tail_pressure": 1.31
+  },
+  "expected_outcomes": {
+    "dominant": "internal_destabilization",
+    "secondary": "controlled_suppression",
+    "excluded": ["direct_strike_exchange", "broad_regional_escalation", "negotiated_deescalation"]
+  },
+  "criticality": "high",
+  "discriminating_weights": [
+    "controlled_suppression:military_posture",
+    "internal_destabilization:social_stress",
+    "outcome_driver:negotiated_deescalation:negotiation_capacity"
+  ],
+  "notes": "No full regime collapse despite extreme stress. This case tests the boundary between destabilization and controlled retention."
+}

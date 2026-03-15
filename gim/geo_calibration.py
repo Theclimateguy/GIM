@@ -50,7 +50,7 @@ OUTCOME_DRIVERS: Dict[str, Dict[str, GeoWeight]] = {
     "status_quo": {
         "social_stress": _prior(-0.35, 0.08),
         "conflict_stress": _prior(-0.20, 0.07),
-        "policy_space": _prior(0.20, 0.07),
+        "policy_space": _prior(0.25, 0.07),
         "resource_gap": _prior(-0.15, 0.06),
     },
     "controlled_suppression": {

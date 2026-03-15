@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+import copy
 import json
 from pathlib import Path
 from statistics import mean, pstdev
@@ -33,6 +34,9 @@ class CalibrationScenarioSpec:
     template: str | None = None
     base_year: int | None = None
     horizon_months: int = 24
+    initial_state_overrides: dict[str, dict[str, Any]] = field(default_factory=dict)
+    observed_pressure: dict[str, float] = field(default_factory=dict)
+    risk_bias_overrides: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -40,6 +44,7 @@ class CalibrationExpectationSpec:
     top_outcomes: list[str]
     dominant_outcomes: list[str] = field(default_factory=list)
     drivers: list[str] = field(default_factory=list)
+    excluded_outcomes: list[str] = field(default_factory=list)
     actor_metrics: dict[str, list[str]] = field(default_factory=dict)
     min_calibration_score: float = 0.85
     min_physical_consistency_score: float = 0.85
@@ -57,6 +62,7 @@ class CalibrationCaseSpec:
     expectations: CalibrationExpectationSpec
     historical_signals: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
+    discriminating_weights: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -117,7 +123,77 @@ def discover_calibration_cases(suite_id: str = DEFAULT_CALIBRATION_SUITE) -> lis
     suite_dir = CALIBRATION_CASES_DIR / suite_id
     if not suite_dir.exists():
         raise FileNotFoundError(f"Calibration suite '{suite_id}' does not exist: {suite_dir}")
-    return sorted(path for path in suite_dir.glob("*.json") if path.is_file())
+    cases = list(suite_dir.glob("*.json")) + list(suite_dir.glob("*.yaml")) + list(suite_dir.glob("*.yml"))
+    return sorted(path for path in cases if path.is_file())
+
+
+def _load_case_payload(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text())
+
+
+def _criticality_floor(level: str | None) -> float:
+    mapping = {
+        "low": 0.35,
+        "moderate": 0.45,
+        "high": 0.50,
+        "critical": 0.60,
+    }
+    if not level:
+        return 0.50
+    return mapping.get(level.lower(), 0.50)
+
+
+def _normalize_case_weight_path(path: str) -> str:
+    normalized = path.strip()
+    if not normalized:
+        return normalized
+    if normalized in {
+        "status_quo",
+        "controlled_suppression",
+        "internal_destabilization",
+        "limited_proxy_escalation",
+        "maritime_chokepoint_crisis",
+        "direct_strike_exchange",
+        "broad_regional_escalation",
+        "negotiated_deescalation",
+    }:
+        return f"outcome_intercept:{normalized}"
+    parts = normalized.split(":")
+    if parts[0] in {"outcome_intercept", "outcome_driver", "outcome_link", "tail_risk"}:
+        return normalized
+    if len(parts) == 2:
+        return f"outcome_driver:{normalized}"
+    return normalized
+
+
+def _derive_driver_expectations(raw: dict[str, Any]) -> list[str]:
+    explicit = raw.get("expected_drivers")
+    if isinstance(explicit, list) and explicit:
+        return [str(value) for value in explicit if str(value).strip()]
+
+    derived: list[str] = []
+    for path_value in raw.get("discriminating_weights", []):
+        normalized = _normalize_case_weight_path(str(path_value))
+        parts = normalized.split(":")
+        if len(parts) >= 3 and parts[0] == "outcome_driver":
+            feature_name = parts[2]
+            if feature_name not in derived:
+                derived.append(feature_name)
+        elif parts and parts[0] == "tail_risk" and "tail_pressure" not in derived:
+            derived.append("tail_pressure")
+    if derived:
+        return derived
+
+    observed_pressure = raw.get("observed_pressure", {})
+    ranked = sorted(
+        (
+            (str(key), float(value))
+            for key, value in observed_pressure.items()
+        ),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    return [name for name, _value in ranked[:4]]
 
 
 def _default_calibration_state_csv() -> str:
@@ -125,37 +201,158 @@ def _default_calibration_state_csv() -> str:
 
 
 def _load_case(path: Path) -> CalibrationCaseSpec:
-    raw = json.loads(path.read_text())
+    raw = _load_case_payload(path)
+    if "scenario" in raw and "expectations" in raw:
+        return CalibrationCaseSpec(
+            id=str(raw["id"]),
+            title=str(raw["title"]),
+            description=str(raw["description"]),
+            reference_period=str(raw["reference_period"]),
+            scenario=CalibrationScenarioSpec(
+                question=str(raw["scenario"]["question"]),
+                actors=list(raw["scenario"].get("actors", [])),
+                template=raw["scenario"].get("template"),
+                base_year=raw["scenario"].get("base_year"),
+                horizon_months=int(raw["scenario"].get("horizon_months", 24)),
+                initial_state_overrides={
+                    str(actor_name): dict(overrides)
+                    for actor_name, overrides in raw["scenario"].get("initial_state_overrides", {}).items()
+                },
+                observed_pressure={
+                    str(key): float(value)
+                    for key, value in raw["scenario"].get("observed_pressure", {}).items()
+                },
+                risk_bias_overrides={
+                    str(key): float(value)
+                    for key, value in raw["scenario"].get("risk_bias_overrides", {}).items()
+                },
+            ),
+            expectations=CalibrationExpectationSpec(
+                top_outcomes=list(raw["expectations"].get("top_outcomes", [])),
+                dominant_outcomes=list(raw["expectations"].get("dominant_outcomes", [])),
+                drivers=list(raw["expectations"].get("drivers", [])),
+                excluded_outcomes=list(raw["expectations"].get("excluded_outcomes", [])),
+                actor_metrics={
+                    str(actor_name): list(metric_names)
+                    for actor_name, metric_names in raw["expectations"].get("actor_metrics", {}).items()
+                },
+                min_calibration_score=float(raw["expectations"].get("min_calibration_score", 0.85)),
+                min_physical_consistency_score=float(
+                    raw["expectations"].get("min_physical_consistency_score", 0.85)
+                ),
+                min_criticality_score=float(raw["expectations"].get("min_criticality_score", 0.50)),
+                minimum_case_score=float(raw["expectations"].get("minimum_case_score", 0.65)),
+            ),
+            historical_signals=list(raw.get("historical_signals", [])),
+            tags=list(raw.get("tags", [])),
+            discriminating_weights=[
+                _normalize_case_weight_path(str(path_value))
+                for path_value in raw.get("discriminating_weights", [])
+            ],
+        )
+
+    expected = raw.get("expected_outcomes", {})
+    dominant_outcomes = [
+        outcome
+        for outcome in (
+            expected.get("dominant"),
+            expected.get("secondary"),
+        )
+        if isinstance(outcome, str)
+        and outcome
+        and outcome
+        in {
+            "status_quo",
+            "controlled_suppression",
+            "internal_destabilization",
+            "limited_proxy_escalation",
+            "maritime_chokepoint_crisis",
+            "direct_strike_exchange",
+            "broad_regional_escalation",
+            "negotiated_deescalation",
+        }
+    ]
+    top_outcomes = dominant_outcomes[:1]
+    description = str(raw.get("description") or raw.get("notes") or str(raw["case_id"]).replace("_", " "))
+    reference_period = str(raw.get("reference_period") or f"{raw.get('scenario_year', 2023)}")
+    historical_signals = []
+    notes = raw.get("notes")
+    if isinstance(notes, str) and notes:
+        historical_signals.append(notes)
     return CalibrationCaseSpec(
-        id=str(raw["id"]),
-        title=str(raw["title"]),
-        description=str(raw["description"]),
-        reference_period=str(raw["reference_period"]),
+        id=str(raw["case_id"]),
+        title=str(raw.get("title") or str(raw["case_id"]).replace("_", " ").title()),
+        description=description,
+        reference_period=reference_period,
         scenario=CalibrationScenarioSpec(
-            question=str(raw["scenario"]["question"]),
-            actors=list(raw["scenario"].get("actors", [])),
-            template=raw["scenario"].get("template"),
-            base_year=raw["scenario"].get("base_year"),
-            horizon_months=int(raw["scenario"].get("horizon_months", 24)),
+            question=str(raw.get("question") or str(raw["case_id"]).replace("_", " ")),
+            actors=list(raw.get("agents", [])),
+            template=raw.get("template"),
+            base_year=raw.get("scenario_year"),
+            horizon_months=int(raw.get("horizon_months", 24)),
+            initial_state_overrides={
+                str(actor_name): dict(overrides)
+                for actor_name, overrides in raw.get("initial_state_overrides", {}).items()
+            },
+            observed_pressure={
+                str(key): float(value)
+                for key, value in raw.get("observed_pressure", {}).items()
+            },
+            risk_bias_overrides={
+                str(key): float(value)
+                for key, value in raw.get("risk_bias_overrides", {}).items()
+            },
         ),
         expectations=CalibrationExpectationSpec(
-            top_outcomes=list(raw["expectations"].get("top_outcomes", [])),
-            dominant_outcomes=list(raw["expectations"].get("dominant_outcomes", [])),
-            drivers=list(raw["expectations"].get("drivers", [])),
-            actor_metrics={
-                str(actor_name): list(metric_names)
-                for actor_name, metric_names in raw["expectations"].get("actor_metrics", {}).items()
-            },
-            min_calibration_score=float(raw["expectations"].get("min_calibration_score", 0.85)),
-            min_physical_consistency_score=float(
-                raw["expectations"].get("min_physical_consistency_score", 0.85)
-            ),
-            min_criticality_score=float(raw["expectations"].get("min_criticality_score", 0.50)),
-            minimum_case_score=float(raw["expectations"].get("minimum_case_score", 0.65)),
+            top_outcomes=top_outcomes,
+            dominant_outcomes=dominant_outcomes,
+            drivers=_derive_driver_expectations(raw),
+            excluded_outcomes=list(expected.get("excluded", [])),
+            min_calibration_score=float(raw.get("min_calibration_score", 0.85)),
+            min_physical_consistency_score=float(raw.get("min_physical_consistency_score", 0.85)),
+            min_criticality_score=float(raw.get("min_criticality_score", _criticality_floor(raw.get("criticality")))),
+            minimum_case_score=float(raw.get("minimum_case_score", 0.68)),
         ),
-        historical_signals=list(raw.get("historical_signals", [])),
-        tags=list(raw.get("tags", [])),
+        historical_signals=historical_signals,
+        tags=list(raw.get("tags", ["historical", "near_miss", "suite_v2"])),
+        discriminating_weights=[
+            _normalize_case_weight_path(str(path_value))
+            for path_value in raw.get("discriminating_weights", [])
+        ],
     )
+
+
+def load_calibration_cases(suite_id: str = DEFAULT_CALIBRATION_SUITE) -> list[CalibrationCaseSpec]:
+    return [_load_case(path) for path in discover_calibration_cases(suite_id)]
+
+
+def _resolve_actor_id(world: Any, actor_name: str) -> str:
+    for agent_id, agent in world.agents.items():
+        if agent.name == actor_name or agent.id == actor_name:
+            return agent_id
+    raise KeyError(f"Calibration override references unknown actor: {actor_name}")
+
+
+def _apply_path_override(target: Any, path: str, value: Any) -> None:
+    parts = path.split(".")
+    container = target
+    for part in parts[:-1]:
+        container = getattr(container, part)
+    leaf = parts[-1]
+    if leaf == "public_debt_gdp" and hasattr(container, "public_debt") and hasattr(container, "gdp"):
+        setattr(container, "public_debt", float(value) * float(getattr(container, "gdp")))
+        return
+    setattr(container, leaf, value)
+
+
+def apply_state_overrides(world: Any, overrides: dict[str, dict[str, Any]]) -> Any:
+    for actor_name, actor_overrides in overrides.items():
+        actor_id = _resolve_actor_id(world, actor_name)
+        agent = world.agents[actor_id]
+        for path, value in actor_overrides.items():
+            _apply_path_override(agent, path, value)
+        agent.economy.gdp_per_capita = agent.economy.gdp * 1e12 / max(agent.economy.population, 1.0)
+    return world
 
 
 def _overlap_ratio(expected: list[str], actual: list[str]) -> float:
@@ -185,13 +382,18 @@ def _actor_metric_names(evaluation: Any, limit: int = DEFAULT_TOP_METRIC_LIMIT) 
 
 
 def _quality_checks(expectations: CalibrationExpectationSpec, evaluation: Any) -> dict[str, bool]:
-    return {
+    checks = {
         "calibration_score": evaluation.calibration_score >= expectations.min_calibration_score,
         "physical_consistency_score": (
             evaluation.physical_consistency_score >= expectations.min_physical_consistency_score
         ),
         "criticality_score": evaluation.criticality_score >= expectations.min_criticality_score,
     }
+    if expectations.excluded_outcomes:
+        excluded = set(expectations.excluded_outcomes)
+        top_outcome = evaluation.dominant_outcomes[0] if evaluation.dominant_outcomes else None
+        checks["excluded_outcomes"] = top_outcome not in excluded
+    return checks
 
 
 def _score_case(case: CalibrationCaseSpec, evaluation: Any) -> CalibrationCaseResult:
@@ -288,26 +490,37 @@ def _run_single_case(
     bridge: SimBridge | None,
     config: CalibrationRunConfig,
 ) -> Any:
+    case_world = copy.deepcopy(world)
+    if case.scenario.initial_state_overrides:
+        apply_state_overrides(case_world, case.scenario.initial_state_overrides)
+    case_runner = GameRunner(case_world)
+    case_bridge = SimBridge() if bridge is not None else None
     scenario = compile_question(
         question=case.scenario.question,
-        world=world,
+        world=case_world,
         base_year=case.scenario.base_year,
         actors=case.scenario.actors,
         horizon_months=case.scenario.horizon_months,
         template_id=case.scenario.template,
     )
+    if case.scenario.risk_bias_overrides:
+        scenario.risk_biases.update(case.scenario.risk_bias_overrides)
     if config.use_sim and config.horizon_years > 0:
-        assert bridge is not None
-        evaluation, _trajectory = bridge.evaluate_scenario(
-            world,
+        assert case_bridge is not None
+        evaluation, _trajectory = case_bridge.evaluate_scenario(
+            case_world,
             scenario,
             n_years=config.horizon_years,
             default_mode=config.default_mode,
             llm_refresh=config.llm_refresh,
             llm_refresh_years=config.llm_refresh_years,
+            aggregate_overrides=case.scenario.observed_pressure if case.scenario.observed_pressure else None,
         )
         return evaluation
-    return runner.evaluate_scenario(scenario)
+    return case_runner.evaluate_scenario(
+        scenario,
+        aggregate_overrides=case.scenario.observed_pressure if case.scenario.observed_pressure else None,
+    )
 
 
 def _aggregate_case_results(
@@ -338,6 +551,12 @@ def _aggregate_case_results(
         ),
         "criticality_score": mean_criticality_score >= case.expectations.min_criticality_score,
     }
+    if case.expectations.excluded_outcomes:
+        excluded = set(case.expectations.excluded_outcomes)
+        quality_checks["excluded_outcomes"] = all(
+            not result.snapshot.dominant_outcomes or result.snapshot.dominant_outcomes[0] not in excluded
+            for result in run_results
+        )
 
     notes = list(representative.notes)
     if std_score > 0.0:
@@ -387,7 +606,7 @@ def run_operational_calibration(
     runner = GameRunner(world)
     bridge = SimBridge() if active_config.use_sim and active_config.horizon_years > 0 else None
 
-    case_specs = [_load_case(path) for path in discover_calibration_cases(suite_id)]
+    case_specs = load_calibration_cases(suite_id)
     if case_ids is not None:
         case_specs = [case for case in case_specs if case.id in case_ids]
     results: list[CalibrationCaseResult] = []

@@ -3,7 +3,11 @@ from __future__ import annotations
 import unittest
 
 from gim.geo_calibration import collect_geo_weight_paths
-from gim.sensitivity_sweep import outcome_weight_paths, run_geo_sensitivity_sweep
+from gim.sensitivity_sweep import (
+    discriminating_weight_paths,
+    outcome_weight_paths,
+    run_geo_sensitivity_sweep,
+)
 
 
 class SensitivitySweepTests(unittest.TestCase):
@@ -37,6 +41,14 @@ class SensitivitySweepTests(unittest.TestCase):
         restored = collect_geo_weight_paths()
         for path, weight in original.items():
             self.assertEqual(restored[path], weight)
+
+    def test_operational_v2_defaults_to_discriminating_paths_and_flags_high_sensitivity(self) -> None:
+        discriminating_paths = discriminating_weight_paths(suite_id="operational_v2")
+        report = run_geo_sensitivity_sweep(suite_id="operational_v2")
+
+        self.assertEqual(sorted(entry.path for entry in report.entries), discriminating_paths)
+        high_entries = [entry for entry in report.entries if entry.sensitivity_flag == "high"]
+        self.assertGreaterEqual(len(high_entries), 6)
 
 
 if __name__ == "__main__":

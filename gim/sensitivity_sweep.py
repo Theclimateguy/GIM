@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-from .calibration import CalibrationRunConfig, run_operational_calibration
+from .calibration import CalibrationRunConfig, load_calibration_cases, run_operational_calibration
 from . import geo_calibration as geo
 
 
@@ -58,6 +58,19 @@ def outcome_weight_paths(categories: Iterable[str] = OUTCOME_SENSITIVITY_CATEGOR
     )
 
 
+def discriminating_weight_paths(
+    *,
+    suite_id: str = "operational_v1",
+    case_ids: set[str] | None = None,
+) -> list[str]:
+    selected = []
+    for case in load_calibration_cases(suite_id):
+        if case_ids is not None and case.id not in case_ids:
+            continue
+        selected.extend(case.discriminating_weights)
+    return sorted(dict.fromkeys(path for path in selected if path))
+
+
 def _case_result_map(result) -> dict[str, object]:
     return {case_result.case_id: case_result for case_result in result.results}
 
@@ -71,14 +84,18 @@ def run_geo_sensitivity_sweep(
     config: CalibrationRunConfig | None = None,
     case_ids: set[str] | None = None,
 ) -> GeoWeightSensitivityReport:
-    active_paths = weight_paths or outcome_weight_paths()
+    active_case_ids = set(case_ids) if case_ids is not None else None
+    active_paths = weight_paths
+    if active_paths is None:
+        active_paths = discriminating_weight_paths(suite_id=suite_id, case_ids=active_case_ids)
+    active_paths = active_paths or outcome_weight_paths()
     active_config = config or CalibrationRunConfig()
 
     baseline = run_operational_calibration(
         suite_id=suite_id,
         state_csv=state_csv,
         config=active_config,
-        case_ids=case_ids,
+        case_ids=active_case_ids,
     )
     baseline_by_case = _case_result_map(baseline)
     baseline_weights = geo.collect_geo_weight_paths()
@@ -95,7 +112,7 @@ def run_geo_sensitivity_sweep(
                     suite_id=suite_id,
                     state_csv=state_csv,
                     config=active_config,
-                    case_ids=case_ids,
+                    case_ids=active_case_ids,
                 )
                 perturbed_by_case = _case_result_map(perturbed)
                 changed_pass_fail_cases = sorted(
@@ -128,6 +145,7 @@ def run_geo_sensitivity_sweep(
         )
         sensitivity_flag = "high" if (
             any(entry.changed_pass_fail_cases for entry in perturbations)
+            or any(entry.changed_top_outcome_cases for entry in perturbations)
             or max_abs_average_score_delta >= 0.03
         ) else "low"
         entries.append(
@@ -178,8 +196,8 @@ def format_geo_sensitivity_report(report: GeoWeightSensitivityReport, top_n: int
                 + (
                     f"x{perturbation.factor:.2f} -> avg={perturbation.average_score:.3f} "
                     f"pass={perturbation.pass_count}/{perturbation.case_count} "
-                    f"pass_fail_flips={','.join(perturbation.changed_pass_fail_cases) or 'none'}"
+                    f"pass_fail_flips={','.join(perturbation.changed_pass_fail_cases) or 'none'} "
+                    f"top_flips={','.join(perturbation.changed_top_outcome_cases) or 'none'}"
                 )
             )
     return "\n".join(lines)
-

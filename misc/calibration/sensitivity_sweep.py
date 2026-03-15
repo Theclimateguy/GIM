@@ -11,7 +11,6 @@ if str(REPO_ROOT) not in sys.path:
 
 from gim.sensitivity_sweep import (
     format_geo_sensitivity_report,
-    outcome_weight_paths,
     run_geo_sensitivity_sweep,
 )
 
@@ -33,7 +32,7 @@ def main() -> None:
     report = run_geo_sensitivity_sweep(
         suite_id=args.suite,
         state_csv=args.state_csv,
-        weight_paths=args.weights or outcome_weight_paths(),
+        weight_paths=args.weights,
         case_ids=set(args.case_ids) if args.case_ids else None,
         scale_factors=(args.scale_down, args.scale_up),
     )

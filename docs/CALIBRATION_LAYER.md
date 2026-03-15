@@ -34,6 +34,7 @@ Main files:
 - [gim/calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration.py)
 - [gim/sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sensitivity_sweep.py)
 - [misc/calibration_cases/operational_v1](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v1)
+- [misc/calibration_cases/operational_v2](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v2)
 
 What it checks:
 
@@ -46,6 +47,7 @@ What it checks:
 - observation/reporting visibility through `competitive.crisis_flags`
 - outcome-layer robustness under `+-20%` weight perturbations
 - sanity bounds for geo weights and action shifts
+- historical near-miss discrimination for debt / FX / political cases via `operational_v2`
 
 ## 2. Runtime Flow
 
@@ -96,6 +98,13 @@ Run the crisis-layer sensitivity sweep:
 ```bash
 cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/sensitivity_sweep.py --out misc/calibration/geo_sensitivity_operational_v1.json
+```
+
+Run the near-miss discriminating sweep:
+
+```bash
+cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/sensitivity_sweep.py --suite operational_v2
 ```
 
 These commands are the only safe path for changing:

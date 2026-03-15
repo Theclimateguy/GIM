@@ -979,6 +979,7 @@ class GameRunner:
         self,
         scenario: ScenarioDefinition,
         selected_actions: dict[str, str] | None = None,
+        aggregate_overrides: dict[str, float] | None = None,
     ) -> ScenarioEvaluation:
         resolved_actions = selected_actions or {}
         actor_ids = scenario.actor_ids or list(self.world.agents)[:3]
@@ -986,6 +987,10 @@ class GameRunner:
             actor_id: self._profile_agent(self.world.agents[actor_id]) for actor_id in actor_ids
         }
         aggregate = self._aggregate_profiles(actor_ids)
+        if aggregate_overrides:
+            for key, value in aggregate_overrides.items():
+                if key in aggregate:
+                    aggregate[key] = float(value)
         scores = self._base_scores(scenario, aggregate)
         self._apply_shocks(scores, scenario)
         self._apply_actions(scores, resolved_actions)
@@ -1027,6 +1032,16 @@ class GameRunner:
             key=lambda risk_name: probabilities[risk_name],
             reverse=True,
         )[:3]
+        negotiated_near_miss_load = max(
+            0.0,
+            min(
+                1.0,
+                0.45 * aggregate["tail_pressure"]
+                + 0.35 * aggregate["debt_stress"]
+                + 0.20 * aggregate["social_stress"]
+                - 0.35,
+            ),
+        )
         criticality_score = (
             probabilities["controlled_suppression"] * 0.50
             + probabilities["internal_destabilization"] * 0.80
@@ -1034,6 +1049,7 @@ class GameRunner:
             + probabilities["maritime_chokepoint_crisis"] * 0.70
             + probabilities["direct_strike_exchange"] * 0.85
             + probabilities["broad_regional_escalation"] * 1.00
+            + probabilities["negotiated_deescalation"] * 0.60 * negotiated_near_miss_load
         )
 
         return ScenarioEvaluation(
