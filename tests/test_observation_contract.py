@@ -150,3 +150,75 @@ class ObservationContractTests(unittest.TestCase):
         self.assertAlmostEqual(trends["temp_trend_3yr"], 0.15)
         self.assertAlmostEqual(trends["emissions_change"], -0.06)
         self.assertLessEqual(len(obs.external_actors["neighbors"]), cal.OBS_MAX_NEIGHBORS)
+
+    def test_situation_summary_present(self) -> None:
+        focal = self._make_agent(agent_id="A", trust_gov=0.12, social_tension=0.90)
+        focal.risk.debt_crisis_active_years = 2
+        focal.economy._gdp_prev = 1.05
+        focal.economy._debt_gdp_prev = 0.73
+        focal.society._trust_prev = 0.18
+        focal.society._tension_prev = 0.82
+        peer = self._make_agent(agent_id="B")
+        world = self._make_world(focal, peer)
+        world.global_state.temp_trend_3yr = 0.06
+
+        obs = build_observation(world, focal.id)
+
+        self.assertIn("situation_summary", obs.self_state)
+        self.assertIsInstance(obs.self_state["situation_summary"], str)
+        self.assertTrue(obs.self_state["situation_summary"])
+
+    def test_situation_summary_stable_agent(self) -> None:
+        focal = self._make_agent(agent_id="A")
+        focal.economy.public_debt = 0.35
+        focal.economy.climate_shock_years = 0
+        peer = self._make_agent(agent_id="B")
+        peer.economy.public_debt = 0.45
+        peer.economy.climate_shock_years = 0
+        world = self._make_world(focal, peer, temp=1.5)
+
+        obs = build_observation(world, focal.id)
+
+        self.assertEqual(obs.self_state["situation_summary"], "stable baseline conditions")
+
+    def test_situation_summary_crisis_agent(self) -> None:
+        focal = self._make_agent(agent_id="A", trust_gov=0.12, social_tension=0.90)
+        focal.risk.debt_crisis_active_years = 2
+        focal.risk.regime_crisis_active_years = 1
+        focal.economy._gdp_prev = 1.04
+        focal.economy._debt_gdp_prev = 0.74
+        focal.society._trust_prev = 0.18
+        focal.society._tension_prev = 0.82
+        peer = self._make_agent(agent_id="B")
+        world = self._make_world(focal, peer)
+
+        obs = build_observation(world, focal.id)
+        summary = obs.self_state["situation_summary"]
+
+        self.assertIn("active crises", summary)
+        self.assertIn("debt_crisis", summary)
+        self.assertIn("regime_crisis", summary)
+
+    def test_peer_standing_present(self) -> None:
+        focal = self._make_agent(agent_id="A")
+        focal.economy.public_debt = 1.0
+        focal.economy.climate_damage_factor = 0.22
+        peer = self._make_agent(agent_id="B")
+        peer.economy.gdp = 0.8
+        peer.economy.public_debt = 0.3
+        peer.economy.climate_damage_factor = 0.12
+        third = self._make_agent(agent_id="C")
+        third.economy.gdp = 1.4
+        third.economy.public_debt = 0.5
+        third.economy.climate_damage_factor = 0.35
+        world = self._make_world(focal, peer, third)
+
+        obs = build_observation(world, focal.id)
+        peer_standing = obs.self_state["competitive"]["peer_standing"]
+
+        self.assertIn("peer_standing", obs.self_state["competitive"])
+        self.assertGreaterEqual(peer_standing["gdp_percentile"], 0.0)
+        self.assertLessEqual(peer_standing["gdp_percentile"], 1.0)
+        self.assertIsInstance(peer_standing["debt_gdp_vs_median"], float)
+        self.assertIsInstance(peer_standing["trust_vs_median"], float)
+        self.assertIsInstance(peer_standing["climate_damage_rank"], int)

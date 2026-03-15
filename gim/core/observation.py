@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from statistics import median
 
 from . import calibration_params as cal
 from .climate import effective_damage_multiplier
@@ -36,6 +37,95 @@ def _resolve_previous(current: float, previous: object) -> float:
     if previous is None:
         return float(current)
     return float(previous)
+
+
+def build_situation_summary(
+    agent,
+    crisis_flags: list[dict[str, object]],
+    trends: dict[str, float],
+) -> str:
+    parts: list[str] = []
+
+    gdp_growth = float(trends.get("gdp_growth_last_step", 0.0))
+    if gdp_growth < -0.03:
+        parts.append("economy contracting sharply")
+    elif gdp_growth < 0.0:
+        parts.append("economy in mild recession")
+    elif gdp_growth > 0.05:
+        parts.append("economy growing rapidly")
+
+    gdp = max(agent.economy.gdp, 1e-6)
+    debt_gdp = agent.economy.public_debt / gdp
+    debt_change = float(trends.get("debt_gdp_change", 0.0))
+    if debt_gdp > 0.90 and debt_change > 0.02:
+        parts.append("debt spiral risk elevated")
+    elif debt_gdp > 0.70 and debt_change > 0.0:
+        parts.append("debt load heavy and rising")
+    elif debt_gdp > 0.70:
+        parts.append("debt load heavy but stable")
+
+    if agent.society.trust_gov < 0.25 and agent.society.social_tension > 0.70:
+        parts.append("political legitimacy critical")
+    elif agent.society.social_tension > 0.65:
+        parts.append("social tension elevated")
+
+    active = [
+        str(flag["type"])
+        for flag in crisis_flags
+        if int(flag.get("active_years", 1)) > 0
+    ]
+    if active:
+        parts.append(f"active crises: {', '.join(active)}")
+
+    temp_trend = float(trends.get("temp_trend_3yr", 0.0))
+    if temp_trend > 0.05:
+        parts.append("climate stress accelerating")
+    elif temp_trend > 0.02:
+        parts.append("climate stress building")
+
+    return "; ".join(parts) if parts else "stable baseline conditions"
+
+
+def build_peer_standing(
+    agent,
+    world: WorldState,
+    climate_damage_factor: float,
+) -> dict[str, float | int]:
+    agents = list(world.agents.values())
+    n = max(len(agents), 1)
+
+    gdp_values = [float(other.economy.gdp) for other in agents]
+    debt_gdps = [
+        float(other.economy.public_debt / max(other.economy.gdp, 1e-6))
+        for other in agents
+    ]
+    trust_values = [float(other.society.trust_gov) for other in agents]
+    climate_damages = [
+        float(
+            getattr(
+                other.economy,
+                "climate_damage_factor",
+                min(1.0, effective_damage_multiplier(other, world)),
+            )
+        )
+        for other in agents
+    ]
+
+    own_gdp = float(agent.economy.gdp)
+    own_debt_gdp = float(agent.economy.public_debt / max(own_gdp, 1e-6))
+    own_trust = float(agent.society.trust_gov)
+
+    own_damage_rank = 1 + sum(
+        1 for value in climate_damages if value > float(climate_damage_factor)
+    )
+    gdp_percentile = sum(1 for value in gdp_values if value <= own_gdp) / n
+
+    return {
+        "gdp_percentile": round(gdp_percentile, 3),
+        "debt_gdp_vs_median": round(own_debt_gdp - median(debt_gdps), 3),
+        "trust_vs_median": round(own_trust - median(trust_values), 3),
+        "climate_damage_rank": int(own_damage_rank),
+    }
 
 
 def _inbound_sanctions(world: WorldState, agent_id: str) -> dict[str, dict[str, object]]:
@@ -76,8 +166,24 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         emissions_now,
         getattr(agent.climate, "_emissions_prev", None),
     )
+    trends = {
+        "gdp_growth_last_step": float((gdp_now - gdp_prev) / max(gdp_prev, 1e-6)),
+        "debt_gdp_change": float(debt_gdp_now - debt_gdp_prev),
+        "trust_change": float(trust_now - trust_prev),
+        "social_tension_change": float(tension_now - tension_prev),
+        "temp_trend_3yr": float(getattr(world.global_state, "temp_trend_3yr", 0.0)),
+        "emissions_change": float(emissions_now - emissions_prev),
+    }
+    crisis_flags = compute_crisis_flags(agent, world)
+    peer_standing = build_peer_standing(
+        agent,
+        world,
+        climate_damage_factor=float(climate_damage_factor),
+    )
+    situation_summary = build_situation_summary(agent, crisis_flags, trends)
 
     self_state = {
+        "situation_summary": situation_summary,
         "economy": _public_asdict(agent.economy),
         "resources": {name: _public_asdict(resource) for name, resource in agent.resources.items()},
         "society": _public_asdict(agent.society),
@@ -94,14 +200,7 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
             "risk_score": agent.credit_risk_score,
             "details": dict(agent.credit_rating_details),
         },
-        "trends": {
-            "gdp_growth_last_step": float((gdp_now - gdp_prev) / max(gdp_prev, 1e-6)),
-            "debt_gdp_change": float(debt_gdp_now - debt_gdp_prev),
-            "trust_change": float(trust_now - trust_prev),
-            "social_tension_change": float(tension_now - tension_prev),
-            "temp_trend_3yr": float(getattr(world.global_state, "temp_trend_3yr", 0.0)),
-            "emissions_change": float(emissions_now - emissions_prev),
-        },
+        "trends": trends,
     }
 
     resource_balance = {
@@ -117,9 +216,10 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         "reserve_years": compute_reserve_years(agent),
         "debt_stress": compute_debt_stress(agent),
         "protest_risk": compute_protest_risk(agent),
+        "peer_standing": peer_standing,
         "climate_damage_factor": climate_damage_factor,
         "inbound_sanctions": inbound_sanctions,
-        "crisis_flags": compute_crisis_flags(agent, world),
+        "crisis_flags": crisis_flags,
     }
     self_state["competitive"] = competitive
 
@@ -133,19 +233,20 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         other = world.agents.get(other_id)
         if other is None:
             continue
-        neighbors.append(
-            {
-                "agent_id": other_id,
-                "trade_intensity": relation.trade_intensity,
-                "trade_barrier": relation.trade_barrier,
-                "trust": relation.trust,
-                "conflict_level": relation.conflict_level,
-                "gdp": other.economy.gdp,
-                "military_power": other.technology.military_power,
-                "alliance_block": other.alliance_block,
-                "inbound_sanction_type": inbound_sanctions.get(other_id, {}).get("type"),
-            }
-        )
+        neighbor = {
+            "agent_id": other_id,
+            "trade_intensity": relation.trade_intensity,
+            "trade_barrier": relation.trade_barrier,
+            "trust": relation.trust,
+            "conflict_level": relation.conflict_level,
+            "gdp": other.economy.gdp,
+            "military_power": other.technology.military_power,
+            "alliance_block": other.alliance_block,
+        }
+        inbound_sanction_type = inbound_sanctions.get(other_id, {}).get("type")
+        if inbound_sanction_type is not None:
+            neighbor["inbound_sanction_type"] = inbound_sanction_type
+        neighbors.append(neighbor)
 
     external_actors = {
         "neighbors": neighbors,
