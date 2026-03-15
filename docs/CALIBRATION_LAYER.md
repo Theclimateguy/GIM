@@ -33,6 +33,7 @@ Main files:
 - [gim/calibration_validator.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration_validator.py)
 - [gim/calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration.py)
 - [gim/sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sensitivity_sweep.py)
+- [misc/calibration/calibrate_crisis_persistence.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/calibrate_crisis_persistence.py)
 - [misc/calibration_cases/operational_v1](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v1)
 - [misc/calibration_cases/operational_v2](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v2)
 
@@ -107,6 +108,13 @@ cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/sensitivity_sweep.py --suite operational_v2
 ```
 
+Run the crisis persistence plateau search:
+
+```bash
+cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/calibrate_crisis_persistence.py
+```
+
 These commands are the only safe path for changing:
 
 - `EMISSIONS_SCALE`
@@ -170,3 +178,4 @@ Current crisis/political calibration interpretation:
 - `operational_v1` is no longer a crisis-only suite; it now mixes `7` historical stress cases with `4` stable negative controls
 - the stable controls are there to catch drift toward alarmist `status_quo` regressions, not to maximize criticality
 - the outcome sensitivity sweep currently finds no pass/fail flips under `+-20%` perturbations on the outcome layer, which means the suite is robust but also that several weights remain only moderately identified
+- crisis persistence is now backed by a dedicated Argentina / South Korea replay artifact rather than pure expert priors; the raw optimum is a broad plateau, and the committed values are the plateau candidate that also preserves the historical backtest golden anchor

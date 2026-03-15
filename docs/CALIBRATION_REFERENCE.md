@@ -23,6 +23,7 @@ This document is the calibration ledger for the active `GIM_14` repo.
 | Geo calibration | [gim/geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/geo_calibration.py) | Bayesian-style calibrated geopolitical weights | active |
 | Operational suite | [gim/calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration.py) | Scenario regression suite over packaged historical cases | active |
 | Outcome sensitivity sweep | [gim/sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sensitivity_sweep.py) | Perturbs outcome-layer weights and measures suite robustness | active |
+| Crisis persistence sweep | [misc/calibration/calibrate_crisis_persistence.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/calibrate_crisis_persistence.py) | Grid-searches crisis persistence and exit params against Argentina 2001 / South Korea 1997 anchors | active |
 | Manifest refresh | [misc/calibration/refresh_state_artifact_manifest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/refresh_state_artifact_manifest.py) | Rebuilds the artifact manifest from observed references | active |
 | Backtest refresh | [misc/calibration/refresh_historical_backtest_fixtures.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/refresh_historical_backtest_fixtures.py) | Rebuilds bundled historical fixtures and stamps the primary manifest | active |
 
@@ -61,8 +62,8 @@ This document is the calibration ledger for the active `GIM_14` repo.
 
 Current structural backtest baseline from [historical_backtest_baseline.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/fixtures/historical_backtest_baseline.json):
 
-- GDP RMSE: `1.074` trillion USD
-- Global CO2 RMSE: `1.632` GtCO2
+- GDP RMSE: `1.050` trillion USD
+- Global CO2 RMSE: `1.630` GtCO2
 - Temperature RMSE: `0.136` C
 - Temperature bias: `-0.005` C
 - Temperature interannual std: predicted `0.093` C vs observed `0.103` C
@@ -109,10 +110,22 @@ Current crisis near-miss suite:
 
 Current crisis-state calibration result:
 
-- debt crises are now stateful and can persist for up to `8` years with repeated GDP / trust / tension damage
-- regime crises are now stateful and can persist for up to `5` years with repeated GDP / capital damage
+- latest provenance artifact: [crisis_persistence_calibration.json](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/crisis_persistence_calibration.json)
+- plateau search best score: `0.0398`, plateau size: `324`
+- selected backtest-safe plateau candidate:
+  - debt persist GDP mult `0.965`
+  - debt persist trust hit `0.025`
+  - debt persist tension hit `0.020`
+  - debt exit threshold `0.70`
+  - debt exit rate `0.08`
+  - debt max years `6`
+  - regime persist GDP mult `0.96`
+  - regime persist capital mult `0.975`
+  - regime max years `5`
 - crisis visibility is part of the observation contract through `competitive.crisis_flags` and the `CRISIS:` summary suffix
 - credit-risk scoring now reads explicit crisis state from `RiskState` instead of transient private attributes
+- interpretation: Argentina duration and regime trigger are identified cleanly, while South Korea year-1 GDP loss remains onset-dominated and therefore only weakly identifies persistence params
+- guardrail note: the raw plateau center was more aggressive on debt persistence and improved GDP RMSE too far away from the locked historical golden anchor, so the committed point is a guardrail-safe plateau candidate rather than the raw geometric center
 
 Current sensitivity-sweep result:
 
@@ -171,6 +184,13 @@ Outcome sensitivity sweep:
 ```bash
 cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/sensitivity_sweep.py --out misc/calibration/geo_sensitivity_operational_v1.json
+```
+
+Crisis persistence calibration:
+
+```bash
+cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/calibrate_crisis_persistence.py
 ```
 
 Full local suite:
