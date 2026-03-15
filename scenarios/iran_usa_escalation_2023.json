@@ -1,0 +1,117 @@
+{
+  "id": "iran_usa_escalation_2023",
+  "title": "Iran\u2013USA: escalation paths in the Middle East 2023\u20132026",
+  "scenario": {
+    "question": "What are the most probable escalation paths between Iran and the United States over a 3-year horizon from 2023, and under what conditions does limited proxy conflict transition to direct military exchange?",
+    "template": "regional_pressure",
+    "base_year": 2023,
+    "horizon_months": 36,
+    "actors": ["Iran", "United States", "Israel", "Saudi Arabia", "Iraq"]
+  },
+  "assumptions": [
+    "Baseline anchored on 2023 state: JCPOA negotiations stalled, full US sanctions regime active.",
+    "Iran nuclear enrichment at ~90% threshold as of 2023 Q3 (IAEA reports).",
+    "October 7 2023 Hamas attack treated as exogenous shock raising Israel conflict_level and Iran proxy activation.",
+    "Strait of Hormuz remains open at scenario start; maritime shock is a contingent path, not a baseline.",
+    "Saudi Arabia modelled as a cautious balancer: will not co-belligerent unless directly attacked.",
+    "Iraq is a passive arena actor: hosts Iranian proxy networks, US bases, and absorbs spillover.",
+    "The GIM14 2023 calibration state is the prior for all moderate outcomes.",
+    "Tail states (direct_strike_exchange, broad_regional_escalation) are preserved in the distribution when stress channels compound."
+  ],
+  "players": [
+    {
+      "actor": "Iran",
+      "objectives": {
+        "regime_survival":        1.00,
+        "sanctions_relief":       0.75,
+        "nuclear_latency":        0.80,
+        "regional_influence":     0.65,
+        "avoid_direct_war_usa":   0.70
+      },
+      "allowed_actions": [
+        "arm_proxy",
+        "restrain_proxy",
+        "maritime_interdiction",
+        "signal_deterrence",
+        "signal_restraint",
+        "backchannel_offer",
+        "covert_disruption",
+        "cyber_disruption_attack",
+        "cyber_espionage",
+        "domestic_crackdown",
+        "information_campaign"
+      ],
+      "constraints": [
+        "Cannot initiate overt conventional attack on US forces without proxy-escalation ladder preceding it.",
+        "Nuclear breakout triggers automatic broad_regional_escalation risk class activation.",
+        "Regime survival objective dominates all others under internal_destabilization conditions."
+      ]
+    },
+    {
+      "actor": "United States",
+      "objectives": {
+        "prevent_nuclear_iran":   1.00,
+        "protect_regional_allies": 0.85,
+        "keep_hormuz_open":       0.90,
+        "avoid_ground_war":       0.80,
+        "domestic_political_cost": -0.60
+      },
+      "allowed_actions": [
+        "signal_deterrence",
+        "signal_restraint",
+        "targeted_strike",
+        "partial_mobilization",
+        "backchannel_offer",
+        "accept_mediation",
+        "cyber_probe",
+        "cyber_defense_posture",
+        "export_controls",
+        "information_campaign"
+      ],
+      "constraints": [
+        "Domestic political cost penalty activates after year 2 if conflict intensity is sustained.",
+        "targeted_strike requires prior partial_mobilization signal or direct attack on US assets.",
+        "Cannot impose additional sanctions beyond current ceiling without new UNSC resolution."
+      ]
+    },
+    {
+      "actor": "Israel",
+      "objectives": {
+        "prevent_nuclear_iran":   1.00,
+        "degrade_proxy_network":  0.80,
+        "regional_deterrence":    0.75,
+        "avoid_multi_front_war":  0.70
+      },
+      "allowed_actions": [
+        "targeted_strike",
+        "signal_deterrence",
+        "covert_disruption",
+        "cyber_disruption_attack",
+        "cyber_espionage",
+        "arm_proxy",
+        "information_campaign",
+        "backchannel_offer"
+      ],
+      "constraints": [
+        "Acts independently of USA on Iran nuclear timeline; will not wait indefinitely for diplomacy.",
+        "targeted_strike on Iran nuclear sites is available without US precondition.",
+        "Multi-front constraint: if active_war flag set with Gaza/Lebanon, partial_mobilization budget consumed."
+      ]
+    }
+  ],
+  "constraints": [
+    "Maritime chokepoint crisis (Hormuz closure) causes global oil shock: energy_dependence channel activates for all non-Middle-East agents in world state.",
+    "broad_regional_escalation requires at least two of: direct_strike_exchange active, Saudi Arabia conflict_level > 0.60, Iraq regime_crisis active.",
+    "negotiated_deescalation path requires backchannel_offer from at least one side AND accept_mediation response within same horizon year."
+  ],
+  "tags": [
+    "middle-east",
+    "iran",
+    "usa",
+    "nuclear",
+    "proxy-war",
+    "maritime",
+    "escalation-ladder",
+    "2023-baseline"
+  ]
+}
