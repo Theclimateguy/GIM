@@ -208,6 +208,32 @@ class ClimateForcingTests(unittest.TestCase):
             no_policy.climate._structural_transition_progress,
         )
 
+    def test_structural_progress_does_not_reverse_after_policy_removal(self) -> None:
+        agent = self._make_agent()
+        progress = []
+
+        for time in range(5):
+            update_emissions_from_economy(
+                agent,
+                time=time,
+                policy_reduction=0.15,
+                fuel_tax_change=0.3,
+            )
+            progress.append(agent.climate._structural_transition_progress)
+
+        for time in range(5, 8):
+            update_emissions_from_economy(
+                agent,
+                time=time,
+                policy_reduction=0.0,
+                fuel_tax_change=0.0,
+            )
+            progress.append(agent.climate._structural_transition_progress)
+
+        self.assertTrue(
+            all(progress[index + 1] >= progress[index] for index in range(len(progress) - 1))
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

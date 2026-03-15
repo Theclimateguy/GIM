@@ -160,6 +160,8 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
 
 
 def check_regime_stability(agent: AgentState) -> None:
+    # WRITES: risk.regime_crisis_active_years, economy.capital, economy.gdp,
+    # economy.public_debt, society.trust_gov, society.social_tension
     trust_threshold = cal.REGIME_COLLAPSE_TRUST_THRESHOLD
     tension_threshold = cal.REGIME_COLLAPSE_TENSION_THRESHOLD
     in_crisis = (
@@ -198,14 +200,25 @@ def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
     risk = agent.risk
     society = agent.society
 
+    # WRITES: risk.debt_crisis_active_years, economy.public_debt, economy.gdp,
+    # economy.unemployment, society.trust_gov, society.social_tension
     gdp = max(economy.gdp, 1e-6)
     debt_gdp = economy.public_debt / gdp
     interest_rate = compute_effective_interest_rate(agent, world)
 
-    in_crisis = (
-        debt_gdp > cal.DEBT_CRISIS_DEBT_THRESHOLD
-        and interest_rate > cal.DEBT_CRISIS_RATE_THRESHOLD
-    )
+    if risk.debt_crisis_active_years == 0:
+        in_crisis = (
+            debt_gdp > cal.DEBT_CRISIS_DEBT_THRESHOLD
+            and interest_rate > cal.DEBT_CRISIS_RATE_THRESHOLD
+        )
+        recovered = False
+    else:
+        recovery_window_open = risk.debt_crisis_active_years >= 2
+        recovered = (
+            debt_gdp < cal.DEBT_CRISIS_EXIT_THRESHOLD
+            and interest_rate < cal.DEBT_CRISIS_EXIT_RATE
+        )
+        in_crisis = not (recovery_window_open and recovered)
     if in_crisis:
         risk.debt_crisis_active_years = min(
             risk.debt_crisis_active_years + 1,
@@ -223,7 +236,7 @@ def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
             society.trust_gov = max(0.0, society.trust_gov - cal.DEBT_CRISIS_TRUST_HIT)
             society.social_tension = min(1.0, society.social_tension + cal.DEBT_CRISIS_TENSION_HIT)
             risk.regime_stability = max(0.0, risk.regime_stability - cal.DEBT_CRISIS_STABILITY_HIT)
-        else:
+        elif not recovered:
             economy.gdp *= cal.DEBT_CRISIS_PERSIST_GDP_MULT
             society.trust_gov = max(0.0, society.trust_gov - cal.DEBT_CRISIS_PERSIST_TRUST_HIT)
             society.social_tension = min(1.0, society.social_tension + cal.DEBT_CRISIS_PERSIST_TENSION_HIT)

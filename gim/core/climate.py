@@ -235,6 +235,8 @@ def apply_climate_extreme_events(
     base_prob: float = cal.EVENT_BASE_PROB,
     max_extra_prob: float = cal.EVENT_MAX_EXTRA_PROB,
 ) -> None:
+    # WRITES: economy.capital, economy.population, economy.climate_shock_years,
+    # economy.climate_shock_penalty, society.social_tension, society.trust_gov
     temperature = world.global_state.temperature_global
 
     for agent in world.agents.values():

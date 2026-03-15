@@ -1,5 +1,7 @@
 from dataclasses import asdict
 
+from . import calibration_params as cal
+from .climate import effective_damage_multiplier
 from .core import Observation, WorldState
 from .metrics import (
     compute_crisis_flags,
@@ -9,8 +11,25 @@ from .metrics import (
 )
 
 
+def _inbound_sanctions(world: WorldState, agent_id: str) -> dict[str, dict[str, object]]:
+    inbound: dict[str, dict[str, object]] = {}
+    for other_id, other in world.agents.items():
+        sanction_type = other.active_sanctions.get(agent_id)
+        if sanction_type is None:
+            continue
+        inbound[other_id] = {
+            "type": sanction_type,
+            "years": int(other.sanction_years.get(agent_id, 0)),
+        }
+    return inbound
+
+
 def build_observation(world: WorldState, agent_id: str) -> Observation:
     agent = world.agents[agent_id]
+    inbound_sanctions = _inbound_sanctions(world, agent_id)
+    climate_damage_factor = getattr(agent.economy, "climate_damage_factor", None)
+    if climate_damage_factor is None:
+        climate_damage_factor = min(1.0, effective_damage_multiplier(agent, world))
 
     self_state = {
         "economy": asdict(agent.economy),
@@ -44,12 +63,19 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         "reserve_years": compute_reserve_years(agent),
         "debt_stress": compute_debt_stress(agent),
         "protest_risk": compute_protest_risk(agent),
+        "climate_damage_factor": climate_damage_factor,
+        "inbound_sanctions": inbound_sanctions,
         "crisis_flags": compute_crisis_flags(agent, world),
     }
     self_state["competitive"] = competitive
 
     neighbors = []
-    for other_id, relation in world.relations.get(agent_id, {}).items():
+    rel_items = sorted(
+        world.relations.get(agent_id, {}).items(),
+        key=lambda item: item[1].trade_intensity + item[1].conflict_level,
+        reverse=True,
+    )[: cal.OBS_MAX_NEIGHBORS]
+    for other_id, relation in rel_items:
         other = world.agents.get(other_id)
         if other is None:
             continue
@@ -63,6 +89,7 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
                 "gdp": other.economy.gdp,
                 "military_power": other.technology.military_power,
                 "alliance_block": other.alliance_block,
+                "inbound_sanction_type": inbound_sanctions.get(other_id, {}).get("type"),
             }
         )
 

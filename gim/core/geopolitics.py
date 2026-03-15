@@ -38,6 +38,8 @@ def _apply_sanction_social_reaction(
 
 
 def apply_sanctions_effects(world: WorldState) -> None:
+    # WRITES: relations.*.trade_intensity, relations.*.trust, relations.*.trade_barrier,
+    # economy.gdp, society.trust_gov, society.social_tension
     target_pressure: Dict[str, Dict[str, int]] = {}
     entries: list[tuple[str, str, str]] = []
 
@@ -185,6 +187,9 @@ def _auto_security_action(world: WorldState, actor_id: str) -> Optional[Tuple[st
 
 
 def apply_security_actions(world: WorldState, actions: Dict[str, Action]) -> None:
+    # WRITES: relations.*.{conflict_level,trust,at_war,war_start_*},
+    # economy.{gdp,capital}, technology.military_power,
+    # society.{trust_gov,social_tension}
     for action in actions.values():
         sec = action.foreign_policy.security_actions
         if sec.type == "none":
@@ -271,6 +276,9 @@ def apply_security_actions(world: WorldState, actions: Dict[str, Action]) -> Non
 
 
 def update_active_conflicts(world: WorldState) -> None:
+    # WRITES: relations.*.{at_war,war_years,war_start_*,trade_intensity,conflict_level,trust},
+    # economy.{gdp,capital,population}, technology.military_power,
+    # society.{trust_gov,social_tension}
     for actor_id, rels in world.relations.items():
         for target_id, rel_at in rels.items():
             if actor_id >= target_id:

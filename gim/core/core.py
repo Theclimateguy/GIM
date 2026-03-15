@@ -141,7 +141,7 @@ class AgentState:
     sanction_years: Dict[str, int] = field(default_factory=dict)
     political: PoliticalState = field(default_factory=PoliticalState)
     credit_rating: int = 13
-    credit_zone: str = "yellow"
+    credit_zone: str = "investment"
     credit_risk_score: float = 0.5
     credit_rating_details: Dict[str, float] = field(default_factory=dict)
     memory_id: Optional[str] = None

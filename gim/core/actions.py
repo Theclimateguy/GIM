@@ -39,6 +39,10 @@ def apply_action(world: WorldState, action: Action) -> None:
     agent = world.agents[action.agent_id]
     domestic = action.domestic_policy
 
+    # WRITES: economy.gdp, economy.public_debt, economy.gov_spending,
+    # economy.social_spending, economy.military_spending, economy.rd_spending,
+    # society.trust_gov, society.social_tension, technology.tech_level,
+    # technology.military_power, resources.*.efficiency, climate.co2_annual_emissions
     economy = agent.economy
     society = agent.society
     culture = agent.culture

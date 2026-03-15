@@ -282,6 +282,9 @@ def _apply_org_measures(
     org: InstitutionState,
     metrics: Dict[str, float],
 ) -> List[Dict[str, Any]]:
+    # WRITES: relations.*.trade_barrier, economy.fx_reserves, economy.public_debt,
+    # relations.*.conflict_level, climate.climate_risk,
+    # society.{social_tension,trust_gov}
     measures: List[Dict[str, Any]] = []
     if not org.members:
         return measures

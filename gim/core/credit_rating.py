@@ -7,8 +7,10 @@ from .economy import compute_effective_interest_rate
 from .memory import summarize_agent_memory
 from .metrics import compute_debt_stress, compute_protest_risk, compute_reserve_years
 
-GREEN_MAX = 12
-YELLOW_MAX = 20
+PRIME_MAX = 3
+INVESTMENT_MAX = 12
+SUB_INVESTMENT_MAX = 18
+DISTRESSED_MAX = 23
 RATING_MIN = 1
 RATING_MAX = 26
 
@@ -26,11 +28,15 @@ def _safe_div(num: float, den: float, default: float = 0.0) -> float:
 
 
 def rating_zone(rating: int) -> str:
-    if rating <= GREEN_MAX:
-        return "green"
-    if rating <= YELLOW_MAX:
-        return "yellow"
-    return "red"
+    if rating <= PRIME_MAX:
+        return "prime"
+    if rating <= INVESTMENT_MAX:
+        return "investment"
+    if rating <= SUB_INVESTMENT_MAX:
+        return "sub_investment"
+    if rating <= DISTRESSED_MAX:
+        return "distressed"
+    return "default"
 
 
 def _inbound_sanction_pressure(world: WorldState, agent_id: str) -> tuple[float, int, int]:

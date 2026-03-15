@@ -5,10 +5,25 @@ from .country_params import get_savings_rate, get_social_spend_share, get_tax_ra
 from .metrics import update_tfp_endogenous
 
 
+def _credit_zone_premium(zone: str) -> float:
+    premiums = {
+        "prime": 0.0,
+        "investment": 0.0,
+        "sub_investment": 0.020,
+        "distressed": 0.060,
+        "default": 0.150,
+        "green": 0.0,
+        "yellow": 0.020,
+        "red": 0.060,
+    }
+    return float(premiums.get(zone, 0.0))
+
+
 def update_capital_endogenous(agent: AgentState) -> None:
     economy = agent.economy
     risk = agent.risk
 
+    # WRITES: economy.capital
     gdp = max(economy.gdp, 1e-6)
     capital = max(economy.capital, 1e-6)
     depreciation = cal.CAPITAL_DEPRECIATION
@@ -54,7 +69,10 @@ def update_economy_output(agent: AgentState, world: WorldState) -> None:
     if (not hasattr(economy, "_scale_factor")) or getattr(economy, "_scale_factor", None) is None:
         economy._scale_factor = economy.gdp / gdp_potential if gdp_potential > 0 else 1.0
 
-    gdp_target = gdp_potential * economy._scale_factor * effective_damage_multiplier(agent, world)
+    # WRITES: economy.gdp, economy.gdp_per_capita, economy.climate_damage_factor
+    damage_multiplier = effective_damage_multiplier(agent, world)
+    economy.climate_damage_factor = min(1.0, damage_multiplier)
+    gdp_target = gdp_potential * economy._scale_factor * damage_multiplier
     if economy.climate_shock_years > 0:
         gdp_target *= max(0.0, 1.0 - economy.climate_shock_penalty)
         economy.climate_shock_years -= 1
@@ -112,7 +130,9 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
             avg_partner_stress = stress_sum / total_weight
             contagion_spread = min(cal.CONTAGION_SPREAD_CAP, cal.CONTAGION_SPREAD_SENS * avg_partner_stress)
 
-    rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread
+    zone = str(getattr(agent, "credit_zone", "investment"))
+    zone_premium = _credit_zone_premium(zone)
+    rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread + zone_premium
     return float(max(0.0, min(rate, cal.RATE_MAX)))
 
 

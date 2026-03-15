@@ -857,13 +857,15 @@ tfp *= (1 + tfp_growth)
 ### Выпуск (Cobb-Douglas + частичная адаптация)
 
 ```text
-GDP_potential = tfp * tech_factor * K^0.30 * L^0.60 * E^0.10
+GDP_potential = tfp * tech_factor * K^0.30 * L^0.60 * E^0.07
 tech_factor = 1 + 0.6*max(0, tech_level-1)
 L = population / 1e9
 E = (energy_consumption/1000) * energy_efficiency
 ```
 
-`_scale_factor` фиксирует начальное соответствие модели к наблюдаемому GDP.
+`_scale_factor` лениво инициализируется в `update_economy_output()` при первом
+прохождении экономического блока и затем фиксирует начальное соответствие модели
+к наблюдаемому GDP.
 
 ```text
 GDP_target = GDP_potential * scale_factor * effective_damage_multiplier
@@ -1018,7 +1020,7 @@ budget = base_budget_share * total_gdp * legitimacy
 
 Шкала:
 - `rating in [1..26]`, где `26` хуже,
-- `zone = green (<=12) | yellow (13..20) | red (>=21)`.
+- `zone = prime (<=3) | investment (4..12) | sub_investment (13..18) | distressed (19..23) | default (24..26)`.
 
 Интегральный риск:
 
@@ -1036,6 +1038,10 @@ total_risk_score =
 ```text
 rating = round(1 + total_risk_score * 25), затем clamp в [1,26]
 ```
+
+Ставка долга читает `credit_zone` как дополнительный premium-слой поверх
+базового debt spread, так что петля `debt -> rating -> interest -> debt stress`
+теперь замкнута.
 
 Подкомпоненты, сохраняемые в `credit_rating_details`:
 - `financial_risk`

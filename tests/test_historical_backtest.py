@@ -13,6 +13,13 @@ from gim.historical_backtest import (
 
 
 class HistoricalBacktestTests(unittest.TestCase):
+    GOLDEN = {
+        "gdp_rmse_trillions": 1.053,
+        "global_co2_rmse_gtco2": 1.630,
+        "temperature_rmse_c": 0.136,
+    }
+    TOLERANCE = 0.005
+
     def test_backtest_fixtures_exist(self) -> None:
         self.assertTrue(DEFAULT_OBSERVED_FIXTURE.exists(), DEFAULT_OBSERVED_FIXTURE)
         self.assertTrue(DEFAULT_INITIAL_STATE_CSV.exists(), DEFAULT_INITIAL_STATE_CSV)
@@ -51,6 +58,25 @@ class HistoricalBacktestTests(unittest.TestCase):
                 baseline_rmse * 1.10 + 1e-9,
                 country_name,
             )
+
+    def test_historical_backtest_matches_golden_values(self) -> None:
+        result = run_historical_backtest()
+
+        self.assertAlmostEqual(
+            result.gdp_rmse_trillions,
+            self.GOLDEN["gdp_rmse_trillions"],
+            delta=self.TOLERANCE,
+        )
+        self.assertAlmostEqual(
+            result.global_co2_rmse_gtco2,
+            self.GOLDEN["global_co2_rmse_gtco2"],
+            delta=self.TOLERANCE,
+        )
+        self.assertAlmostEqual(
+            result.temperature_rmse_c,
+            self.GOLDEN["temperature_rmse_c"],
+            delta=self.TOLERANCE,
+        )
 
 
 if __name__ == "__main__":

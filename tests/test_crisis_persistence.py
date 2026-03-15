@@ -4,10 +4,14 @@ import unittest
 
 from gim.core import calibration_params as cal
 from gim.core.core import (
+    Action,
     AgentState,
     ClimateSubState,
     CulturalState,
+    DomesticPolicy,
     EconomyState,
+    FinancePolicy,
+    ForeignPolicy,
     GlobalState,
     RelationState,
     ResourceSubState,
@@ -17,6 +21,7 @@ from gim.core.core import (
     WorldState,
 )
 from gim.core.observation import build_observation
+from gim.core.simulation import step_world
 from gim.core.social import check_debt_crisis, check_regime_stability
 
 
@@ -207,12 +212,125 @@ class CrisisPersistenceTests(unittest.TestCase):
 
         check_debt_crisis(agent, world)
         check_regime_stability(agent)
+        self.assertEqual(agent.risk.debt_crisis_active_years, 2)
+        self.assertEqual(agent.risk.regime_crisis_active_years, 0)
+
+        check_debt_crisis(agent, world)
+        check_regime_stability(agent)
         obs = build_observation(world, agent.id)
 
         self.assertEqual(agent.risk.debt_crisis_active_years, 0)
         self.assertEqual(agent.risk.regime_crisis_active_years, 0)
         self.assertEqual(obs.self_state["competitive"]["crisis_flags"], [])
         self.assertNotIn("CRISIS:", obs.summary)
+
+    def test_near_threshold_debt_crisis_has_two_step_hysteresis(self) -> None:
+        focal = self._make_agent(
+            public_debt=1.25,
+            trust_gov=0.35,
+            social_tension=0.70,
+            regime_stability=0.20,
+        )
+        peer = self._make_agent(
+            agent_id="B",
+            name="Agent B",
+            public_debt=2.4,
+            trust_gov=0.40,
+            social_tension=0.50,
+            regime_stability=0.20,
+        )
+        world = self._make_world(focal, peer)
+        world.relations[focal.id][peer.id].trade_intensity = 1.0
+        world.relations[focal.id][peer.id].trust = 0.2
+
+        def _noop(agent_id: str):
+            def _policy(obs, memory_summary=None):  # noqa: ARG001
+                return Action(
+                    agent_id=agent_id,
+                    time=obs.time,
+                    domestic_policy=DomesticPolicy(0.0, 0.0, 0.0, 0.0, "none"),
+                    foreign_policy=ForeignPolicy(),
+                    finance=FinancePolicy(0.0, 0.0),
+                )
+
+            return _policy
+
+        policies = {focal.id: _noop(focal.id), peer.id: _noop(peer.id)}
+
+        step_world(
+            world,
+            policies,
+            enable_extreme_events=False,
+            apply_political_filters=False,
+            apply_institutions=False,
+        )
+        self.assertEqual(world.agents[focal.id].risk.debt_crisis_active_years, 1)
+
+        step_world(
+            world,
+            policies,
+            enable_extreme_events=False,
+            apply_political_filters=False,
+            apply_institutions=False,
+        )
+        self.assertEqual(world.agents[focal.id].risk.debt_crisis_active_years, 2)
+
+        step_world(
+            world,
+            policies,
+            enable_extreme_events=False,
+            apply_political_filters=False,
+            apply_institutions=False,
+        )
+        self.assertEqual(world.agents[focal.id].risk.debt_crisis_active_years, 0)
+
+    def test_debt_spiral_integration_reaches_multi_year_persistence(self) -> None:
+        focal = self._make_agent(
+            public_debt=3.0,
+            trust_gov=0.35,
+            social_tension=0.70,
+            regime_stability=0.20,
+        )
+        peer = self._make_agent(
+            agent_id="B",
+            name="Agent B",
+            public_debt=2.4,
+            trust_gov=0.40,
+            social_tension=0.50,
+            regime_stability=0.20,
+        )
+        world = self._make_world(focal, peer)
+        world.relations[focal.id][peer.id].trade_intensity = 1.0
+        world.relations[focal.id][peer.id].trust = 0.2
+        initial_gdp = focal.economy.gdp
+        peak_years = 0
+
+        def _noop(agent_id: str):
+            def _policy(obs, memory_summary=None):  # noqa: ARG001
+                return Action(
+                    agent_id=agent_id,
+                    time=obs.time,
+                    domestic_policy=DomesticPolicy(0.0, 0.0, 0.0, 0.0, "none"),
+                    foreign_policy=ForeignPolicy(),
+                    finance=FinancePolicy(0.0, 0.0),
+                )
+
+            return _policy
+
+        policies = {focal.id: _noop(focal.id), peer.id: _noop(peer.id)}
+
+        for _ in range(10):
+            step_world(
+                world,
+                policies,
+                enable_extreme_events=False,
+                apply_political_filters=False,
+                apply_institutions=False,
+            )
+            peak_years = max(peak_years, world.agents[focal.id].risk.debt_crisis_active_years)
+
+        self.assertGreaterEqual(peak_years, 3)
+        self.assertLess(world.agents[focal.id].economy.gdp, initial_gdp)
 
 
 if __name__ == "__main__":

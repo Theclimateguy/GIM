@@ -1,5 +1,7 @@
 import copy
+import inspect
 import json
+import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -34,6 +36,29 @@ from .social import (
     update_population,
     update_social_state,
 )
+
+LOGGER = logging.getLogger(__name__)
+
+
+def _policy_accepts_memory_summary(policy: Callable[..., Action]) -> bool:
+    try:
+        signature = inspect.signature(policy)
+    except (TypeError, ValueError):
+        return False
+
+    positional = [
+        param
+        for param in signature.parameters.values()
+        if param.kind in (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        )
+    ]
+    has_varargs = any(
+        param.kind == inspect.Parameter.VAR_POSITIONAL
+        for param in signature.parameters.values()
+    )
+    return has_varargs or len(positional) >= 2
 
 
 COUNTRY_FLAGS = {
@@ -290,10 +315,15 @@ def _safe_apply_policy(
 
     obs = build_observation(world, agent_id)
     try:
-        if memory_summary is None:
-            return policy(obs)
-        return policy(obs, memory_summary)
-    except Exception:
+        if memory_summary is not None and _policy_accepts_memory_summary(policy):
+            return policy(obs, memory_summary)
+        return policy(obs)
+    except Exception as exc:
+        LOGGER.warning(
+            "Policy function failed for %s, falling back to simple policy: %s",
+            agent_id,
+            exc,
+        )
         return simple_rule_based_policy(obs)
 
 
