@@ -96,6 +96,10 @@ DECARB_RATE_OBSERVED_REFERENCE = (
     ACTIVE_STATE_ARTIFACT.decarb_reference_rate or ACTIVE_STATE_ARTIFACT.decarb_rate
 )  # [DATA] GCP fossil CO2 / World Bank PPP GDP fit over 2000-2023 excluding 2020-2021; see misc/calibration/decarb_rate_calibration.json.
 DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Residual structural energy-transition rate, separate from tech and efficiency channels.
+# NOTE: Empirical CO2/GDP intensity decline is 0.016 (see misc/calibration/decarb_rate_calibration.json).
+# The gap between the active 0.052 artifact rate and the empirical fit implicitly absorbs
+# energy-mix shift and efficiency gains encoded in the 2015 base state. Decompose this
+# compound parameter when the model gets an explicit energy sector / fossil phase-out layer.
 DECARB_RATE = DECARB_RATE_STRUCTURAL  # Backward-compatible alias pending a full rename across the legacy layer.
 STRUCTURAL_TRANSITION_POLICY_SENS = 0.50  # [PRIOR]
 STRUCTURAL_TRANSITION_TAX_SENS = 0.05  # [PRIOR]
