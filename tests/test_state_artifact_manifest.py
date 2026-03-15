@@ -35,8 +35,8 @@ class StateArtifactManifestTests(unittest.TestCase):
         self.assertAlmostEqual(binding.emissions_scale, derived, delta=1e-9)
         self.assertAlmostEqual(binding.decarb_rate, 0.052)
         self.assertEqual(binding.decarb_source, "observed")
-        self.assertAlmostEqual(binding.decarb_reference_rate, 0.031241083241479107)
-        self.assertEqual(binding.decarb_reference_start_year, 2015)
+        self.assertAlmostEqual(binding.decarb_reference_rate, 0.016025082589816386)
+        self.assertEqual(binding.decarb_reference_start_year, 2000)
         self.assertEqual(binding.decarb_reference_end_year, 2023)
 
     def test_primary_load_can_warn_and_fallback_when_manifest_is_missing(self) -> None:

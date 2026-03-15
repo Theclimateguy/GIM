@@ -19,8 +19,8 @@
   },
   "decarb_reference": {
     "source": "observed",
-    "rate": 0.031241083241479107,
-    "start_year": 2015,
+    "rate": 0.016025082589816386,
+    "start_year": 2000,
     "end_year": 2023
   }
 }

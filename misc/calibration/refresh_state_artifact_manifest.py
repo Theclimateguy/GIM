@@ -13,6 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_STATE_CSV = REPO_ROOT / "data" / "agent_states_operational.csv"
 DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
+DEFAULT_DECARB_CALIBRATION = Path(__file__).resolve().with_name("decarb_rate_calibration.json")
 DEFAULT_BUILDER_REFERENCE = "GIM_14/scripts/build_gim13_agent_states.py"
 DEFAULT_HANDOFF_CONTRACT = (
     "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, "
@@ -102,6 +103,21 @@ def _load_observed_global_co2(observed_fixture: Path, year: int) -> float:
 def _load_observed_window(observed_fixture: Path) -> tuple[int, int]:
     raw = load_historical_observed_fixture(observed_fixture)
     return int(raw["start_year"]), int(raw["end_year"])
+
+
+def _load_decarb_calibration_reference() -> tuple[float, int, int] | None:
+    if not DEFAULT_DECARB_CALIBRATION.exists():
+        return None
+    raw = json.loads(DEFAULT_DECARB_CALIBRATION.read_text(encoding="utf-8"))
+    global_fit = raw.get("global")
+    if not isinstance(global_fit, dict):
+        return None
+    estimate = global_fit.get("estimate")
+    start_year = global_fit.get("start_year")
+    end_year = global_fit.get("end_year")
+    if estimate is None or start_year is None or end_year is None:
+        return None
+    return float(estimate), int(start_year), int(end_year)
 
 
 def parse_args() -> argparse.Namespace:
@@ -224,12 +240,18 @@ def main() -> None:
         decarb_reference_start_year = None
         decarb_reference_end_year = None
     elif args.decarb_source == "observed":
-        observed_start_year, observed_end_year = _load_observed_window(observed_fixture)
-        observed_reference_rate = (
-            float(args.observed_decarb_rate)
-            if args.observed_decarb_rate is not None
-            else estimate_observed_decarb_rate(observed_fixture, method="mean_pairwise")
-        )
+        calibration_reference = _load_decarb_calibration_reference()
+        if calibration_reference is None:
+            observed_start_year, observed_end_year = _load_observed_window(observed_fixture)
+            observed_reference_rate = (
+                float(args.observed_decarb_rate)
+                if args.observed_decarb_rate is not None
+                else estimate_observed_decarb_rate(observed_fixture, method="mean_pairwise")
+            )
+        else:
+            observed_reference_rate, observed_start_year, observed_end_year = calibration_reference
+            if args.observed_decarb_rate is not None:
+                observed_reference_rate = float(args.observed_decarb_rate)
         decarb_rate = float(args.decarb_rate) if args.decarb_rate is not None else observed_reference_rate
         decarb_source = "observed"
         decarb_reference_rate = observed_reference_rate

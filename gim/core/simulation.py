@@ -297,6 +297,38 @@ def _chunked(values: List[str], chunk_size: int) -> List[List[str]]:
     return [values[i : i + chunk_size] for i in range(0, len(values), chunk_size)]
 
 
+def _capture_trend_baselines(world: WorldState) -> Dict[str, Dict[str, float]]:
+    baselines: Dict[str, Dict[str, float]] = {}
+    for agent_id, agent in world.agents.items():
+        gdp = float(agent.economy.gdp)
+        baselines[agent_id] = {
+            "gdp": gdp,
+            "debt_gdp": float(agent.economy.public_debt / max(gdp, 1e-6)),
+            "trust": float(agent.society.trust_gov),
+            "tension": float(agent.society.social_tension),
+            "emissions": float(agent.climate.co2_annual_emissions),
+        }
+        agent.economy._gdp_step_start = gdp
+    return baselines
+
+
+def _persist_trend_baselines(
+    world: WorldState,
+    baselines: Dict[str, Dict[str, float]],
+) -> None:
+    for agent_id, baseline in baselines.items():
+        agent = world.agents.get(agent_id)
+        if agent is None:
+            continue
+        agent.economy._gdp_prev = baseline["gdp"]
+        agent.economy._debt_gdp_prev = baseline["debt_gdp"]
+        agent.society._trust_prev = baseline["trust"]
+        agent.society._tension_prev = baseline["tension"]
+        agent.climate._emissions_prev = baseline["emissions"]
+        if hasattr(agent.economy, "_gdp_step_start"):
+            delattr(agent.economy, "_gdp_step_start")
+
+
 def _uses_async_policy(policy: Callable[[Observation], Action] | None) -> bool:
     if policy is None:
         return False
@@ -342,6 +374,7 @@ def step_world(
     security_intents: Dict[str, Tuple[str, Optional[str]]] = {}
     if memory is None:
         memory = {}
+    trend_baselines = _capture_trend_baselines(world)
 
     # Comparative metrics are O(N^2); compute once per step before policy generation.
     compute_relative_metrics(world)
@@ -447,6 +480,7 @@ def step_world(
     compute_relative_metrics(world)
     update_agent_memory(memory, world, actions)
     update_credit_ratings(world, memory)
+    _persist_trend_baselines(world, trend_baselines)
 
     world.time += 1
     return world

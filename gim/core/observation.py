@@ -11,6 +11,33 @@ from .metrics import (
 )
 
 
+def _strip_private_fields(
+    payload: object,
+    *,
+    exclude: set[str] | None = None,
+) -> object:
+    if isinstance(payload, dict):
+        blocked = exclude or set()
+        return {
+            key: _strip_private_fields(value, exclude=exclude)
+            for key, value in payload.items()
+            if not str(key).startswith("_") and key not in blocked
+        }
+    if isinstance(payload, list):
+        return [_strip_private_fields(item, exclude=exclude) for item in payload]
+    return payload
+
+
+def _public_asdict(value: object, *, exclude: set[str] | None = None) -> dict[str, object]:
+    return _strip_private_fields(asdict(value), exclude=exclude)
+
+
+def _resolve_previous(current: float, previous: object) -> float:
+    if previous is None:
+        return float(current)
+    return float(previous)
+
+
 def _inbound_sanctions(world: WorldState, agent_id: str) -> dict[str, dict[str, object]]:
     inbound: dict[str, dict[str, object]] = {}
     for other_id, other in world.agents.items():
@@ -30,16 +57,35 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
     climate_damage_factor = getattr(agent.economy, "climate_damage_factor", None)
     if climate_damage_factor is None:
         climate_damage_factor = min(1.0, effective_damage_multiplier(agent, world))
+    gdp_now = float(agent.economy.gdp)
+    gdp_prev = _resolve_previous(gdp_now, getattr(agent.economy, "_gdp_prev", None))
+    debt_gdp_now = float(agent.economy.public_debt / max(agent.economy.gdp, 1e-6))
+    debt_gdp_prev = _resolve_previous(
+        debt_gdp_now,
+        getattr(agent.economy, "_debt_gdp_prev", None),
+    )
+    trust_now = float(agent.society.trust_gov)
+    trust_prev = _resolve_previous(trust_now, getattr(agent.society, "_trust_prev", None))
+    tension_now = float(agent.society.social_tension)
+    tension_prev = _resolve_previous(
+        tension_now,
+        getattr(agent.society, "_tension_prev", None),
+    )
+    emissions_now = float(agent.climate.co2_annual_emissions)
+    emissions_prev = _resolve_previous(
+        emissions_now,
+        getattr(agent.climate, "_emissions_prev", None),
+    )
 
     self_state = {
-        "economy": asdict(agent.economy),
-        "resources": {name: asdict(resource) for name, resource in agent.resources.items()},
-        "society": asdict(agent.society),
-        "climate": asdict(agent.climate),
-        "culture": asdict(agent.culture),
-        "technology": asdict(agent.technology),
-        "risk": asdict(agent.risk),
-        "political": asdict(agent.political),
+        "economy": _public_asdict(agent.economy),
+        "resources": {name: _public_asdict(resource) for name, resource in agent.resources.items()},
+        "society": _public_asdict(agent.society),
+        "climate": _public_asdict(agent.climate),
+        "culture": _public_asdict(agent.culture),
+        "technology": _public_asdict(agent.technology),
+        "risk": _public_asdict(agent.risk),
+        "political": _public_asdict(agent.political),
         "alliance_block": agent.alliance_block,
         "active_sanctions": dict(agent.active_sanctions),
         "credit": {
@@ -47,6 +93,14 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
             "zone": agent.credit_zone,
             "risk_score": agent.credit_risk_score,
             "details": dict(agent.credit_rating_details),
+        },
+        "trends": {
+            "gdp_growth_last_step": float((gdp_now - gdp_prev) / max(gdp_prev, 1e-6)),
+            "debt_gdp_change": float(debt_gdp_now - debt_gdp_prev),
+            "trust_change": float(trust_now - trust_prev),
+            "social_tension_change": float(tension_now - tension_prev),
+            "temp_trend_3yr": float(getattr(world.global_state, "temp_trend_3yr", 0.0)),
+            "emissions_change": float(emissions_now - emissions_prev),
         },
     }
 
@@ -95,7 +149,7 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
 
     external_actors = {
         "neighbors": neighbors,
-        "global": asdict(world.global_state),
+        "global": _public_asdict(world.global_state, exclude={"temp_history"}),
     }
     institutions_summary = []
     for inst in world.institutions.values():

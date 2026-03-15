@@ -136,10 +136,13 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
     )
 
     # Inequality dynamics: GDP growth distribution, fiscal policy, and social tension.
-    prev_gdp = getattr(agent.economy, "_gdp_prev", agent.economy.gdp)
+    prev_gdp = getattr(
+        agent.economy,
+        "_gdp_step_start",
+        getattr(agent.economy, "_gdp_prev", agent.economy.gdp),
+    )
     gdp = agent.economy.gdp
     gdp_growth = (gdp - prev_gdp) / max(prev_gdp, 1e-6)
-    agent.economy._gdp_prev = gdp
 
     social_spend_delta = action.domestic_policy.social_spending_change
     growth_effect = cal.GINI_GROWTH_SENS * gdp_growth

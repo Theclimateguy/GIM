@@ -104,6 +104,10 @@ class ObservationContractTests(unittest.TestCase):
     def test_observation_includes_damage_and_inbound_sanctions_without_private_fields(self) -> None:
         focal = self._make_agent(agent_id="A", trust_gov=0.12, social_tension=0.90)
         focal.economy._gdp_prev = 0.95
+        focal.economy._debt_gdp_prev = 0.70
+        focal.society._trust_prev = 0.18
+        focal.society._tension_prev = 0.82
+        focal.climate._emissions_prev = 0.36
         peer = self._make_agent(agent_id="B")
         peer.active_sanctions[focal.id] = "strong"
         peer.sanction_years[focal.id] = 2
@@ -111,9 +115,12 @@ class ObservationContractTests(unittest.TestCase):
         third.active_sanctions[focal.id] = "mild"
         third.sanction_years[focal.id] = 1
         world = self._make_world(focal, peer, third, temp=3.0)
+        world.global_state.temp_history = [2.7, 2.8, 3.0]
+        world.global_state.temp_trend_3yr = 0.15
 
         obs = build_observation(world, focal.id)
         competitive = obs.self_state["competitive"]
+        trends = obs.self_state["trends"]
 
         self.assertIn("climate_damage_factor", competitive)
         self.assertGreaterEqual(competitive["climate_damage_factor"], 0.0)
@@ -122,4 +129,24 @@ class ObservationContractTests(unittest.TestCase):
         self.assertEqual(competitive["inbound_sanctions"]["B"]["type"], "strong")
         self.assertEqual(competitive["inbound_sanctions"]["C"]["type"], "mild")
         self.assertNotIn("_gdp_prev", obs.self_state["economy"])
+        self.assertNotIn("_debt_gdp_prev", obs.self_state["economy"])
+        self.assertNotIn("_trust_prev", obs.self_state["society"])
+        self.assertNotIn("_emissions_prev", obs.self_state["climate"])
+        self.assertNotIn("temp_history", obs.external_actors["global"])
+        self.assertEqual(set(trends), {
+            "gdp_growth_last_step",
+            "debt_gdp_change",
+            "trust_change",
+            "social_tension_change",
+            "temp_trend_3yr",
+            "emissions_change",
+        })
+        for value in trends.values():
+            self.assertIsInstance(value, float)
+        self.assertAlmostEqual(trends["gdp_growth_last_step"], (1.0 - 0.95) / 0.95)
+        self.assertAlmostEqual(trends["debt_gdp_change"], 0.1)
+        self.assertAlmostEqual(trends["trust_change"], -0.06)
+        self.assertAlmostEqual(trends["social_tension_change"], 0.08)
+        self.assertAlmostEqual(trends["temp_trend_3yr"], 0.15)
+        self.assertAlmostEqual(trends["emissions_change"], -0.06)
         self.assertLessEqual(len(obs.external_actors["neighbors"]), cal.OBS_MAX_NEIGHBORS)

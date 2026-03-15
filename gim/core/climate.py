@@ -190,6 +190,14 @@ def update_global_climate(
     dtd = ocean_exchange * (t_surface - t_ocean) * dt / max(heat_cap_deep, 1e-6)
     world.global_state.temperature_global = t_surface + dts
     world.global_state.temperature_ocean = t_ocean + dtd
+    world.global_state.temp_history.append(world.global_state.temperature_global)
+    world.global_state.temp_history = world.global_state.temp_history[-3:]
+    if len(world.global_state.temp_history) >= 2:
+        world.global_state.temp_trend_3yr = (
+            world.global_state.temp_history[-1] - world.global_state.temp_history[0]
+        ) / max(len(world.global_state.temp_history) - 1, 1)
+    else:
+        world.global_state.temp_trend_3yr = 0.0
 
     total_weight = 0.0
     weighted_bio = 0.0

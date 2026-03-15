@@ -28,6 +28,7 @@ from refresh_state_artifact_manifest import (  # noqa: E402
     DEFAULT_BUILDER_REFERENCE,
     DEFAULT_HANDOFF_CONTRACT,
     DEFAULT_STATE_CSV,
+    _load_decarb_calibration_reference,
     build_manifest,
 )
 
@@ -318,7 +319,13 @@ def _refresh_primary_artifact_manifest(
     if manifest_path.exists():
         raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         current_decarb_rate = float(raw_manifest["artifact_parameters"]["decarb_rate"])
-    observed_reference_rate = estimate_observed_decarb_rate(OBSERVED_OUTPUT, method="mean_pairwise")
+    calibration_reference = _load_decarb_calibration_reference()
+    if calibration_reference is None:
+        observed_reference_rate = estimate_observed_decarb_rate(OBSERVED_OUTPUT, method="mean_pairwise")
+        observed_reference_start_year = START_YEAR
+        observed_reference_end_year = END_YEAR
+    else:
+        observed_reference_rate, observed_reference_start_year, observed_reference_end_year = calibration_reference
     manifest = build_manifest(
         state_csv=DEFAULT_STATE_CSV,
         manifest_path=manifest_path,
@@ -333,8 +340,8 @@ def _refresh_primary_artifact_manifest(
         emissions_reference_state_csv=state_2015_path,
         decarb_source="observed",
         decarb_reference_rate=observed_reference_rate,
-        decarb_reference_start_year=START_YEAR,
-        decarb_reference_end_year=END_YEAR,
+        decarb_reference_start_year=observed_reference_start_year,
+        decarb_reference_end_year=observed_reference_end_year,
     )
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest_path

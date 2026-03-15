@@ -47,12 +47,16 @@ class StateArtifactBindingTests(unittest.TestCase):
         )
         self.assertAlmostEqual(binding.decarb_rate, 0.052)
         self.assertEqual(binding.decarb_source, "observed")
-        self.assertAlmostEqual(binding.decarb_reference_rate, 0.031241083241479107)
-        self.assertEqual(binding.decarb_reference_start_year, 2015)
+        self.assertAlmostEqual(binding.decarb_reference_rate, 0.016025082589816386)
+        self.assertEqual(binding.decarb_reference_start_year, 2000)
         self.assertEqual(binding.decarb_reference_end_year, 2023)
 
     def test_calibration_params_use_manifest_bound_coefficients(self) -> None:
         self.assertAlmostEqual(cal.EMISSIONS_SCALE, PRIMARY_STATE_ARTIFACT.emissions_scale)
+        self.assertAlmostEqual(
+            cal.DECARB_RATE_OBSERVED_REFERENCE,
+            PRIMARY_STATE_ARTIFACT.decarb_reference_rate,
+        )
         self.assertAlmostEqual(cal.DECARB_RATE_STRUCTURAL, PRIMARY_STATE_ARTIFACT.decarb_rate)
         self.assertAlmostEqual(cal.DECARB_RATE, PRIMARY_STATE_ARTIFACT.decarb_rate)
 

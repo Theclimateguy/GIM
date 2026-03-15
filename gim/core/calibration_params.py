@@ -92,6 +92,9 @@ TEMP_BACKTEST_ENSEMBLE_SIZE = 8  # [BACKTEST]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
 EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived during manifest refresh and bound to the active state manifest.
 TECH_DECARB_K = 0.12  # [PRIOR]
+DECARB_RATE_OBSERVED_REFERENCE = (
+    ACTIVE_STATE_ARTIFACT.decarb_reference_rate or ACTIVE_STATE_ARTIFACT.decarb_rate
+)  # [DATA] GCP fossil CO2 / World Bank PPP GDP fit over 2000-2023 excluding 2020-2021; see misc/calibration/decarb_rate_calibration.json.
 DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Residual structural energy-transition rate, separate from tech and efficiency channels.
 DECARB_RATE = DECARB_RATE_STRUCTURAL  # Backward-compatible alias pending a full rename across the legacy layer.
 STRUCTURAL_TRANSITION_POLICY_SENS = 0.50  # [PRIOR]
@@ -255,6 +258,7 @@ CALIBRATION_STATUS = {
     "TEMP_NATURAL_VARIABILITY_SIGMA": "backtest",
     "TEMP_BACKTEST_ENSEMBLE_SIZE": "backtest",
     "TECH_DECARB_K": "prior",
+    "DECARB_RATE_OBSERVED_REFERENCE": "data",
     "DECARB_RATE_STRUCTURAL": "artifact",
     "DECARB_RATE": "artifact",
     "STRUCTURAL_TRANSITION_POLICY_SENS": "prior",

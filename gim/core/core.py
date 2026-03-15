@@ -57,6 +57,8 @@ class EconomyState:
     inflation: float = 0.02
     birth_rate: float = 0.012
     death_rate: float = 0.008
+    _gdp_prev: Optional[float] = None
+    _debt_gdp_prev: Optional[float] = None
 
 
 @dataclass
@@ -85,6 +87,8 @@ class SocietyState:
     trust_gov: float
     social_tension: float
     inequality_gini: float
+    _trust_prev: Optional[float] = None
+    _tension_prev: Optional[float] = None
 
 
 @dataclass
@@ -92,6 +96,7 @@ class ClimateSubState:
     climate_risk: float
     co2_annual_emissions: float = 0.0
     biodiversity_local: float = 0.8
+    _emissions_prev: Optional[float] = None
 
 
 @dataclass
@@ -170,6 +175,8 @@ class GlobalState:
             "metals": 100.0,
         }
     )
+    temp_history: List[float] = field(default_factory=list)
+    temp_trend_3yr: float = 0.0
 
 
 @dataclass
