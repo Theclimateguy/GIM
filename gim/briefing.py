@@ -730,8 +730,8 @@ class AnalyticsBriefRenderer:
 
     def _horizon_label(self, scenario: dict[str, Any], horizon_years: int) -> str:
         if horizon_years > 0:
-            base_year = scenario.get("base_year")
-            return f"{horizon_years} years ({base_year}->{base_year + horizon_years})"
+            display_year = scenario.get("display_year", scenario.get("base_year"))
+            return f"{horizon_years} years ({display_year}->{display_year + horizon_years})"
         return f"{scenario.get('horizon_months', 0)} months"
 
     def _horizon_phrase(self, scenario: dict[str, Any], horizon_years: int) -> str:

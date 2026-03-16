@@ -128,6 +128,49 @@ class DashboardTests(unittest.TestCase):
             self.assertIn("Trajectory shift", html)
             self.assertIn("Model terms", html)
 
+    def test_dashboard_year_metadata_uses_snapshot_and_display_year(self) -> None:
+        world = load_world(state_year=2026)
+        scenario = compile_question(
+            question="Oil shock in 2028",
+            world=world,
+            base_year=2028,
+            horizon_months=18,
+            actors=["United States", "China", "Germany"],
+        )
+        evaluation, trajectory = self.bridge.evaluate_scenario(
+            world,
+            scenario,
+            n_years=1,
+            default_mode="simple",
+        )
+
+        with TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "dashboard_years.html"
+            write_dashboard_artifacts(
+                renderer=DashboardRenderer(),
+                evaluation=evaluation,
+                game_result=None,
+                equilibrium_result=None,
+                trajectory=trajectory,
+                scenario_def=scenario,
+                config=DashboardConfig(
+                    output_path=str(output_path),
+                    show_trajectory=True,
+                    execution_label="sim",
+                    policy_mode_label="simple",
+                    horizon_years=1,
+                    prefer_llm_interpretation=False,
+                ),
+                save_json=False,
+            )
+
+            html = output_path.read_text(encoding="utf-8")
+            self.assertIn("Data snapshot", html)
+            self.assertIn(">2026<", html)
+            self.assertIn("Display year: 2028", html)
+            self.assertIn("1 years (2028-&gt;2029)", html)
+            self.assertNotIn("1 years (2026-&gt;2027)", html)
+
     def test_game_dashboard_includes_strategy_ranking(self) -> None:
         game = load_game_definition(CASE_PATH, self.world)
         result = self.runner.run_game(game)

@@ -810,10 +810,11 @@ class DashboardRenderer:
     ) -> str:
         run_timestamp = config.run_timestamp or datetime.now().strftime("%Y-%m-%d %H:%M")
         horizon_years = config.horizon_years
+        display_year = scenario_def.display_year or scenario_def.base_year
         if horizon_years <= 0:
             horizon_label = f"{scenario_def.horizon_months} months"
         else:
-            horizon_label = f"{horizon_years} years ({scenario_def.base_year}->{scenario_def.base_year + horizon_years})"
+            horizon_label = f"{horizon_years} years ({display_year}->{display_year + horizon_years})"
 
         actor_line = " &middot; ".join(escape(name) for name in actor_names) or "Auto-resolved"
         confidence_banner = ""

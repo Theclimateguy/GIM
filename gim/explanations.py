@@ -49,11 +49,12 @@ def _top_crisis_changes(evaluation: ScenarioEvaluation, limit: int = 5) -> list[
 
 def format_question_evaluation(evaluation: ScenarioEvaluation) -> str:
     scenario = evaluation.scenario
+    display_year = scenario.display_year or scenario.base_year
     lines = [
         f"Scenario: {scenario.title}",
         f"Template: {scenario.template_id}",
         f"Actors: {', '.join(scenario.actor_names) if scenario.actor_names else 'none'}",
-        f"Horizon: {scenario.horizon_months} months from {scenario.base_year}",
+        f"Horizon: {scenario.horizon_months} months from {display_year}",
         f"Criticality score: {evaluation.criticality_score:.2f}",
         f"Calibration score: {evaluation.calibration_score:.2f}",
         f"Physical consistency: {evaluation.physical_consistency_score:.2f}",

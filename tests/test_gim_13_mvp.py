@@ -34,6 +34,16 @@ class GIM13MVPTests(unittest.TestCase):
         self.assertTrue(scenario.critical_focus)
         self.assertEqual(scenario.base_year, 2023)
 
+    def test_compile_question_uses_world_state_year_and_display_override(self) -> None:
+        world = load_world(state_year=2026)
+        scenario = compile_question(
+            question="Could tensions escalate in 2030?",
+            world=world,
+            base_year=2028,
+        )
+        self.assertEqual(scenario.base_year, 2026)
+        self.assertEqual(scenario.display_year, 2028)
+
     def test_default_runtime_uses_large_primary_state(self) -> None:
         self.assertIn("data/agent_states_operational.csv", default_state_csv())
         self.assertGreaterEqual(len(self.world.agents), 50)

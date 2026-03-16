@@ -27,8 +27,7 @@ COMMON_ALIASES = {
 }
 
 
-# Year of the loaded data snapshot. Frozen until the data pipeline is time-selectable.
-# Do NOT use this as the scenario display year; pass display_year explicitly.
+# Fallback year if world state does not expose calendar base metadata.
 DATA_SNAPSHOT_YEAR = 2023
 
 
@@ -133,14 +132,24 @@ def compile_question(
         actor_ids, actor_names, fallback_unresolved = resolve_actor_names(world, fallback)
         unresolved.extend(fallback_unresolved)
 
-    del base_year  # data snapshot is fixed; use DATA_SNAPSHOT_YEAR
-    resolved_display_year = display_year if display_year is not None else DATA_SNAPSHOT_YEAR
+    data_snapshot_year = int(
+        getattr(world.global_state, "_calendar_year_base", DATA_SNAPSHOT_YEAR)
+    )
+    # Backward-compatible semantics:
+    # - `base_year` acts as scenario context/display year from CLI and case files.
+    # - the data snapshot year comes from the loaded world state.
+    resolved_display_year = display_year
+    if resolved_display_year is None and base_year is not None:
+        resolved_display_year = int(base_year)
+    if resolved_display_year is None:
+        inferred_year = _extract_year(question)
+        resolved_display_year = inferred_year if inferred_year is not None else data_snapshot_year
     selected_template = template_id or detect_template(question)
 
     return build_scenario_from_template(
         template_id=selected_template,
         question=question,
-        base_year=DATA_SNAPSHOT_YEAR,
+        base_year=data_snapshot_year,
         display_year=resolved_display_year,
         horizon_months=horizon_months,
         actor_ids=actor_ids,
