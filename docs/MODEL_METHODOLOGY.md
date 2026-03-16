@@ -235,6 +235,22 @@ Pipeline:
 
 Main entrypoint: `python3 -m gim question|game|metrics|brief|calibrate|console`.
 
+### 8.1 Objective relationship layer
+
+Objective-conditioned game utility is defined by three calibrated mappings:
+
+- `OBJECTIVE_TO_RISK_UTILITY`
+- `OBJECTIVE_TO_CRISIS_UTILITY`
+- `OBJECTIVE_TO_GLOBAL_CRISIS_UTILITY`
+
+plus action-conditioned objective terms:
+
+- `ACTION_OBJECTIVE_BONUS`
+
+The full objective contract and template priors are documented in:
+
+- `docs/OBJECTIVE_RELATIONSHIPS.md`
+
 ## 9. Calibration Contracts
 
 Calibration contracts are documented in:

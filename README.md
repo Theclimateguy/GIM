@@ -129,10 +129,12 @@ GIM_14/
 Active docs:
 
 - `docs/MODEL_METHODOLOGY.md`
+- `docs/OBJECTIVE_RELATIONSHIPS.md`
 - `docs/CALIBRATION_REFERENCE.md`
 - `docs/CALIBRATION_LAYER.md`
 - `docs/SIMULATION_STEP_ORDER.md`
 - `docs/agent_state_data_contract.md`
+- `COMMAND_REFERENCE.md`
 
 Archived/superseded docs:
 
@@ -159,4 +161,4 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `14.1.0`
+Current package version: `14.2.0`

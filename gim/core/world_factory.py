@@ -160,10 +160,23 @@ def _resolve_capital(row: dict[str, str], gdp_val: float) -> float:
 
 def _resolve_public_debt(row: dict[str, str], gdp_val: float) -> float:
     public_debt = _parse_optional_float(row, "public_debt")
+    debt_ratio = _parse_optional_float(row, "public_debt_pct_gdp")
+
     if public_debt is not None:
+        # Guardrail: some compiled CSVs accidentally store `public_debt` as
+        # `gdp * public_debt_pct_gdp` (missing `/100`). If both columns are
+        # present and the raw-debt field matches that malformed pattern,
+        # recover by dividing by 100.
+        if debt_ratio is not None and gdp_val > 0.0:
+            expected_from_ratio = gdp_val * debt_ratio / 100.0
+            malformed_from_ratio = gdp_val * debt_ratio
+            if expected_from_ratio > 0.0 and malformed_from_ratio > 0.0:
+                err_expected = abs(public_debt - expected_from_ratio) / expected_from_ratio
+                err_malformed = abs(public_debt - malformed_from_ratio) / malformed_from_ratio
+                if err_malformed <= 0.05 and err_malformed < err_expected:
+                    return public_debt / 100.0
         return public_debt
 
-    debt_ratio = _parse_optional_float(row, "public_debt_pct_gdp")
     if debt_ratio is not None:
         return gdp_val * debt_ratio / 100.0
 

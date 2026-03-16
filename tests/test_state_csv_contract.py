@@ -82,6 +82,26 @@ class StateCsvContractTests(unittest.TestCase):
             self.assertAlmostEqual(agent.resources["metals"].consumption, 20.0)
             self.assertAlmostEqual(agent.climate.biodiversity_local, 0.7)
 
+    def test_loader_recovers_malformed_public_debt_when_ratio_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "agent_states.csv"
+            header = (
+                "id,name,region,regime_type,gdp,population,fx_reserves,trust_gov,social_tension,"
+                "inequality_gini,climate_risk,pdi,idv,mas,uai,lto,ind,traditional_secular,"
+                "survival_self_expression,alliance_block,public_debt_pct_gdp,public_debt\n"
+            )
+            # `public_debt` is malformed here: it should be 2.0 * 75 / 100 = 1.5,
+            # but the row stores 2.0 * 75 = 150.
+            row = (
+                "T02,Debtland,Europe,Democracy,2.0,1000000,0.2,0.55,0.25,35,0.45,"
+                "40,60,55,50,45,65,6.0,7.0,Western,75,150\n"
+            )
+            path.write_text(header + row, encoding="utf-8")
+
+            world = load_world(state_csv=str(path))
+            agent = world.agents["T02"]
+            self.assertAlmostEqual(agent.economy.public_debt, 1.5)
+
     def test_loader_rejects_negative_resource_values(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             csv_path = _write_csv(
