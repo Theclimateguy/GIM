@@ -89,7 +89,8 @@ class ScenarioDefinition:
     title: str
     template_id: str
     source_prompt: str
-    base_year: int
+    base_year: int          # frozen data snapshot year (DATA_SNAPSHOT_YEAR)
+    display_year: int       # scenario context year shown in UI; may differ from base_year
     horizon_months: int
     actor_ids: List[str]
     actor_names: List[str]
@@ -103,6 +104,11 @@ class ScenarioDefinition:
     critical_focus: bool = True
     tags: List[str] = field(default_factory=list)
     calibration_guardrails: CalibrationGuardrails = field(default_factory=CalibrationGuardrails)
+
+    def __post_init__(self) -> None:
+        # Guarantee display_year is always populated; fall back to base_year if not set.
+        if not self.display_year:
+            self.display_year = self.base_year
 
 
 @dataclass

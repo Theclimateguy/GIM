@@ -27,10 +27,9 @@ COMMON_ALIASES = {
 }
 
 
-# Current country state inputs are compiled for 2023.
-# Until the data pipeline becomes time-selectable, all scenario compilation
-# should anchor on that snapshot year rather than inferred prompt dates.
-FIXED_DATA_BASE_YEAR = 2023
+# Year of the loaded data snapshot. Frozen until the data pipeline is time-selectable.
+# Do NOT use this as the scenario display year; pass display_year explicitly.
+DATA_SNAPSHOT_YEAR = 2023
 
 
 def _normalize(text: str) -> str:
@@ -122,6 +121,7 @@ def compile_question(
     question: str,
     world: WorldState,
     base_year: int | None = None,
+    display_year: int | None = None,
     actors: list[str] | None = None,
     horizon_months: int = 24,
     template_id: str | None = None,
@@ -133,14 +133,15 @@ def compile_question(
         actor_ids, actor_names, fallback_unresolved = resolve_actor_names(world, fallback)
         unresolved.extend(fallback_unresolved)
 
-    del base_year
-    resolved_base_year = FIXED_DATA_BASE_YEAR
+    del base_year  # data snapshot is fixed; use DATA_SNAPSHOT_YEAR
+    resolved_display_year = display_year if display_year is not None else DATA_SNAPSHOT_YEAR
     selected_template = template_id or detect_template(question)
 
     return build_scenario_from_template(
         template_id=selected_template,
         question=question,
-        base_year=resolved_base_year,
+        base_year=DATA_SNAPSHOT_YEAR,
+        display_year=resolved_display_year,
         horizon_months=horizon_months,
         actor_ids=actor_ids,
         actor_names=actor_names,
@@ -158,6 +159,7 @@ def load_game_definition(path: str | Path, world: WorldState) -> GameDefinition:
         question=scenario_raw.get("question", raw.get("title", path_obj.stem)),
         world=world,
         base_year=scenario_raw.get("base_year"),
+        display_year=scenario_raw.get("display_year"),
         actors=scenario_raw.get("actors"),
         horizon_months=scenario_raw.get("horizon_months", 24),
         template_id=scenario_raw.get("template"),

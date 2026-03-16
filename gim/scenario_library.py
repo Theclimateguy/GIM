@@ -223,10 +223,11 @@ def build_scenario_from_template(
     actor_names: list[str],
     unresolved_actor_names: list[str] | None = None,
     assumptions: list[str] | None = None,
+    display_year: int | None = None,
 ) -> ScenarioDefinition:
     template = TEMPLATE_REGISTRY.get(template_id, TEMPLATE_REGISTRY["generic_tail_risk"])
     scenario_assumptions = [
-        "The GIM_12 calibration is the baseline prior for moderate outcomes.",
+        "The GIM14 calibration is the baseline prior for moderate outcomes.",
         "Critical states remain in the distribution when stress channels align in the same direction.",
         "Hard clipping is replaced by soft guardrails; impossible states remain forbidden.",
     ]
@@ -249,6 +250,7 @@ def build_scenario_from_template(
         template_id=template_id,
         source_prompt=question,
         base_year=base_year,
+        display_year=display_year if display_year is not None else base_year,
         horizon_months=horizon_months,
         actor_ids=actor_ids,
         actor_names=actor_names,
