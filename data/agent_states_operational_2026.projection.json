@@ -1,6 +1,6 @@
 {
-  "source_state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv",
-  "output_state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational_2026.csv",
+  "source_state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/agent_states_operational.csv",
+  "output_state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/agent_states_operational_2026.csv",
   "baseline_year": 2023,
   "target_year": 2026,
   "simulated_years": 3,

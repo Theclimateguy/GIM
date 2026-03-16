@@ -100,6 +100,11 @@ Macro-climate:
   - `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json`
   - `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json`
   - `results/backtest/stage_bc_block4_2015_2023/oos_compare_baseline_vs_robust.json`
+- v15 working baseline calibration (Stage B/C robust set):
+  - `TFP_RD_SHARE_SENS = 0.300000`
+  - `GAMMA_ENERGY = 0.042000`
+  - `DECARB_RATE_STRUCTURAL = 0.031200`
+  - `HEAT_CAP_SURFACE = 18.000000`
 
 Crisis layer:
 
@@ -113,7 +118,7 @@ Crisis layer:
 ## Repository Map
 
 ```text
-GIM_14/
+GIM15/
 ├── gim/                    # installable package
 │   ├── core/               # yearly simulator
 │   ├── __main__.py         # orchestration CLI
@@ -172,4 +177,4 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `15.0`
+Current package version: `15.0.0`

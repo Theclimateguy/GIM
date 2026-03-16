@@ -38,6 +38,17 @@ Source: `data/agent_states_operational.artifacts.json`
 
 Rule: these values are loaded through `ACTIVE_STATE_ARTIFACT` and must be changed only via refresh scripts, not by direct hand-editing.
 
+### 2.1b Release baseline overrides (v15 working baseline)
+
+Source: rolling walk-forward Stage B/C artifacts
+
+- `TFP_RD_SHARE_SENS = 0.300000`
+- `GAMMA_ENERGY = 0.042000`
+- `DECARB_RATE_STRUCTURAL = 0.031200`
+- `HEAT_CAP_SURFACE = 18.000000`
+
+Rule: until the operational state artifact pipeline is restamped for v15, these are treated as release baseline calibration targets for validation and documentation.
+
 ### 2.2 Climate/macro tuned parameters
 
 Source: `gim/core/calibration_params.py`

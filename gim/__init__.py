@@ -1,6 +1,6 @@
-"""Unified GIM 14 package with world simulation and scenario gaming layers."""
+"""Unified GIM15 package with world simulation and scenario gaming layers."""
 
-__version__ = "14.2.0"
+__version__ = "15.0.0"
 
 from .core import *  # noqa: F401,F403
 from .crisis_metrics import CrisisMetricsEngine

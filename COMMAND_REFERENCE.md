@@ -1,4 +1,4 @@
-# GIM_14 Command Reference v14.2.0
+# GIM15 Command Reference v15.0.0
 
 Operational CLI reference for `python -m gim`.
 

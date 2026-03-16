@@ -48,8 +48,8 @@ def _resolve_case_path(raw_value: str) -> Path:
 
 
 def build_parser() -> ArgumentParser:
-    parser = ArgumentParser(description="GIM_14 scenario, game and reporting layer")
-    parser.add_argument("--version", action="version", version=f"GIM_14 {__version__}")
+    parser = ArgumentParser(description="GIM15 scenario, game and reporting layer")
+    parser.add_argument("--version", action="version", version=f"GIM15 {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     question_parser = subparsers.add_parser("question", help="Compile and evaluate a question-driven scenario")

@@ -12,7 +12,7 @@ from gim.core.world_factory import make_world_from_csv
 from gim.paths import DEFAULT_STATE_CSV, REPO_ROOT
 
 
-class GIM14SmokeTests(unittest.TestCase):
+class GIM15SmokeTests(unittest.TestCase):
     def test_default_state_csv_exists(self) -> None:
         self.assertTrue(DEFAULT_STATE_CSV.exists(), DEFAULT_STATE_CSV)
 
@@ -52,7 +52,7 @@ class GIM14SmokeTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
-        self.assertIn("MODEL GIM_14", result.stdout)
+        self.assertIn("MODEL GIM15", result.stdout)
         self.assertIn("Simulation complete", result.stdout)
 
 

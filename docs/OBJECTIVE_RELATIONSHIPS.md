@@ -1,4 +1,4 @@
-# Objective Relationship Contract (GIM_14)
+# Objective Relationship Contract (GIM15)
 
 This document defines the objective-layer mappings used by the scenario/game engine.
 Source of truth is `gim/geo_calibration.py` (consumed by `gim/game_runner.py`).

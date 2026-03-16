@@ -1,6 +1,6 @@
 {
   "suite_id": "operational_v1",
-  "state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv",
+  "state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/agent_states_operational.csv",
   "baseline_case_count": 11,
   "baseline_pass_count": 11,
   "baseline_average_score": 0.9602272727272727,
