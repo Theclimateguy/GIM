@@ -172,4 +172,4 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `14.2.0`
+Current package version: `15.0`
