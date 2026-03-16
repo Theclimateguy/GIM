@@ -1,0 +1,27 @@
+{
+  "case_id": "DEBT_NEAR_MISS_001",
+  "case_type": "near_miss",
+  "horizon_years": 3,
+  "description": "Debt near threshold with moderate rates should remain stressed but avoid full debt crisis activation.",
+  "initial_overrides": {
+    "target_id": "USA",
+    "economy.public_debt_multiplier": 1.05,
+    "risk.debt_crisis_prone": 0.4,
+    "society.trust_gov": 0.62
+  },
+  "expected_signs": {
+    "target.risk.debt_crisis_active_years": "flat_zero",
+    "target.credit_risk_score": "up_small"
+  },
+  "expected_order": [
+    "debt_stress_rise",
+    "credit_risk_rise"
+  ],
+  "magnitude_bounds": {
+    "target.credit_risk_score_change_3y": [0.001, 0.08],
+    "target.debt_ratio_change_3y": [-0.2, 0.2]
+  },
+  "ablation_targets": [
+    "debt_spread_feedback"
+  ]
+}

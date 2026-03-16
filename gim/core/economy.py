@@ -5,6 +5,13 @@ from .country_params import get_savings_rate, get_social_spend_share, get_tax_ra
 from .metrics import update_tfp_endogenous
 
 
+def _channel_disabled(world: WorldState | None, channel_name: str) -> bool:
+    if world is None:
+        return False
+    disabled = getattr(world.global_state, "_ablation_disabled_channels", set())
+    return channel_name in disabled
+
+
 def _credit_zone_premium(zone: str) -> float:
     premiums = {
         "prime": 0.0,
@@ -102,7 +109,10 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
     debt_gdp = economy.public_debt / gdp
 
     excess = max(0.0, debt_gdp - cal.DEBT_SPREAD_THRESHOLD)
-    spread_raw = cal.DEBT_SPREAD_LINEAR * excess + cal.DEBT_SPREAD_QUADRATIC * (excess**2)
+    if _channel_disabled(world, "debt_spread_feedback"):
+        spread_raw = 0.0
+    else:
+        spread_raw = cal.DEBT_SPREAD_LINEAR * excess + cal.DEBT_SPREAD_QUADRATIC * (excess**2)
 
     fragility = 1.0 - risk.regime_stability
     spread = spread_raw * (
@@ -113,25 +123,32 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
 
     contagion_spread = 0.0
     if world is not None:
-        total_weight = 0.0
-        stress_sum = 0.0
-        for partner_id, rel in world.relations.get(agent.id, {}).items():
-            partner = world.agents.get(partner_id)
-            if partner is None:
-                continue
-            partner_gdp = max(partner.economy.gdp, 1e-6)
-            partner_debt_gdp = partner.economy.public_debt / partner_gdp
-            partner_excess = max(0.0, partner_debt_gdp - cal.CONTAGION_DEBT_THRESHOLD)
-            partner_stress = partner_excess * partner.risk.debt_crisis_prone
-            weight = max(0.0, effective_trade_intensity(rel))
-            stress_sum += weight * partner_stress
-            total_weight += weight
-        if total_weight > 0.0:
-            avg_partner_stress = stress_sum / total_weight
-            contagion_spread = min(cal.CONTAGION_SPREAD_CAP, cal.CONTAGION_SPREAD_SENS * avg_partner_stress)
+        if _channel_disabled(world, "debt_spread_feedback"):
+            total_weight = 0.0
+            stress_sum = 0.0
+        else:
+            total_weight = 0.0
+            stress_sum = 0.0
+            for partner_id, rel in world.relations.get(agent.id, {}).items():
+                partner = world.agents.get(partner_id)
+                if partner is None:
+                    continue
+                partner_gdp = max(partner.economy.gdp, 1e-6)
+                partner_debt_gdp = partner.economy.public_debt / partner_gdp
+                partner_excess = max(0.0, partner_debt_gdp - cal.CONTAGION_DEBT_THRESHOLD)
+                partner_stress = partner_excess * partner.risk.debt_crisis_prone
+                weight = max(0.0, effective_trade_intensity(rel))
+                stress_sum += weight * partner_stress
+                total_weight += weight
+            if total_weight > 0.0:
+                avg_partner_stress = stress_sum / total_weight
+                contagion_spread = min(cal.CONTAGION_SPREAD_CAP, cal.CONTAGION_SPREAD_SENS * avg_partner_stress)
 
     zone = str(getattr(agent, "credit_zone", "investment"))
-    zone_premium = _credit_zone_premium(zone)
+    if _channel_disabled(world, "credit_zone_premium"):
+        zone_premium = 0.0
+    else:
+        zone_premium = _credit_zone_premium(zone)
     rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread + zone_premium
     return float(max(0.0, min(rate, cal.RATE_MAX)))
 

@@ -1,10 +1,10 @@
-# GIM_14 Calibration Layer
+# GIM15 Calibration Layer
 
 This document describes the executable calibration workflow in the current codebase.
 
 ## 1. Layer Structure
 
-Calibration is split into two coupled passes.
+Calibration is split into three coupled passes.
 
 ### Pass A: Macro-climate structure
 
@@ -38,6 +38,19 @@ Primary questions:
 - which outcome-layer weights are sensitivity hotspots?
 - do debt/regime crisis durations stay in the tuned persistence corridor?
 
+### Pass C: Rolling walk-forward validation
+
+Core modules:
+
+- `gim/rolling_backtest.py`
+- `misc/calibration/run_rolling_origin_backtest.py`
+
+Primary questions:
+
+- do recalibrated parameters generalize on one-step out-of-sample windows?
+- does a robust fixed parameter set outperform baseline on average OOS objective?
+- are per-window gains stable (low variance) rather than concentrated in single years?
+
 ## 2. Runtime Data Flow
 
 ```mermaid
@@ -52,6 +65,8 @@ flowchart TD
     I["calibration_validator.py"] --> G
     G --> J["sensitivity_sweep.py"]
     G --> K["crisis_persistence calibration"]
+    C --> L["rolling_backtest.py (pairwise/block4)"]
+    L --> M["OOS compare baseline vs robust"]
 ```
 
 ## 3. Artifact Ownership Rules
@@ -109,6 +124,13 @@ python3 misc/calibration/sensitivity_sweep.py --suite operational_v2
 python3 misc/calibration/calibrate_crisis_persistence.py
 ```
 
+### Rolling walk-forward
+
+```bash
+python3 misc/calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
+python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
+```
+
 ## 6. Change Discipline
 
 When changing calibration behavior:
@@ -116,7 +138,8 @@ When changing calibration behavior:
 1. update code and case fixtures
 2. run the calibration tests
 3. refresh generated artifacts if required
-4. update `docs/CALIBRATION_REFERENCE.md` with new authoritative values
-5. commit code + docs + artifacts together
+4. run rolling OOS comparison and save report artifacts
+5. update `docs/CALIBRATION_REFERENCE.md` with new authoritative values
+6. commit code + docs + artifacts together
 
 This keeps the calibration layer reproducible and reviewable.

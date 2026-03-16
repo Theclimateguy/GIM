@@ -1,6 +1,6 @@
-# GIM_14
+# GIM15
 
-`GIM_14` is the active repository for the yearly geopolitical-economy simulator and its scenario/game tooling.
+`GIM15` is the active repository for the yearly geopolitical-economy simulator and its scenario/game tooling.
 
 The codebase combines:
 
@@ -96,6 +96,10 @@ Macro-climate:
   - GDP RMSE `~1.053`
   - global CO2 RMSE `~1.630`
   - temperature RMSE `~0.136`
+- rolling walk-forward OOS artifacts:
+  - `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json`
+  - `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json`
+  - `results/backtest/stage_bc_block4_2015_2023/oos_compare_baseline_vs_robust.json`
 
 Crisis layer:
 
@@ -122,6 +126,13 @@ GIM_14/
 │   └── old_docs/           # archived superseded docs
 ├── scripts/                # helpers (pipeline, maps, long runs)
 └── tests/                  # regression suite
+```
+
+Rolling backtest CLI:
+
+```bash
+python3 misc/calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
+python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
 ```
 
 ## Documentation Set

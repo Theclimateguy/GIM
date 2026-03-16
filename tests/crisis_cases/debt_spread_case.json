@@ -1,0 +1,32 @@
+{
+  "case_id": "DEBT_SPREAD_CRISIS_001",
+  "case_type": "debt_cascade",
+  "horizon_years": 4,
+  "description": "High debt and high rates should trigger debt crisis and persistent macro-social deterioration.",
+  "initial_overrides": {
+    "target_id": "GBR",
+    "economy.public_debt_multiplier": 1.6,
+    "risk.debt_crisis_prone": 0.95,
+    "society.trust_gov": 0.45
+  },
+  "expected_signs": {
+    "target.risk.debt_crisis_active_years": "up",
+    "target.gdp": "down",
+    "target.economy.unemployment": "up",
+    "target.society.social_tension": "up"
+  },
+  "expected_order": [
+    "debt_stress_rise",
+    "debt_crisis_activation",
+    "gdp_drop",
+    "social_tension_rise"
+  ],
+  "magnitude_bounds": {
+    "target.gdp_change_4y": [-0.8, -0.05],
+    "target.debt_ratio_change_2y": [-1.2, 0.3]
+  },
+  "ablation_targets": [
+    "debt_spread_feedback",
+    "credit_zone_premium"
+  ]
+}

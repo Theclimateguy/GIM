@@ -1,0 +1,88 @@
+variable_name,domain,type,unit,range_min,range_max,phase_owner,authorized_writers,depends_on,affects,equation_id,notes
+world.time,world,stock,year_index,0,,reconcile,simulation.py,simulation step completion,all phase sequencing,EQ-TIME-001,Increment once per year
+agent.economy.gdp,agent,stock,trillion_usd,0,,baseline,actions.py;economy.py;geopolitics.py;social.py,capital;population;energy_input;trade;climate_damage,debt_ratio;gdp_pc;ratings;migration_push,EQ-ECO-001,Primary macro stock
+agent.economy.capital,agent,stock,trillion_usd_equiv,0,,baseline,economy.py;climate.py;geopolitics.py;social.py,savings;depreciation;conflict;climate_events,gdp_potential;war_exhaustion,EQ-ECO-002,Capital law of motion
+agent.economy.population,agent,stock,people,0,,baseline,social.py;geopolitics.py;climate.py,birth_rate;death_rate;migration;war;extreme_events,labor;gdp_pc;demand,EQ-DEM-001,Population stock updated after migration
+agent.economy.public_debt,agent,stock,trillion_usd,0,,baseline,actions.py;economy.py;institutions.py;social.py,deficit;interest;policy_spend;debt_crisis,debt_ratio;interest_spread;rating,EQ-FIN-001,Dynamics should satisfy debt accounting identity
+agent.economy.fx_reserves,agent,stock,trillion_usd,0,,baseline,actions.py;institutions.py;trade_deals,net_exports;liquidity_support,import_capacity;macro_risk,EQ-FIN-002,Used for trade financing and credit risk
+agent.economy.taxes,agent,flow,trillion_usd_per_year,0,,baseline,economy.py,tax_rate;gdp,deficit;debt,EQ-FIN-003,Computed annually
+agent.economy.gov_spending,agent,flow,trillion_usd_per_year,0,,baseline,actions.py;economy.py,baseline_spend;policy_spend,deficit;debt,EQ-FIN-004,Contains social/military/RD/climate adaptation
+agent.economy.social_spending,agent,flow,trillion_usd_per_year,, ,baseline,actions.py,domestic_policy.social_spending_change,trust;tension;gini,EQ-POL-001,Policy controlled
+agent.economy.military_spending,agent,flow,trillion_usd_per_year,, ,baseline,actions.py,domestic_policy.military_spending_change,military_power;debt,EQ-SEC-001,Policy controlled
+agent.economy.rd_spending,agent,flow,trillion_usd_per_year,, ,baseline,actions.py;economy.py,domestic_policy.rd_investment_change;decay,tech_level;tfp,EQ-TECH-001,Decays each year
+agent.economy.climate_adaptation_spending,agent,flow,trillion_usd_per_year,0,,baseline,economy.py,gdp;climate_risk,resilience;climate_damage,EQ-CLI-001,Baseline adaptation channel
+agent.economy.interest_payments,agent,flow,trillion_usd_per_year,0,,baseline,economy.py,effective_interest_rate;public_debt,deficit;debt,EQ-FIN-005,Derived from spread model
+agent.economy.net_exports,agent,flow,trillion_usd_per_year,, ,baseline,actions.py,trade_deals;prices,fx_reserves;gdp,EQ-TRD-001,Reset each year before deals
+agent.economy.gdp_per_capita,agent,derived,usd_per_person_per_year,0,,reconcile,economy.py,gdp;population,trust;migration;demography,EQ-ECO-003,Derived indicator
+agent.economy.unemployment,agent,stock,share,0,1,propagate,social.py,debt_crisis;macro_stress,trust;tension,EQ-SOC-001,Crisis-sensitive labor stress proxy
+agent.economy.inflation,agent,stock,share,-0.5,2,baseline,initialization_or_overrides,exogenous_or_scenario,trust;tension,EQ-SOC-002,Currently weakly endogenous
+agent.economy.birth_rate,agent,flow,share_per_year,0,0.1,baseline,social.py,gdp_pc;food_scarcity;gini,population,EQ-DEM-002,Computed before population update
+agent.economy.death_rate,agent,flow,share_per_year,0,0.1,baseline,social.py,gdp_pc;food_scarcity;gini,population,EQ-DEM-003,Computed before population update
+agent.economy.climate_shock_years,agent,event,years,0,10,detect,climate.py,event_trigger;shock_decay,gdp_penalty_persistence,EQ-CLI-002,Extreme-event persistence counter
+agent.economy.climate_shock_penalty,agent,event,share,0,1,propagate,climate.py,event_severity;decay,gdp_target,EQ-CLI-003,Applied in output step
+agent.society.trust_gov,agent,stock,share,0,1,propagate,actions.py;climate.py;geopolitics.py;institutions.py;social.py,macro_performance;events;policy,legitimacy;regime_risk,EQ-SOC-003,Central social state variable
+agent.society.social_tension,agent,stock,share,0,1,propagate,actions.py;climate.py;geopolitics.py;institutions.py;social.py,inequality;inflation;unemployment;events,protest;regime_risk,EQ-SOC-004,Main instability channel
+agent.society.inequality_gini,agent,stock,gini_points,0,100,baseline,social.py,gdp_growth;fiscal_policy;tension,trust;protest_risk,EQ-SOC-005,Updated with growth distribution rule
+agent.climate.co2_annual_emissions,agent,flow,gtco2_per_year,0,,baseline,actions.py;climate.py,gdp;intensity;policy;tech,global_co2;climate_risk,EQ-CLI-004,Key emission flow
+agent.climate.climate_risk,agent,stock,share,0,1,baseline,climate.py;institutions.py,temperature;water_stress;gini,resilience;extreme_event_prob,EQ-CLI-005,Smoothed toward temperature-driven target
+agent.climate.biodiversity_local,agent,stock,index_0_1,0,1,baseline,climate.py,temperature_increase;resilience,global_biodiversity,EQ-CLI-006,Degrades with warming and risk
+agent.risk.water_stress,agent,stock,share,0,1,baseline,initialization_or_overrides,exogenous_or_scenario,climate_risk;social_risk,EQ-RSK-001,Input vulnerability proxy
+agent.risk.regime_stability,agent,stock,share,0,1,propagate,social.py,trust;tension;crisis_hits,policy_space;crisis_prob,EQ-RSK-002,Lower values amplify multiple risks
+agent.risk.debt_crisis_prone,agent,stock,share,0,1,baseline,initialization_or_overrides,structural_fin_fragility,interest_spread;debt_event_prob,EQ-RSK-003,Structural debt fragility
+agent.risk.conflict_proneness,agent,stock,share,0,1,baseline,initialization_or_overrides,structural_geopolitical_risk,war_prob;migration_push,EQ-RSK-004,Conflict baseline factor
+agent.risk.debt_crisis_active_years,agent,event,years,0,10,detect,social.py,debt_ratio;interest_rate;exit_rules,propagation_debt_shocks,EQ-EVT-001,Debt crisis state variable
+agent.risk.regime_crisis_active_years,agent,event,years,0,10,detect,social.py,trust;tension;exit_rules,propagation_regime_shocks,EQ-EVT-002,Regime crisis state variable
+agent.technology.tech_level,agent,stock,index,0.5,,baseline,actions.py;metrics.py,rd_spending;diffusion,productivity;decarbonization,EQ-TECH-002,Improves TFP and resilience
+agent.technology.military_power,agent,stock,index,0,,propagate,actions.py;geopolitics.py,military_spend;war_losses,war_outcomes;deterrence,EQ-SEC-002,Used in conflict losses
+agent.technology.security_index,agent,latent,share,0,1,baseline,initialization_or_overrides,scenario_or_input,security_action_rules,EQ-SEC-003,Heuristic threat context
+agent.political.legitimacy,agent,latent,share,0,1,baseline,political_dynamics.py,trust;tension,policy_space;constraints,EQ-POL-002,Derived latent state
+agent.political.protest_pressure,agent,latent,share,0,1,baseline,political_dynamics.py,protest_risk;tension,security_constraints,EQ-POL-003,Derived latent state
+agent.political.hawkishness,agent,latent,share,0,1,baseline,political_dynamics.py,conflict_proneness;trust;resource_stress,sanction_propensity;security_intent,EQ-POL-004,Derived latent state
+agent.political.protectionism,agent,latent,share,0,1,baseline,political_dynamics.py,unemployment;gini;trust,trade_restrictions,EQ-POL-005,Trade-policy pressure
+agent.political.coalition_openness,agent,latent,share,0,1,baseline,political_dynamics.py,trust;tension,sanction_propensity,EQ-POL-006,Lower values imply harder blocs
+agent.political.sanction_propensity,agent,latent,share,0,1,baseline,political_dynamics.py,hawkishness;coalition_openness,sanctions_regime,EQ-POL-007,Sanctions intent driver
+agent.political.policy_space,agent,latent,share,0,1,baseline,political_dynamics.py,legitimacy;protest_pressure;debt_stress,action_constraints,EQ-POL-008,Scales domestic action levers
+agent.active_sanctions,agent,event,categorical_map,0,2,detect,political_dynamics.py,intent_map;support_rule,bilateral_trade_and_gdp,EQ-EVT-003,Persistent sanction regime map
+agent.sanction_years,agent,event,years_map,0,10,detect,political_dynamics.py,min_duration;intent_exit,sanction_persistence,EQ-EVT-004,Tracks remaining sanction duration
+agent.credit_rating,agent,derived,ordinal_1_26,1,26,reconcile,credit_rating.py,total_risk_score,financing_zone,EQ-CRD-001,Mapped from composite risk score
+agent.credit_zone,agent,derived,categorical,0,4,reconcile,credit_rating.py,credit_rating,interest_premium,EQ-CRD-002,prime/investment/sub-investment/distressed/default
+agent.credit_risk_score,agent,derived,share,0,1,reconcile,credit_rating.py,financial;war;social;sanction;macro_risks,credit_rating,EQ-CRD-003,Composite sovereign-style score
+agent.resources.energy.own_reserve,agent,stock,zj,0,,baseline,resources.py,production;regen;tech_expansion,resource_stress;energy_constraints,EQ-RES-001,Energy reserve stock
+agent.resources.energy.production,agent,flow,zj_per_year,0,,baseline,resources.py,desired_production;caps;reserve,energy_supply;prices,EQ-RES-002,Capped by global allocation
+agent.resources.energy.consumption,agent,flow,zj_per_year,0,,baseline,initialization_or_policy,demand_policy,economic_output;prices,EQ-RES-003,Demand side input
+agent.resources.energy.efficiency,agent,stock,index,0.5,,baseline,actions.py,rd_investment,energy_input;emissions_intensity,EQ-RES-004,Improves output and decarb
+agent.resources.food.own_reserve,agent,stock,indexed_stock,0,,baseline,resources.py,production;consumption;regen,food_scarcity;demography,EQ-RES-005,Renewable-like dynamics
+agent.resources.food.production,agent,flow,indexed_flow,0,,baseline,resources.py,tech_and_reserve,food_availability,EQ-RES-006,Affects migration and death rate
+agent.resources.food.consumption,agent,flow,indexed_flow,0,,baseline,initialization_or_policy,population_and_demand,scarcity_metrics,EQ-RES-007,Demand side input
+agent.resources.food.efficiency,agent,stock,index,0.5,,baseline,actions.py,rd_investment,resource_balance,EQ-RES-008,Technology modifier
+agent.resources.metals.own_reserve,agent,stock,indexed_stock,0,,baseline,resources.py,primary_production;regen;tech_expansion,resource_stress,EQ-RES-009,Non-renewable with recycling support
+agent.resources.metals.production,agent,flow,indexed_flow,0,,baseline,resources.py,desired_supply;recycling,global_supply_and_price,EQ-RES-010,Includes recycled secondary supply
+agent.resources.metals.consumption,agent,flow,indexed_flow,0,,baseline,resources.py,price_substitution;demand,imbalance_prices,EQ-RES-011,Demand is price-sensitive
+agent.resources.metals.efficiency,agent,stock,index,0.5,,baseline,actions.py,rd_investment,resource_balance,EQ-RES-012,Technology modifier
+relation.trade_intensity,relation,stock,index,0,1,propagate,geopolitics.py;political_dynamics.py,sanctions;war;barriers,trade_flows;gdp,EQ-REL-001,Bilateral trade link strength
+relation.trust,relation,stock,share,0,1,propagate,geopolitics.py,sanctions;security;war,conflict_and_sanction_prob,EQ-REL-002,Bilateral political trust
+relation.conflict_level,relation,stock,share,0,1,detect,geopolitics.py,security_actions;war_dynamics,war_activation,EQ-REL-003,Bilateral escalation metric
+relation.trade_barrier,relation,stock,share,0,1,propagate,geopolitics.py;institutions.py;political_dynamics.py,policy_restrictions;sanctions,effective_trade_intensity,EQ-REL-004,Barrier share applied to trade intensity
+relation.at_war,relation,event,binary,0,1,detect,geopolitics.py,conflict_trigger;exhaustion_rule,war_losses_and_duration,EQ-REL-005,War regime switch
+relation.war_years,relation,event,years,0,50,detect,geopolitics.py,at_war_state,persistence_penalties,EQ-REL-006,War persistence counter
+relation.war_start_gdp,relation,event,trillion_usd,0,,detect,geopolitics.py,gdp_at_war_onset,war_exhaustion_exit,EQ-REL-007,War baseline snapshot
+relation.war_start_pop,relation,event,people,0,,detect,geopolitics.py,pop_at_war_onset,war_exhaustion_exit,EQ-REL-008,War baseline snapshot
+relation.war_start_resource,relation,event,indexed_stock,0,,detect,geopolitics.py,resource_index_onset,war_exhaustion_exit,EQ-REL-009,War baseline snapshot
+global.co2,global,stock,gtco2,2184,,baseline,climate.py,emissions;carbon_pools,forcing_total,EQ-GLB-001,Atmospheric stock above preindustrial baseline
+global.carbon_pools,global,stock,gtco2_by_pool,0,,baseline,climate.py,pool_decay;emissions_partition,global_co2,EQ-GLB-002,Multi-timescale carbon cycle
+global.forcing_total,global,derived,w_m2,0,,baseline,climate.py,co2;nonco2_forcing,temperature_dynamics,EQ-GLB-003,Radiative forcing aggregate
+global.temperature_global,global,stock,celsius_anomaly,-5,10,baseline,climate.py,forcing;ocean_exchange;variability,climate_risk;damage,EQ-GLB-004,Surface temperature state
+global.temperature_ocean,global,stock,celsius_anomaly,-5,10,baseline,climate.py,ocean_exchange;surface_temp,coupled_temperature,EQ-GLB-005,Deep-ocean box temperature
+global.temp_trend_3yr,global,derived,celsius_per_year,-5,5,reconcile,climate.py,temp_history,observation_features,EQ-GLB-006,Short-run warming trend
+global.temp_history,global,derived,list_celsius,-5,10,reconcile,climate.py,temperature_global,temp_trend_3yr,EQ-GLB-007,Rolling 3-year history
+global.biodiversity_index,global,stock,index_0_1,0,1,baseline,climate.py,pop_weighted_local_biodiversity,global_risk_reporting,EQ-GLB-008,Aggregated biodiversity health
+global.prices.energy,global,stock,index_price,0.3,5,baseline,resources.py,global_supply_demand,economic_and_trade_channels,EQ-GLB-009,Resource market clearing proxy
+global.prices.food,global,stock,index_price,0.3,5,baseline,resources.py,global_supply_demand,economic_and_trade_channels,EQ-GLB-010,Resource market clearing proxy
+global.prices.metals,global,stock,index_price,0.3,5,baseline,resources.py,global_supply_demand,economic_and_trade_channels,EQ-GLB-011,Resource market clearing proxy
+global.global_reserves.energy,global,stock,zj,0,,baseline,resources.py,primary_production;regen;tech_expansion,energy_allocation_caps,EQ-GLB-012,Global resource stock
+global.global_reserves.food,global,stock,indexed_stock,0,,baseline,resources.py,production;regen;tech_expansion,scarcity_and_prices,EQ-GLB-013,Global resource stock
+global.global_reserves.metals,global,stock,indexed_stock,0,,baseline,resources.py,primary_production;regen;tech_expansion,scarcity_and_prices,EQ-GLB-014,Global resource stock
+global.baseline_gdp_pc,global,stock,usd_per_person_per_year,0,,baseline,world_factory.py,initial_state,demography_and_migration_reference,EQ-GLB-015,Reference level for prosperity ratios
+institution.legitimacy,institution,stock,share,0,1,baseline,institutions.py,global_trust;tension;org_type,policy_measures_intensity,EQ-INS-001,Updated via smoothing toward type-specific target
+institution.budget,institution,flow,trillion_usd_per_year,0,,baseline,institutions.py,total_gdp;legitimacy,liquidity_and_support_measures,EQ-INS-002,Org operational budget
+institution.active_rules,institution,event,key_value_map,0,,detect,institutions.py,mandate_and_context,org_measures,EQ-INS-003,Reserved for explicit rule engines in v15

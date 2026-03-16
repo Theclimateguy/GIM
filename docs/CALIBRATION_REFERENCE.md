@@ -1,4 +1,4 @@
-# GIM_14 Calibration Reference
+# GIM15 Calibration Reference
 
 This file is the current calibration ledger for the code in this repository.
 
@@ -15,6 +15,7 @@ It documents:
 | Parameter registry | `gim/core/calibration_params.py` | Single place for model constants and provenance tags |
 | Manifest-bound artifacts | `gim/core/state_artifact.py`, `data/agent_states_operational.artifacts.json` | Locks state-derived climate coefficients to the compiled operational state |
 | Historical backtest | `gim/historical_backtest.py` | GDP/CO2/temperature replay over `2015-2023` |
+| Rolling walk-forward backtest | `gim/rolling_backtest.py`, `misc/calibration/run_rolling_origin_backtest.py` | Origin windows + stepwise recalibration + out-of-sample validation (`2015->2023`) |
 | Decarb sensitivity | `gim/decarb_sensitivity.py` | Compares active structural decarb rate against observed/alternative candidates |
 | Geopolitical calibration | `gim/geo_calibration.py`, `gim/calibration_validator.py` | Outcome/action/shift weight priors and sanity guards |
 | Operational suite | `gim/calibration.py`, `misc/calibration_cases/operational_v1` | Regression suite for crisis and control cases |
@@ -105,6 +106,28 @@ Sensitivity sweep (`operational_v2`):
 - defaults to suite discriminating weights when present
 - test expectation: at least `6` entries flagged `high` (`tests/test_sensitivity_sweep.py`)
 
+### 3.3 Rolling walk-forward (`2015->2023`)
+
+Artifacts:
+
+- `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json`
+- `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json`
+- `results/backtest/stage_bc_block4_2015_2023/oos_compare_baseline_vs_robust.json`
+
+Current Stage B/C block-4 robust candidate:
+
+- `TFP_RD_SHARE_SENS = 0.300000`
+- `GAMMA_ENERGY = 0.042000`
+- `DECARB_RATE_STRUCTURAL = 0.031200`
+- `HEAT_CAP_SURFACE = 18.000000`
+
+Out-of-sample summary on one-step windows (`2015->2016 ... 2022->2023`):
+
+- objective improved (`1.8357 -> 1.8125`, lower is better)
+- GDP RMSE ~ unchanged (`0.3108 -> 0.3109`)
+- global CO2 RMSE unchanged (`1.0286 -> 1.0286`)
+- temperature RMSE improved (`0.0776 -> 0.0753`)
+
 ## 4. Refresh and Rebuild Commands
 
 Manifest refresh:
@@ -130,6 +153,8 @@ python3 misc/calibration/calibrate_tfp_rd_share_sens.py
 python3 misc/calibration/calibrate_heat_cap_surface.py
 python3 misc/calibration/calibrate_temperature_variability.py
 python3 misc/calibration/calibrate_crisis_persistence.py
+python3 misc/calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
+python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
 ```
 
 ## 5. Validation Commands

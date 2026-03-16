@@ -1,0 +1,30 @@
+{
+  "case_id": "SANCTIONS_TRADE_GDP_001",
+  "case_type": "sanctions_cascade",
+  "horizon_years": 3,
+  "description": "Strong coordinated sanctions on one target should reduce GDP and trust, then depress bilateral trade intensity while tension rises.",
+  "initial_overrides": {
+    "target_id": "China",
+    "sanctioning_actors": ["United States", "Japan", "Germany"],
+    "sanction_type": "strong"
+  },
+  "expected_signs": {
+    "target.trade_intensity": "down",
+    "target.gdp": "down",
+    "target.society.trust_gov": "down_or_flat",
+    "target.society.social_tension": "up"
+  },
+  "expected_order": [
+    "gdp_drop",
+    "trust_drop",
+    "trade_intensity_drop"
+  ],
+  "magnitude_bounds": {
+    "target.gdp_change_3y": [-2.0, -0.1],
+    "target.trade_intensity_change_1y": [-0.1, -0.005]
+  },
+  "ablation_targets": [
+    "sanctions_channel",
+    "trade_barrier_channel"
+  ]
+}

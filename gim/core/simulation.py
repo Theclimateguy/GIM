@@ -10,8 +10,8 @@ from . import calibration_params as cal
 from .actions import apply_action, apply_trade_deals
 from .climate import apply_climate_extreme_events, update_climate_risks, update_global_climate
 from .credit_rating import update_credit_ratings
-from .core import Action, AgentMemory, Observation, PolicyRecord, WorldState
-from .economy import update_economy_output, update_public_finances
+from .core import Action, AgentMemory, Observation, PolicyRecord, TGLOBAL_2023_C, WorldState
+from .economy import compute_effective_interest_rate, update_economy_output, update_public_finances
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
 from .memory import summarize_agent_memory, update_agent_memory
@@ -304,6 +304,7 @@ def _capture_trend_baselines(world: WorldState) -> Dict[str, Dict[str, float]]:
         gdp = float(agent.economy.gdp)
         baselines[agent_id] = {
             "gdp": gdp,
+            "debt": float(agent.economy.public_debt),
             "debt_gdp": float(agent.economy.public_debt / max(gdp, 1e-6)),
             "trust": float(agent.society.trust_gov),
             "tension": float(agent.society.social_tension),
@@ -444,24 +445,241 @@ def _safe_apply_policy(
         return simple_rule_based_policy(obs)
 
 
-def step_world(
+def _aggregate_world_metrics(world: WorldState) -> Dict[str, float]:
+    agents = list(world.agents.values())
+    total_gdp = float(sum(agent.economy.gdp for agent in agents))
+    total_debt = float(sum(agent.economy.public_debt for agent in agents))
+    total_emissions = float(sum(agent.climate.co2_annual_emissions for agent in agents))
+    avg_trust = float(
+        sum(agent.society.trust_gov for agent in agents) / max(len(agents), 1)
+    )
+    avg_tension = float(
+        sum(agent.society.social_tension for agent in agents) / max(len(agents), 1)
+    )
+    return {
+        "total_gdp": total_gdp,
+        "total_debt": total_debt,
+        "total_emissions": total_emissions,
+        "avg_trust": avg_trust,
+        "avg_tension": avg_tension,
+        "global_temperature": float(world.global_state.temperature_global),
+        "global_co2": float(world.global_state.co2),
+    }
+
+
+def _channel_enabled(
+    channel_overrides: Optional[Dict[str, bool]],
+    channel_name: str,
+) -> bool:
+    if channel_overrides is None:
+        return True
+    return bool(channel_overrides.get(channel_name, True))
+
+
+def _collect_detection_cards(world: WorldState) -> List[Dict[str, Any]]:
+    cards: List[Dict[str, Any]] = []
+
+    debt_watch = cal.DEBT_CRISIS_DEBT_THRESHOLD * 0.9
+    rate_watch = cal.DEBT_CRISIS_RATE_THRESHOLD * 0.85
+    for agent in world.agents.values():
+        gdp = max(agent.economy.gdp, 1e-6)
+        debt_gdp = agent.economy.public_debt / gdp
+        rate = compute_effective_interest_rate(agent, world)
+        if debt_gdp >= debt_watch and rate >= rate_watch:
+            score = min(1.0, (debt_gdp / max(cal.DEBT_CRISIS_DEBT_THRESHOLD, 1e-6)) * (rate / max(cal.DEBT_CRISIS_RATE_THRESHOLD, 1e-6)) / 2.0)
+            cards.append(
+                {
+                    "type": "debt_crisis_watch",
+                    "agent_id": agent.id,
+                    "score": float(score),
+                    "debt_gdp": float(debt_gdp),
+                    "rate": float(rate),
+                }
+            )
+
+        if (
+            agent.society.trust_gov <= cal.REGIME_COLLAPSE_TRUST_THRESHOLD + 0.05
+            and agent.society.social_tension >= cal.REGIME_COLLAPSE_TENSION_THRESHOLD - 0.05
+        ):
+            score = min(
+                1.0,
+                0.5 * (1.0 - agent.society.trust_gov) + 0.5 * agent.society.social_tension,
+            )
+            cards.append(
+                {
+                    "type": "regime_crisis_watch",
+                    "agent_id": agent.id,
+                    "score": float(score),
+                    "trust_gov": float(agent.society.trust_gov),
+                    "social_tension": float(agent.society.social_tension),
+                }
+            )
+
+        temp = float(world.global_state.temperature_global)
+        extra_warming = max(0.0, temp - TGLOBAL_2023_C)
+        temp_factor = 1.0 + cal.EVENT_TEMP_WARMING_SENS * extra_warming
+        event_prob = (cal.EVENT_BASE_PROB + cal.EVENT_MAX_EXTRA_PROB * agent.climate.climate_risk) * temp_factor
+        if event_prob >= 0.08:
+            cards.append(
+                {
+                    "type": "climate_extreme_watch",
+                    "agent_id": agent.id,
+                    "score": float(min(1.0, event_prob)),
+                    "event_prob": float(event_prob),
+                    "climate_risk": float(agent.climate.climate_risk),
+                }
+            )
+
+    for actor_id, rels in world.relations.items():
+        for target_id, rel in rels.items():
+            if actor_id >= target_id:
+                continue
+            if rel.at_war or rel.conflict_level >= 0.6:
+                cards.append(
+                    {
+                        "type": "war_escalation_watch",
+                        "pair": f"{actor_id}:{target_id}",
+                        "score": float(max(rel.conflict_level, 0.7 if rel.at_war else 0.0)),
+                        "conflict_level": float(rel.conflict_level),
+                        "at_war": bool(rel.at_war),
+                    }
+                )
+
+    for actor_id, actor in world.agents.items():
+        if not actor.active_sanctions:
+            continue
+        cards.append(
+            {
+                "type": "sanctions_active",
+                "actor_id": actor_id,
+                "score": float(min(1.0, len(actor.active_sanctions) / 4.0)),
+                "targets": sorted(actor.active_sanctions.keys()),
+            }
+        )
+
+    cards.sort(key=lambda card: float(card.get("score", 0.0)), reverse=True)
+    return cards[:50]
+
+
+def _collect_propagation_cards(world: WorldState) -> List[Dict[str, Any]]:
+    cards: List[Dict[str, Any]] = []
+    for agent in world.agents.values():
+        if agent.risk.debt_crisis_active_years > 0:
+            cards.append(
+                {
+                    "type": "debt_crisis_active",
+                    "agent_id": agent.id,
+                    "score": float(min(1.0, agent.risk.debt_crisis_active_years / 4.0)),
+                    "active_years": int(agent.risk.debt_crisis_active_years),
+                }
+            )
+        if agent.risk.regime_crisis_active_years > 0:
+            cards.append(
+                {
+                    "type": "regime_crisis_active",
+                    "agent_id": agent.id,
+                    "score": float(min(1.0, agent.risk.regime_crisis_active_years / 4.0)),
+                    "active_years": int(agent.risk.regime_crisis_active_years),
+                }
+            )
+        if agent.economy.climate_shock_years > 0:
+            cards.append(
+                {
+                    "type": "climate_shock_active",
+                    "agent_id": agent.id,
+                    "score": float(min(1.0, agent.economy.climate_shock_years / 4.0)),
+                    "active_years": int(agent.economy.climate_shock_years),
+                }
+            )
+
+    for actor_id, rels in world.relations.items():
+        for target_id, rel in rels.items():
+            if actor_id >= target_id:
+                continue
+            if rel.at_war:
+                cards.append(
+                    {
+                        "type": "war_active",
+                        "pair": f"{actor_id}:{target_id}",
+                        "score": float(min(1.0, rel.war_years / 4.0)),
+                        "war_years": int(rel.war_years),
+                    }
+                )
+
+    cards.sort(key=lambda card: float(card.get("score", 0.0)), reverse=True)
+    return cards[:50]
+
+
+def _invariant_report(
+    world: WorldState,
+    baselines: Dict[str, Dict[str, float]],
+) -> Dict[str, Any]:
+    breaches: List[Dict[str, Any]] = []
+    debt_residuals: List[Dict[str, Any]] = []
+
+    for agent_id, agent in world.agents.items():
+        if agent.economy.gdp < 0.0:
+            breaches.append({"agent_id": agent_id, "field": "economy.gdp", "value": float(agent.economy.gdp)})
+        if agent.economy.capital < 0.0:
+            breaches.append({"agent_id": agent_id, "field": "economy.capital", "value": float(agent.economy.capital)})
+        if agent.economy.population < 0.0:
+            breaches.append({"agent_id": agent_id, "field": "economy.population", "value": float(agent.economy.population)})
+        if agent.economy.public_debt < 0.0:
+            breaches.append({"agent_id": agent_id, "field": "economy.public_debt", "value": float(agent.economy.public_debt)})
+        if not (0.0 <= agent.society.trust_gov <= 1.0):
+            breaches.append({"agent_id": agent_id, "field": "society.trust_gov", "value": float(agent.society.trust_gov)})
+        if not (0.0 <= agent.society.social_tension <= 1.0):
+            breaches.append({"agent_id": agent_id, "field": "society.social_tension", "value": float(agent.society.social_tension)})
+        if not (0.0 <= agent.climate.climate_risk <= 1.0):
+            breaches.append({"agent_id": agent_id, "field": "climate.climate_risk", "value": float(agent.climate.climate_risk)})
+        if not (0.0 <= agent.risk.regime_stability <= 1.0):
+            breaches.append({"agent_id": agent_id, "field": "risk.regime_stability", "value": float(agent.risk.regime_stability)})
+
+        baseline = baselines.get(agent_id)
+        if baseline is None:
+            continue
+        debt_start = float(baseline.get("debt", agent.economy.public_debt))
+        debt_end = float(agent.economy.public_debt)
+        expected_delta = float(agent.economy.gov_spending - agent.economy.taxes + agent.economy.interest_payments)
+        residual = debt_end - debt_start - expected_delta
+        debt_residuals.append(
+            {
+                "agent_id": agent_id,
+                "residual": float(residual),
+                "residual_gdp_share": float(residual / max(agent.economy.gdp, 1e-6)),
+            }
+        )
+
+    for resource_name, reserve in world.global_state.global_reserves.items():
+        if reserve < 0.0:
+            breaches.append({"field": f"global_reserves.{resource_name}", "value": float(reserve)})
+
+    top_residuals = sorted(
+        debt_residuals,
+        key=lambda item: abs(float(item["residual_gdp_share"])),
+        reverse=True,
+    )[:10]
+
+    return {
+        "breach_count": int(len(breaches)),
+        "breaches": breaches[:50],
+        "debt_accounting_residual_top10": top_residuals,
+    }
+
+
+def _run_phase_baseline(
     world: WorldState,
     policies: Dict[str, Callable[[Observation], Action]],
-    memory: Optional[AgentMemory] = None,
-    enable_extreme_events: bool = True,
-    apply_political_filters: bool = True,
-    action_log: Optional[List[Dict[str, Any]]] = None,
-    institution_log: Optional[List[Dict[str, Any]]] = None,
-    apply_institutions: bool = True,
-    policy_progress: Optional[Callable[[str], None]] = None,
-) -> WorldState:
+    memory: AgentMemory,
+    apply_political_filters: bool,
+    apply_institutions: bool,
+    institution_log: Optional[List[Dict[str, Any]]],
+    policy_progress: Optional[Callable[[str], None]],
+) -> tuple[Dict[str, Action], Dict[str, Tuple[str, Optional[str]]]]:
     actions: Dict[str, Action] = {}
     security_intents: Dict[str, Tuple[str, Optional[str]]] = {}
-    if memory is None:
-        memory = {}
-    trend_baselines = _capture_trend_baselines(world)
 
-    # Comparative metrics are O(N^2); compute once per step before policy generation.
+    # Phase 1: baseline structural update before event state transitions.
     compute_relative_metrics(world)
     update_political_states(world)
     if apply_institutions:
@@ -524,11 +742,29 @@ def step_world(
                     if policy_progress is not None:
                         policy_progress(agent_id)
 
+    return actions, security_intents
+
+
+def _run_phase_detection(world: WorldState, actions: Dict[str, Action]) -> None:
+    # Phase 2: resolve event activation intent before effects propagation.
     resolve_foreign_policy(world, actions)
-    apply_sanctions_effects(world)
+
+
+def _run_phase_propagation(
+    world: WorldState,
+    actions: Dict[str, Action],
+    action_log: Optional[List[Dict[str, Any]]],
+    security_intents: Dict[str, Tuple[str, Optional[str]]],
+    enable_extreme_events: bool,
+    channel_overrides: Optional[Dict[str, bool]],
+) -> None:
+    # Phase 3: propagate event and policy effects through coupled channels.
+    if _channel_enabled(channel_overrides, "sanctions_channel"):
+        apply_sanctions_effects(world)
     apply_security_actions(world, actions)
     update_active_conflicts(world)
-    apply_trade_barrier_effects(world)
+    if _channel_enabled(channel_overrides, "trade_barrier_channel"):
+        apply_trade_barrier_effects(world)
 
     for action in actions.values():
         apply_action(world, action)
@@ -555,20 +791,98 @@ def step_world(
         update_public_finances(agent, world)
         check_debt_crisis(agent, world)
 
-    update_migration_flows(world)
+    if _channel_enabled(channel_overrides, "migration_feedback"):
+        update_migration_flows(world)
     for agent in world.agents.values():
         update_population(agent, world)
-        if agent.id in actions:
+        if _channel_enabled(channel_overrides, "social_instability_feedback") and agent.id in actions:
             update_social_state(agent, actions[agent.id], world)
-        check_regime_stability(agent)
+        if _channel_enabled(channel_overrides, "social_instability_feedback"):
+            check_regime_stability(agent)
 
+
+def _run_phase_reconciliation(
+    world: WorldState,
+    memory: AgentMemory,
+    actions: Dict[str, Action],
+    trend_baselines: Dict[str, Dict[str, float]],
+) -> Dict[str, Any]:
+    # Phase 4: reconcile, refresh diagnostics, and finalize the year.
     compute_relative_metrics(world)
     update_agent_memory(memory, world, actions)
     update_credit_ratings(world, memory)
     _append_policy_records(world, actions, trend_baselines)
     _persist_trend_baselines(world, trend_baselines)
-
+    invariants = _invariant_report(world, trend_baselines)
     world.time += 1
+    return invariants
+
+
+def step_world(
+    world: WorldState,
+    policies: Dict[str, Callable[[Observation], Action]],
+    memory: Optional[AgentMemory] = None,
+    enable_extreme_events: bool = True,
+    apply_political_filters: bool = True,
+    action_log: Optional[List[Dict[str, Any]]] = None,
+    institution_log: Optional[List[Dict[str, Any]]] = None,
+    apply_institutions: bool = True,
+    policy_progress: Optional[Callable[[str], None]] = None,
+    phase_trace: Optional[Dict[str, Any]] = None,
+    channel_overrides: Optional[Dict[str, bool]] = None,
+) -> WorldState:
+    if memory is None:
+        memory = {}
+    previous_disabled_channels = getattr(world.global_state, "_ablation_disabled_channels", None)
+    if channel_overrides:
+        disabled_channels = {name for name, enabled in channel_overrides.items() if not enabled}
+    else:
+        disabled_channels = set()
+    setattr(world.global_state, "_ablation_disabled_channels", disabled_channels)
+
+    trend_baselines = _capture_trend_baselines(world)
+    if phase_trace is not None:
+        phase_trace["pre"] = _aggregate_world_metrics(world)
+
+    actions, security_intents = _run_phase_baseline(
+        world,
+        policies,
+        memory,
+        apply_political_filters,
+        apply_institutions,
+        institution_log,
+        policy_progress,
+    )
+    if phase_trace is not None:
+        phase_trace["baseline"] = _aggregate_world_metrics(world)
+
+    _run_phase_detection(world, actions)
+    if phase_trace is not None:
+        phase_trace["detect"] = _aggregate_world_metrics(world)
+        phase_trace["detect_cards"] = _collect_detection_cards(world)
+
+    _run_phase_propagation(
+        world,
+        actions,
+        action_log,
+        security_intents,
+        enable_extreme_events,
+        channel_overrides,
+    )
+    if phase_trace is not None:
+        phase_trace["propagate"] = _aggregate_world_metrics(world)
+        phase_trace["propagate_cards"] = _collect_propagation_cards(world)
+
+    invariants = _run_phase_reconciliation(world, memory, actions, trend_baselines)
+    if phase_trace is not None:
+        phase_trace["reconcile"] = _aggregate_world_metrics(world)
+        phase_trace["invariants"] = invariants
+
+    if previous_disabled_channels is None:
+        delattr(world.global_state, "_ablation_disabled_channels")
+    else:
+        setattr(world.global_state, "_ablation_disabled_channels", previous_disabled_channels)
+
     return world
 
 

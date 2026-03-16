@@ -35,6 +35,17 @@ This note documents the effective yearly write order in [`simulation.py`](/Users
 29. `update_credit_ratings`
 30. increment `world.time`
 
+## Phase Grouping (GIM15 refactor scaffold)
+
+`step_world()` now exposes an explicit 4-phase scaffold while preserving the same effective operation order:
+
+1. `baseline`: metrics refresh, political update, institution update, policy generation and political filters
+2. `detect`: foreign-policy resolution (`resolve_foreign_policy`)
+3. `propagate`: sanctions/security/conflict/trade/action/resource/climate/economy/social propagation
+4. `reconcile`: final metrics refresh, memory update, credit update, policy records, time increment
+
+An optional `phase_trace` dict can be passed into `step_world()` to capture aggregate snapshots (`pre`, `baseline`, `detect`, `propagate`, `reconcile`) for phase-level diagnostics.
+
 ## Authorized Writers
 
 These fields are intentionally multi-writer today. The contract is "document the allowed writers and keep `simulation.py` orchestration-only".
