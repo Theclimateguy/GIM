@@ -1,0 +1,20 @@
+{
+  "source_state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational.csv",
+  "output_state_csv": "/Users/theclimateguy/Documents/jupyter_lab/GIM_14/data/agent_states_operational_2026.csv",
+  "baseline_year": 2023,
+  "target_year": 2026,
+  "simulated_years": 3,
+  "policy_mode": "simple",
+  "enable_extreme_events": false,
+  "seed": 0,
+  "max_countries": null,
+  "agent_count": 57,
+  "world_gdp_start": 106.80869025913475,
+  "world_gdp_end": 108.79203394021047,
+  "world_population_start": 8064084647.0,
+  "world_population_end": 8179535284.33399,
+  "total_co2_start": 37.9292201,
+  "total_co2_end": 32.21626717001435,
+  "global_temp_start": 1.2,
+  "global_temp_end": 0.9102966601438872
+}

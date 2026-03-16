@@ -257,7 +257,11 @@ def _validate_row_values(row: dict[str, str], row_num: int, path: str) -> None:
         _validate_bounds(value, 0.0, 10.0, col=col, row_num=row_num, path=path)
 
 
-def make_world_from_csv(path: str = "agent_states.csv", max_agents: int | None = None) -> WorldState:
+def make_world_from_csv(
+    path: str = "agent_states.csv",
+    max_agents: int | None = None,
+    base_year: int = 2023,
+) -> WorldState:
     agents: Dict[str, AgentState] = {}
 
     with open(path, newline="") as file_obj:
@@ -398,7 +402,7 @@ def make_world_from_csv(path: str = "agent_states.csv", max_agents: int | None =
         temperature_ocean=TGLOBAL_2023_C - 0.4,
         baseline_gdp_pc=baseline_gdp_pc,
     )
-    global_state._calendar_year_base = 2023
+    global_state._calendar_year_base = int(base_year)
     global_state._enable_temperature_variability = True
     global_state._temperature_variability_seed = 0
     global_state._temperature_variability_sign = 1.0

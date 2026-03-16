@@ -56,6 +56,24 @@ def _bool_env(name: str, default: bool) -> bool:
     return _is_truthy(raw)
 
 
+def _resolve_state_year() -> int:
+    for env_name in (
+        "GIM14_STATE_YEAR",
+        "GIM_STATE_YEAR",
+        "GIM13_STATE_YEAR",
+        "STATE_YEAR",
+        "SIM_START_YEAR",
+    ):
+        raw = os.getenv(env_name)
+        if raw is None:
+            continue
+        try:
+            return int(raw)
+        except ValueError:
+            continue
+    return 2023
+
+
 def _generate_credit_map(csv_path: str, state_csv: str) -> str | None:
     map_script = MAP_SCRIPT
     if not map_script.exists():
@@ -106,10 +124,11 @@ def main() -> None:
     _, llm_reason = llm_enablement_status(policy_mode)
 
     state_csv = os.getenv("STATE_CSV", _resolve_state_csv())
+    state_year = _resolve_state_year()
     max_countries = _int_env("MAX_COUNTRIES", default=100, minimum=1)
-    print(f"\nLoading world from {state_csv}...")
+    print(f"\nLoading world from {state_csv} (state_year={state_year})...")
     try:
-        world = make_world_from_csv(state_csv, max_agents=max_countries)
+        world = make_world_from_csv(state_csv, max_agents=max_countries, base_year=state_year)
     except ValueError as exc:
         print(f"Input CSV validation failed: {exc}")
         raise SystemExit(2) from exc
@@ -216,6 +235,7 @@ def main() -> None:
             "artifacts_dir": str(run_artifacts.run_dir),
             "inputs": {
                 "state_csv": str(Path(state_csv).resolve()),
+                "state_year": state_year,
                 "max_countries": max_countries,
                 "policy_mode": policy_mode,
                 "llm_enabled": use_llm,

@@ -595,6 +595,7 @@ def run_operational_calibration(
     *,
     state_csv: str | None = None,
     max_countries: int | None = None,
+    state_year: int | None = None,
     config: CalibrationRunConfig | None = None,
     case_ids: set[str] | None = None,
 ) -> CalibrationSuiteResult:
@@ -602,7 +603,11 @@ def run_operational_calibration(
     if active_config.n_runs < 1:
         raise ValueError("CalibrationRunConfig.n_runs must be at least 1")
     resolved_state_csv = state_csv or _default_calibration_state_csv()
-    world = load_world(state_csv=resolved_state_csv, max_agents=max_countries)
+    world = load_world(
+        state_csv=resolved_state_csv,
+        max_agents=max_countries,
+        state_year=state_year,
+    )
     runner = GameRunner(world)
     bridge = SimBridge() if active_config.use_sim and active_config.horizon_years > 0 else None
 

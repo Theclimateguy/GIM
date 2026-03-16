@@ -234,6 +234,7 @@ def _maybe_write_brief(
 class ConsoleSession:
     state_csv: str | None = None
     max_countries: int | None = None
+    state_year: int | None = None
     world: object | None = None
     runner: GameRunner | None = None
 
@@ -243,7 +244,11 @@ class ConsoleSession:
         state_csv = self.state_csv or default_state_csv()
         started = perf_counter()
         _log(f"Loading world from {state_csv}")
-        self.world = load_world(state_csv=state_csv, max_agents=self.max_countries)
+        self.world = load_world(
+            state_csv=state_csv,
+            max_agents=self.max_countries,
+            state_year=self.state_year,
+        )
         self.runner = GameRunner(self.world)
         elapsed = perf_counter() - started
         _log(f"World loaded: {len(self.world.agents)} agents in {elapsed:.2f}s")
@@ -598,8 +603,16 @@ def _run_game_flow(session: ConsoleSession) -> None:
     _log(f"Run manifest written to {manifest_path}")
 
 
-def run_console(state_csv: str | None = None, max_countries: int | None = None) -> None:
-    session = ConsoleSession(state_csv=state_csv, max_countries=max_countries)
+def run_console(
+    state_csv: str | None = None,
+    max_countries: int | None = None,
+    state_year: int | None = None,
+) -> None:
+    session = ConsoleSession(
+        state_csv=state_csv,
+        max_countries=max_countries,
+        state_year=state_year,
+    )
     while True:
         _render_menu()
         choice = _prompt("Mode: ").strip().lower()

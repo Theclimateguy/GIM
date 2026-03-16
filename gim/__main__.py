@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from dataclasses import asdict
 import json
+import os
 from pathlib import Path
 import sys
 from typing import Callable
@@ -59,6 +60,7 @@ def build_parser() -> ArgumentParser:
     question_parser.add_argument("--horizon-months", type=int, default=24)
     question_parser.add_argument("--template")
     question_parser.add_argument("--state-csv")
+    question_parser.add_argument("--state-year", type=int)
     question_parser.add_argument("--max-countries", type=int)
     question_parser.add_argument("--json", dest="json_output", action="store_true")
     question_parser.add_argument("--dashboard", action="store_true")
@@ -100,6 +102,7 @@ def build_parser() -> ArgumentParser:
     game_input_group.add_argument("--description", help="Build a case from free text before running the game")
     game_parser.add_argument("--save-case", help="Optional path to save the generated case JSON")
     game_parser.add_argument("--state-csv")
+    game_parser.add_argument("--state-year", type=int)
     game_parser.add_argument("--max-countries", type=int)
     game_parser.add_argument("--json", dest="json_output", action="store_true")
     game_parser.add_argument("--dashboard", action="store_true")
@@ -147,11 +150,13 @@ def build_parser() -> ArgumentParser:
     metrics_parser = subparsers.add_parser("metrics", help="Build a crisis metrics dashboard")
     metrics_parser.add_argument("--agents", nargs="*")
     metrics_parser.add_argument("--state-csv")
+    metrics_parser.add_argument("--state-year", type=int)
     metrics_parser.add_argument("--max-countries", type=int)
     metrics_parser.add_argument("--json", dest="json_output", action="store_true")
 
     console_parser = subparsers.add_parser("console", help="Launch the interactive console menu")
     console_parser.add_argument("--state-csv")
+    console_parser.add_argument("--state-year", type=int)
     console_parser.add_argument("--max-countries", type=int)
 
     calibrate_parser = subparsers.add_parser(
@@ -160,6 +165,7 @@ def build_parser() -> ArgumentParser:
     )
     calibrate_parser.add_argument("--suite", default=DEFAULT_CALIBRATION_SUITE)
     calibrate_parser.add_argument("--state-csv")
+    calibrate_parser.add_argument("--state-year", type=int)
     calibrate_parser.add_argument("--max-countries", type=int)
     calibrate_parser.add_argument("--json", dest="json_output", action="store_true")
     calibrate_parser.add_argument("--runs", type=int, default=1)
@@ -305,6 +311,20 @@ def _emit_artifact_notice(message: str, *, json_output: bool) -> None:
     print(message, file=_artifact_stream(json_output))
 
 
+def _apply_world_cli_overrides(argv: list[str]) -> None:
+    parser = ArgumentParser(add_help=False)
+    parser.add_argument("--state-csv")
+    parser.add_argument("--state-year", type=int)
+    parser.add_argument("--max-countries", type=int)
+    known_args, _ = parser.parse_known_args(argv)
+    if known_args.state_csv:
+        os.environ["STATE_CSV"] = known_args.state_csv
+    if known_args.state_year is not None:
+        os.environ["STATE_YEAR"] = str(known_args.state_year)
+    if known_args.max_countries is not None:
+        os.environ["MAX_COUNTRIES"] = str(known_args.max_countries)
+
+
 def main() -> None:
     orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief"}
     argv = sys.argv[1:]
@@ -312,6 +332,7 @@ def main() -> None:
         core_main()
         return
     if argv[0] == "world":
+        _apply_world_cli_overrides(argv[1:])
         sys.argv = [sys.argv[0], *argv[1:]]
         core_main()
         return
@@ -322,7 +343,11 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
     if args.command == "console":
-        run_console(state_csv=args.state_csv, max_countries=args.max_countries)
+        run_console(
+            state_csv=args.state_csv,
+            max_countries=args.max_countries,
+            state_year=args.state_year,
+        )
         return
     if args.command == "brief":
         run_artifacts = build_run_artifacts(args.command)
@@ -355,6 +380,7 @@ def main() -> None:
             suite_id=args.suite,
             state_csv=args.state_csv,
             max_countries=args.max_countries,
+            state_year=args.state_year,
             config=CalibrationRunConfig(
                 n_runs=args.runs,
                 horizon_years=args.horizon,
@@ -369,7 +395,11 @@ def main() -> None:
             return
         print(format_calibration_suite_result(result))
         return
-    world = load_world(state_csv=args.state_csv, max_agents=args.max_countries)
+    world = load_world(
+        state_csv=args.state_csv,
+        max_agents=args.max_countries,
+        state_year=args.state_year,
+    )
     runner = GameRunner(world)
     metrics_engine = CrisisMetricsEngine()
 
@@ -468,6 +498,7 @@ def main() -> None:
                     "horizon_months": args.horizon_months,
                     "template": args.template,
                     "state_csv": args.state_csv,
+                    "state_year": args.state_year,
                     "max_countries": args.max_countries,
                     "use_sim": use_sim,
                     "horizon_years": args.horizon,
@@ -527,6 +558,7 @@ def main() -> None:
                 "inputs": {
                     "agents": list(args.agents or []),
                     "state_csv": args.state_csv,
+                    "state_year": args.state_year,
                     "max_countries": args.max_countries,
                 },
                 "outputs": {
@@ -643,6 +675,7 @@ def main() -> None:
                 "description": args.description,
                 "save_case": args.save_case,
                 "state_csv": args.state_csv,
+                "state_year": args.state_year,
                 "max_countries": args.max_countries,
                 "use_sim": use_sim,
                 "horizon_years": args.horizon,
