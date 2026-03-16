@@ -206,7 +206,7 @@ class DashboardRenderer:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GIM13 Decision Brief - {title}</title>
+  <title>GIM14 Decision Brief - {title}</title>
   <style>
     :root {{
       --bg: #f5f1e8;
@@ -838,8 +838,9 @@ class DashboardRenderer:
         <div class="meta-value">{escape(scenario_def.template_id)}</div>
       </div>
       <div class="meta-card">
-        <div class="meta-label">Base year</div>
+        <div class="meta-label">Data snapshot</div>
         <div class="meta-value">{scenario_def.base_year}</div>
+        <div class="meta-sub">Display year: {scenario_def.display_year}</div>
       </div>
       <div class="meta-card">
         <div class="meta-label">Horizon</div>
@@ -1062,7 +1063,7 @@ class DashboardRenderer:
         <thead>
           <tr>
             <th>Actor</th>
-            <th>{self._term_html("gdp_delta_pct", "GDP Δ%")}</th>
+            <th>{self._term_html("gdp_delta_pct", "GDP \u0394%")}</th>
             <th>{self._term_html("debt_gdp", "Debt/GDP")}</th>
             <th>Inflation</th>
             <th>{self._term_html("social_tension", "Social")}</th>
@@ -1196,7 +1197,7 @@ class DashboardRenderer:
   {warning}
   <table class="strategy-table">
     <thead>
-      <tr><th>Rank</th><th>Strategy profile</th><th>Score</th><th>Criticality Δ</th></tr>
+      <tr><th>Rank</th><th>Strategy profile</th><th>Score</th><th>Criticality \u0394</th></tr>
     </thead>
     <tbody>
       {''.join(rows)}
