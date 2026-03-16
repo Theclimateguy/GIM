@@ -1,181 +1,122 @@
 # GIM_14 Calibration Layer
 
-This file describes how the executable calibration stack works inside `GIM_14`.
+This document describes the executable calibration workflow in the current codebase.
 
-## 1. Layer Split
+## 1. Layer Structure
 
-The calibration system is intentionally split into two passes.
+Calibration is split into two coupled passes.
 
-### Pass 1: World Physics / Macro
+### Pass A: Macro-climate structure
 
-Main files:
+Core modules:
 
-- [gim/core/calibration_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/calibration_params.py)
-- [gim/core/state_artifact.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/state_artifact.py)
-- [gim/core/country_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/core/country_params.py)
-- [gim/historical_backtest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/historical_backtest.py)
-- [gim/decarb_sensitivity.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/decarb_sensitivity.py)
+- `gim/core/calibration_params.py`
+- `gim/core/state_artifact.py`
+- `gim/historical_backtest.py`
+- `gim/decarb_sensitivity.py`
 
-What it checks:
+Primary questions:
 
-- GDP trajectory realism
-- global CO2 realism
-- temperature realism
-- manifest-bound climate artifacts
-- country fiscal priors
-- structural decarb sensitivity
+- does the `2015-2023` replay remain within GDP/CO2/temperature tolerances?
+- are manifest-bound climate coefficients loaded correctly?
+- do decarb alternatives degrade fit relative to the active artifact rate?
 
-### Pass 2: Crisis / Political
+### Pass B: Crisis and geopolitical behavior
 
-Main files:
+Core modules:
 
-- [gim/geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/geo_calibration.py)
-- [gim/calibration_validator.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration_validator.py)
-- [gim/calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/calibration.py)
-- [gim/sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/gim/sensitivity_sweep.py)
-- [misc/calibration/calibrate_crisis_persistence.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration/calibrate_crisis_persistence.py)
-- [misc/calibration_cases/operational_v1](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v1)
-- [misc/calibration_cases/operational_v2](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/misc/calibration_cases/operational_v2)
+- `gim/geo_calibration.py`
+- `gim/calibration_validator.py`
+- `gim/calibration.py`
+- `gim/sensitivity_sweep.py`
+- `misc/calibration/calibrate_crisis_persistence.py`
 
-What it checks:
+Primary questions:
 
-- scenario scoring stability
-- dominant outcome plausibility
-- driver overlap with historical intuition
-- crisis dashboard behavior under known cases
-- false-alarm resistance through stable `status_quo` controls
-- multi-year debt and regime crisis persistence
-- observation/reporting visibility through `competitive.crisis_flags`
-- outcome-layer robustness under `+-20%` weight perturbations
-- sanity bounds for geo weights and action shifts
-- historical near-miss discrimination for debt / FX / political cases via `operational_v2`
+- do packaged cases keep expected dominant outcomes?
+- are stable controls still `status_quo` under tuned weights?
+- which outcome-layer weights are sensitivity hotspots?
+- do debt/regime crisis durations stay in the tuned persistence corridor?
 
-## 2. Runtime Flow
+## 2. Runtime Data Flow
 
 ```mermaid
 flowchart TD
-    A["Compiled state CSV"] --> B["state_artifact.py"]
+    A["Operational state + manifest"] --> B["state_artifact.py"]
     B --> C["calibration_params.py"]
-    C --> D["gim/core climate/economy/social/metrics"]
-    D --> E["historical_backtest.py"]
-    E --> F["decarb_sensitivity.py"]
+    C --> D["historical_backtest.py"]
+    D --> E["decarb_sensitivity.py"]
 
-    G["scenario cases"] --> H["calibration.py"]
-    I["geo_calibration.py"] --> H
-    J["calibration_validator.py"] --> H
+    F["Calibration suites"] --> G["calibration.py"]
+    H["geo_calibration.py"] --> G
+    I["calibration_validator.py"] --> G
+    G --> J["sensitivity_sweep.py"]
+    G --> K["crisis_persistence calibration"]
 ```
 
-## 3. Refresh Paths
+## 3. Artifact Ownership Rules
 
-Rebuild the primary state-artifact manifest:
+`EMISSIONS_SCALE` and `DECARB_RATE_STRUCTURAL` are artifact-bound:
+
+- source of truth: `data/agent_states_operational.artifacts.json`
+- load path: `gim/core/state_artifact.py`
+- exposed in params: `gim/core/calibration_params.py`
+
+Only refresh scripts should modify them:
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/refresh_state_artifact_manifest.py
-```
-
-Rebuild historical backtest fixtures and restamp the primary manifest:
-
-```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/refresh_historical_backtest_fixtures.py
 ```
 
-Run the focused calibration helpers used in the latest climate/macro pass:
+## 4. Crisis Suite Semantics
+
+- `operational_v1` is the broad regression suite (stress + controls).
+- `operational_v2` is the near-miss discrimination suite.
+- case files can be `.json` or `.yaml`.
+- if a case defines `discriminating_weights`, sensitivity sweep defaults to that reduced weight set for the suite.
+
+## 5. Standard Runbook
+
+### Fast verification loop
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
-python3 misc/calibration/calibrate_decarb_rate.py
-python3 misc/calibration/calibrate_gamma_energy.py
-python3 misc/calibration/calibrate_gamma_cross_section.py
-python3 misc/calibration/calibrate_tfp_rd_share_sens.py
-python3 misc/calibration/calibrate_heat_cap_surface.py
-python3 misc/calibration/calibrate_temperature_variability.py
-python3 misc/calibration/refresh_historical_backtest_baseline.py
+python3 -m unittest \
+  tests.test_historical_backtest \
+  tests.test_decarb_sensitivity \
+  tests.test_calibration \
+  tests.test_crisis_persistence \
+  tests.test_sensitivity_sweep -v
 ```
 
-Run the crisis-layer sensitivity sweep:
+### Operational suite checks
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
-python3 misc/calibration/sensitivity_sweep.py --out misc/calibration/geo_sensitivity_operational_v1.json
+python3 -m gim calibrate --suite operational_v1
+python3 -m gim calibrate --suite operational_v2
 ```
 
-Run the near-miss discriminating sweep:
+### Sensitivity outputs
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
+python3 misc/calibration/sensitivity_sweep.py --suite operational_v1 --out misc/calibration/geo_sensitivity_operational_v1.json
 python3 misc/calibration/sensitivity_sweep.py --suite operational_v2
 ```
 
-Run the crisis persistence plateau search:
+### Persistence search
 
 ```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
 python3 misc/calibration/calibrate_crisis_persistence.py
 ```
 
-These commands are the only safe path for changing:
+## 6. Change Discipline
 
-- `EMISSIONS_SCALE`
-- `DECARB_RATE_STRUCTURAL`
-- bundled historical backtest baselines
+When changing calibration behavior:
 
-## 4. Test Surface
+1. update code and case fixtures
+2. run the calibration tests
+3. refresh generated artifacts if required
+4. update `docs/CALIBRATION_REFERENCE.md` with new authoritative values
+5. commit code + docs + artifacts together
 
-Key calibration tests:
-
-- [test_calibration_baseline.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_calibration_baseline.py)
-- [test_climate_forcing.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_climate_forcing.py)
-- [test_country_params.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_country_params.py)
-- [test_state_artifact_binding.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_state_artifact_binding.py)
-- [test_state_artifact_manifest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_state_artifact_manifest.py)
-- [test_historical_backtest.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_historical_backtest.py)
-- [test_decarb_sensitivity.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_decarb_sensitivity.py)
-- [test_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_calibration.py)
-- [test_geo_calibration.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_geo_calibration.py)
-- [test_crisis_persistence.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_crisis_persistence.py)
-- [test_sensitivity_sweep.py](/Users/theclimateguy/Documents/jupyter_lab/GIM_14/tests/test_sensitivity_sweep.py)
-
-## 5. Practical Command Set
-
-Fast structural check:
-
-```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
-python3 -m unittest tests.test_calibration_baseline tests.test_climate_forcing tests.test_country_params -v
-```
-
-Artifact and contract check:
-
-```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
-python3 -m unittest tests.test_state_artifact_binding tests.test_state_artifact_manifest tests.test_state_csv_contract -v
-```
-
-Backtest and operational calibration:
-
-```bash
-cd /Users/theclimateguy/Documents/jupyter_lab/GIM_14
-python3 -m unittest tests.test_historical_backtest tests.test_decarb_sensitivity tests.test_calibration -v
-```
-
-## 6. Current Working Interpretation
-
-`GIM_14` should now be treated as the active repo for further calibration work, not just a migration shell.
-
-The remaining work is no longer “port the calibration layer”; it is “continue calibrating on top of the restored layer.”
-
-Current climate/macro calibration interpretation:
-
-- `DECARB_RATE_STRUCTURAL` is active at `0.052`, but its manifest now records an observed reference of `0.031241` over `2015-2023`
-- `GAMMA_ENERGY = 0.07` now comes from a dedicated `2015` cross-sectional fit, because the bundled historical replay does not identify it over time
-- `TFP_RD_SHARE_SENS = 0.5` is the active backtest-improving value and should be the starting point for the next econometric pass
-- temperature is no longer treated as a purely deterministic fit target: `HEAT_CAP_SURFACE = 30.0`, the backtest deep-ocean anchor uses `T_surface - 0.60`, and natural variability is represented with `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08`
-
-Current crisis/political calibration interpretation:
-
-- `operational_v1` is no longer a crisis-only suite; it now mixes `7` historical stress cases with `4` stable negative controls
-- the stable controls are there to catch drift toward alarmist `status_quo` regressions, not to maximize criticality
-- the outcome sensitivity sweep currently finds no pass/fail flips under `+-20%` perturbations on the outcome layer, which means the suite is robust but also that several weights remain only moderately identified
-- crisis persistence is now backed by a dedicated Argentina / South Korea replay artifact rather than pure expert priors; the raw optimum is a broad plateau, and the committed values are the plateau candidate that also preserves the historical backtest golden anchor
+This keeps the calibration layer reproducible and reviewable.
