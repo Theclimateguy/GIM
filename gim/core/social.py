@@ -1,8 +1,106 @@
 import math
+from typing import Dict
 
 from . import calibration_params as cal
 from .core import Action, AgentState, WorldState, clamp01, effective_trade_intensity
 from .economy import compute_effective_interest_rate
+
+_SOCIAL_CRITICAL_PENDING_ATTR = "_social_critical_pending"
+
+
+def _get_social_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _SOCIAL_CRITICAL_PENDING_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _SOCIAL_CRITICAL_PENDING_ATTR, pending)
+    return pending
+
+
+def _effective_critical(agent: AgentState, world: WorldState, field: str) -> float:
+    pending = _get_social_pending(world).get(agent.id, {})
+    base = {
+        "gdp": float(agent.economy.gdp),
+        "capital": float(agent.economy.capital),
+        "public_debt": float(agent.economy.public_debt),
+        "trust_gov": float(agent.society.trust_gov),
+        "social_tension": float(agent.society.social_tension),
+    }[field]
+    return base + float(pending.get(field, 0.0))
+
+
+def _add_critical_delta(
+    world: WorldState,
+    agent: AgentState,
+    *,
+    gdp: float = 0.0,
+    capital: float = 0.0,
+    public_debt: float = 0.0,
+    trust_gov: float = 0.0,
+    social_tension: float = 0.0,
+) -> None:
+    pending = _get_social_pending(world)
+    values = pending.setdefault(
+        agent.id,
+        {
+            "gdp": 0.0,
+            "capital": 0.0,
+            "public_debt": 0.0,
+            "trust_gov": 0.0,
+            "social_tension": 0.0,
+        },
+    )
+    values["gdp"] += float(gdp)
+    values["capital"] += float(capital)
+    values["public_debt"] += float(public_debt)
+    values["trust_gov"] += float(trust_gov)
+    values["social_tension"] += float(social_tension)
+
+
+def _set_critical_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:
+    current = _effective_critical(agent, world, field)
+    delta = float(target) - current
+    if delta == 0.0:
+        return
+    _add_critical_delta(world, agent, **{field: delta})
+
+
+def pop_social_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _SOCIAL_CRITICAL_PENDING_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _SOCIAL_CRITICAL_PENDING_ATTR, {})
+    return {
+        agent_id: {
+            "gdp": float(values.get("gdp", 0.0)),
+            "capital": float(values.get("capital", 0.0)),
+            "public_debt": float(values.get("public_debt", 0.0)),
+            "trust_gov": float(values.get("trust_gov", 0.0)),
+            "social_tension": float(values.get("social_tension", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
+
+
+def _flush_social_pending_for_agent(world: WorldState, agent: AgentState) -> None:
+    pending = _get_social_pending(world)
+    values = pending.pop(agent.id, None)
+    if not values:
+        return
+    economy = agent.economy
+    society = agent.society
+    setattr(economy, "gdp", max(0.0, float(economy.gdp) + float(values.get("gdp", 0.0))))
+    setattr(economy, "capital", max(0.0, float(economy.capital) + float(values.get("capital", 0.0))))
+    setattr(
+        economy,
+        "public_debt",
+        max(0.0, float(economy.public_debt) + float(values.get("public_debt", 0.0))),
+    )
+    setattr(society, "trust_gov", clamp01(float(society.trust_gov) + float(values.get("trust_gov", 0.0))))
+    setattr(
+        society,
+        "social_tension",
+        clamp01(float(society.social_tension) + float(values.get("social_tension", 0.0))),
+    )
 
 
 def update_population(agent: AgentState, world: WorldState) -> None:
@@ -99,15 +197,14 @@ def update_migration_flows(world: WorldState) -> None:
 
 
 def update_social_state(agent: AgentState, action: Action, world: WorldState) -> None:
-    del world
-
     gdp_pc_effect = cal.TRUST_GDP_PC_SENS * (agent.economy.gdp_per_capita / cal.TRUST_GDP_PC_REF)
     unemployment_effect = cal.TRUST_UNEMPLOYMENT_SENS * agent.economy.unemployment
     inflation_effect = cal.TRUST_INFLATION_SENS * agent.economy.inflation
     inequality_trust_penalty = cal.TRUST_GINI_SENS * agent.society.inequality_gini
+    current_tension = _effective_critical(agent, world, "social_tension")
     tension_trust_penalty = cal.TRUST_TENSION_SENS * max(
         0.0,
-        agent.society.social_tension - cal.TRUST_TENSION_THRESHOLD,
+        current_tension - cal.TRUST_TENSION_THRESHOLD,
     )
 
     trust_change = (
@@ -117,7 +214,9 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
         + inequality_trust_penalty
         + tension_trust_penalty
     )
-    agent.society.trust_gov = max(0.0, min(1.0, agent.society.trust_gov + trust_change))
+    current_trust = _effective_critical(agent, world, "trust_gov")
+    trust_next = clamp01(current_trust + trust_change)
+    _set_critical_effective(world, agent, "trust_gov", trust_next)
 
     inequality_sensitivity = 1.0 - agent.culture.idv / 100.0
     inequality_effect = cal.INEQUALITY_EFFECT_SENS * agent.society.inequality_gini * inequality_sensitivity
@@ -125,15 +224,11 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
         cal.SOCIAL_STRESS_UNEMPLOYMENT_SENS * agent.economy.unemployment
         + cal.SOCIAL_STRESS_INFLATION_SENS * agent.economy.inflation
     )
-    trust_anchor = cal.SOCIAL_TRUST_ANCHOR_SENS * (
-        cal.SOCIAL_TRUST_ANCHOR_REF - agent.society.trust_gov
-    )
+    trust_anchor = cal.SOCIAL_TRUST_ANCHOR_SENS * (cal.SOCIAL_TRUST_ANCHOR_REF - trust_next)
 
     tension_change = inequality_effect + stress_effect + trust_anchor
-    agent.society.social_tension = max(
-        0.0,
-        min(1.0, agent.society.social_tension + tension_change),
-    )
+    tension_next = clamp01(current_tension + tension_change)
+    _set_critical_effective(world, agent, "social_tension", tension_next)
 
     # Inequality dynamics: GDP growth distribution, fiscal policy, and social tension.
     prev_gdp = getattr(
@@ -147,10 +242,10 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
     social_spend_delta = action.domestic_policy.social_spending_change
     growth_effect = cal.GINI_GROWTH_SENS * gdp_growth
     recession_penalty = cal.GINI_RECESSION_SENS * abs(min(0.0, gdp_growth)) * (
-        cal.GINI_RECESSION_TENSION_OFFSET + agent.society.social_tension
+        cal.GINI_RECESSION_TENSION_OFFSET + tension_next
     )
     fiscal_effect = cal.GINI_FISCAL_SENS * social_spend_delta
-    tension_effect = cal.GINI_TENSION_SENS * (agent.society.social_tension - cal.GINI_TENSION_REF)
+    tension_effect = cal.GINI_TENSION_SENS * (tension_next - cal.GINI_TENSION_REF)
 
     gini_next = (
         agent.society.inequality_gini
@@ -162,14 +257,49 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
     agent.society.inequality_gini = max(cal.GINI_MIN, min(cal.GINI_MAX, gini_next))
 
 
-def check_regime_stability(agent: AgentState) -> None:
+def check_regime_stability(agent: AgentState, world: WorldState | None = None) -> None:
     # WRITES: risk.regime_crisis_active_years, economy.capital, economy.gdp,
     # economy.public_debt, society.trust_gov, society.social_tension
+    if world is None:
+        trust_threshold = cal.REGIME_COLLAPSE_TRUST_THRESHOLD
+        tension_threshold = cal.REGIME_COLLAPSE_TENSION_THRESHOLD
+        in_crisis = (
+            agent.society.trust_gov < trust_threshold
+            and agent.society.social_tension > tension_threshold
+        )
+        if in_crisis:
+            agent.risk.regime_crisis_active_years = min(
+                agent.risk.regime_crisis_active_years + 1,
+                cal.REGIME_CRISIS_MAX_YEARS,
+            )
+            crisis_year = agent.risk.regime_crisis_active_years
+            if crisis_year == 1:
+                economy = agent.economy
+                society = agent.society
+                setattr(economy, "capital", economy.capital * cal.REGIME_COLLAPSE_CAPITAL_MULT)
+                setattr(economy, "gdp", economy.gdp * cal.REGIME_COLLAPSE_GDP_MULT)
+                setattr(economy, "public_debt", economy.public_debt * cal.REGIME_COLLAPSE_DEBT_MULT)
+                setattr(society, "trust_gov", max(society.trust_gov, cal.REGIME_COLLAPSE_TRUST_FLOOR))
+                setattr(society, "social_tension", min(society.social_tension, cal.REGIME_COLLAPSE_TENSION_CAP))
+                agent.risk.regime_stability = max(
+                    0.0,
+                    agent.risk.regime_stability - cal.REGIME_COLLAPSE_STABILITY_HIT,
+                )
+            else:
+                economy = agent.economy
+                setattr(economy, "capital", economy.capital * cal.REGIME_CRISIS_PERSIST_CAPITAL_MULT)
+                setattr(economy, "gdp", economy.gdp * cal.REGIME_CRISIS_PERSIST_GDP_MULT)
+        else:
+            agent.risk.regime_crisis_active_years = 0
+        return
+
     trust_threshold = cal.REGIME_COLLAPSE_TRUST_THRESHOLD
     tension_threshold = cal.REGIME_COLLAPSE_TENSION_THRESHOLD
+    trust_effective = _effective_critical(agent, world, "trust_gov")
+    tension_effective = _effective_critical(agent, world, "social_tension")
     in_crisis = (
-        agent.society.trust_gov < trust_threshold
-        and agent.society.social_tension > tension_threshold
+        trust_effective < trust_threshold
+        and tension_effective > tension_threshold
     )
     if in_crisis:
         agent.risk.regime_crisis_active_years = min(
@@ -178,35 +308,66 @@ def check_regime_stability(agent: AgentState) -> None:
         )
         crisis_year = agent.risk.regime_crisis_active_years
         if crisis_year == 1:
-            agent.economy.capital *= cal.REGIME_COLLAPSE_CAPITAL_MULT
-            agent.economy.gdp *= cal.REGIME_COLLAPSE_GDP_MULT
-            agent.economy.public_debt *= cal.REGIME_COLLAPSE_DEBT_MULT
+            _set_critical_effective(
+                world,
+                agent,
+                "capital",
+                _effective_critical(agent, world, "capital") * cal.REGIME_COLLAPSE_CAPITAL_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.REGIME_COLLAPSE_GDP_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "public_debt",
+                _effective_critical(agent, world, "public_debt") * cal.REGIME_COLLAPSE_DEBT_MULT,
+            )
 
-            agent.society.trust_gov = max(agent.society.trust_gov, cal.REGIME_COLLAPSE_TRUST_FLOOR)
-            agent.society.social_tension = min(
-                agent.society.social_tension,
-                cal.REGIME_COLLAPSE_TENSION_CAP,
+            _set_critical_effective(
+                world,
+                agent,
+                "trust_gov",
+                max(_effective_critical(agent, world, "trust_gov"), cal.REGIME_COLLAPSE_TRUST_FLOOR),
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "social_tension",
+                min(_effective_critical(agent, world, "social_tension"), cal.REGIME_COLLAPSE_TENSION_CAP),
             )
             agent.risk.regime_stability = max(
                 0.0,
                 agent.risk.regime_stability - cal.REGIME_COLLAPSE_STABILITY_HIT,
             )
         else:
-            agent.economy.capital *= cal.REGIME_CRISIS_PERSIST_CAPITAL_MULT
-            agent.economy.gdp *= cal.REGIME_CRISIS_PERSIST_GDP_MULT
+            _set_critical_effective(
+                world,
+                agent,
+                "capital",
+                _effective_critical(agent, world, "capital") * cal.REGIME_CRISIS_PERSIST_CAPITAL_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.REGIME_CRISIS_PERSIST_GDP_MULT,
+            )
     else:
         agent.risk.regime_crisis_active_years = 0
 
 
-def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
+def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_writes: bool = False) -> None:
     economy = agent.economy
     risk = agent.risk
-    society = agent.society
 
     # WRITES: risk.debt_crisis_active_years, economy.public_debt, economy.gdp,
     # economy.unemployment, society.trust_gov, society.social_tension
-    gdp = max(economy.gdp, 1e-6)
-    debt_gdp = economy.public_debt / gdp
+    gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
+    debt_gdp = _effective_critical(agent, world, "public_debt") / gdp
     interest_rate = compute_effective_interest_rate(agent, world)
 
     if risk.debt_crisis_active_years == 0:
@@ -229,19 +390,59 @@ def check_debt_crisis(agent: AgentState, world: WorldState) -> None:
         )
         crisis_year = risk.debt_crisis_active_years
         if crisis_year == 1:
-            economy.public_debt *= cal.DEBT_CRISIS_DEBT_MULT
-            economy.gdp *= cal.DEBT_CRISIS_GDP_MULT
+            _set_critical_effective(
+                world,
+                agent,
+                "public_debt",
+                _effective_critical(agent, world, "public_debt") * cal.DEBT_CRISIS_DEBT_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.DEBT_CRISIS_GDP_MULT,
+            )
             economy.unemployment = min(
                 cal.DEBT_CRISIS_UNEMPLOYMENT_MAX,
                 economy.unemployment + cal.DEBT_CRISIS_UNEMPLOYMENT_HIT,
             )
 
-            society.trust_gov = max(0.0, society.trust_gov - cal.DEBT_CRISIS_TRUST_HIT)
-            society.social_tension = min(1.0, society.social_tension + cal.DEBT_CRISIS_TENSION_HIT)
+            _set_critical_effective(
+                world,
+                agent,
+                "trust_gov",
+                max(0.0, _effective_critical(agent, world, "trust_gov") - cal.DEBT_CRISIS_TRUST_HIT),
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "social_tension",
+                min(1.0, _effective_critical(agent, world, "social_tension") + cal.DEBT_CRISIS_TENSION_HIT),
+            )
             risk.regime_stability = max(0.0, risk.regime_stability - cal.DEBT_CRISIS_STABILITY_HIT)
         elif not recovered:
-            economy.gdp *= cal.DEBT_CRISIS_PERSIST_GDP_MULT
-            society.trust_gov = max(0.0, society.trust_gov - cal.DEBT_CRISIS_PERSIST_TRUST_HIT)
-            society.social_tension = min(1.0, society.social_tension + cal.DEBT_CRISIS_PERSIST_TENSION_HIT)
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.DEBT_CRISIS_PERSIST_GDP_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "trust_gov",
+                max(0.0, _effective_critical(agent, world, "trust_gov") - cal.DEBT_CRISIS_PERSIST_TRUST_HIT),
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "social_tension",
+                min(
+                    1.0,
+                    _effective_critical(agent, world, "social_tension") + cal.DEBT_CRISIS_PERSIST_TENSION_HIT,
+                ),
+            )
     else:
         risk.debt_crisis_active_years = 0
+    if not defer_critical_writes:
+        _flush_social_pending_for_agent(world, agent)

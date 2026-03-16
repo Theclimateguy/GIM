@@ -1,5 +1,6 @@
 import math
 import random
+from typing import Dict
 
 from . import calibration_params as cal
 from .core import (
@@ -11,6 +12,54 @@ from .core import (
     WorldState,
     clamp01,
 )
+
+_CLIMATE_CRITICAL_PENDING_ATTR = "_climate_critical_pending"
+
+
+def _get_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _CLIMATE_CRITICAL_PENDING_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _CLIMATE_CRITICAL_PENDING_ATTR, pending)
+    return pending
+
+
+def _effective(world: WorldState, agent: AgentState, field: str) -> float:
+    values = _get_pending(world).get(agent.id, {})
+    base = {
+        "capital": float(agent.economy.capital),
+        "trust_gov": float(agent.society.trust_gov),
+        "social_tension": float(agent.society.social_tension),
+    }[field]
+    return base + float(values.get(field, 0.0))
+
+
+def _set_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:
+    current = _effective(world, agent, field)
+    delta = float(target) - current
+    if delta == 0.0:
+        return
+    pending = _get_pending(world)
+    values = pending.setdefault(
+        agent.id,
+        {"capital": 0.0, "trust_gov": 0.0, "social_tension": 0.0},
+    )
+    values[field] += delta
+
+
+def pop_climate_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _CLIMATE_CRITICAL_PENDING_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _CLIMATE_CRITICAL_PENDING_ATTR, {})
+    return {
+        agent_id: {
+            "capital": float(values.get("capital", 0.0)),
+            "trust_gov": float(values.get("trust_gov", 0.0)),
+            "social_tension": float(values.get("social_tension", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
 
 
 def _climate_resilience(agent: AgentState) -> float:
@@ -267,7 +316,12 @@ def apply_climate_extreme_events(
 
         severity = cal.EVENT_SEVERITY_BASE + cal.EVENT_SEVERITY_RISK_SENS * risk
         severity *= 1.0 - cal.EVENT_SEVERITY_RESILIENCE_DAMP * resilience
-        agent.economy.capital *= max(0.0, 1.0 - severity)
+        _set_effective(
+            world,
+            agent,
+            "capital",
+            _effective(world, agent, "capital") * max(0.0, 1.0 - severity),
+        )
 
         pop_loss = (cal.EVENT_POP_LOSS_BASE + cal.EVENT_POP_LOSS_RISK_SENS * risk) * (
             1.0 - cal.EVENT_POP_RESILIENCE_DAMP * resilience
@@ -287,13 +341,28 @@ def apply_climate_extreme_events(
         tension_jump = (cal.EVENT_TENSION_JUMP_BASE + cal.EVENT_TENSION_JUMP_RISK_SENS * risk) * (
             1.0 - cal.EVENT_POP_RESILIENCE_DAMP * resilience
         )
-        agent.society.social_tension = min(1.0, agent.society.social_tension + tension_jump)
+        _set_effective(
+            world,
+            agent,
+            "social_tension",
+            min(1.0, _effective(world, agent, "social_tension") + tension_jump),
+        )
         if agent.risk.regime_stability > cal.EVENT_TRUST_STABILITY_THRESHOLD:
             trust_delta = cal.EVENT_TRUST_REWARD_BASE + cal.EVENT_TRUST_REWARD_RESILIENCE_SENS * resilience
-            agent.society.trust_gov = min(1.0, agent.society.trust_gov + trust_delta)
+            _set_effective(
+                world,
+                agent,
+                "trust_gov",
+                min(1.0, _effective(world, agent, "trust_gov") + trust_delta),
+            )
         else:
             trust_delta = cal.EVENT_TRUST_PENALTY_BASE + cal.EVENT_TRUST_PENALTY_RISK_SENS * risk
-            agent.society.trust_gov = max(0.0, agent.society.trust_gov - trust_delta)
+            _set_effective(
+                world,
+                agent,
+                "trust_gov",
+                max(0.0, _effective(world, agent, "trust_gov") - trust_delta),
+            )
 
 
 def climate_damage_multiplier(temperature: float) -> float:

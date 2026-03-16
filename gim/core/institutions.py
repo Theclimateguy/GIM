@@ -24,6 +24,53 @@ ORG_TYPES = {
     "UNEP_UNESCO": "SocialOrg",
 }
 
+_INSTITUTION_CRITICAL_DELTAS_ATTR = "_institution_critical_deltas"
+
+
+def _get_pending_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _INSTITUTION_CRITICAL_DELTAS_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _INSTITUTION_CRITICAL_DELTAS_ATTR, pending)
+    return pending
+
+
+def _queue_critical_deltas(
+    world: WorldState,
+    agent_id: str,
+    *,
+    public_debt: float = 0.0,
+    trust_gov: float = 0.0,
+    social_tension: float = 0.0,
+) -> None:
+    pending = _get_pending_critical_deltas(world)
+    agent_delta = pending.setdefault(
+        agent_id,
+        {
+            "public_debt": 0.0,
+            "trust_gov": 0.0,
+            "social_tension": 0.0,
+        },
+    )
+    agent_delta["public_debt"] += float(public_debt)
+    agent_delta["trust_gov"] += float(trust_gov)
+    agent_delta["social_tension"] += float(social_tension)
+
+
+def pop_institution_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _INSTITUTION_CRITICAL_DELTAS_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _INSTITUTION_CRITICAL_DELTAS_ATTR, {})
+    return {
+        agent_id: {
+            "public_debt": float(values.get("public_debt", 0.0)),
+            "trust_gov": float(values.get("trust_gov", 0.0)),
+            "social_tension": float(values.get("social_tension", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
+
 
 def _members_by_region(world: WorldState) -> Dict[str, List[str]]:
     region_map: Dict[str, List[str]] = {}
@@ -282,9 +329,9 @@ def _apply_org_measures(
     org: InstitutionState,
     metrics: Dict[str, float],
 ) -> List[Dict[str, Any]]:
-    # WRITES: relations.*.trade_barrier, economy.fx_reserves, economy.public_debt,
+    # WRITES: relations.*.trade_barrier, economy.fx_reserves,
     # relations.*.conflict_level, climate.climate_risk,
-    # society.{social_tension,trust_gov}
+    # plus queued deltas for {economy.public_debt,society.trust_gov,society.social_tension}
     measures: List[Dict[str, Any]] = []
     if not org.members:
         return measures
@@ -317,7 +364,7 @@ def _apply_org_measures(
             if grant <= 0.0:
                 continue
             agent.economy.fx_reserves += grant
-            agent.economy.public_debt += grant
+            _queue_critical_deltas(world, member_id, public_debt=grant)
             org.budget -= grant
             measures.append({"action": "liquidity_support", "agent": member_id, "amount": grant})
             if org.budget <= 0.0:
@@ -352,10 +399,12 @@ def _apply_org_measures(
             agent = world.agents.get(member_id)
             if agent is None:
                 continue
-            agent.society.social_tension = max(
-                0.0, agent.society.social_tension - 0.5 * delta
+            _queue_critical_deltas(
+                world,
+                member_id,
+                social_tension=-0.5 * delta,
+                trust_gov=0.3 * delta,
             )
-            agent.society.trust_gov = clamp01(agent.society.trust_gov + 0.3 * delta)
         measures.append({"action": "social_support", "delta": delta})
 
     elif org.org_type == "KnowledgeOrg":

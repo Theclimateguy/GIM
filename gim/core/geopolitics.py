@@ -3,6 +3,71 @@ import random
 
 from .core import Action, AgentState, RelationState, WorldState, clamp01
 
+_GEOPOLITICAL_CRITICAL_PENDING_ATTR = "_geopolitical_critical_pending"
+
+
+def _get_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _GEOPOLITICAL_CRITICAL_PENDING_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _GEOPOLITICAL_CRITICAL_PENDING_ATTR, pending)
+    return pending
+
+
+def _effective(world: WorldState, agent: AgentState, field: str) -> float:
+    values = _get_pending(world).get(agent.id, {})
+    base = {
+        "gdp": float(agent.economy.gdp),
+        "capital": float(agent.economy.capital),
+        "trust_gov": float(agent.society.trust_gov),
+        "social_tension": float(agent.society.social_tension),
+    }[field]
+    return base + float(values.get(field, 0.0))
+
+
+def _add_delta(
+    world: WorldState,
+    agent: AgentState,
+    *,
+    gdp: float = 0.0,
+    capital: float = 0.0,
+    trust_gov: float = 0.0,
+    social_tension: float = 0.0,
+) -> None:
+    pending = _get_pending(world)
+    values = pending.setdefault(
+        agent.id,
+        {"gdp": 0.0, "capital": 0.0, "trust_gov": 0.0, "social_tension": 0.0},
+    )
+    values["gdp"] += float(gdp)
+    values["capital"] += float(capital)
+    values["trust_gov"] += float(trust_gov)
+    values["social_tension"] += float(social_tension)
+
+
+def _set_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:
+    current = _effective(world, agent, field)
+    delta = float(target) - current
+    if delta == 0.0:
+        return
+    _add_delta(world, agent, **{field: delta})
+
+
+def pop_geopolitics_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _GEOPOLITICAL_CRITICAL_PENDING_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _GEOPOLITICAL_CRITICAL_PENDING_ATTR, {})
+    return {
+        agent_id: {
+            "gdp": float(values.get("gdp", 0.0)),
+            "capital": float(values.get("capital", 0.0)),
+            "trust_gov": float(values.get("trust_gov", 0.0)),
+            "social_tension": float(values.get("social_tension", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
+
 
 def _coerce_agent_id(value: Any) -> Optional[str]:
     if isinstance(value, str):
@@ -16,6 +81,7 @@ def _coerce_agent_id(value: Any) -> Optional[str]:
 
 
 def _apply_sanction_social_reaction(
+    world: WorldState,
     target: AgentState,
     scale: float,
     autocracy_bias: float,
@@ -33,8 +99,13 @@ def _apply_sanction_social_reaction(
     else:
         trust_delta = -blame
 
-    target.society.trust_gov = clamp01(target.society.trust_gov + trust_delta)
-    target.society.social_tension = clamp01(target.society.social_tension + tension_increase)
+    _set_effective(world, target, "trust_gov", clamp01(_effective(world, target, "trust_gov") + trust_delta))
+    _set_effective(
+        world,
+        target,
+        "social_tension",
+        clamp01(_effective(world, target, "social_tension") + tension_increase),
+    )
 
 
 def apply_sanctions_effects(world: WorldState) -> None:
@@ -68,7 +139,7 @@ def apply_sanctions_effects(world: WorldState) -> None:
             relation.trade_intensity *= 0.65
             relation.trust *= 0.85
             relation.trade_barrier = min(1.0, relation.trade_barrier + 0.15)
-            actor.economy.gdp *= 0.995
+            _set_effective(world, actor, "gdp", _effective(world, actor, "gdp") * 0.995)
 
     for target_id, counts in target_pressure.items():
         target = world.agents.get(target_id)
@@ -84,13 +155,19 @@ def apply_sanctions_effects(world: WorldState) -> None:
         strong_factor = strong**0.5
 
         gdp_penalty = min(0.12, 0.01 * mild_factor + 0.03 * strong_factor)
-        target.economy.gdp *= max(0.0, 1.0 - gdp_penalty)
+        _set_effective(
+            world,
+            target,
+            "gdp",
+            _effective(world, target, "gdp") * max(0.0, 1.0 - gdp_penalty),
+        )
 
         scale = min(0.12, 0.02 * mild_factor + 0.06 * strong_factor)
         autocracy_bias = min(0.04, 0.01 * mild_factor + 0.02 * strong_factor)
         tension_increase = min(0.08, 0.015 * mild_factor + 0.05 * strong_factor)
 
         _apply_sanction_social_reaction(
+            world=world,
             target=target,
             scale=scale,
             autocracy_bias=autocracy_bias,
@@ -236,9 +313,19 @@ def apply_security_actions(world: WorldState, actions: Dict[str, Action]) -> Non
             rel_ta.conflict_level = min(1.0, rel_ta.conflict_level + 0.20)
 
             for side in (actor, target):
-                side.economy.gdp *= 0.99
-                side.society.social_tension = min(1.0, side.society.social_tension + 0.05)
-                side.society.trust_gov = max(0.0, side.society.trust_gov - 0.03)
+                _set_effective(world, side, "gdp", _effective(world, side, "gdp") * 0.99)
+                _set_effective(
+                    world,
+                    side,
+                    "social_tension",
+                    min(1.0, _effective(world, side, "social_tension") + 0.05),
+                )
+                _set_effective(
+                    world,
+                    side,
+                    "trust_gov",
+                    max(0.0, _effective(world, side, "trust_gov") - 0.03),
+                )
 
         elif sec.type == "conflict":
             mil_actor = actor.technology.military_power
@@ -255,14 +342,44 @@ def apply_security_actions(world: WorldState, actions: Dict[str, Action]) -> Non
             gdp_loss_actor = base_gdp_loss * (0.7 + 0.6 * (1.0 - share_actor))
             gdp_loss_target = base_gdp_loss * (0.7 + 0.6 * (1.0 - share_target))
 
-            actor.economy.capital *= max(0.0, 1.0 - cap_loss_actor)
-            target.economy.capital *= max(0.0, 1.0 - cap_loss_target)
-            actor.economy.gdp *= max(0.0, 1.0 - gdp_loss_actor)
-            target.economy.gdp *= max(0.0, 1.0 - gdp_loss_target)
+            _set_effective(
+                world,
+                actor,
+                "capital",
+                _effective(world, actor, "capital") * max(0.0, 1.0 - cap_loss_actor),
+            )
+            _set_effective(
+                world,
+                target,
+                "capital",
+                _effective(world, target, "capital") * max(0.0, 1.0 - cap_loss_target),
+            )
+            _set_effective(
+                world,
+                actor,
+                "gdp",
+                _effective(world, actor, "gdp") * max(0.0, 1.0 - gdp_loss_actor),
+            )
+            _set_effective(
+                world,
+                target,
+                "gdp",
+                _effective(world, target, "gdp") * max(0.0, 1.0 - gdp_loss_target),
+            )
 
             for side in (actor, target):
-                side.society.social_tension = min(1.0, side.society.social_tension + 0.15)
-                side.society.trust_gov = max(0.0, side.society.trust_gov - 0.10)
+                _set_effective(
+                    world,
+                    side,
+                    "social_tension",
+                    min(1.0, _effective(world, side, "social_tension") + 0.15),
+                )
+                _set_effective(
+                    world,
+                    side,
+                    "trust_gov",
+                    max(0.0, _effective(world, side, "trust_gov") - 0.10),
+                )
 
             rel_at.conflict_level = min(1.0, rel_at.conflict_level + 0.4)
             rel_ta.conflict_level = min(1.0, rel_ta.conflict_level + 0.4)
@@ -317,10 +434,30 @@ def update_active_conflicts(world: WorldState) -> None:
             gdp_loss_actor = base_gdp_loss * (0.8 + 0.4 * (1.0 - share_actor))
             gdp_loss_target = base_gdp_loss * (0.8 + 0.4 * (1.0 - share_target))
 
-            actor.economy.capital *= max(0.0, 1.0 - cap_loss_actor)
-            target.economy.capital *= max(0.0, 1.0 - cap_loss_target)
-            actor.economy.gdp *= max(0.0, 1.0 - gdp_loss_actor)
-            target.economy.gdp *= max(0.0, 1.0 - gdp_loss_target)
+            _set_effective(
+                world,
+                actor,
+                "capital",
+                _effective(world, actor, "capital") * max(0.0, 1.0 - cap_loss_actor),
+            )
+            _set_effective(
+                world,
+                target,
+                "capital",
+                _effective(world, target, "capital") * max(0.0, 1.0 - cap_loss_target),
+            )
+            _set_effective(
+                world,
+                actor,
+                "gdp",
+                _effective(world, actor, "gdp") * max(0.0, 1.0 - gdp_loss_actor),
+            )
+            _set_effective(
+                world,
+                target,
+                "gdp",
+                _effective(world, target, "gdp") * max(0.0, 1.0 - gdp_loss_target),
+            )
 
             rel_at.trade_intensity *= 0.92
             rel_ta.trade_intensity *= 0.92
@@ -351,8 +488,18 @@ def update_active_conflicts(world: WorldState) -> None:
             if actor_exhausted and target_exhausted:
                 for side in (actor, target):
                     side.technology.military_power *= 0.9
-                    side.society.social_tension = min(1.0, side.society.social_tension + 0.08)
-                    side.society.trust_gov = max(0.0, side.society.trust_gov - 0.05)
+                    _set_effective(
+                        world,
+                        side,
+                        "social_tension",
+                        min(1.0, _effective(world, side, "social_tension") + 0.08),
+                    )
+                    _set_effective(
+                        world,
+                        side,
+                        "trust_gov",
+                        max(0.0, _effective(world, side, "trust_gov") - 0.05),
+                    )
                 rel_at.conflict_level = 0.45
                 rel_ta.conflict_level = 0.45
                 rel_at.trust *= 0.9
@@ -362,10 +509,30 @@ def update_active_conflicts(world: WorldState) -> None:
             winner = target if actor_exhausted else actor
             loser = actor if actor_exhausted else target
 
-            winner.society.trust_gov = clamp01(winner.society.trust_gov + 0.03)
-            winner.society.social_tension = max(0.0, winner.society.social_tension - 0.03)
-            loser.society.trust_gov = max(0.0, loser.society.trust_gov - 0.08)
-            loser.society.social_tension = min(1.0, loser.society.social_tension + 0.10)
+            _set_effective(
+                world,
+                winner,
+                "trust_gov",
+                clamp01(_effective(world, winner, "trust_gov") + 0.03),
+            )
+            _set_effective(
+                world,
+                winner,
+                "social_tension",
+                max(0.0, _effective(world, winner, "social_tension") - 0.03),
+            )
+            _set_effective(
+                world,
+                loser,
+                "trust_gov",
+                max(0.0, _effective(world, loser, "trust_gov") - 0.08),
+            )
+            _set_effective(
+                world,
+                loser,
+                "social_tension",
+                min(1.0, _effective(world, loser, "social_tension") + 0.10),
+            )
             loser.technology.military_power *= 0.85
 
             rel_at.conflict_level = 0.5

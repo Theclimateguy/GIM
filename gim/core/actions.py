@@ -4,6 +4,109 @@ from typing import Dict
 from .climate import update_emissions_from_economy
 from .core import Action, PricePreference, WorldState, clamp01
 
+_ACTIONS_CRITICAL_PENDING_ATTR = "_actions_critical_pending"
+
+
+def _get_actions_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _ACTIONS_CRITICAL_PENDING_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _ACTIONS_CRITICAL_PENDING_ATTR, pending)
+    return pending
+
+
+def _effective_critical(world: WorldState, agent_id: str, field: str) -> float:
+    agent = world.agents[agent_id]
+    pending = _get_actions_pending(world).get(agent_id, {})
+    base = {
+        "gdp": float(agent.economy.gdp),
+        "capital": float(agent.economy.capital),
+        "public_debt": float(agent.economy.public_debt),
+        "trust_gov": float(agent.society.trust_gov),
+        "social_tension": float(agent.society.social_tension),
+    }[field]
+    return base + float(pending.get(field, 0.0))
+
+
+def _add_critical_delta(
+    world: WorldState,
+    agent_id: str,
+    *,
+    gdp: float = 0.0,
+    capital: float = 0.0,
+    public_debt: float = 0.0,
+    trust_gov: float = 0.0,
+    social_tension: float = 0.0,
+) -> None:
+    pending = _get_actions_pending(world)
+    values = pending.setdefault(
+        agent_id,
+        {
+            "gdp": 0.0,
+            "capital": 0.0,
+            "public_debt": 0.0,
+            "trust_gov": 0.0,
+            "social_tension": 0.0,
+        },
+    )
+    values["gdp"] += float(gdp)
+    values["capital"] += float(capital)
+    values["public_debt"] += float(public_debt)
+    values["trust_gov"] += float(trust_gov)
+    values["social_tension"] += float(social_tension)
+
+
+def _set_critical_effective(world: WorldState, agent_id: str, field: str, target: float) -> None:
+    current = _effective_critical(world, agent_id, field)
+    delta = float(target) - current
+    if delta == 0.0:
+        return
+    _add_critical_delta(world, agent_id, **{field: delta})
+
+
+def pop_actions_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]]:
+    pending = getattr(world.global_state, _ACTIONS_CRITICAL_PENDING_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _ACTIONS_CRITICAL_PENDING_ATTR, {})
+    return {
+        agent_id: {
+            "gdp": float(values.get("gdp", 0.0)),
+            "capital": float(values.get("capital", 0.0)),
+            "public_debt": float(values.get("public_debt", 0.0)),
+            "trust_gov": float(values.get("trust_gov", 0.0)),
+            "social_tension": float(values.get("social_tension", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
+
+
+def _flush_actions_pending(world: WorldState, agent_ids: set[str] | None = None) -> None:
+    pending = _get_actions_pending(world)
+    targets = list(pending.keys()) if agent_ids is None else [aid for aid in pending.keys() if aid in agent_ids]
+    for agent_id in targets:
+        values = pending.pop(agent_id, None)
+        if not values:
+            continue
+        agent = world.agents.get(agent_id)
+        if agent is None:
+            continue
+        economy = agent.economy
+        society = agent.society
+        setattr(economy, "gdp", max(0.0, float(economy.gdp) + float(values.get("gdp", 0.0))))
+        setattr(economy, "capital", max(0.0, float(economy.capital) + float(values.get("capital", 0.0))))
+        setattr(
+            economy,
+            "public_debt",
+            max(0.0, float(economy.public_debt) + float(values.get("public_debt", 0.0))),
+        )
+        setattr(society, "trust_gov", clamp01(float(society.trust_gov) + float(values.get("trust_gov", 0.0))))
+        setattr(
+            society,
+            "social_tension",
+            clamp01(float(society.social_tension) + float(values.get("social_tension", 0.0))),
+        )
+
 
 def _clamp(value: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, value))
@@ -34,7 +137,7 @@ def _normalize_domestic_levers(action: Action, world: WorldState) -> None:
         dom.rd_investment_change *= scale
 
 
-def apply_action(world: WorldState, action: Action) -> None:
+def apply_action(world: WorldState, action: Action, *, defer_critical_writes: bool = False) -> None:
     _normalize_domestic_levers(action, world)
     agent = world.agents[action.agent_id]
     domestic = action.domestic_policy
@@ -75,31 +178,61 @@ def apply_action(world: WorldState, action: Action) -> None:
             * regime_tension_mult
         )
 
-        economy.gdp *= max(0.0, 1.0 - gdp_factor * fuel_tax_delta)
-        society.trust_gov = clamp01(
-            society.trust_gov - trust_factor * fuel_tax_delta * sensitivity_tax
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "gdp",
+            _effective_critical(world, action.agent_id, "gdp")
+            * max(0.0, 1.0 - gdp_factor * fuel_tax_delta),
         )
-        society.social_tension = clamp01(
-            society.social_tension + tension_factor * fuel_tax_delta * sensitivity_ineq
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "trust_gov",
+            clamp01(
+                _effective_critical(world, action.agent_id, "trust_gov")
+                - trust_factor * fuel_tax_delta * sensitivity_tax
+            ),
+        )
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "social_tension",
+            clamp01(
+                _effective_critical(world, action.agent_id, "social_tension")
+                + tension_factor * fuel_tax_delta * sensitivity_ineq
+            ),
         )
 
     social_spending_delta = domestic.social_spending_change
     if abs(social_spending_delta) > 1e-6:
-        delta_spending = social_spending_delta * economy.gdp
+        gdp_effective = _effective_critical(world, action.agent_id, "gdp")
+        delta_spending = social_spending_delta * gdp_effective
         economy.social_spending += delta_spending
         economy.gov_spending += delta_spending
-        economy.public_debt += delta_spending
+        _add_critical_delta(world, action.agent_id, public_debt=delta_spending)
 
-        gdp_share = delta_spending / max(economy.gdp, 1e-6)
-        society.trust_gov = clamp01(society.trust_gov + 0.1 * gdp_share)
-        society.social_tension = clamp01(society.social_tension - 0.08 * gdp_share)
+        gdp_share = delta_spending / max(gdp_effective, 1e-6)
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "trust_gov",
+            clamp01(_effective_critical(world, action.agent_id, "trust_gov") + 0.1 * gdp_share),
+        )
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "social_tension",
+            clamp01(_effective_critical(world, action.agent_id, "social_tension") - 0.08 * gdp_share),
+        )
 
     military_spending_delta = domestic.military_spending_change
     if abs(military_spending_delta) > 1e-6:
-        delta_mil = military_spending_delta * economy.gdp
+        gdp_effective = _effective_critical(world, action.agent_id, "gdp")
+        delta_mil = military_spending_delta * gdp_effective
         economy.military_spending += delta_mil
         economy.gov_spending += delta_mil
-        economy.public_debt += delta_mil
+        _add_critical_delta(world, action.agent_id, public_debt=delta_mil)
 
         base_gain = 0.3 * military_spending_delta * (1.0 + 0.5 * (technology.tech_level - 1.0))
         technology.military_power = max(0.0, technology.military_power * (1.0 + base_gain))
@@ -125,14 +258,20 @@ def apply_action(world: WorldState, action: Action) -> None:
                 * regime_mult
             )
 
-        society.trust_gov = clamp01(society.trust_gov + trust_delta)
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "trust_gov",
+            clamp01(_effective_critical(world, action.agent_id, "trust_gov") + trust_delta),
+        )
 
     rd_delta = domestic.rd_investment_change
     if abs(rd_delta) > 1e-6:
-        delta_rd = rd_delta * economy.gdp
+        gdp_effective = _effective_critical(world, action.agent_id, "gdp")
+        delta_rd = rd_delta * gdp_effective
         economy.rd_spending += delta_rd
         economy.gov_spending += delta_rd
-        economy.public_debt += delta_rd
+        _add_critical_delta(world, action.agent_id, public_debt=delta_rd)
 
         technology.tech_level = max(0.5, technology.tech_level * (1.0 + 0.08 * rd_delta))
         for resource in agent.resources.values():
@@ -145,7 +284,12 @@ def apply_action(world: WorldState, action: Action) -> None:
             0.0,
         )
         policy_reduction = reduction
-        economy.gdp *= max(0.0, 1.0 - 0.003 * reduction)
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "gdp",
+            _effective_critical(world, action.agent_id, "gdp") * max(0.0, 1.0 - 0.003 * reduction),
+        )
 
         intensity = {"weak": 0.01, "moderate": 0.03, "strong": 0.07}.get(
             domestic.climate_policy,
@@ -164,11 +308,22 @@ def apply_action(world: WorldState, action: Action) -> None:
         if culture.regime_type == "Democracy":
             trust_delta *= 1.2
 
-        society.trust_gov = clamp01(society.trust_gov + trust_delta)
+        _set_critical_effective(
+            world,
+            action.agent_id,
+            "trust_gov",
+            clamp01(_effective_critical(world, action.agent_id, "trust_gov") + trust_delta),
+        )
         if risk_level > 0.5 and self_expression > 0.5:
-            society.social_tension = max(
-                0.0,
-                society.social_tension - 0.01 * intensity * self_expression,
+            _set_critical_effective(
+                world,
+                action.agent_id,
+                "social_tension",
+                max(
+                    0.0,
+                    _effective_critical(world, action.agent_id, "social_tension")
+                    - 0.01 * intensity * self_expression,
+                ),
             )
 
     update_emissions_from_economy(
@@ -177,9 +332,16 @@ def apply_action(world: WorldState, action: Action) -> None:
         policy_reduction=policy_reduction,
         fuel_tax_change=fuel_tax_delta,
     )
+    if not defer_critical_writes:
+        _flush_actions_pending(world, {action.agent_id})
 
 
-def apply_trade_deals(world: WorldState, actions: Dict[str, Action]) -> None:
+def apply_trade_deals(
+    world: WorldState,
+    actions: Dict[str, Action],
+    *,
+    defer_critical_writes: bool = False,
+) -> None:
     global_prices = world.global_state.prices
     # Net exports are tracked per-step; reset before applying new deals.
     for agent in world.agents.values():
@@ -301,13 +463,26 @@ def apply_trade_deals(world: WorldState, actions: Dict[str, Action]) -> None:
                 )
 
                 if resource_name == "metals":
-                    initiator.economy.capital += 0.001 * value
+                    _add_critical_delta(world, initiator_id, capital=0.001 * value)
                 elif resource_name == "food":
-                    society = initiator.society
-                    society.social_tension = clamp01(
-                        society.social_tension - 0.0003 * volume_real
+                    _set_critical_effective(
+                        world,
+                        initiator_id,
+                        "social_tension",
+                        clamp01(
+                            _effective_critical(world, initiator_id, "social_tension")
+                            - 0.0003 * volume_real
+                        ),
                     )
-                    society.trust_gov = clamp01(society.trust_gov + 0.00015 * volume_real)
+                    _set_critical_effective(
+                        world,
+                        initiator_id,
+                        "trust_gov",
+                        clamp01(
+                            _effective_critical(world, initiator_id, "trust_gov")
+                            + 0.00015 * volume_real
+                        ),
+                    )
 
             else:
                 continue
@@ -330,3 +505,5 @@ def apply_trade_deals(world: WorldState, actions: Dict[str, Action]) -> None:
         if total_weight > 0.0:
             for agent, weight in zip(world.agents.values(), weights):
                 agent.economy.net_exports += residual * (weight / total_weight)
+    if not defer_critical_writes:
+        _flush_actions_pending(world)

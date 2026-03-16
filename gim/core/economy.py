@@ -4,6 +4,86 @@ from .core import AgentState, WorldState, clamp01, effective_trade_intensity
 from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
 from .metrics import update_tfp_endogenous
 
+_ECONOMY_CRITICAL_PENDING_ATTR = "_economy_critical_pending"
+
+
+def _get_economy_pending(world: WorldState) -> dict[str, dict[str, float]]:
+    pending = getattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, pending)
+    return pending
+
+
+def _effective_critical(agent: AgentState, world: WorldState, field: str) -> float:
+    pending = _get_economy_pending(world).get(agent.id, {})
+    base = {
+        "gdp": float(agent.economy.gdp),
+        "capital": float(agent.economy.capital),
+        "public_debt": float(agent.economy.public_debt),
+    }[field]
+    return base + float(pending.get(field, 0.0))
+
+
+def _add_critical_delta(
+    world: WorldState,
+    agent: AgentState,
+    *,
+    gdp: float = 0.0,
+    capital: float = 0.0,
+    public_debt: float = 0.0,
+) -> None:
+    pending = _get_economy_pending(world)
+    values = pending.setdefault(
+        agent.id,
+        {
+            "gdp": 0.0,
+            "capital": 0.0,
+            "public_debt": 0.0,
+        },
+    )
+    values["gdp"] += float(gdp)
+    values["capital"] += float(capital)
+    values["public_debt"] += float(public_debt)
+
+
+def _set_critical_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:
+    current = _effective_critical(agent, world, field)
+    delta = float(target) - current
+    if delta == 0.0:
+        return
+    _add_critical_delta(world, agent, **{field: delta})
+
+
+def pop_economy_critical_deltas(world: WorldState) -> dict[str, dict[str, float]]:
+    pending = getattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, {})
+    return {
+        agent_id: {
+            "gdp": float(values.get("gdp", 0.0)),
+            "capital": float(values.get("capital", 0.0)),
+            "public_debt": float(values.get("public_debt", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
+
+
+def _flush_economy_pending_for_agent(world: WorldState, agent: AgentState) -> None:
+    pending = _get_economy_pending(world)
+    values = pending.pop(agent.id, None)
+    if not values:
+        return
+    economy = agent.economy
+    setattr(economy, "gdp", max(0.0, float(economy.gdp) + float(values.get("gdp", 0.0))))
+    setattr(economy, "capital", max(0.0, float(economy.capital) + float(values.get("capital", 0.0))))
+    setattr(
+        economy,
+        "public_debt",
+        max(0.0, float(economy.public_debt) + float(values.get("public_debt", 0.0))),
+    )
+
 
 def _channel_disabled(world: WorldState | None, channel_name: str) -> bool:
     if world is None:
@@ -26,13 +106,13 @@ def _credit_zone_premium(zone: str) -> float:
     return float(premiums.get(zone, 0.0))
 
 
-def update_capital_endogenous(agent: AgentState) -> None:
+def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
     economy = agent.economy
     risk = agent.risk
 
     # WRITES: economy.capital
-    gdp = max(economy.gdp, 1e-6)
-    capital = max(economy.capital, 1e-6)
+    gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
+    capital = max(_effective_critical(agent, world, "capital"), 1e-6)
     depreciation = cal.CAPITAL_DEPRECIATION
 
     base_savings = get_savings_rate(agent.name)
@@ -47,10 +127,20 @@ def update_capital_endogenous(agent: AgentState) -> None:
     savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
 
     investment = savings_rate * gdp
-    economy.capital = max(1e-6, (1.0 - depreciation) * capital + investment)
+    _set_critical_effective(
+        world,
+        agent,
+        "capital",
+        max(1e-6, (1.0 - depreciation) * capital + investment),
+    )
 
 
-def update_economy_output(agent: AgentState, world: WorldState) -> None:
+def update_economy_output(
+    agent: AgentState,
+    world: WorldState,
+    *,
+    defer_critical_writes: bool = False,
+) -> None:
     economy = agent.economy
     update_tfp_endogenous(agent, world)
 
@@ -88,15 +178,22 @@ def update_economy_output(agent: AgentState, world: WorldState) -> None:
 
     # Endogenous catch-up: faster when realized GDP is below potential,
     # slower when above. No exogenous growth term is introduced.
-    gdp_now = max(economy.gdp, 1e-6)
+    gdp_now = max(_effective_critical(agent, world, "gdp"), 1e-6)
     gap = (gdp_target - gdp_now) / gdp_now
     adjust_speed = cal.GDP_ADJUST_SPEED_BASE + cal.GDP_ADJUST_SPEED_GAP_SENS * clamp01(max(0.0, gap))
-    economy.gdp = (1.0 - adjust_speed) * economy.gdp + adjust_speed * gdp_target
+    _set_critical_effective(
+        world,
+        agent,
+        "gdp",
+        (1.0 - adjust_speed) * gdp_now + adjust_speed * gdp_target,
+    )
 
-    update_capital_endogenous(agent)
+    update_capital_endogenous(agent, world)
 
     if economy.population > 0:
-        economy.gdp_per_capita = economy.gdp * 1e12 / economy.population
+        economy.gdp_per_capita = _effective_critical(agent, world, "gdp") * 1e12 / economy.population
+    if not defer_critical_writes:
+        _flush_economy_pending_for_agent(world, agent)
 
 
 def compute_effective_interest_rate(agent: AgentState, world: WorldState | None = None) -> float:
@@ -153,10 +250,15 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
     return float(max(0.0, min(rate, cal.RATE_MAX)))
 
 
-def update_public_finances(agent: AgentState, world: WorldState) -> None:
+def update_public_finances(
+    agent: AgentState,
+    world: WorldState,
+    *,
+    defer_critical_writes: bool = False,
+) -> None:
     economy = agent.economy
 
-    gdp = max(economy.gdp, 1e-6)
+    gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
 
     # Baseline fiscal drivers to avoid mechanical debt repayment.
     base_social_share = get_social_spend_share(agent.name)
@@ -173,7 +275,8 @@ def update_public_finances(agent: AgentState, world: WorldState) -> None:
 
     economy.taxes = get_tax_rate(agent.name) * gdp
     effective_rate = compute_effective_interest_rate(agent, world)
-    economy.interest_payments = effective_rate * economy.public_debt
+    debt_effective = _effective_critical(agent, world, "public_debt")
+    economy.interest_payments = effective_rate * debt_effective
 
     primary_deficit = economy.gov_spending - economy.taxes
     total_deficit = primary_deficit + economy.interest_payments
@@ -183,8 +286,16 @@ def update_public_finances(agent: AgentState, world: WorldState) -> None:
         new_borrowing = min(total_deficit, max_new_debt)
     else:
         new_borrowing = 0.0
-        economy.public_debt = max(0.0, economy.public_debt + total_deficit)
+        _set_critical_effective(
+            world,
+            agent,
+            "public_debt",
+            max(0.0, debt_effective + total_deficit),
+        )
+        debt_effective = _effective_critical(agent, world, "public_debt")
 
-    economy.public_debt += new_borrowing
+    _set_critical_effective(world, agent, "public_debt", max(0.0, debt_effective + new_borrowing))
 
     economy.rd_spending *= cal.RD_SPENDING_DECAY
+    if not defer_critical_writes:
+        _flush_economy_pending_for_agent(world, agent)

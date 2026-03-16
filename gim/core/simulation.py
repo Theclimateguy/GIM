@@ -37,6 +37,24 @@ from .social import (
     update_population,
     update_social_state,
 )
+from .transitions import (
+    ALLOWED_LEGACY_WRITER_MODULES,
+    CriticalWriteGuard,
+    TransitionEnvelope,
+    apply_actions_pending_deltas,
+    apply_climate_pending_deltas,
+    apply_economy_pending_deltas,
+    apply_geopolitics_pending_deltas,
+    apply_institution_pending_deltas,
+    apply_social_pending_deltas,
+    build_baseline_state,
+    build_event_detections,
+    build_propagation_snapshot,
+    build_reconciled_writes,
+    capture_critical_fields,
+    reconcile_critical_fields,
+    resolve_guard_mode,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -757,20 +775,30 @@ def _run_phase_propagation(
     security_intents: Dict[str, Tuple[str, Optional[str]]],
     enable_extreme_events: bool,
     channel_overrides: Optional[Dict[str, bool]],
+    channel_snapshots: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> None:
     # Phase 3: propagate event and policy effects through coupled channels.
     if _channel_enabled(channel_overrides, "sanctions_channel"):
         apply_sanctions_effects(world)
+        apply_geopolitics_pending_deltas(world)
     apply_security_actions(world, actions)
+    apply_geopolitics_pending_deltas(world)
     update_active_conflicts(world)
+    apply_geopolitics_pending_deltas(world)
     if _channel_enabled(channel_overrides, "trade_barrier_channel"):
         apply_trade_barrier_effects(world)
+    if channel_snapshots is not None:
+        channel_snapshots["after_security_trade_barrier"] = capture_critical_fields(world)
 
     for action in actions.values():
-        apply_action(world, action)
+        apply_action(world, action, defer_critical_writes=True)
+    apply_actions_pending_deltas(world)
 
-    apply_trade_deals(world, actions)
+    apply_trade_deals(world, actions, defer_critical_writes=True)
+    apply_actions_pending_deltas(world)
     update_relations_endogenous(world)
+    if channel_snapshots is not None:
+        channel_snapshots["after_policy_trade_relations"] = capture_critical_fields(world)
 
     if action_log is not None:
         _append_action_logs(world, actions, action_log, security_intents)
@@ -783,13 +811,18 @@ def _run_phase_propagation(
     update_climate_risks(world)
     if enable_extreme_events:
         apply_climate_extreme_events(world)
+    apply_climate_pending_deltas(world)
 
     for agent in world.agents.values():
-        update_economy_output(agent, world)
+        update_economy_output(agent, world, defer_critical_writes=True)
+        apply_economy_pending_deltas(world, agent_ids=[agent.id])
 
     for agent in world.agents.values():
-        update_public_finances(agent, world)
-        check_debt_crisis(agent, world)
+        update_public_finances(agent, world, defer_critical_writes=True)
+        apply_economy_pending_deltas(world, agent_ids=[agent.id])
+        check_debt_crisis(agent, world, defer_critical_writes=True)
+    if channel_snapshots is not None:
+        channel_snapshots["after_climate_macro"] = capture_critical_fields(world)
 
     if _channel_enabled(channel_overrides, "migration_feedback"):
         update_migration_flows(world)
@@ -798,7 +831,11 @@ def _run_phase_propagation(
         if _channel_enabled(channel_overrides, "social_instability_feedback") and agent.id in actions:
             update_social_state(agent, actions[agent.id], world)
         if _channel_enabled(channel_overrides, "social_instability_feedback"):
-            check_regime_stability(agent)
+            check_regime_stability(agent, world)
+
+    # Apply queued institution deltas for critical fields in propagation phase.
+    apply_institution_pending_deltas(world)
+    apply_social_pending_deltas(world)
 
 
 def _run_phase_reconciliation(
@@ -806,8 +843,17 @@ def _run_phase_reconciliation(
     memory: AgentMemory,
     actions: Dict[str, Action],
     trend_baselines: Dict[str, Dict[str, float]],
-) -> Dict[str, Any]:
+    baseline_critical_fields: Dict[str, Any],
+    propagated_critical_fields: Dict[str, Any],
+    channel_snapshots: Dict[str, Dict[str, Any]],
+) -> tuple[Dict[str, Any], Dict[str, Any]]:
     # Phase 4: reconcile, refresh diagnostics, and finalize the year.
+    critical_accounting = reconcile_critical_fields(
+        world,
+        baseline=baseline_critical_fields,
+        propagated=propagated_critical_fields,
+        channel_snapshots=channel_snapshots,
+    )
     compute_relative_metrics(world)
     update_agent_memory(memory, world, actions)
     update_credit_ratings(world, memory)
@@ -815,7 +861,7 @@ def _run_phase_reconciliation(
     _persist_trend_baselines(world, trend_baselines)
     invariants = _invariant_report(world, trend_baselines)
     world.time += 1
-    return invariants
+    return invariants, critical_accounting
 
 
 def step_world(
@@ -840,48 +886,97 @@ def step_world(
         disabled_channels = set()
     setattr(world.global_state, "_ablation_disabled_channels", disabled_channels)
 
-    trend_baselines = _capture_trend_baselines(world)
-    if phase_trace is not None:
-        phase_trace["pre"] = _aggregate_world_metrics(world)
-
-    actions, security_intents = _run_phase_baseline(
-        world,
-        policies,
-        memory,
-        apply_political_filters,
-        apply_institutions,
-        institution_log,
-        policy_progress,
+    guard_mode = resolve_guard_mode(phase_trace_requested=phase_trace is not None)
+    write_guard = CriticalWriteGuard(
+        mode=guard_mode,
+        allowed_writer_modules=set(ALLOWED_LEGACY_WRITER_MODULES),
     )
-    if phase_trace is not None:
-        phase_trace["baseline"] = _aggregate_world_metrics(world)
 
-    _run_phase_detection(world, actions)
-    if phase_trace is not None:
-        phase_trace["detect"] = _aggregate_world_metrics(world)
-        phase_trace["detect_cards"] = _collect_detection_cards(world)
+    try:
+        with write_guard:
+            trend_baselines = _capture_trend_baselines(world)
+            transition_envelope = TransitionEnvelope()
+            if phase_trace is not None:
+                pre_metrics = _aggregate_world_metrics(world)
+                phase_trace["pre"] = pre_metrics
+                transition_envelope.pre = build_baseline_state(world, pre_metrics)
 
-    _run_phase_propagation(
-        world,
-        actions,
-        action_log,
-        security_intents,
-        enable_extreme_events,
-        channel_overrides,
-    )
-    if phase_trace is not None:
-        phase_trace["propagate"] = _aggregate_world_metrics(world)
-        phase_trace["propagate_cards"] = _collect_propagation_cards(world)
+            write_guard.set_phase("baseline")
+            actions, security_intents = _run_phase_baseline(
+                world,
+                policies,
+                memory,
+                apply_political_filters,
+                apply_institutions,
+                institution_log,
+                policy_progress,
+            )
+            if phase_trace is not None:
+                baseline_metrics = _aggregate_world_metrics(world)
+                phase_trace["baseline"] = baseline_metrics
+                transition_envelope.baseline = build_baseline_state(world, baseline_metrics)
+            baseline_critical_fields = capture_critical_fields(world)
 
-    invariants = _run_phase_reconciliation(world, memory, actions, trend_baselines)
-    if phase_trace is not None:
-        phase_trace["reconcile"] = _aggregate_world_metrics(world)
-        phase_trace["invariants"] = invariants
+            write_guard.set_phase("detect")
+            _run_phase_detection(world, actions)
+            if phase_trace is not None:
+                detect_metrics = _aggregate_world_metrics(world)
+                detect_cards = _collect_detection_cards(world)
+                phase_trace["detect"] = detect_metrics
+                phase_trace["detect_cards"] = detect_cards
+                transition_envelope.detect = build_event_detections(detect_cards)
 
-    if previous_disabled_channels is None:
-        delattr(world.global_state, "_ablation_disabled_channels")
-    else:
-        setattr(world.global_state, "_ablation_disabled_channels", previous_disabled_channels)
+            write_guard.set_phase("propagate")
+            channel_snapshots: Dict[str, Dict[str, Any]] = {}
+            _run_phase_propagation(
+                world,
+                actions,
+                action_log,
+                security_intents,
+                enable_extreme_events,
+                channel_overrides,
+                channel_snapshots=channel_snapshots,
+            )
+            if phase_trace is not None:
+                propagate_metrics = _aggregate_world_metrics(world)
+                propagate_cards = _collect_propagation_cards(world)
+                phase_trace["propagate"] = propagate_metrics
+                phase_trace["propagate_cards"] = propagate_cards
+                transition_envelope.propagate = build_propagation_snapshot(
+                    world,
+                    propagate_metrics,
+                    propagate_cards,
+                    metadata={"channel_snapshot_keys": sorted(channel_snapshots.keys())},
+                )
+            propagated_critical_fields = capture_critical_fields(world)
+
+            write_guard.set_phase("reconcile")
+            invariants, critical_accounting = _run_phase_reconciliation(
+                world,
+                memory,
+                actions,
+                trend_baselines,
+                baseline_critical_fields,
+                propagated_critical_fields,
+                channel_snapshots,
+            )
+            if phase_trace is not None:
+                reconcile_metrics = _aggregate_world_metrics(world)
+                phase_trace["reconcile"] = reconcile_metrics
+                phase_trace["invariants"] = invariants
+                phase_trace["critical_field_accounting"] = critical_accounting
+                transition_envelope.reconcile = build_reconciled_writes(
+                    world,
+                    reconcile_metrics,
+                    invariants,
+                )
+                phase_trace["transition_envelope"] = transition_envelope
+                phase_trace["critical_write_guard"] = write_guard.summary()
+    finally:
+        if previous_disabled_channels is None:
+            delattr(world.global_state, "_ablation_disabled_channels")
+        else:
+            setattr(world.global_state, "_ablation_disabled_channels", previous_disabled_channels)
 
     return world
 
