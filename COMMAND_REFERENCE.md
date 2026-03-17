@@ -1,34 +1,34 @@
-# GIM15 Command Reference v15.0.0
+# GIM15 Command Reference v15.1.0
 
-Operational CLI reference for `python -m gim`.
+Operational CLI reference for `python3 -m gim`.
 
 ## Version
 
 ```bash
-python -m gim --version
+python3 -m gim --version
 ```
 
 ## Full Command List
 
-- `python -m gim` (default world core mode)
-- `python -m gim world`
-- `python -m gim question`
-- `python -m gim game`
-- `python -m gim metrics`
-- `python -m gim calibrate`
-- `python -m gim brief`
-- `python -m gim console`
+- `python3 -m gim` (default world core mode)
+- `python3 -m gim world`
+- `python3 -m gim question`
+- `python3 -m gim game`
+- `python3 -m gim metrics`
+- `python3 -m gim calibrate`
+- `python3 -m gim brief`
+- `python3 -m gim console`
 
 ## Quick Start Commands
 
 ```bash
 # World simulation from a specific snapshot year
-python -m gim world \
+python3 -m gim world \
   --state-csv data/agent_states_operational_2026_calibrated.csv \
   --state-year 2026
 
 # Question scenario (sim path)
-python -m gim question \
+python3 -m gim question \
   --question "How will the Iran-US conflict evolve in 2026?" \
   --actors Iran "United States" Israel \
   --state-csv data/agent_states_operational_2026_calibrated.csv \
@@ -39,7 +39,7 @@ python -m gim question \
   --brief
 
 # Game from a case file (sim path + equilibrium)
-python -m gim game \
+python3 -m gim game \
   --case misc/cases/maritime_pressure_game.json \
   --state-csv data/agent_states_operational_2026_calibrated.csv \
   --state-year 2026 \
@@ -50,16 +50,16 @@ python -m gim game \
   --brief
 
 # Crisis metrics snapshot
-python -m gim metrics \
+python3 -m gim metrics \
   --agents "United States" Iran Israel \
   --state-csv data/agent_states_operational_2026_calibrated.csv \
   --state-year 2026
 
 # Calibration suite
-python -m gim calibrate --suite operational_v1 --runs 3
+python3 -m gim calibrate --suite operational_v1 --runs 3
 
 # Rebuild brief from saved evaluation json
-python -m gim brief --from-json results/<run-id>/evaluation.json --output decision_brief.md
+python3 -m gim brief --from-json results/<run-id>/evaluation.json --output decision_brief.md
 ```
 
 ## Common Runtime Flags
@@ -92,7 +92,7 @@ Report flags (`question`, `game`):
 Runs core yearly simulator (`gim/core/cli.py`) directly.
 
 ```bash
-python -m gim world --state-csv data/agent_states_operational.csv --state-year 2023
+python3 -m gim world --state-csv data/agent_states_operational.csv --state-year 2023
 ```
 
 Environment variable equivalents: `STATE_CSV`, `STATE_YEAR`, `MAX_COUNTRIES`, `SIM_YEARS`, `POLICY_MODE`, `SAVE_CSV_LOGS`, `SIM_SEED`.
@@ -129,7 +129,7 @@ Adds game-specific flags:
 Builds crisis metrics dashboard from current state snapshot.
 
 ```bash
-python -m gim metrics --agents Iran "United States" --json
+python3 -m gim metrics --agents Iran "United States" --json
 ```
 
 ### `calibrate`
@@ -137,7 +137,7 @@ python -m gim metrics --agents Iran "United States" --json
 Runs bundled historical calibration suite.
 
 ```bash
-python -m gim calibrate --suite operational_v2 --runs 5 --horizon 2 --sim
+python3 -m gim calibrate --suite operational_v2 --runs 5 --horizon 2 --sim
 ```
 
 ### `brief`
@@ -145,7 +145,7 @@ python -m gim calibrate --suite operational_v2 --runs 5 --horizon 2 --sim
 Generates standalone markdown brief from existing evaluation artifact.
 
 ```bash
-python -m gim brief --from-json results/<run-id>/evaluation.json --output decision_brief.md
+python3 -m gim brief --from-json results/<run-id>/evaluation.json --output decision_brief.md
 ```
 
 ### `console`
@@ -153,7 +153,7 @@ python -m gim brief --from-json results/<run-id>/evaluation.json --output decisi
 Interactive menu wrapper for question/game flows.
 
 ```bash
-python -m gim console --state-csv data/agent_states_operational.csv --state-year 2026
+python3 -m gim console --state-csv data/agent_states_operational.csv --state-year 2026
 ```
 
 ## Artifacts and Paths

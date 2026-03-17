@@ -66,18 +66,25 @@ Capabilities:
 
 ## Post-P4 release validation
 
-Status: completed (rolling OOS baseline selected)
+Status: completed (rolling OOS baseline selected and re-checked after 15.1 baseline switch)
 
 Artifacts:
 
 - `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json`
 - `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json`
-- `results/backtest/stage_bc_block4_2015_2023/oos_compare_baseline_vs_robust.json`
+- `results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/rolling_backtest_stepwise.json`
+- `results/backtest/stage_bc_block4_2015_2023_reswitch_final_2026-03-17/stage_bc_block4.json`
 
 Outcome:
 
-- Stage B/C robust set selected for v15 baseline:
+- v15.1 active baseline defaults:
   - `TFP_RD_SHARE_SENS=0.300000`
   - `GAMMA_ENERGY=0.042000`
+  - `DECARB_RATE_STRUCTURAL=0.052000` (artifact-bound)
+  - `HEAT_CAP_SURFACE=18.000000`
+
+- post-switch block-4 robust candidate (reference):
+  - `TFP_RD_SHARE_SENS=0.180000`
+  - `GAMMA_ENERGY=0.025200`
   - `DECARB_RATE_STRUCTURAL=0.031200`
   - `HEAT_CAP_SURFACE=18.000000`

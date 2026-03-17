@@ -16,7 +16,9 @@ This plan maps GIM14 validator findings onto current GIM15 code, separating:
 - `ui/` is now ignored in git via `.gitignore`.
 - Core CLI/model artifacts remain under `results/<run_id>/...` through `build_run_artifacts()` and `resolve_run_output_path()`.
 
-## 2) Finding Status Matrix (GIM14 report -> GIM15 state)
+## 2) Finding Status Matrix (Initial snapshot before remediation)
+
+Note: the matrix below reflects the pre-fix snapshot used to define the work packages. Current closure state is tracked in the progress update section.
 
 1. Q9 Actor inference coverage (aliases/group entities): **PARTIAL / OPEN**
 - Current aliases are still narrow in `gim/scenario_compiler.py` (`US/China/Japan/...` only).

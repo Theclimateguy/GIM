@@ -1,6 +1,6 @@
 # AUDIT_GIM15
 
-Date: 2026-03-16  
+Date: 2026-03-17  
 Repo: `GIM15`  
 Branch: `GIM15`
 
@@ -8,12 +8,14 @@ This audit supersedes prior snapshots archived under `misc/old_docs/`.
 
 ## Scope
 
-This pass focused on documentation correctness versus current code and calibration artifacts:
+Documentation consistency review against current release state (`15.1.0`):
 
 - `README.md`
+- `COMMAND_REFERENCE.md`
 - `docs/CALIBRATION_REFERENCE.md`
 - `docs/CALIBRATION_LAYER.md`
-- `docs/MODEL_METHODOLOGY.md`
+- `docs/V15_RELEASE_READINESS.md`
+- `docs/VALIDATION_PACKAGE_V15.md`
 - version metadata (`gim/__init__.py`, `pyproject.toml`)
 
 ## Verification Run
@@ -26,28 +28,35 @@ python3 -m unittest discover -s tests -v
 
 Result:
 
-- `133` tests
+- `143` tests
 - `OK` (`3` skipped: optional dependency paths)
 
 Observed calibration checks:
 
-- historical backtest: GDP RMSE `1.050`, CO2 RMSE `1.630`, temperature RMSE `0.136`
+- historical backtest: GDP RMSE `1.025`, CO2 RMSE `1.605`, temperature RMSE `0.138`
 - operational suites: `operational_v1` and `operational_v2` regression checks pass
 - `operational_v2` sensitivity: high-sensitivity discriminating paths remain detected
-- rolling walk-forward (`2015->2023`) Stage B/C completed with robust block-4 set:
-  - `TFP_RD_SHARE_SENS = 0.300000`
-  - `GAMMA_ENERGY = 0.042000`
-  - `DECARB_RATE_STRUCTURAL = 0.031200`
-  - `HEAT_CAP_SURFACE = 18.000000`
-- OOS comparison (`baseline vs robust`) on one-step windows:
-  - objective `1.8357 -> 1.8125`
-  - temperature RMSE `0.0776 -> 0.0753`
+- rolling walk-forward re-check (`2015->2023`) after 15.1 baseline switch:
+  - pairwise mean one-step RMSE: GDP `0.305`, CO2 `1.029`, temp `0.075`
+  - block4 mean one-step RMSE: GDP `0.305`, CO2 `1.029`, temp `0.078`
+- release validation package:
+  - `results/validation/non_llm/wp3_wp5_package_2026-03-17/`
+  - `operational_v2` pass rate `5/5` for `simple` and `growth`
+
+## Baseline Status (15.1)
+
+Active baseline defaults:
+
+- `TFP_RD_SHARE_SENS = 0.300000`
+- `GAMMA_ENERGY = 0.042000`
+- `HEAT_CAP_SURFACE = 18.000000`
+- `DECARB_RATE_STRUCTURAL = 0.052000` (artifact-bound from operational manifest)
 
 ## Audit Conclusion
 
-- Documentation now reflects the active runtime flow and current calibration contracts.
-- Stale and drift-prone statements (old test counts, obsolete methodology fragments, outdated decarb reference text) were removed.
-- Historical audit material was moved out of the root into `misc/old_docs/`.
+- Documentation is aligned to `15.1.0` and current calibration/validation status.
+- Command reference and versioning are synchronized with runtime behavior.
+- Calibration docs now reflect hybrid baseline logic (switched macro parameters + artifact-bound structural decarb).
 
 ## Open Risks (Explicitly Tracked)
 

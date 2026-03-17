@@ -104,6 +104,12 @@ python3 -m unittest \
   tests.test_sensitivity_sweep -v
 ```
 
+### Release validation package
+
+```bash
+./scripts/run_validation_package_v15.sh
+```
+
 ### Operational suite checks
 
 ```bash

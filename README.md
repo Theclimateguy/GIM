@@ -93,9 +93,9 @@ Macro-climate:
 - observed decarb reference stamped in manifest:
   - `0.016025082589816386` (`2000-2023`)
 - historical backtest golden targets used by tests:
-  - GDP RMSE `~1.053`
-  - global CO2 RMSE `~1.630`
-  - temperature RMSE `~0.136`
+  - GDP RMSE `~1.025`
+  - global CO2 RMSE `~1.605`
+  - temperature RMSE `~0.138`
 - rolling walk-forward OOS artifacts:
   - `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json`
   - `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json`

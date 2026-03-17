@@ -38,24 +38,24 @@ Source: `data/agent_states_operational.artifacts.json`
 
 Rule: these values are loaded through `ACTIVE_STATE_ARTIFACT` and must be changed only via refresh scripts, not by direct hand-editing.
 
-### 2.1b Release baseline overrides (v15 working baseline)
+### 2.1b Release baseline defaults (v15.1)
 
 Source: rolling walk-forward Stage B/C artifacts
 
 - `TFP_RD_SHARE_SENS = 0.300000`
 - `GAMMA_ENERGY = 0.042000`
-- `DECARB_RATE_STRUCTURAL = 0.031200`
 - `HEAT_CAP_SURFACE = 18.000000`
+- `DECARB_RATE_STRUCTURAL = 0.052000` (kept artifact-bound from the operational manifest)
 
-Rule: until the operational state artifact pipeline is restamped for v15, these are treated as release baseline calibration targets for validation and documentation.
+Rule: release `15.1` uses a hybrid baseline: macro sensitivity and heat capacity are switched to rolling-selected values, while structural decarb remains manifest-bound to preserve historical CO2 fit.
 
 ### 2.2 Climate/macro tuned parameters
 
 Source: `gim/core/calibration_params.py`
 
-- `GAMMA_ENERGY = 0.07` (`[XSECTION]`)
-- `TFP_RD_SHARE_SENS = 0.5` (`[BACKTEST]`)
-- `HEAT_CAP_SURFACE = 30.0` (`[BACKTEST]`)
+- `GAMMA_ENERGY = 0.042` (`[BACKTEST]`)
+- `TFP_RD_SHARE_SENS = 0.30` (`[BACKTEST]`)
+- `HEAT_CAP_SURFACE = 18.0` (`[BACKTEST]`)
 - `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08` (`[BACKTEST]`)
 - `TEMP_BACKTEST_ENSEMBLE_SIZE = 8` (`[BACKTEST]`)
 
@@ -90,9 +90,9 @@ Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`):
 
 Current golden regression target (`tests/test_historical_backtest.py`):
 
-- GDP RMSE `1.053 ± 0.005`
-- global CO2 RMSE `1.630 ± 0.005`
-- temperature RMSE `0.136 ± 0.005`
+- GDP RMSE `1.025 ± 0.005`
+- global CO2 RMSE `1.605 ± 0.005`
+- temperature RMSE `0.138 ± 0.005`
 
 ### 3.2 Operational suites
 
@@ -121,23 +121,23 @@ Sensitivity sweep (`operational_v2`):
 
 Artifacts:
 
-- `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json`
-- `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json`
-- `results/backtest/stage_bc_block4_2015_2023/oos_compare_baseline_vs_robust.json`
+- `results/backtest/rolling_pairwise_2015_2023/rolling_backtest_stepwise.json` (original)
+- `results/backtest/stage_bc_block4_2015_2023/stage_bc_block4.json` (original)
+- `results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/rolling_backtest_stepwise.json` (post-switch re-check)
+- `results/backtest/stage_bc_block4_2015_2023_reswitch_final_2026-03-17/stage_bc_block4.json` (post-switch re-check)
 
-Current Stage B/C block-4 robust candidate:
+Post-switch one-step mean validation metrics (`2015->2016 ... 2022->2023`):
 
-- `TFP_RD_SHARE_SENS = 0.300000`
-- `GAMMA_ENERGY = 0.042000`
+- GDP RMSE: `0.305`
+- global CO2 RMSE: `1.029`
+- temperature RMSE: `0.075` (pairwise) / `0.078` (block4)
+
+Post-switch Stage B/C block-4 robust candidate (reference only; not fully promoted to defaults):
+
+- `TFP_RD_SHARE_SENS = 0.180000`
+- `GAMMA_ENERGY = 0.025200`
 - `DECARB_RATE_STRUCTURAL = 0.031200`
 - `HEAT_CAP_SURFACE = 18.000000`
-
-Out-of-sample summary on one-step windows (`2015->2016 ... 2022->2023`):
-
-- objective improved (`1.8357 -> 1.8125`, lower is better)
-- GDP RMSE ~ unchanged (`0.3108 -> 0.3109`)
-- global CO2 RMSE unchanged (`1.0286 -> 1.0286`)
-- temperature RMSE improved (`0.0776 -> 0.0753`)
 
 ## 4. Refresh and Rebuild Commands
 

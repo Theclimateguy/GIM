@@ -39,7 +39,7 @@ Output:
 
 Source:
 
-- `results/validation/non_llm/wp3_wp5_2026-03-17/summary.md`
+- `results/validation/non_llm/wp3_wp5_package_2026-03-17/summary.md`
 
 Summary:
 
