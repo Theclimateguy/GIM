@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional, Tuple
 import random
 
+from .critical_pending import get_transition_pending
 from .core import Action, AgentState, RelationState, WorldState, clamp01
 
 _GEOPOLITICAL_CRITICAL_PENDING_ATTR = "_geopolitical_critical_pending"
@@ -16,13 +17,14 @@ def _get_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
 
 def _effective(world: WorldState, agent: AgentState, field: str) -> float:
     values = _get_pending(world).get(agent.id, {})
+    transition_values = get_transition_pending(world).get(agent.id, {})
     base = {
         "gdp": float(agent.economy.gdp),
         "capital": float(agent.economy.capital),
         "trust_gov": float(agent.society.trust_gov),
         "social_tension": float(agent.society.social_tension),
     }[field]
-    return base + float(values.get(field, 0.0))
+    return base + float(transition_values.get(field, 0.0)) + float(values.get(field, 0.0))
 
 
 def _add_delta(

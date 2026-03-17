@@ -1,5 +1,6 @@
 from . import calibration_params as cal
 from .climate import effective_damage_multiplier
+from .critical_pending import get_transition_pending
 from .core import AgentState, WorldState, clamp01, effective_trade_intensity
 from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
 from .metrics import update_tfp_endogenous
@@ -17,12 +18,13 @@ def _get_economy_pending(world: WorldState) -> dict[str, dict[str, float]]:
 
 def _effective_critical(agent: AgentState, world: WorldState, field: str) -> float:
     pending = _get_economy_pending(world).get(agent.id, {})
+    transition_pending = get_transition_pending(world).get(agent.id, {})
     base = {
         "gdp": float(agent.economy.gdp),
         "capital": float(agent.economy.capital),
         "public_debt": float(agent.economy.public_debt),
     }[field]
-    return base + float(pending.get(field, 0.0))
+    return base + float(transition_pending.get(field, 0.0)) + float(pending.get(field, 0.0))
 
 
 def _add_critical_delta(

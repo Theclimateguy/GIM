@@ -51,8 +51,10 @@ from .transitions import (
     build_event_detections,
     build_propagation_snapshot,
     build_reconciled_writes,
+    capture_effective_critical_fields,
     capture_critical_fields,
     reconcile_critical_fields,
+    reset_transition_pending,
     resolve_guard_mode,
 )
 
@@ -778,6 +780,8 @@ def _run_phase_propagation(
     channel_snapshots: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> None:
     # Phase 3: propagate event and policy effects through coupled channels.
+    reset_transition_pending(world)
+
     if _channel_enabled(channel_overrides, "sanctions_channel"):
         apply_sanctions_effects(world)
         apply_geopolitics_pending_deltas(world)
@@ -788,7 +792,7 @@ def _run_phase_propagation(
     if _channel_enabled(channel_overrides, "trade_barrier_channel"):
         apply_trade_barrier_effects(world)
     if channel_snapshots is not None:
-        channel_snapshots["after_security_trade_barrier"] = capture_critical_fields(world)
+        channel_snapshots["after_security_trade_barrier"] = capture_effective_critical_fields(world)
 
     for action in actions.values():
         apply_action(world, action, defer_critical_writes=True)
@@ -798,7 +802,7 @@ def _run_phase_propagation(
     apply_actions_pending_deltas(world)
     update_relations_endogenous(world)
     if channel_snapshots is not None:
-        channel_snapshots["after_policy_trade_relations"] = capture_critical_fields(world)
+        channel_snapshots["after_policy_trade_relations"] = capture_effective_critical_fields(world)
 
     if action_log is not None:
         _append_action_logs(world, actions, action_log, security_intents)
@@ -822,7 +826,7 @@ def _run_phase_propagation(
         apply_economy_pending_deltas(world, agent_ids=[agent.id])
         check_debt_crisis(agent, world, defer_critical_writes=True)
     if channel_snapshots is not None:
-        channel_snapshots["after_climate_macro"] = capture_critical_fields(world)
+        channel_snapshots["after_climate_macro"] = capture_effective_critical_fields(world)
 
     if _channel_enabled(channel_overrides, "migration_feedback"):
         update_migration_flows(world)
@@ -854,6 +858,7 @@ def _run_phase_reconciliation(
         propagated=propagated_critical_fields,
         channel_snapshots=channel_snapshots,
     )
+    reset_transition_pending(world)
     compute_relative_metrics(world)
     update_agent_memory(memory, world, actions)
     update_credit_ratings(world, memory)
@@ -948,7 +953,7 @@ def step_world(
                     propagate_cards,
                     metadata={"channel_snapshot_keys": sorted(channel_snapshots.keys())},
                 )
-            propagated_critical_fields = capture_critical_fields(world)
+            propagated_critical_fields = capture_effective_critical_fields(world)
 
             write_guard.set_phase("reconcile")
             invariants, critical_accounting = _run_phase_reconciliation(

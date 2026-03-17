@@ -3,6 +3,7 @@ import random
 from typing import Dict
 
 from . import calibration_params as cal
+from .critical_pending import get_transition_pending
 from .core import (
     CO2_PREINDUSTRIAL_GT,
     F2XCO2_W_M2,
@@ -26,12 +27,13 @@ def _get_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
 
 def _effective(world: WorldState, agent: AgentState, field: str) -> float:
     values = _get_pending(world).get(agent.id, {})
+    transition_values = get_transition_pending(world).get(agent.id, {})
     base = {
         "capital": float(agent.economy.capital),
         "trust_gov": float(agent.society.trust_gov),
         "social_tension": float(agent.society.social_tension),
     }[field]
-    return base + float(values.get(field, 0.0))
+    return base + float(transition_values.get(field, 0.0)) + float(values.get(field, 0.0))
 
 
 def _set_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:

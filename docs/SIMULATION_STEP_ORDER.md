@@ -1,6 +1,6 @@
 # Simulation Step Order
 
-This note documents the effective yearly write order in [`simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/gim/core/simulation.py) and the currently authorized writer sets for the most calibration-sensitive fields.
+This note documents the effective yearly write order in [`simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/gim/core/simulation.py) and the runtime contract for critical-field finalization.
 
 ## Yearly Order
 
@@ -35,30 +35,30 @@ This note documents the effective yearly write order in [`simulation.py`](/Users
 29. `update_credit_ratings`
 30. increment `world.time`
 
-## Phase Grouping (GIM15 refactor scaffold)
+## Phase Grouping (GIM15 canonical reconcile runtime)
 
-`step_world()` now exposes an explicit 4-phase scaffold while preserving the same effective operation order:
+`step_world()` uses an explicit 4-phase scaffold while preserving the same effective operation order:
 
 1. `baseline`: metrics refresh, political update, institution update, policy generation and political filters
 2. `detect`: foreign-policy resolution (`resolve_foreign_policy`)
 3. `propagate`: sanctions/security/conflict/trade/action/resource/climate/economy/social propagation
-4. `reconcile`: final metrics refresh, memory update, credit update, policy records, time increment
+4. `reconcile`: canonical finalization of critical fields, final metrics refresh, memory update, credit update, policy records, time increment
 
 An optional `phase_trace` dict can be passed into `step_world()` to capture aggregate snapshots (`pre`, `baseline`, `detect`, `propagate`, `reconcile`) for phase-level diagnostics.
 
 ## Authorized Writers
 
-These fields are intentionally multi-writer today. The contract is "document the allowed writers and keep `simulation.py` orchestration-only".
+Critical fields are computed as deltas/signals during propagate and finalized only in reconcile.
 
 | Field | Authorized writers |
 | --- | --- |
-| `economy.gdp` | `actions.py`, `economy.py`, `geopolitics.py`, `social.py` |
-| `economy.capital` | `economy.py`, `climate.py`, `geopolitics.py`, `social.py` |
-| `economy.public_debt` | `actions.py`, `economy.py`, `institutions.py`, `social.py` |
-| `society.trust_gov` | `actions.py`, `climate.py`, `geopolitics.py`, `institutions.py`, `social.py` |
-| `society.social_tension` | `actions.py`, `climate.py`, `geopolitics.py`, `institutions.py`, `social.py` |
+| `economy.gdp` | `gim/core/transitions/reconcile.py` |
+| `economy.capital` | `gim/core/transitions/reconcile.py` |
+| `economy.public_debt` | `gim/core/transitions/reconcile.py` |
+| `society.trust_gov` | `gim/core/transitions/reconcile.py` |
+| `society.social_tension` | `gim/core/transitions/reconcile.py` |
 | `risk.debt_crisis_active_years` | `social.py` only |
 | `risk.regime_crisis_active_years` | `social.py` only |
 
 Implementation note:
-- write sites in the core modules now carry `WRITES:` comments so state deltas can be traced during calibration work without doing a full grep pass.
+- channel modules write pending deltas only; `simulation.py` snapshots propagate state via effective baseline+pending views, and reconcile applies canonical clamped final values.

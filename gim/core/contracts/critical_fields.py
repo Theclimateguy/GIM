@@ -35,7 +35,7 @@ CRITICAL_FIELD_REGISTRY = {
             "climate",
         ),
         invariant="nonnegative",
-        notes="Primary output level with high multi-writer sensitivity.",
+        notes="Primary output level finalized canonically in reconcile from channel deltas.",
     ),
     "economy.capital": CriticalFieldContract(
         field_path="economy.capital",

@@ -66,7 +66,8 @@ class TransitionContractTests(unittest.TestCase):
         self.assertNotIn("gim/core/economy.py", guard_summary["by_module"])
         self.assertNotIn("gim/core/climate.py", guard_summary["by_module"])
         self.assertNotIn("gim/core/geopolitics.py", guard_summary["by_module"])
-        self.assertIn("gim/core/transitions/propagate.py", guard_summary["by_module"])
+        self.assertIn("gim/core/transitions/reconcile.py", guard_summary["by_module"])
+        self.assertNotIn("gim/core/transitions/propagate.py", guard_summary["by_module"])
 
 
 if __name__ == "__main__":

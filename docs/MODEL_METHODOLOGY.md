@@ -136,6 +136,10 @@ Data contract details are maintained in `docs/agent_state_data_contract.md`.
 
 This ordering is intentional and path-dependent.
 
+Execution is grouped into four phases (`baseline -> detect -> propagate -> reconcile`).
+Critical fields (`economy.gdp`, `economy.capital`, `economy.public_debt`, `society.trust_gov`, `society.social_tension`)
+are finalized canonically in `reconcile`; upstream channels produce deltas/signals that are reconciled at phase end.
+
 ## 6. Behavioral Blocks
 
 ### 6.1 Political and action layer

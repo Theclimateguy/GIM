@@ -143,18 +143,36 @@ python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-
 
 ## Documentation Set
 
-Active docs:
+Active docs index:
+
+- `docs/README.md`
+
+Core runtime and contracts:
 
 - `docs/MODEL_METHODOLOGY.md`
-- `docs/OBJECTIVE_RELATIONSHIPS.md`
+- `docs/GIM15_UNIFIED_MODEL_SPEC.md`
+- `docs/CORE_TRANSITION_CONTRACT.md`
+- `docs/SIMULATION_STEP_ORDER.md`
+- `docs/MODEL_STATE_MAP.md`
+- `docs/critical_field_registry.csv`
+- `docs/state_registry.csv`
+
+Calibration and validation:
+
 - `docs/CALIBRATION_REFERENCE.md`
 - `docs/CALIBRATION_LAYER.md`
-- `docs/SIMULATION_STEP_ORDER.md`
+- `docs/CRISIS_VALIDATION_PROTOCOL.md`
+- `docs/PARAMETER_CHANGE_POLICY.md`
+
+Data contract and objectives:
+
 - `docs/agent_state_data_contract.md`
+- `docs/OBJECTIVE_RELATIONSHIPS.md`
 - `COMMAND_REFERENCE.md`
 
 Archived/superseded docs:
 
+- `docs/legacy/`
 - `misc/old_docs/`
 
 ## Test Commands

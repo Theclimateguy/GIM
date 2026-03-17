@@ -1,5 +1,5 @@
 field_path,field_type,canonical_writer,allowed_delta_producers,finalization_phase,invariant_checks,notes
-economy.gdp,state,gim.core.transitions.reconcile,reconcile|actions|economy|geopolitics|social|climate,reconcile,nonnegative,Primary output level with high multi-writer sensitivity.
+economy.gdp,state,gim.core.transitions.reconcile,reconcile|actions|economy|geopolitics|social|climate,reconcile,nonnegative,Primary output level finalized canonically in reconcile from channel deltas.
 economy.capital,state,gim.core.transitions.reconcile,reconcile|economy|social|climate|geopolitics,reconcile,nonnegative,Capital stock must be finalized once per year.
 economy.public_debt,state,gim.core.transitions.reconcile,reconcile|economy|actions|institutions|social,reconcile,nonnegative,Debt accounting identity enforced at reconcile.
 society.trust_gov,state,gim.core.transitions.reconcile,reconcile|social|actions|institutions|geopolitics|climate,reconcile,unit_interval,Trust should use baseline plus explicit channel deltas.

@@ -165,11 +165,27 @@ Behavior intent:
     - `gim/core/transitions/propagate.py`
     - `gim/core/transitions/reconcile.py`
 
+## I11
+
+- Completed canonical reconcile hardening in runtime orchestration:
+  - added transition-level pending overlay storage (`gim/core/critical_pending.py`),
+  - channel modules now read effective baseline + transition pending + local pending,
+  - `transitions/propagate.py` aggregates channel deltas into transition pending and does not finalize critical fields,
+  - `simulation.py` snapshots propagate state via `capture_effective_critical_fields()` and resets pending at propagate start / post-reconcile.
+- Updated runtime writer contract:
+  - `gim/core/transitions/write_guard.py` allow-list now contains only:
+    - `gim/core/transitions/reconcile.py`
+- Validation after hardening:
+  - `python3 -m unittest tests/test_transition_contracts.py -v` -> `OK`
+  - `python3 -m unittest tests/test_critical_write_audit.py -v` -> `OK`
+  - `python3 -m py_compile gim/core/simulation.py gim/core/transitions/propagate.py gim/core/transitions/reconcile.py gim/core/transitions/__init__.py gim/core/critical_pending.py` -> `OK`
+
 ## Final State
 
 - Migration of module-level critical writers is complete.
 - Runtime contract is now explicit:
-  - `transitions/propagate.py` applies queued channel deltas.
+  - channel modules produce pending deltas/signals only.
+  - `transitions/propagate.py` aggregates channel deltas into transition pending effective state.
   - `transitions/reconcile.py` performs canonical finalization/clamping.
 - Static critical-write audit has no unexpected offenders.
 - Remaining optional hardening:

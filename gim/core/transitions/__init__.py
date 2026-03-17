@@ -8,6 +8,8 @@ from .propagate import (
     apply_institution_pending_deltas,
     apply_social_pending_deltas,
     build_propagation_snapshot,
+    capture_effective_critical_fields,
+    reset_transition_pending,
 )
 from .reconcile import build_reconciled_writes, reconcile_critical_fields
 from .schemas import (
@@ -35,6 +37,8 @@ __all__ = [
     "build_baseline_state",
     "build_event_detections",
     "build_propagation_snapshot",
+    "capture_effective_critical_fields",
+    "reset_transition_pending",
     "apply_actions_pending_deltas",
     "apply_climate_pending_deltas",
     "apply_economy_pending_deltas",

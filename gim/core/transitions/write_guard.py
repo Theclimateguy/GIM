@@ -14,7 +14,6 @@ CRITICAL_ECONOMY_FIELDS = {"gdp", "capital", "public_debt"}
 CRITICAL_SOCIETY_FIELDS = {"trust_gov", "social_tension"}
 
 ALLOWED_LEGACY_WRITER_MODULES = {
-    "gim/core/transitions/propagate.py",
     "gim/core/transitions/reconcile.py",
 }
 

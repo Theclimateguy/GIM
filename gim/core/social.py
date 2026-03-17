@@ -2,6 +2,7 @@ import math
 from typing import Dict
 
 from . import calibration_params as cal
+from .critical_pending import get_transition_pending
 from .core import Action, AgentState, WorldState, clamp01, effective_trade_intensity
 from .economy import compute_effective_interest_rate
 
@@ -18,6 +19,7 @@ def _get_social_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
 
 def _effective_critical(agent: AgentState, world: WorldState, field: str) -> float:
     pending = _get_social_pending(world).get(agent.id, {})
+    transition_pending = get_transition_pending(world).get(agent.id, {})
     base = {
         "gdp": float(agent.economy.gdp),
         "capital": float(agent.economy.capital),
@@ -25,7 +27,7 @@ def _effective_critical(agent: AgentState, world: WorldState, field: str) -> flo
         "trust_gov": float(agent.society.trust_gov),
         "social_tension": float(agent.society.social_tension),
     }[field]
-    return base + float(pending.get(field, 0.0))
+    return base + float(transition_pending.get(field, 0.0)) + float(pending.get(field, 0.0))
 
 
 def _add_critical_delta(

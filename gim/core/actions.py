@@ -2,6 +2,7 @@ import math
 from typing import Dict
 
 from .climate import update_emissions_from_economy
+from .critical_pending import get_transition_pending
 from .core import Action, PricePreference, WorldState, clamp01
 
 _ACTIONS_CRITICAL_PENDING_ATTR = "_actions_critical_pending"
@@ -18,6 +19,7 @@ def _get_actions_pending(world: WorldState) -> Dict[str, Dict[str, float]]:
 def _effective_critical(world: WorldState, agent_id: str, field: str) -> float:
     agent = world.agents[agent_id]
     pending = _get_actions_pending(world).get(agent_id, {})
+    transition_pending = get_transition_pending(world).get(agent_id, {})
     base = {
         "gdp": float(agent.economy.gdp),
         "capital": float(agent.economy.capital),
@@ -25,7 +27,7 @@ def _effective_critical(world: WorldState, agent_id: str, field: str) -> float:
         "trust_gov": float(agent.society.trust_gov),
         "social_tension": float(agent.society.social_tension),
     }[field]
-    return base + float(pending.get(field, 0.0))
+    return base + float(transition_pending.get(field, 0.0)) + float(pending.get(field, 0.0))
 
 
 def _add_critical_delta(
