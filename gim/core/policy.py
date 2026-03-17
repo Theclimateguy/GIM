@@ -107,8 +107,8 @@ def _clamp_float(value: Any, lo: float, hi: float, default: float = 0.0) -> floa
 def _normalize_action_for_stability(action: Action) -> Action:
     dom = action.domestic_policy
     dom.tax_fuel_change = _clamp_float(dom.tax_fuel_change, -1.5, 1.5)
-    dom.social_spending_change = _clamp_float(dom.social_spending_change, -0.015, 0.02)
-    dom.military_spending_change = _clamp_float(dom.military_spending_change, -0.01, 0.015)
+    dom.social_spending_change = _clamp_float(dom.social_spending_change, -0.03, 0.04)
+    dom.military_spending_change = _clamp_float(dom.military_spending_change, -0.02, 0.03)
     dom.rd_investment_change = _clamp_float(dom.rd_investment_change, -0.002, 0.008)
     if dom.climate_policy not in {"none", "weak", "moderate", "strong"}:
         dom.climate_policy = "none"
@@ -164,6 +164,8 @@ def call_llm(prompt: str) -> str:
         "Authorization": f"Bearer {deepseek_api_key}",
         "Content-Type": "application/json",
     }
+    llm_temperature = _clamp_float(os.getenv("LLM_TEMPERATURE", "0.4"), 0.0, 1.0, default=0.4)
+
     payload = {
         "model": DEEPSEEK_MODEL,
         "messages": [
@@ -173,7 +175,7 @@ def call_llm(prompt: str) -> str:
             },
             {"role": "user", "content": prompt},
         ],
-        "temperature": 0.2,
+        "temperature": llm_temperature,
     }
     last_error: Exception | None = None
     for attempt in range(max_retries + 1):
@@ -290,12 +292,13 @@ You MUST output a single JSON object with this structure:
 }
 NUMERIC GUARDRAILS (hard constraints):
 - tax_fuel_change: [-1.5, +1.5]
-- social_spending_change: [-0.015, +0.020]
-- military_spending_change: [-0.010, +0.015]
+- social_spending_change: [-0.030, +0.040]
+- military_spending_change: [-0.020, +0.030]
 - rd_investment_change: [-0.002, +0.008]
 - each trade deal volume_change: [0, 50]
 - trade_restrictions level: none|soft|hard (max 2 entries)
-Use small, incremental changes. Avoid extreme one-step shocks.
+Choose policy magnitudes proportional to state severity.
+In crisis conditions, decisive moves are acceptable if they improve survival/stability.
 IMPORTANT: The observation contains a nested field:
   self_state["competitive"] = {
     "gdp_share": float,
@@ -402,7 +405,10 @@ LLM_POLICY_PROMPT_TEMPLATE = (
     "           treat Western military alliances carefully.\n"
     "- NonAligned/Latin/MENA: diversify partners to reduce dependence on any bloc.\n\n"
     "COERCION & SECURITY ACTIONS (use sparingly but decisively):\n"
-    "- If neighbor conflict_level >= 0.45 AND trust <= 0.35, consider at least\n"
+    "- If any neighbor conflict_level >= 0.30, propose at least one coercive OR defensive\n"
+    "  move (sanction, trade_restriction, military_exercise, or arms_buildup) unless your\n"
+    "  own social/economic fragility is extreme.\n"
+    "- If neighbor conflict_level >= 0.40 AND trust <= 0.40, consider at least\n"
     "  one coercive tool (sanction, trade_restriction, or security_action) rather\n"
     "  than doing nothing.\n"
     "- Escalation ladder:\n"

@@ -118,8 +118,8 @@ def _normalize_domestic_levers(action: Action, world: WorldState) -> None:
     debt_gdp = agent.economy.public_debt / max(agent.economy.gdp, 1e-6)
 
     dom.tax_fuel_change = _clamp(float(dom.tax_fuel_change), -1.5, 1.5)
-    dom.social_spending_change = _clamp(float(dom.social_spending_change), -0.015, 0.02)
-    dom.military_spending_change = _clamp(float(dom.military_spending_change), -0.01, 0.015)
+    dom.social_spending_change = _clamp(float(dom.social_spending_change), -0.03, 0.04)
+    dom.military_spending_change = _clamp(float(dom.military_spending_change), -0.02, 0.03)
     dom.rd_investment_change = _clamp(float(dom.rd_investment_change), -0.002, 0.008)
 
     total_expansion = (
@@ -127,9 +127,9 @@ def _normalize_domestic_levers(action: Action, world: WorldState) -> None:
         + max(0.0, dom.military_spending_change)
         + max(0.0, dom.rd_investment_change)
     )
-    max_expansion = 0.03
+    max_expansion = 0.05
     if debt_gdp > 1.2:
-        max_expansion = 0.02
+        max_expansion = 0.03
     if total_expansion > max_expansion and total_expansion > 0:
         scale = max_expansion / total_expansion
         dom.social_spending_change *= scale

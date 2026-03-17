@@ -14,9 +14,9 @@ from gim.historical_backtest import (
 
 class HistoricalBacktestTests(unittest.TestCase):
     GOLDEN = {
-        "gdp_rmse_trillions": 1.053,
-        "global_co2_rmse_gtco2": 1.630,
-        "temperature_rmse_c": 0.136,
+        "gdp_rmse_trillions": 1.025,
+        "global_co2_rmse_gtco2": 1.605,
+        "temperature_rmse_c": 0.138,
     }
     TOLERANCE = 0.005
 

@@ -130,6 +130,26 @@ class CrisisPersistenceTests(unittest.TestCase):
         self.assertLess(agent.society.trust_gov, first_trust)
         self.assertGreater(agent.society.social_tension, first_tension)
 
+    def test_fx_trigger_can_start_crisis_without_debt_threshold_breach(self) -> None:
+        agent = self._make_agent(
+            public_debt=0.55,
+            trust_gov=0.45,
+            social_tension=0.55,
+            regime_stability=0.40,
+            debt_crisis_prone=0.35,
+        )
+        agent.economy.inflation = 0.28
+        agent.economy.fx_reserves = 0.01
+        agent.resources["energy"].production = 0.1
+        agent.resources["energy"].consumption = 1.6
+        world = self._make_world(agent)
+
+        check_debt_crisis(agent, world)
+
+        self.assertEqual(agent.risk.debt_crisis_active_years, 1)
+        self.assertLess(agent.economy.gdp, 1.0)
+        self.assertGreater(agent.economy.public_debt, 0.55)
+
     def test_regime_crisis_persists_multiple_years(self) -> None:
         agent = self._make_agent()
 

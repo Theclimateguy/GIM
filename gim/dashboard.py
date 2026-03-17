@@ -30,6 +30,8 @@ RISK_COLORS = {
     "status_quo": "#2f855a",
     "controlled_suppression": "#b7791f",
     "internal_destabilization": "#c05621",
+    "social_unrest_without_military": "#b85a3b",
+    "sovereign_financial_crisis": "#8f4a2d",
     "limited_proxy_escalation": "#dd6b20",
     "maritime_chokepoint_crisis": "#c53030",
     "direct_strike_exchange": "#9b2c2c",

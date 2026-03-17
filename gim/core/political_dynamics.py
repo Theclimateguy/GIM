@@ -71,7 +71,7 @@ def apply_political_constraints(action: Action, agent: AgentState) -> Action:
     dom = action.domestic_policy
     pol = agent.political
 
-    scale = 0.4 + 0.6 * clamp01(pol.policy_space)
+    scale = 0.6 + 0.4 * clamp01(pol.policy_space)
 
     if dom.tax_fuel_change > 0:
         dom.tax_fuel_change *= max(0.2, 1.0 - 0.7 * pol.protest_pressure)
@@ -82,9 +82,9 @@ def apply_political_constraints(action: Action, agent: AgentState) -> Action:
 
     fp = action.foreign_policy
 
-    if pol.sanction_propensity < 0.2:
+    if pol.sanction_propensity < 0.1:
         fp.sanctions_actions = []
-    elif pol.sanction_propensity < 0.4:
+    elif pol.sanction_propensity < 0.25:
         for sanction in fp.sanctions_actions:
             if sanction.type == "strong":
                 sanction.type = "mild"
@@ -345,7 +345,8 @@ def update_relations_endogenous(world: WorldState) -> None:
             )
             mediation = 0.03 * security_legitimacy * (1.6 if shared_security else 1.0)
 
-            conflict_drift = 0.02 * (baseline_conflict - relation.conflict_level)
+            conflict_gap = baseline_conflict - relation.conflict_level
+            conflict_drift = 0.02 * conflict_gap + 0.03 * abs(conflict_gap) * conflict_gap
             conflict_push = (
                 0.04 * trade_short
                 + 0.05 * avg_tension
@@ -360,7 +361,8 @@ def update_relations_endogenous(world: WorldState) -> None:
                 relation.conflict_level + conflict_drift + conflict_push
             )
 
-            trust_drift = 0.02 * (baseline_trust - relation.trust)
+            trust_gap = baseline_trust - relation.trust
+            trust_drift = 0.02 * trust_gap + 0.03 * abs(trust_gap) * trust_gap
             trust_push = (
                 0.04 * trade_gap
                 - 0.05 * relation.conflict_level
@@ -370,6 +372,35 @@ def update_relations_endogenous(world: WorldState) -> None:
                 + 0.5 * mediation
             )
             relation.trust = clamp01(relation.trust + trust_drift + trust_push)
+
+    _apply_bilateral_symmetry_damping(world)
+
+
+def _apply_bilateral_symmetry_damping(world: WorldState, strength: float = 0.06) -> None:
+    # Keep directed behavior, but slowly damp pathological trust/conflict asymmetry in long runs.
+    processed: set[tuple[str, str]] = set()
+    for actor_id, rels in world.relations.items():
+        for target_id, relation in rels.items():
+            if actor_id == target_id:
+                continue
+            pair = tuple(sorted((actor_id, target_id)))
+            if pair in processed:
+                continue
+            reverse = world.relations.get(target_id, {}).get(actor_id)
+            if reverse is None:
+                continue
+            processed.add(pair)
+
+            avg_trust = 0.5 * (relation.trust + reverse.trust)
+            avg_conflict = 0.5 * (relation.conflict_level + reverse.conflict_level)
+            relation.trust = clamp01(relation.trust + strength * (avg_trust - relation.trust))
+            reverse.trust = clamp01(reverse.trust + strength * (avg_trust - reverse.trust))
+            relation.conflict_level = clamp01(
+                relation.conflict_level + strength * (avg_conflict - relation.conflict_level)
+            )
+            reverse.conflict_level = clamp01(
+                reverse.conflict_level + strength * (avg_conflict - reverse.conflict_level)
+            )
 
 
 def _block_score(agent_id: str, block: str, blocks: Dict[str, list[str]], world: WorldState) -> float:

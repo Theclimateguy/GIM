@@ -103,8 +103,9 @@ Macro-climate:
 - v15 working baseline calibration (Stage B/C robust set):
   - `TFP_RD_SHARE_SENS = 0.300000`
   - `GAMMA_ENERGY = 0.042000`
-  - `DECARB_RATE_STRUCTURAL = 0.031200`
+  - `DECARB_RATE_STRUCTURAL = 0.052000` (artifact-bound operational manifest value)
   - `HEAT_CAP_SURFACE = 18.000000`
+  - note: forcing `DECARB_RATE_STRUCTURAL = 0.031200` fails historical CO2 envelope in current release tests
 
 Crisis layer:
 
@@ -164,6 +165,18 @@ Full suite:
 python3 -m unittest discover -s tests -v
 ```
 
+Release validation package (non-LLM by default):
+
+```bash
+./scripts/run_validation_package_v15.sh
+```
+
+Optional LLM package:
+
+```bash
+RUN_LLM=1 DEEPSEEK_API_KEY=... ./scripts/run_validation_package_v15.sh
+```
+
 Core calibration checks:
 
 ```bash
@@ -177,4 +190,4 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `15.0.0`
+Current package version: `15.1.0`

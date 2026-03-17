@@ -6,6 +6,8 @@ RISK_CLASSES = (
     "status_quo",
     "controlled_suppression",
     "internal_destabilization",
+    "social_unrest_without_military",
+    "sovereign_financial_crisis",
     "limited_proxy_escalation",
     "maritime_chokepoint_crisis",
     "direct_strike_exchange",
@@ -16,6 +18,8 @@ RISK_CLASSES = (
 TAIL_RISK_CLASSES = (
     "controlled_suppression",
     "internal_destabilization",
+    "social_unrest_without_military",
+    "sovereign_financial_crisis",
     "limited_proxy_escalation",
     "maritime_chokepoint_crisis",
     "direct_strike_exchange",
@@ -26,6 +30,8 @@ RISK_LABELS = {
     "status_quo": "Status quo",
     "controlled_suppression": "Controlled suppression",
     "internal_destabilization": "Internal destabilization",
+    "social_unrest_without_military": "Social unrest (non-military)",
+    "sovereign_financial_crisis": "Sovereign financial crisis",
     "limited_proxy_escalation": "Limited proxy escalation",
     "maritime_chokepoint_crisis": "Maritime chokepoint crisis",
     "direct_strike_exchange": "Direct strike exchange",
@@ -95,6 +101,9 @@ class ScenarioDefinition:
     actor_ids: List[str]
     actor_names: List[str]
     unresolved_actor_names: List[str] = field(default_factory=list)
+    actor_resolution_method: str = "explicit_match"
+    actor_resolution_confidence: float = 1.0
+    actor_resolution_notes: List[str] = field(default_factory=list)
     risk_classes: List[str] = field(default_factory=lambda: list(RISK_CLASSES))
     monitored_indicators: List[str] = field(default_factory=list)
     assumptions: List[str] = field(default_factory=list)

@@ -65,6 +65,25 @@ class GIM13MVPTests(unittest.TestCase):
         )
         self.assertEqual(scenario.template_id, "cyber_disruption")
 
+    def test_compile_question_expands_group_aliases_with_confidence_metadata(self) -> None:
+        scenario = compile_question(
+            question="Could G7 sanctions trigger a global spillover?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.actor_resolution_method, "group_expansion")
+        self.assertGreaterEqual(scenario.actor_resolution_confidence, 0.6)
+        self.assertIn("United States", scenario.actor_names)
+        self.assertIn("Japan", scenario.actor_names)
+
+    def test_compile_question_marks_gdp_fallback_when_no_actor_signal(self) -> None:
+        scenario = compile_question(
+            question="How could systemic turbulence evolve under ambiguous stress channels?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.actor_resolution_method, "gdp_fallback")
+        self.assertLessEqual(scenario.actor_resolution_confidence, 0.5)
+        self.assertTrue(scenario.actor_resolution_notes)
+
     def test_scenario_probabilities_sum_to_one(self) -> None:
         scenario = compile_question(
             question=(

@@ -39,6 +39,8 @@ OUTCOME_INTERCEPTS: Dict[str, GeoWeight] = {
     "status_quo": _prior(1.20, 0.10),
     "controlled_suppression": _prior(0.05, 0.07),
     "internal_destabilization": _prior(-0.05, 0.07),
+    "social_unrest_without_military": _prior(-0.12, 0.07),
+    "sovereign_financial_crisis": _prior(-0.10, 0.07),
     "limited_proxy_escalation": _prior(0.00, 0.06),
     "maritime_chokepoint_crisis": _prior(-0.15, 0.07),
     "direct_strike_exchange": _prior(-0.10, 0.08),
@@ -63,6 +65,18 @@ OUTCOME_DRIVERS: Dict[str, Dict[str, GeoWeight]] = {
         "debt_stress": _prior(0.45, 0.08),
         "resource_gap": _prior(0.35, 0.08),
         "policy_space": _prior(-0.20, 0.06),
+    },
+    "social_unrest_without_military": {
+        "social_stress": _prior(0.90, 0.10),
+        "resource_gap": _prior(0.30, 0.07),
+        "debt_stress": _prior(0.25, 0.07),
+        "conflict_stress": _prior(-0.20, 0.07),
+    },
+    "sovereign_financial_crisis": {
+        "debt_stress": _prior(1.10, 0.11),
+        "resource_gap": _prior(0.25, 0.07),
+        "social_stress": _prior(0.20, 0.07),
+        "policy_space": _prior(-0.15, 0.06),
     },
     "limited_proxy_escalation": {
         "conflict_stress": _prior(0.85, 0.10),
@@ -163,6 +177,7 @@ ACTION_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
     "information_campaign": {
         "controlled_suppression": _prior(0.05, 0.04),
         "internal_destabilization": _prior(0.05, 0.04),
+        "social_unrest_without_military": _prior(0.08, 0.04),
     },
     "domestic_crackdown": {
         "controlled_suppression": _prior(0.35, 0.08),
@@ -171,29 +186,37 @@ ACTION_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
     },
     "impose_tariffs": {
         "internal_destabilization": _prior(0.15, 0.05),
+        "sovereign_financial_crisis": _prior(0.10, 0.04),
         "limited_proxy_escalation": _prior(0.10, 0.04),
         "negotiated_deescalation": _prior(-0.05, 0.04),
     },
     "export_controls": {
         "internal_destabilization": _prior(0.08, 0.04),
+        "sovereign_financial_crisis": _prior(0.08, 0.04),
         "limited_proxy_escalation": _prior(0.08, 0.04),
         "negotiated_deescalation": _prior(-0.04, 0.03),
     },
     "lift_sanctions": {
         "internal_destabilization": _prior(-0.20, 0.05),
+        "sovereign_financial_crisis": _prior(-0.15, 0.05),
+        "social_unrest_without_military": _prior(-0.08, 0.04),
         "negotiated_deescalation": _prior(0.25, 0.06),
     },
     "currency_intervention": {
-        "internal_destabilization": _prior(0.12, 0.04),
+        "internal_destabilization": _prior(0.06, 0.04),
+        "sovereign_financial_crisis": _prior(0.24, 0.06),
         "controlled_suppression": _prior(0.05, 0.04),
         "status_quo": _prior(-0.04, 0.03),
     },
     "debt_restructuring": {
-        "internal_destabilization": _prior(0.10, 0.04),
+        "internal_destabilization": _prior(0.06, 0.04),
+        "sovereign_financial_crisis": _prior(0.28, 0.07),
         "status_quo": _prior(-0.05, 0.03),
     },
     "capital_controls": {
-        "internal_destabilization": _prior(0.08, 0.04),
+        "internal_destabilization": _prior(0.04, 0.03),
+        "sovereign_financial_crisis": _prior(0.22, 0.06),
+        "social_unrest_without_military": _prior(0.06, 0.04),
         "controlled_suppression": _prior(0.05, 0.04),
         "limited_proxy_escalation": _prior(0.05, 0.04),
     },
@@ -219,6 +242,7 @@ ACTION_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
 SHOCK_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
     "sanctions": {
         "internal_destabilization": _prior(0.22, 0.06),
+        "sovereign_financial_crisis": _prior(0.18, 0.05),
         "limited_proxy_escalation": _prior(0.10, 0.04),
         "controlled_suppression": _prior(0.12, 0.04),
     },
@@ -233,6 +257,7 @@ SHOCK_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
     "domestic": {
         "controlled_suppression": _prior(0.18, 0.05),
         "internal_destabilization": _prior(0.25, 0.06),
+        "social_unrest_without_military": _prior(0.30, 0.07),
     },
     "cyber": {
         "direct_strike_exchange": _prior(0.20, 0.05),
@@ -271,6 +296,8 @@ OBJECTIVE_TO_RISK_UTILITY: Dict[str, Dict[str, GeoWeight]] = {
         "controlled_suppression": _prior(0.45, 0.08),
         "negotiated_deescalation": _prior(0.35, 0.08),
         "internal_destabilization": _prior(-1.00, 0.10),
+        "social_unrest_without_military": _prior(-0.80, 0.10),
+        "sovereign_financial_crisis": _prior(-0.65, 0.09),
         "broad_regional_escalation": _prior(-0.80, 0.10),
     },
     "reduce_war_risk": {
@@ -292,6 +319,8 @@ OBJECTIVE_TO_RISK_UTILITY: Dict[str, Dict[str, GeoWeight]] = {
         "status_quo": _prior(0.50, 0.08),
         "negotiated_deescalation": _prior(0.70, 0.09),
         "internal_destabilization": _prior(-0.50, 0.08),
+        "sovereign_financial_crisis": _prior(-0.70, 0.09),
+        "social_unrest_without_military": _prior(-0.35, 0.07),
         "maritime_chokepoint_crisis": _prior(-0.35, 0.07),
         "direct_strike_exchange": _prior(-0.55, 0.08),
         "broad_regional_escalation": _prior(-0.80, 0.10),
@@ -307,6 +336,8 @@ OBJECTIVE_TO_RISK_UTILITY: Dict[str, Dict[str, GeoWeight]] = {
         "limited_proxy_escalation": _prior(0.20, 0.06),
         "direct_strike_exchange": _prior(0.10, 0.05),
         "negotiated_deescalation": _prior(0.40, 0.08),
+        "social_unrest_without_military": _prior(-0.25, 0.07),
+        "sovereign_financial_crisis": _prior(-0.40, 0.08),
         "broad_regional_escalation": _prior(-0.20, 0.06),
     },
 }

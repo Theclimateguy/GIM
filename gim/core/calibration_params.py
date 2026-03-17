@@ -32,7 +32,7 @@ SOURCE_TAG_NOTES = {
 # Production block.
 ALPHA_CAPITAL = 0.30  # [PWT10]
 BETA_LABOR = 0.60  # [PWT10]
-GAMMA_ENERGY = 0.07  # [XSECTION] Literature-bounded cross-sectional fit on the bundled 2015 country slice.
+GAMMA_ENERGY = 0.042  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]
@@ -47,7 +47,7 @@ OBS_MAX_NEIGHBORS = 8  # [PRIOR]
 POLICY_LOG_DEPTH = 3  # [PRIOR] Visible action/outcome memory horizon for agent prompts.
 
 # TFP block.
-TFP_RD_SHARE_SENS = 0.5  # [BACKTEST]
+TFP_RD_SHARE_SENS = 0.30  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
 TFP_TRADE_SPILLOVER_SENS = 0.30  # [PRIOR]
 TFP_DRIFT = 0.01  # [PRIOR]
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
@@ -85,7 +85,7 @@ ECS_MAX = 4.0  # [IPCC_AR6]
 F_NONCO2_DEFAULT = 0.40  # [IPCC_AR6]
 F_NONCO2_BASE_YEAR = 2015  # [IPCC_AR6]
 F_NONCO2_TREND = 0.012  # [IPCC_AR6]
-HEAT_CAP_SURFACE = 30.0  # [BACKTEST]
+HEAT_CAP_SURFACE = 18.0  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
 HEAT_CAP_DEEP = 100.0  # [DICE16]
 OCEAN_EXCHANGE = 0.7  # [DICE16]
 TEMP_NATURAL_VARIABILITY_SIGMA = 0.08  # [BACKTEST]
@@ -96,7 +96,7 @@ TECH_DECARB_K = 0.12  # [PRIOR]
 DECARB_RATE_OBSERVED_REFERENCE = (
     ACTIVE_STATE_ARTIFACT.decarb_reference_rate or ACTIVE_STATE_ARTIFACT.decarb_rate
 )  # [DATA] GCP fossil CO2 / World Bank PPP GDP fit over 2000-2023 excluding 2020-2021; see misc/calibration/decarb_rate_calibration.json.
-DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Residual structural energy-transition rate, separate from tech and efficiency channels.
+DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Pipeline-bound residual structural energy-transition rate.
 # NOTE: Empirical CO2/GDP intensity decline is 0.016 (see misc/calibration/decarb_rate_calibration.json).
 # The gap between the active 0.052 artifact rate and the empirical fit implicitly absorbs
 # energy-mix shift and efficiency gains encoded in the 2015 base state. Decompose this
@@ -211,12 +211,22 @@ REGIME_COLLAPSE_STABILITY_HIT = 0.20  # [PRIOR]
 DEBT_CRISIS_DEBT_THRESHOLD = 1.20  # [PRIOR]
 DEBT_CRISIS_RATE_THRESHOLD = 0.12  # [PRIOR]
 DEBT_CRISIS_DEBT_MULT = 0.60  # [PRIOR]
-DEBT_CRISIS_GDP_MULT = 0.90  # [PRIOR]
+DEBT_CRISIS_GDP_MULT = 0.93  # [PRIOR] softened onset haircut to avoid overshoot in Argentina-like stress paths
 DEBT_CRISIS_UNEMPLOYMENT_MAX = 0.30  # [PRIOR]
 DEBT_CRISIS_UNEMPLOYMENT_HIT = 0.05  # [PRIOR]
 DEBT_CRISIS_TRUST_HIT = 0.15  # [PRIOR]
 DEBT_CRISIS_TENSION_HIT = 0.15  # [PRIOR]
 DEBT_CRISIS_STABILITY_HIT = 0.15  # [PRIOR]
+FX_CRISIS_INFLATION_THRESHOLD = 0.20  # [PRIOR]
+FX_CRISIS_RESERVE_MONTHS_THRESHOLD = 3.0  # [PRIOR]
+FX_CRISIS_DEBT_MULT = 1.05  # [PRIOR]
+FX_CRISIS_GDP_MULT = 0.95  # [PRIOR]
+FX_CRISIS_UNEMPLOYMENT_HIT = 0.03  # [PRIOR]
+FX_CRISIS_TRUST_HIT = 0.10  # [PRIOR]
+FX_CRISIS_TENSION_HIT = 0.10  # [PRIOR]
+FX_CRISIS_STABILITY_HIT = 0.10  # [PRIOR]
+FX_CRISIS_EXIT_INFLATION = 0.12  # [PRIOR]
+FX_CRISIS_EXIT_RESERVE_MONTHS = 4.0  # [PRIOR]
 # Crisis persistence guardrail-safe plateau candidate selected from
 # misc/calibration/crisis_persistence_calibration.json.
 DEBT_CRISIS_PERSIST_GDP_MULT = 0.965  # [DATA plateau-guardrail]
@@ -331,7 +341,7 @@ CR_TOTAL_MACRO_W = 0.20  # [PRIOR]
 CALIBRATION_STATUS = {
     "ALPHA_CAPITAL": "validated",
     "BETA_LABOR": "validated",
-    "GAMMA_ENERGY": "cross_section",
+    "GAMMA_ENERGY": "backtest",
     "SAVINGS_BASE": "validated",
     "CAPITAL_DEPRECIATION": "validated",
     "TFP_RD_SHARE_SENS": "backtest",

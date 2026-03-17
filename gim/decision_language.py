@@ -12,6 +12,8 @@ OUTCOME_EXPLANATIONS = {
     "status_quo": "the system remains tense but broadly within the current political order",
     "controlled_suppression": "authorities contain instability through coercive control rather than settlement",
     "internal_destabilization": "domestic economic and political stress becomes the main source of instability",
+    "social_unrest_without_military": "domestic unrest rises and spreads without crossing into a military confrontation",
+    "sovereign_financial_crisis": "sovereign debt, inflation and liquidity stress become the primary crisis transmission channel",
     "limited_proxy_escalation": "competition intensifies indirectly through proxies, covert pressure or local clashes",
     "maritime_chokepoint_crisis": "trade and energy routes become the central stress channel, pushing up disruption risk",
     "direct_strike_exchange": "actors move from signaling into overt military exchange",
@@ -22,6 +24,8 @@ OUTCOME_EXPLANATIONS = {
 ESCALATORY_OUTCOMES = {
     "controlled_suppression",
     "internal_destabilization",
+    "social_unrest_without_military",
+    "sovereign_financial_crisis",
     "limited_proxy_escalation",
     "maritime_chokepoint_crisis",
     "direct_strike_exchange",

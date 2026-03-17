@@ -242,7 +242,7 @@ class CoreModuleTests(unittest.TestCase):
     def test_political_constraints_downgrade_overreach(self) -> None:
         agent = self._make_agent(agent_id="A")
         agent.political.policy_space = 1.0
-        agent.political.sanction_propensity = 0.3
+        agent.political.sanction_propensity = 0.2
         action = Action(
             agent_id="A",
             time=0,

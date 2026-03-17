@@ -68,6 +68,7 @@ ACTION_RISK_SHIFTS = {
     "information_campaign": {
         "controlled_suppression": 0.05,
         "internal_destabilization": 0.05,
+        "social_unrest_without_military": 0.08,
     },
     "domestic_crackdown": {
         "controlled_suppression": 0.35,
@@ -76,29 +77,37 @@ ACTION_RISK_SHIFTS = {
     },
     "impose_tariffs": {
         "internal_destabilization": 0.15,
+        "sovereign_financial_crisis": 0.10,
         "limited_proxy_escalation": 0.10,
         "negotiated_deescalation": -0.05,
     },
     "export_controls": {
         "internal_destabilization": 0.08,
+        "sovereign_financial_crisis": 0.08,
         "limited_proxy_escalation": 0.08,
         "negotiated_deescalation": -0.04,
     },
     "lift_sanctions": {
         "internal_destabilization": -0.20,
+        "sovereign_financial_crisis": -0.15,
+        "social_unrest_without_military": -0.08,
         "negotiated_deescalation": 0.25,
     },
     "currency_intervention": {
-        "internal_destabilization": 0.12,
+        "internal_destabilization": 0.06,
+        "sovereign_financial_crisis": 0.24,
         "controlled_suppression": 0.05,
         "status_quo": -0.04,
     },
     "debt_restructuring": {
-        "internal_destabilization": 0.10,
+        "internal_destabilization": 0.06,
+        "sovereign_financial_crisis": 0.28,
         "status_quo": -0.05,
     },
     "capital_controls": {
-        "internal_destabilization": 0.08,
+        "internal_destabilization": 0.04,
+        "sovereign_financial_crisis": 0.22,
+        "social_unrest_without_military": 0.06,
         "controlled_suppression": 0.05,
         "limited_proxy_escalation": 0.05,
     },
@@ -124,6 +133,7 @@ ACTION_RISK_SHIFTS = {
 SHOCK_RISK_SHIFTS = {
     "sanctions": {
         "internal_destabilization": 0.22,
+        "sovereign_financial_crisis": 0.18,
         "limited_proxy_escalation": 0.10,
         "controlled_suppression": 0.12,
     },
@@ -138,6 +148,7 @@ SHOCK_RISK_SHIFTS = {
     "domestic": {
         "controlled_suppression": 0.18,
         "internal_destabilization": 0.25,
+        "social_unrest_without_military": 0.30,
     },
     "cyber": {
         "direct_strike_exchange": 0.20,
@@ -153,6 +164,8 @@ OBJECTIVE_TO_RISK_UTILITY = {
         "controlled_suppression": 0.45,
         "negotiated_deescalation": 0.35,
         "internal_destabilization": -1.00,
+        "social_unrest_without_military": -0.80,
+        "sovereign_financial_crisis": -0.65,
         "broad_regional_escalation": -0.80,
     },
     "reduce_war_risk": {
@@ -174,6 +187,8 @@ OBJECTIVE_TO_RISK_UTILITY = {
         "status_quo": 0.50,
         "negotiated_deescalation": 0.70,
         "internal_destabilization": -0.50,
+        "sovereign_financial_crisis": -0.70,
+        "social_unrest_without_military": -0.35,
         "maritime_chokepoint_crisis": -0.35,
         "direct_strike_exchange": -0.55,
         "broad_regional_escalation": -0.80,
@@ -189,6 +204,8 @@ OBJECTIVE_TO_RISK_UTILITY = {
         "limited_proxy_escalation": 0.20,
         "direct_strike_exchange": 0.10,
         "negotiated_deescalation": 0.40,
+        "social_unrest_without_military": -0.25,
+        "sovereign_financial_crisis": -0.40,
         "broad_regional_escalation": -0.20,
     },
 }
@@ -942,6 +959,27 @@ class GameRunner:
             physical_consistency -= 0.20
 
         if (
+            probabilities["social_unrest_without_military"] > 0.16
+            and (
+                aggregate["social_stress"] < 0.30
+                or aggregate["conflict_stress"] > 0.75
+            )
+        ):
+            notes.append(
+                "Non-military social unrest was penalized because social stress is too low or conflict stress is too high for a non-military pathway."
+            )
+            physical_consistency -= 0.15
+
+        if (
+            probabilities["sovereign_financial_crisis"] > 0.16
+            and aggregate["debt_stress"] < 0.50
+        ):
+            notes.append(
+                "Sovereign financial crisis was penalized because debt and macro stress are too low for a systemic fiscal/FX event."
+            )
+            physical_consistency -= 0.15
+
+        if (
             probabilities["direct_strike_exchange"] > 0.18
             and aggregate["military_posture"] < 0.55
             and not chosen_actions.intersection({"partial_mobilization", "targeted_strike"})
@@ -1013,6 +1051,8 @@ class GameRunner:
         if scenario.calibration_guardrails.preserve_baseline_calibration:
             extreme_mass = (
                 probabilities["internal_destabilization"]
+                + probabilities["social_unrest_without_military"]
+                + probabilities["sovereign_financial_crisis"]
                 + probabilities["limited_proxy_escalation"]
                 + probabilities["maritime_chokepoint_crisis"]
                 + probabilities["direct_strike_exchange"]
@@ -1045,6 +1085,8 @@ class GameRunner:
         criticality_score = (
             probabilities["controlled_suppression"] * 0.50
             + probabilities["internal_destabilization"] * 0.80
+            + probabilities["social_unrest_without_military"] * 0.72
+            + probabilities["sovereign_financial_crisis"] * 0.78
             + probabilities["limited_proxy_escalation"] * 0.60
             + probabilities["maritime_chokepoint_crisis"] * 0.70
             + probabilities["direct_strike_exchange"] * 0.85

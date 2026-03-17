@@ -186,7 +186,7 @@ FUEL_TAX_EMISSIONS_SENS,0.12,dimensionless,gim.core.calibration_params,PRIOR,hig
 F_NONCO2_BASE_YEAR,2015,count,gim.core.calibration_params,IPCC_AR6,low,unspecified
 F_NONCO2_DEFAULT,0.4,dimensionless,gim.core.calibration_params,IPCC_AR6,low,validated
 F_NONCO2_TREND,0.012,dimensionless,gim.core.calibration_params,IPCC_AR6,low,unspecified
-GAMMA_ENERGY,0.07,dimensionless,gim.core.calibration_params,XSECTION,medium,cross_section
+GAMMA_ENERGY,0.042,dimensionless,gim.core.calibration_params,BACKTEST,medium,backtest
 GDP_ADJUST_SPEED_BASE,0.3,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 GDP_ADJUST_SPEED_GAP_SENS,0.35,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 GINI_FISCAL_SENS,-60,dimensionless,gim.core.calibration_params,PRIOR,high,prior
@@ -198,7 +198,7 @@ GINI_RECESSION_TENSION_OFFSET,0.5,dimensionless,gim.core.calibration_params,PRIO
 GINI_TENSION_REF,0.4,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 GINI_TENSION_SENS,1.2,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 HEAT_CAP_DEEP,100,dimensionless,gim.core.calibration_params,DICE16,medium,unspecified
-HEAT_CAP_SURFACE,30,dimensionless,gim.core.calibration_params,BACKTEST,medium,backtest
+HEAT_CAP_SURFACE,18,dimensionless,gim.core.calibration_params,BACKTEST,medium,backtest
 INEQUALITY_EFFECT_SENS,0.0005,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 MAX_NEW_DEBT_GDP,0.05,dimensionless,gim.core.calibration_params,WEO25,low,validated
 MIGRATION_BASE_RATE,0.001,dimensionless,gim.core.calibration_params,PRIOR,high,prior
@@ -261,7 +261,7 @@ TFP_DIFFUSION_SENS,0.02,dimensionless,gim.core.calibration_params,PRIOR,high,uns
 TFP_DRIFT,0.01,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 TFP_GROWTH_MAX,0.05,dimensionless,gim.core.calibration_params,UNSPECIFIED,unspecified,unspecified
 TFP_GROWTH_MIN,-0.05,dimensionless,gim.core.calibration_params,UNSPECIFIED,unspecified,unspecified
-TFP_RD_SHARE_SENS,0.5,dimensionless,gim.core.calibration_params,BACKTEST,medium,backtest
+TFP_RD_SHARE_SENS,0.3,dimensionless,gim.core.calibration_params,BACKTEST,medium,backtest
 TFP_TRADE_SPILLOVER_SENS,0.3,dimensionless,gim.core.calibration_params,PRIOR,high,prior
 TRUST_GDP_PC_REF,10000,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 TRUST_GDP_PC_SENS,5e-05,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified

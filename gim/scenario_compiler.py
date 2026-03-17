@@ -26,6 +26,61 @@ COMMON_ALIASES = {
     "israel": "Israel",
 }
 
+GROUP_ALIASES = {
+    "brics": ["Brazil", "Russia", "India", "China", "South Africa"],
+    "opec": [
+        "Saudi Arabia",
+        "Iran",
+        "Iraq",
+        "United Arab Emirates",
+        "Kuwait",
+        "Qatar",
+        "Algeria",
+        "Nigeria",
+    ],
+    "nato": [
+        "United States",
+        "United Kingdom",
+        "Germany",
+        "France",
+        "Italy",
+        "Canada",
+        "Turkey",
+        "Poland",
+    ],
+    "eu": [
+        "Germany",
+        "France",
+        "Italy",
+        "Spain",
+        "Poland",
+        "Netherlands",
+        "Sweden",
+    ],
+    "g7": ["United States", "United Kingdom", "Germany", "France", "Italy", "Japan", "Canada"],
+    "g20": [
+        "United States",
+        "China",
+        "India",
+        "Japan",
+        "Germany",
+        "France",
+        "United Kingdom",
+        "Saudi Arabia",
+        "South Africa",
+        "Brazil",
+        "Turkey",
+        "Indonesia",
+        "Mexico",
+        "Argentina",
+        "Russia",
+    ],
+    "asean": ["Indonesia", "Thailand", "Vietnam", "Malaysia", "Philippines", "Singapore"],
+    "sub saharan africa": ["Nigeria", "South Africa", "Kenya", "Ethiopia", "Ghana", "Tanzania"],
+    "mena": ["Saudi Arabia", "Iran", "Israel", "Egypt", "Turkey", "United Arab Emirates", "Qatar"],
+    "gulf states": ["Saudi Arabia", "United Arab Emirates", "Qatar", "Kuwait", "Oman", "Bahrain"],
+}
+
 
 # Fallback year if world state does not expose calendar base metadata.
 DATA_SNAPSHOT_YEAR = 2023
@@ -33,6 +88,13 @@ DATA_SNAPSHOT_YEAR = 2023
 
 def _normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+def _contains_term(normalized_text: str, normalized_term: str) -> bool:
+    if not normalized_text or not normalized_term:
+        return False
+    pattern = r"\b" + re.escape(normalized_term).replace(r"\ ", r"\s+") + r"\b"
+    return re.search(pattern, normalized_text) is not None
 
 
 def _extract_year(question: str) -> int | None:
@@ -86,34 +148,131 @@ def resolve_actor_names(
     return actor_ids, actor_names, unresolved
 
 
-def infer_actor_names(question: str, world: WorldState) -> list[str]:
+def _dedupe_preserve(values: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value not in seen:
+            seen.add(value)
+            deduped.append(value)
+    return deduped
+
+
+def _available_group_members(world: WorldState, members: list[str]) -> list[str]:
+    name_index = {_normalize(agent.name): agent.name for agent in world.agents.values()}
+    available: list[str] = []
+    for member in members:
+        resolved = name_index.get(_normalize(member))
+        if resolved:
+            available.append(resolved)
+    return _dedupe_preserve(available)
+
+
+def _infer_actor_names_with_metadata(question: str, world: WorldState) -> tuple[list[str], dict[str, int | bool]]:
     lowered = _normalize(question)
     inferred: list[str] = []
+    alias_hits = 0
+    explicit_hits = 0
+    group_hits = 0
 
     for alias in sorted(COMMON_ALIASES, key=len, reverse=True):
-        if _normalize(alias) and _normalize(alias) in lowered:
+        normalized_alias = _normalize(alias)
+        if _contains_term(lowered, normalized_alias):
             inferred.append(COMMON_ALIASES[alias])
+            alias_hits += 1
+
+    for group_alias, members in GROUP_ALIASES.items():
+        normalized_group = _normalize(group_alias)
+        if _contains_term(lowered, normalized_group):
+            inferred.extend(_available_group_members(world, members))
+            group_hits += 1
 
     for agent in world.agents.values():
         normalized_name = _normalize(agent.name)
-        if normalized_name and normalized_name in lowered:
+        if _contains_term(lowered, normalized_name):
             inferred.append(agent.name)
+            explicit_hits += 1
 
     if inferred:
-        deduped: list[str] = []
-        seen: set[str] = set()
-        for name in inferred:
-            if name not in seen:
-                seen.add(name)
-                deduped.append(name)
-        return deduped
+        return _dedupe_preserve(inferred), {
+            "used_gdp_fallback": False,
+            "explicit_hits": explicit_hits,
+            "alias_hits": alias_hits,
+            "group_hits": group_hits,
+        }
 
     default_ids = sorted(
         world.agents.values(),
         key=lambda agent: agent.economy.gdp,
         reverse=True,
     )[:3]
-    return [agent.name for agent in default_ids]
+    return [agent.name for agent in default_ids], {
+        "used_gdp_fallback": True,
+        "explicit_hits": 0,
+        "alias_hits": 0,
+        "group_hits": 0,
+    }
+
+
+def infer_actor_names(question: str, world: WorldState) -> list[str]:
+    inferred, _meta = _infer_actor_names_with_metadata(question, world)
+    return inferred
+
+
+def _resolution_quality(
+    *,
+    actors_provided: bool,
+    actor_inputs: list[str],
+    actor_ids: list[str],
+    unresolved: list[str],
+    infer_meta: dict[str, int | bool],
+) -> tuple[str, float, list[str]]:
+    used_fallback = bool(infer_meta.get("used_gdp_fallback", False))
+    explicit_hits = int(infer_meta.get("explicit_hits", 0))
+    alias_hits = int(infer_meta.get("alias_hits", 0))
+    group_hits = int(infer_meta.get("group_hits", 0))
+
+    if actors_provided:
+        method = "user_provided"
+    elif used_fallback:
+        method = "gdp_fallback"
+    elif group_hits > 0:
+        method = "group_expansion"
+    elif alias_hits > 0:
+        method = "alias_match"
+    elif explicit_hits > 0:
+        method = "explicit_match"
+    else:
+        method = "heuristic"
+
+    requested = max(len(actor_inputs), 1)
+    resolved_ratio = len(actor_ids) / requested
+    unresolved_ratio = len(unresolved) / requested
+
+    if actors_provided:
+        base_conf = 0.95
+    elif method == "gdp_fallback":
+        base_conf = 0.35
+    elif method == "group_expansion":
+        base_conf = 0.78
+    elif method == "alias_match":
+        base_conf = 0.85
+    else:
+        base_conf = 0.88
+
+    confidence = base_conf * resolved_ratio - 0.25 * unresolved_ratio
+    if used_fallback:
+        confidence -= 0.10
+    confidence = max(0.05, min(0.99, confidence))
+
+    notes: list[str] = []
+    if used_fallback:
+        notes.append("No explicit actor hits; used GDP-top fallback actors.")
+    if group_hits > 0:
+        notes.append(f"Expanded {group_hits} group alias(es) into concrete actors.")
+    if unresolved:
+        notes.append(f"Unresolved actor tokens: {', '.join(unresolved)}")
+    return method, confidence, notes
 
 
 def compile_question(
@@ -125,10 +284,21 @@ def compile_question(
     horizon_months: int = 24,
     template_id: str | None = None,
 ) -> ScenarioDefinition:
-    actor_inputs = actors or infer_actor_names(question, world)
+    actors_provided = bool(actors)
+    infer_meta: dict[str, int | bool] = {
+        "used_gdp_fallback": False,
+        "explicit_hits": 0,
+        "alias_hits": 0,
+        "group_hits": 0,
+    }
+    if actors_provided:
+        actor_inputs = actors or []
+    else:
+        actor_inputs, infer_meta = _infer_actor_names_with_metadata(question, world)
     actor_ids, actor_names, unresolved = resolve_actor_names(world, actor_inputs)
     if not actor_ids:
-        fallback = infer_actor_names(question, world)
+        fallback, fallback_meta = _infer_actor_names_with_metadata(question, world)
+        infer_meta = fallback_meta
         actor_ids, actor_names, fallback_unresolved = resolve_actor_names(world, fallback)
         unresolved.extend(fallback_unresolved)
 
@@ -145,6 +315,13 @@ def compile_question(
         inferred_year = _extract_year(question)
         resolved_display_year = inferred_year if inferred_year is not None else data_snapshot_year
     selected_template = template_id or detect_template(question)
+    method, confidence, notes = _resolution_quality(
+        actors_provided=actors_provided,
+        actor_inputs=actor_inputs,
+        actor_ids=actor_ids,
+        unresolved=unresolved,
+        infer_meta=infer_meta,
+    )
 
     return build_scenario_from_template(
         template_id=selected_template,
@@ -155,6 +332,9 @@ def compile_question(
         actor_ids=actor_ids,
         actor_names=actor_names,
         unresolved_actor_names=unresolved,
+        actor_resolution_method=method,
+        actor_resolution_confidence=confidence,
+        actor_resolution_notes=notes,
     )
 
 
