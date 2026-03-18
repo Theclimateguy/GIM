@@ -76,11 +76,15 @@ Representative links:
 
 Case generation (`gim/case_builder.py`) initializes objective mixes by template:
 
+- `alliance_fragmentation`: `bargaining_power`, `regional_influence`, `reduce_war_risk`
 - `cyber_disruption`: `reduce_war_risk`, `bargaining_power`, `regime_retention`
 - `maritime_deterrence`: `resource_access`, `reduce_war_risk`, `bargaining_power`
 - `regional_pressure`: `regional_influence`, `reduce_war_risk`, `bargaining_power`
+- `resource_competition`: `resource_access`, `sanctions_resilience`, `reduce_war_risk`
 - `sanctions_spiral`: `sanctions_resilience`, `regime_retention`, `reduce_war_risk`
+- `tech_blockade`: `bargaining_power`, `sanctions_resilience`, `reduce_war_risk`
 - `regime_stress`: `regime_retention`, `reduce_war_risk`, `sanctions_resilience`
+- `general_tail_risk`: `reduce_war_risk`, `bargaining_power`, `resource_access`
 - `generic_tail_risk`: `reduce_war_risk`, `bargaining_power`, `resource_access`
 
 ## 7. Practical Guardrails

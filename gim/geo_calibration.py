@@ -246,6 +246,12 @@ SHOCK_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
         "limited_proxy_escalation": _prior(0.10, 0.04),
         "controlled_suppression": _prior(0.12, 0.04),
     },
+    "alliance": {
+        "broad_regional_escalation": _prior(0.22, 0.06),
+        "limited_proxy_escalation": _prior(0.12, 0.04),
+        "direct_strike_exchange": _prior(0.08, 0.04),
+        "internal_destabilization": _prior(0.06, 0.03),
+    },
     "proxy": {
         "limited_proxy_escalation": _prior(0.25, 0.06),
         "broad_regional_escalation": _prior(0.10, 0.04),
@@ -254,10 +260,22 @@ SHOCK_RISK_SHIFTS: Dict[str, Dict[str, GeoWeight]] = {
         "maritime_chokepoint_crisis": _prior(0.35, 0.08),
         "broad_regional_escalation": _prior(0.08, 0.04),
     },
+    "resource": {
+        "social_unrest_without_military": _prior(0.22, 0.06),
+        "internal_destabilization": _prior(0.18, 0.05),
+        "sovereign_financial_crisis": _prior(0.16, 0.05),
+        "maritime_chokepoint_crisis": _prior(0.12, 0.04),
+    },
     "domestic": {
         "controlled_suppression": _prior(0.18, 0.05),
         "internal_destabilization": _prior(0.25, 0.06),
         "social_unrest_without_military": _prior(0.30, 0.07),
+    },
+    "technology": {
+        "internal_destabilization": _prior(0.14, 0.04),
+        "sovereign_financial_crisis": _prior(0.12, 0.04),
+        "limited_proxy_escalation": _prior(0.10, 0.04),
+        "direct_strike_exchange": _prior(0.05, 0.03),
     },
     "cyber": {
         "direct_strike_exchange": _prior(0.20, 0.05),

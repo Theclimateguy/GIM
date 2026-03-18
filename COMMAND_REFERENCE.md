@@ -1,4 +1,4 @@
-# GIM15 Command Reference v15.1.0
+# GIM15 Command Reference v15.5.1
 
 Operational CLI reference for `python3 -m gim`.
 
@@ -170,6 +170,7 @@ Behavior:
 - `Simulation Modes` builds real `python3 -m gim <command>` invocations from UI controls.
 - actor selection is sourced from `data/agent_states_operational_2026_calibrated.csv`.
 - leaving `Template` blank enables backend auto-detection.
+- public templates currently exposed in UI: `general_tail_risk`, `sanctions_spiral`, `alliance_fragmentation`, `regional_pressure`, `maritime_deterrence`, `resource_competition`, `tech_blockade`, `trade_war`, `cyber_disruption`, `regime_stress`
 - `Run chosen modes` starts a real local run and tracks progress against the phase pipeline.
 - export buttons map to actual run artifacts and only enable when the artifact exists.
 - `Analytics` reads the executed run's `evaluation.json`, `run_manifest.json`, and `decision_brief.md`.

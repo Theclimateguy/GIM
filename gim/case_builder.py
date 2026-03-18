@@ -26,7 +26,7 @@ except ImportError:
 DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
 DEEPSEEK_MODEL = "deepseek-chat"
 AVAILABLE_OBJECTIVES = tuple(OBJECTIVE_TO_RISK_UTILITY)
-AVAILABLE_TEMPLATES = tuple(TEMPLATE_REGISTRY)
+AVAILABLE_TEMPLATES = tuple(template_id for template_id in TEMPLATE_REGISTRY if template_id != "generic_tail_risk")
 
 
 @dataclass(frozen=True)
@@ -258,6 +258,12 @@ def _suggest_actions(template_id: str, objective_keys: list[str]) -> list[str]:
             "lift_sanctions",
             "backchannel_offer",
         ],
+        "alliance_fragmentation": [
+            "information_campaign",
+            "signal_deterrence",
+            "accept_mediation",
+            "backchannel_offer",
+        ],
         "maritime_deterrence": [
             "signal_deterrence",
             "maritime_interdiction",
@@ -270,11 +276,29 @@ def _suggest_actions(template_id: str, objective_keys: list[str]) -> list[str]:
             "restrain_proxy",
             "backchannel_offer",
         ],
+        "resource_competition": [
+            "export_controls",
+            "impose_tariffs",
+            "backchannel_offer",
+            "accept_mediation",
+        ],
+        "tech_blockade": [
+            "export_controls",
+            "cyber_espionage",
+            "cyber_defense_posture",
+            "backchannel_offer",
+        ],
         "regime_stress": [
             "domestic_crackdown",
             "debt_restructuring",
             "currency_intervention",
             "signal_restraint",
+        ],
+        "general_tail_risk": [
+            "signal_restraint",
+            "backchannel_offer",
+            "information_campaign",
+            "cyber_defense_posture",
         ],
         "generic_tail_risk": [
             "signal_restraint",
@@ -283,7 +307,7 @@ def _suggest_actions(template_id: str, objective_keys: list[str]) -> list[str]:
             "cyber_defense_posture",
         ],
     }
-    suggestions.extend(template_defaults.get(template_id, template_defaults["generic_tail_risk"]))
+    suggestions.extend(template_defaults.get(template_id, template_defaults["general_tail_risk"]))
 
     if "reduce_war_risk" in objective_keys:
         suggestions.extend(["signal_restraint", "accept_mediation", "backchannel_offer", "cyber_defense_posture"])
@@ -307,15 +331,19 @@ def _fallback_players(world, scenario, *, max_players: int) -> list[PlayerDefini
     fallback_names = list(scenario.actor_names)[:max_players]
     players: list[PlayerDefinition] = []
     template_objectives = {
+        "alliance_fragmentation": ["bargaining_power", "regional_influence", "reduce_war_risk"],
         "trade_war": ["sanctions_resilience", "resource_access", "bargaining_power"],
         "cyber_disruption": ["reduce_war_risk", "bargaining_power", "regime_retention"],
         "maritime_deterrence": ["resource_access", "reduce_war_risk", "bargaining_power"],
         "regional_pressure": ["regional_influence", "reduce_war_risk", "bargaining_power"],
         "sanctions_spiral": ["sanctions_resilience", "regime_retention", "reduce_war_risk"],
+        "resource_competition": ["resource_access", "sanctions_resilience", "reduce_war_risk"],
+        "tech_blockade": ["bargaining_power", "sanctions_resilience", "reduce_war_risk"],
         "regime_stress": ["regime_retention", "reduce_war_risk", "sanctions_resilience"],
-        "generic_tail_risk": ["reduce_war_risk", "bargaining_power"],
+        "general_tail_risk": ["reduce_war_risk", "bargaining_power", "resource_access"],
+        "generic_tail_risk": ["reduce_war_risk", "bargaining_power", "resource_access"],
     }
-    objective_keys = template_objectives.get(scenario.template_id, ["reduce_war_risk", "bargaining_power"])
+    objective_keys = template_objectives.get(scenario.template_id, template_objectives["general_tail_risk"])
     for actor_name in fallback_names:
         actor_ids, actor_names, unresolved = resolve_actor_names(world, [actor_name])
         if unresolved or not actor_ids:
@@ -454,15 +482,19 @@ def _deterministic_case_payload(description: str, world, *, max_players: int) ->
     template_id = scenario.template_id
     player_payloads = []
     objective_map = {
+        "alliance_fragmentation": {"bargaining_power": 0.35, "regional_influence": 0.35, "reduce_war_risk": 0.30},
         "trade_war": {"sanctions_resilience": 0.40, "resource_access": 0.35, "bargaining_power": 0.25},
         "cyber_disruption": {"reduce_war_risk": 0.40, "bargaining_power": 0.35, "regime_retention": 0.25},
         "maritime_deterrence": {"resource_access": 0.40, "reduce_war_risk": 0.35, "bargaining_power": 0.25},
         "regional_pressure": {"regional_influence": 0.40, "reduce_war_risk": 0.35, "bargaining_power": 0.25},
         "sanctions_spiral": {"sanctions_resilience": 0.45, "regime_retention": 0.35, "reduce_war_risk": 0.20},
+        "resource_competition": {"resource_access": 0.45, "sanctions_resilience": 0.30, "reduce_war_risk": 0.25},
+        "tech_blockade": {"bargaining_power": 0.40, "sanctions_resilience": 0.35, "reduce_war_risk": 0.25},
         "regime_stress": {"regime_retention": 0.45, "reduce_war_risk": 0.35, "sanctions_resilience": 0.20},
+        "general_tail_risk": {"reduce_war_risk": 0.50, "bargaining_power": 0.30, "resource_access": 0.20},
         "generic_tail_risk": {"reduce_war_risk": 0.50, "bargaining_power": 0.30, "resource_access": 0.20},
     }
-    objectives = objective_map.get(template_id, objective_map["generic_tail_risk"])
+    objectives = objective_map.get(template_id, objective_map["general_tail_risk"])
     for actor_name in actor_names:
         player_payloads.append(
             {

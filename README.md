@@ -242,7 +242,7 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `15.5.0`
+Current package version: `15.5.1`
 
 Current release highlights:
 

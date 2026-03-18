@@ -65,6 +65,27 @@ class GIM13MVPTests(unittest.TestCase):
         )
         self.assertEqual(scenario.template_id, "cyber_disruption")
 
+    def test_compile_question_detects_alliance_fragmentation_template(self) -> None:
+        scenario = compile_question(
+            question="Could NATO fragmentation and a BRICS split weaken bloc cohesion and destabilize the system?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.template_id, "alliance_fragmentation")
+
+    def test_compile_question_detects_resource_competition_template(self) -> None:
+        scenario = compile_question(
+            question="Could competition for water, grain and rare earth metals trigger a wider crisis?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.template_id, "resource_competition")
+
+    def test_compile_question_detects_tech_blockade_template(self) -> None:
+        scenario = compile_question(
+            question="Could semiconductor export controls against Huawei escalate into a broader US-China crisis?",
+            world=self.world,
+        )
+        self.assertEqual(scenario.template_id, "tech_blockade")
+
     def test_compile_question_expands_group_aliases_with_confidence_metadata(self) -> None:
         scenario = compile_question(
             question="Could G7 sanctions trigger a global spillover?",
@@ -80,6 +101,7 @@ class GIM13MVPTests(unittest.TestCase):
             question="How could systemic turbulence evolve under ambiguous stress channels?",
             world=self.world,
         )
+        self.assertEqual(scenario.template_id, "general_tail_risk")
         self.assertEqual(scenario.actor_resolution_method, "gdp_fallback")
         self.assertLessEqual(scenario.actor_resolution_confidence, 0.5)
         self.assertTrue(scenario.actor_resolution_notes)

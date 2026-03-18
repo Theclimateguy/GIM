@@ -35,6 +35,23 @@ Execution panel:
 - progress bar reflects aggregate run completion
 - export buttons remain disabled until artifacts exist
 
+Template catalog currently exposed in the UI:
+
+- `general_tail_risk`
+- `sanctions_spiral`
+- `alliance_fragmentation`
+- `regional_pressure`
+- `maritime_deterrence`
+- `resource_competition`
+- `tech_blockade`
+- `trade_war`
+- `cyber_disruption`
+- `regime_stress`
+
+Legacy compatibility:
+
+- `generic_tail_risk` remains accepted by runtime and historical fixtures as an alias of `general_tail_risk`
+
 ### 2. Analytics
 
 Purpose: show the actual outputs of the executed run rather than static mock values.

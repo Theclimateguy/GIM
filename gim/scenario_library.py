@@ -1,28 +1,32 @@
 from .types import CalibrationGuardrails, ScenarioDefinition, ScenarioShock
 
 
-TEMPLATE_REGISTRY = {
-    "generic_tail_risk": {
-        "title": "Generic tail-risk assessment",
-        "narrative": (
-            "A calibrated stress test that keeps the baseline world as the prior but leaves room "
-            "for rare, high-impact states when multiple pressures compound."
-        ),
-        "risk_biases": {
-            "status_quo": 0.10,
-            "internal_destabilization": 0.15,
-            "limited_proxy_escalation": 0.10,
-            "negotiated_deescalation": 0.05,
-        },
-        "indicators": [
-            "social_stress",
-            "resource_gap",
-            "conflict_stress",
-            "debt_stress",
-            "policy_space",
-        ],
-        "shocks": [],
+_GENERAL_TAIL_RISK_TEMPLATE = {
+    "title": "General tail-risk assessment",
+    "narrative": (
+        "A calibrated stress test that keeps the baseline world as the prior but leaves room "
+        "for rare, high-impact states when multiple pressures compound."
+    ),
+    "risk_biases": {
+        "status_quo": 0.10,
+        "internal_destabilization": 0.15,
+        "limited_proxy_escalation": 0.10,
+        "negotiated_deescalation": 0.05,
     },
+    "indicators": [
+        "social_stress",
+        "resource_gap",
+        "conflict_stress",
+        "debt_stress",
+        "policy_space",
+    ],
+    "shocks": [],
+}
+
+
+TEMPLATE_REGISTRY = {
+    "general_tail_risk": _GENERAL_TAIL_RISK_TEMPLATE,
+    "generic_tail_risk": _GENERAL_TAIL_RISK_TEMPLATE,
     "sanctions_spiral": {
         "title": "Sanctions spiral",
         "narrative": (
@@ -48,6 +52,34 @@ TEMPLATE_REGISTRY = {
                 "magnitude": 0.60,
                 "cadence": "monthly",
                 "rationale": "External financing and import access tighten over the horizon.",
+            }
+        ],
+    },
+    "alliance_fragmentation": {
+        "title": "Alliance fragmentation",
+        "narrative": (
+            "A bloc-fracture scenario where trust erosion across several partner pairs weakens deterrence, "
+            "coordination, and coalition cohesion."
+        ),
+        "risk_biases": {
+            "broad_regional_escalation": 0.40,
+            "limited_proxy_escalation": 0.22,
+            "internal_destabilization": 0.12,
+            "negotiated_deescalation": -0.05,
+        },
+        "indicators": [
+            "conflict_stress",
+            "negotiation_capacity",
+            "policy_space",
+            "social_stress",
+            "tail_pressure",
+        ],
+        "shocks": [
+            {
+                "channel": "alliance",
+                "magnitude": 0.55,
+                "cadence": "monthly",
+                "rationale": "Trust and burden-sharing frictions weaken bloc cohesion across multiple pairs.",
             }
         ],
     },
@@ -104,6 +136,62 @@ TEMPLATE_REGISTRY = {
                 "magnitude": 0.70,
                 "cadence": "weekly",
                 "rationale": "Shipping disruptions and route insecurity raise shortage pressure.",
+            }
+        ],
+    },
+    "resource_competition": {
+        "title": "Resource competition",
+        "narrative": (
+            "Competition over scarce food, metals, water and energy buffers amplifies domestic stress, "
+            "trade friction and crisis spillovers."
+        ),
+        "risk_biases": {
+            "social_unrest_without_military": 0.28,
+            "internal_destabilization": 0.24,
+            "sovereign_financial_crisis": 0.22,
+            "maritime_chokepoint_crisis": 0.15,
+        },
+        "indicators": [
+            "resource_gap",
+            "energy_dependence",
+            "climate_stress",
+            "social_stress",
+            "tail_pressure",
+        ],
+        "shocks": [
+            {
+                "channel": "resource",
+                "magnitude": 0.60,
+                "cadence": "monthly",
+                "rationale": "Scarcity in critical resource channels raises price, reserve and import stress.",
+            }
+        ],
+    },
+    "tech_blockade": {
+        "title": "Tech blockade",
+        "narrative": (
+            "A technology-containment scenario where export controls, chip constraints and innovation chokepoints "
+            "propagate into macro and strategic rivalry channels."
+        ),
+        "risk_biases": {
+            "internal_destabilization": 0.20,
+            "sovereign_financial_crisis": 0.12,
+            "limited_proxy_escalation": 0.10,
+            "negotiated_deescalation": -0.04,
+        },
+        "indicators": [
+            "sanctions_pressure",
+            "policy_space",
+            "negotiation_capacity",
+            "social_stress",
+            "tail_pressure",
+        ],
+        "shocks": [
+            {
+                "channel": "technology",
+                "magnitude": 0.58,
+                "cadence": "monthly",
+                "rationale": "Technology export restrictions reduce diffusion, resilience and strategic flexibility.",
             }
         ],
     },
@@ -193,7 +281,10 @@ TEMPLATE_REGISTRY = {
 }
 
 TEMPLATE_KEYWORDS = {
+    "alliance_fragmentation": ("alliance", "nato", "brics", "bloc", "coalition split", "fragmentation"),
     "sanctions_spiral": ("sanction", "embargo", "pressure campaign"),
+    "resource_competition": ("rare earth", "critical minerals", "grain", "wheat", "water", "metals"),
+    "tech_blockade": ("semiconductor", "chip", "chips act", "huawei", "lithography", "technology export", "export controls"),
     "trade_war": ("trade war", "tariff", "tariffs", "export control", "export controls"),
     "cyber_disruption": ("cyber", "hack", "hacking", "malware", "infrastructure attack"),
     "regional_pressure": ("iran", "proxy", "middle east", "gulf", "regional escalation"),
@@ -204,7 +295,7 @@ TEMPLATE_KEYWORDS = {
 
 def detect_template(question: str) -> str:
     lowered = question.lower()
-    best_template = "generic_tail_risk"
+    best_template = "general_tail_risk"
     best_hits = 0
     for template_id, keywords in TEMPLATE_KEYWORDS.items():
         hits = sum(1 for keyword in keywords if keyword in lowered)
@@ -228,7 +319,7 @@ def build_scenario_from_template(
     assumptions: list[str] | None = None,
     display_year: int | None = None,
 ) -> ScenarioDefinition:
-    template = TEMPLATE_REGISTRY.get(template_id, TEMPLATE_REGISTRY["generic_tail_risk"])
+    template = TEMPLATE_REGISTRY.get(template_id, TEMPLATE_REGISTRY["general_tail_risk"])
     scenario_assumptions = [
         "The GIM15 calibration is the baseline prior for moderate outcomes.",
         "Critical states remain in the distribution when stress channels align in the same direction.",

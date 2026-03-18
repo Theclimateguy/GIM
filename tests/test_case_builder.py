@@ -30,6 +30,19 @@ class CaseBuilderTests(unittest.TestCase):
         self.assertGreaterEqual(len(built.game.players), 2)
         self.assertTrue(all(player.allowed_actions for player in built.game.players))
 
+    def test_deterministic_builder_creates_valid_tech_blockade_case(self) -> None:
+        built = build_case_from_text(
+            (
+                "The United States tightens semiconductor export controls against Huawei and China "
+                "responds with industrial countermeasures."
+            ),
+            self.world,
+            prefer_llm=False,
+        )
+        self.assertEqual(built.source, "deterministic")
+        self.assertEqual(built.game.scenario.template_id, "tech_blockade")
+        self.assertTrue(any("export_controls" in player.allowed_actions for player in built.game.players))
+
     @unittest.skipUnless(REQUESTS_AVAILABLE, "requires requests to exercise the LLM case-builder path")
     def test_llm_builder_cleans_invalid_template_actions_and_objectives(self) -> None:
         mocked_response = Mock()
@@ -67,7 +80,7 @@ class CaseBuilderTests(unittest.TestCase):
             ]
         }
         with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}, clear=False), patch(
-            "GIM_13.case_builder.requests.post",
+            "gim.case_builder.requests.post",
             return_value=mocked_response,
         ):
             built = build_case_from_text(
