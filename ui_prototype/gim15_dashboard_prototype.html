@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GIM15 Intelligence Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b0f;
+      --bg-2: #0b0e13;
+      --surface: #13171d;
+      --surface-2: #171c23;
+      --line: #2b323b;
+      --text: #edf1f5;
+      --muted: #939da8;
+      --accent: #4f8cff;
+      --good: #44c878;
+      --warn: #ffbc52;
+      --bad: #ff6c6c;
+      --radius: 8px;
+      --row-h: 42px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(1300px 780px at 74% -22%, #191f28 0%, var(--bg) 48%), var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-size: 14px;
+    }
+
+    .app {
+      width: min(1520px, calc(100vw - 24px));
+      margin: 12px auto;
+      border: 1px solid #2a313a;
+      border-radius: var(--radius);
+      overflow: hidden;
+      min-height: 950px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      background: linear-gradient(180deg, #101419 0%, #0d1116 100%);
+      box-shadow: 0 24px 68px rgba(0, 0, 0, .52);
+    }
+
+    .sidebar {
+      background: #0d1117;
+      border-right: 1px solid #232a33;
+      padding: 14px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .01em;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .02em;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      margin-bottom: 7px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .doc-list { display: grid; gap: 5px; }
+
+    .doc-link {
+      color: #cfdae7;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 6px 7px;
+      display: block;
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .doc-link:hover {
+      border-color: #3e4f63;
+      background: #16202b;
+    }
+
+    .doc-meta {
+      color: #8190a0;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      padding: 13px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .title h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .01em;
+    }
+
+    .title p {
+      margin: 7px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .02em;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .btn {
+      border: 1px solid #3a4655;
+      background: #151a20;
+      color: #dde6f2;
+      font-size: 12px;
+      border-radius: var(--radius);
+      padding: 8px 11px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #2663d2;
+      border-color: #3f82f8;
+      color: #f8fbff;
+    }
+
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      background: #12161c;
+      border: 1px solid #2a333d;
+      border-radius: var(--radius);
+      padding: 5px;
+      width: max-content;
+    }
+
+    .tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #a2b0be;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: #fff;
+      background: #1c2631;
+      border-color: #3d5065;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: grid; gap: 12px; }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.22fr .78fr;
+      gap: 10px;
+    }
+
+    .sim-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+
+    .form-grid { display: grid; gap: 0; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      align-items: center;
+      min-height: var(--row-h);
+      border-bottom: 1px solid #27303a;
+      gap: 8px;
+      padding: 0 2px;
+    }
+
+    .form-row:last-child { border-bottom: none; }
+
+    .row-label {
+      color: #ccd7e3;
+      font-size: 12px;
+      letter-spacing: .01em;
+    }
+
+    .ctrl {
+      width: 100%;
+      height: 32px;
+      border: 1px solid #354452;
+      border-radius: 6px;
+      background: #121922;
+      color: #e7eef7;
+      font-size: 12px;
+      padding: 0 9px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .multi-select {
+      position: relative;
+    }
+
+    .multi-select-btn {
+      justify-content: flex-start;
+      text-align: left;
+      position: relative;
+      padding-right: 26px;
+    }
+
+    .multi-select-btn::after {
+      content: '▾';
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      color: #92a4b8;
+      font-size: 11px;
+    }
+
+    .multi-select-menu {
+      position: absolute;
+      top: 36px;
+      left: 0;
+      right: 0;
+      background: #111821;
+      border: 1px solid #354452;
+      border-radius: 8px;
+      padding: 8px;
+      display: none;
+      z-index: 20;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, .45);
+      gap: 8px;
+    }
+
+    .multi-select-menu.open { display: grid; }
+
+    .actor-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 12px;
+      max-height: 220px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .actor-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #d7e2ee;
+      font-family: 'IBM Plex Mono', monospace;
+      min-height: 24px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      flex-wrap: wrap;
+      min-height: 32px;
+      color: #d2dde9;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .check-row label { display: inline-flex; align-items: center; gap: 5px; }
+
+    .file-field {
+      display: grid;
+      grid-template-columns: 1fr 32px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .file-display {
+      height: 32px;
+      border: 1px solid #354452;
+      border-radius: 6px;
+      background: #121922;
+      color: #c8d6e6;
+      font-size: 12px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-display.empty { color: #768597; }
+
+    .file-dots {
+      height: 32px;
+      border: 1px solid #354452;
+      border-radius: 6px;
+      background: #121922;
+      color: #dce8f4;
+      font-size: 15px;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .run-footer {
+      display: grid;
+      grid-template-columns: 1fr 190px;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: end;
+    }
+
+    .key-wrap label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      display: block;
+      margin-bottom: 5px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .execution-list { display: grid; gap: 0; }
+
+    .exec-row {
+      display: grid;
+      grid-template-columns: 1fr 82px;
+      min-height: var(--row-h);
+      align-items: center;
+      border-bottom: 1px solid #27303a;
+      color: #d4deea;
+      font-size: 12px;
+      padding: 0 2px;
+    }
+
+    .exec-row:last-child { border-bottom: none; }
+
+    .exec-status {
+      text-align: right;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .progress-wrap {
+      margin-top: 12px;
+      border-top: 1px solid #27303a;
+      padding-top: 10px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #9fb0c3;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 6px;
+    }
+
+    .progress-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #1a222c;
+      border: 1px solid #334252;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 37%;
+      height: 100%;
+      background: linear-gradient(90deg, #4f8cff 0%, #3f6fd7 100%);
+    }
+
+    .progress-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #9eb1c7;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .summary-card,
+    .ana-card,
+    .quant,
+    .tooltip-bar,
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .summary-card { padding: 14px; }
+
+    .ana-title,
+    .kpi-label,
+    .scale-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ana-sub {
+      margin-top: 5px;
+      color: #9db0c5;
+      font-size: 13px;
+    }
+
+    .summary-text {
+      margin-top: 12px;
+      color: #d8e2ed;
+      font-size: 15px;
+      line-height: 1.55;
+      border-top: 1px solid #28333f;
+      padding-top: 10px;
+      white-space: pre-wrap;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .analytics-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .analytics-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .ana-card {
+      padding: 14px;
+      min-height: 395px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .dist-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      gap: 10px;
+      height: 275px;
+    }
+
+    .dist-row {
+      display: grid;
+      grid-template-columns: 1fr 138px 48px;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #d5deea;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .dist-track {
+      height: 11px;
+      border-radius: 999px;
+      background: #1a232e;
+      overflow: hidden;
+      border: 1px solid #2e3a49;
+    }
+
+    .dist-fill { height: 100%; }
+
+    .gauge-wrap {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .gauge-num {
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+      margin-top: -2px;
+    }
+
+    .gauge-cap {
+      font-size: 12px;
+      color: #9eb1c7;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .chart-wrap {
+      margin-top: 10px;
+      border-top: 1px solid #28333f;
+      padding-top: 9px;
+      height: 305px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 8px;
+    }
+
+    .chart-svg-wrap {
+      min-height: 0;
+    }
+
+    .chart-svg-wrap svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      padding-left: 44px;
+      min-height: 28px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #a8b8c9;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .quant-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .brief-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .quant {
+      padding: 12px;
+      min-height: 130px;
+      display: grid;
+      grid-template-rows: auto auto auto;
+      gap: 8px;
+    }
+
+    .quant .v {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scale {
+      margin-top: 2px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .scale-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #1b2530;
+      border: 1px solid #324152;
+      position: relative;
+    }
+
+    .scale-marker {
+      position: absolute;
+      top: -3px;
+      width: 2px;
+      height: 14px;
+      background: #f0f6fc;
+      border-radius: 2px;
+    }
+
+    .scale-ends {
+      display: flex;
+      justify-content: space-between;
+      color: #8da0b6;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .scale-note {
+      color: #7f92a7;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1.35;
+      min-height: 24px;
+    }
+
+    .brief-card {
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: grid;
+      gap: 8px;
+    }
+
+    .brief-lines {
+      display: grid;
+      gap: 7px;
+      color: #d7e2ee;
+      font-size: 13px;
+      line-height: 1.45;
+      min-height: 86px;
+    }
+
+    .tooltip-bar {
+      padding: 10px 11px;
+      font-size: 12px;
+      color: #b7c6d8;
+      border-style: dashed;
+      border-color: #3a516b;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    @media (max-width: 1280px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .sim-grid, .analytics-top, .analytics-charts { grid-template-columns: 1fr; }
+      .quant-row { grid-template-columns: repeat(2, 1fr); }
+      .brief-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .header { flex-direction: column; }
+      .title h2 { font-size: 23px; }
+      .form-row { grid-template-columns: 1fr; padding: 6px 0; }
+      .run-footer { grid-template-columns: 1fr; }
+      .quant-row { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>GIM15 Intelligence</h1>
+        <p>world simulation command</p>
+      </div>
+
+      <section class="panel">
+        <div class="panel-title">Model Docs</div>
+        <div class="doc-list">
+          <a class="doc-link" href="/docs/view?path=README.md" target="_blank">README.md<div class="doc-meta">project overview and run basics</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/README.md" target="_blank">docs/README.md<div class="doc-meta">documentation index</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/MODEL_METHODOLOGY.md" target="_blank">MODEL_METHODOLOGY.md<div class="doc-meta">runtime methodology</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/GIM15_UNIFIED_MODEL_SPEC.md" target="_blank">GIM15_UNIFIED_MODEL_SPEC.md<div class="doc-meta">equations and state evolution</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/CALIBRATION_REFERENCE.md" target="_blank">CALIBRATION_REFERENCE.md<div class="doc-meta">baseline calibration values</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/CALIBRATION_LAYER.md" target="_blank">CALIBRATION_LAYER.md<div class="doc-meta">calibration workflow</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/SIMULATION_STEP_ORDER.md" target="_blank">SIMULATION_STEP_ORDER.md<div class="doc-meta">execution order contract</div></a>
+          <a class="doc-link" href="/docs/view?path=COMMAND_REFERENCE.md" target="_blank">COMMAND_REFERENCE.md<div class="doc-meta">CLI flags and artifacts</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/CRISIS_VALIDATION_PROTOCOL.md" target="_blank">CRISIS_VALIDATION_PROTOCOL.md<div class="doc-meta">validation protocol</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/PARAMETER_CHANGE_POLICY.md" target="_blank">PARAMETER_CHANGE_POLICY.md<div class="doc-meta">parameter governance</div></a>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">Run Artifact Status</div>
+        <div class="doc-meta">Pre-run: run_payload.json</div>
+        <div class="doc-meta">Post-run: run_manifest.json, evaluation.json, dashboard.html, decision_brief.md, game_result.json</div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="title">
+          <h2>Personal Analytical Workspace</h2>
+          <p id="workspaceMeta">GIM15 global simulation • operator: Nazar</p>
+        </div>
+        <div class="actions">
+          <button id="btnExportPayload" class="btn">Export run_payload.json</button>
+          <button id="btnExportManifest" class="btn" disabled>Export run_manifest.json</button>
+          <button id="btnExportDashboard" class="btn" disabled>Export dashboard.html</button>
+        </div>
+      </header>
+
+      <div class="tabs">
+        <button class="tab" data-tab="sim">Simulation Modes</button>
+        <button class="tab active" data-tab="ana">Analytics</button>
+      </div>
+
+      <section>
+        <div id="sim" class="tab-panel">
+          <div class="sim-grid">
+            <article class="sim-card">
+              <div class="panel-title">CLI Mode Builder (`python3 -m gim`)</div>
+              <div class="form-grid">
+                <div class="form-row"><div class="row-label">Command</div><select id="fCommand" class="ctrl"><option value="question">question</option><option value="game">game</option><option value="metrics">metrics</option><option value="calibrate">calibrate</option><option value="brief">brief</option><option value="world">world</option><option value="console">console</option></select></div>
+                <div class="form-row"><div class="row-label">Question / Description</div><input id="fQuestion" class="ctrl" value="" placeholder="Describe the scenario or policy question" /></div>
+                <div class="form-row">
+                  <div class="row-label">Actors</div>
+                  <div class="multi-select">
+                    <button id="actorToggle" type="button" class="ctrl multi-select-btn"><span id="actorToggleLabel">Choose actors from operational_2026</span></button>
+                    <div id="actorMenu" class="multi-select-menu">
+                      <input id="actorSearch" class="ctrl" placeholder="Filter actors" />
+                      <div id="actorList" class="actor-list"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row"><div class="row-label">Template</div><select id="fTemplate" class="ctrl"><option value="" selected>auto-detect</option><option value="sanctions_spiral">sanctions_spiral</option><option value="regional_pressure">regional_pressure</option><option value="maritime_deterrence">maritime_deterrence</option></select></div>
+                <div class="form-row"><div class="row-label">State year</div><input id="fStateYear" type="number" class="ctrl" value="" placeholder="2026" /></div>
+                <div class="form-row"><div class="row-label">Horizon (years)</div><input id="fHorizon" type="number" class="ctrl" value="" placeholder="3" /></div>
+                <div class="form-row"><div class="row-label">Max countries</div><input id="fMaxCountries" type="number" class="ctrl" value="" placeholder="20" /></div>
+                <div class="form-row"><div class="row-label">Background policy</div><select id="fPolicy" class="ctrl"><option value="" selected>CLI default</option><option>compiled-llm</option><option>llm</option><option>simple</option><option>growth</option></select></div>
+                <div class="form-row"><div class="row-label">LLM refresh</div><select id="fRefresh" class="ctrl"><option value="" selected>CLI default</option><option>trigger</option><option>periodic</option><option>never</option></select></div>
+                <div class="form-row"><div class="row-label">LLM refresh years</div><input id="fRefreshYears" type="number" class="ctrl" value="" placeholder="2" /></div>
+                <div class="form-row">
+                  <div class="row-label">State CSV source</div>
+                  <div class="file-field">
+                    <div id="fileName" class="file-display empty"></div>
+                    <button id="btnPickCsv" class="file-dots">...</button>
+                    <input id="fStateCsv" type="file" accept=".csv" style="display:none;" />
+                  </div>
+                </div>
+                <div class="form-row"><div class="row-label">Output dashboard filename</div><input id="fDashboardOut" class="ctrl" value="" placeholder="dashboard.html" /></div>
+                <div class="form-row"><div class="row-label">Output brief filename</div><input id="fBriefOut" class="ctrl" value="" placeholder="decision_brief.md" /></div>
+                <div class="form-row">
+                  <div class="row-label">Binary flags</div>
+                  <div class="check-row">
+                    <label><input id="flSim" type="checkbox"> --sim</label>
+                    <label><input id="flDashboard" type="checkbox" checked> --dashboard</label>
+                    <label><input id="flBrief" type="checkbox" checked> --brief</label>
+                    <label><input id="flNarrative" type="checkbox"> --narrative</label>
+                    <label><input id="flJson" type="checkbox"> --json</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="run-footer">
+                <div class="key-wrap">
+                  <label>DeepSeek API key (DEEPSEEK_API_KEY)</label>
+                  <input id="fApiKey" class="ctrl" type="password" placeholder="sk-..." />
+                </div>
+                <button id="btnRun" class="btn primary" style="height:32px;">Run chosen modes</button>
+              </div>
+            </article>
+
+            <article class="sim-card">
+              <div class="panel-title">Execution pipeline (real step_world phases)</div>
+              <div class="execution-list">
+                <div class="exec-row"><span>1. baseline: metrics, political states, institutions, policy generation</span><span class="exec-status good">done</span></div>
+                <div class="exec-row"><span>2. detect: resolve_foreign_policy</span><span class="exec-status good">done</span></div>
+                <div class="exec-row"><span>3. propagate: sanctions, security, conflicts, trade barriers/actions/deals</span><span class="exec-status warn">running</span></div>
+                <div class="exec-row"><span>4. propagate: resources, prices, climate, extreme events</span><span class="exec-status">queued</span></div>
+                <div class="exec-row"><span>5. propagate: economy, public finances, debt checks</span><span class="exec-status">queued</span></div>
+                <div class="exec-row"><span>6. propagate: migration, population, social state, regime stability</span><span class="exec-status">queued</span></div>
+                <div class="exec-row"><span>7. reconcile: finalize GDP/debt/trust/tension critical fields</span><span class="exec-status">queued</span></div>
+                <div class="exec-row"><span>8. finalize: memory, credit ratings, policy records, time increment</span><span class="exec-status">queued</span></div>
+              </div>
+
+              <div class="progress-wrap">
+                <div class="progress-head"><span>Overall simulation progress</span><span id="progressPct">37%</span></div>
+                <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+                <div id="progressNote" class="progress-note">Step 3/8 running • climate-economy propagation phase</div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div id="ana" class="tab-panel active">
+          <article class="summary-card">
+            <div class="ana-title">Summary for decision makers (DeepSeek)</div>
+            <div class="ana-sub">Model-synthesized strategic briefing from latest run artifacts</div>
+            <div id="summaryText" class="summary-text">
+              Current trajectory indicates elevated systemic fragility concentrated in fiscal and sanctions channels, with highest scenario mass in destabilization pathways. Priority action is to reduce rollover stress, maintain import resilience buffers, and test policy robustness across `simple` vs `compiled-llm` background modes before escalation windows.
+            </div>
+          </article>
+
+          <div class="analytics-top">
+            <article class="ana-card">
+              <div class="ana-title">Scenario distribution</div>
+              <div class="ana-sub">risk_probabilities from evaluation.json</div>
+              <div id="scenarioDistList" class="dist-list">
+                <div class="dist-row"><span>Internal destabilization</span><div class="dist-track"><div class="dist-fill" style="width:20%;background:#e05f5f"></div></div><span>20%</span></div>
+                <div class="dist-row"><span>Direct strike exchange</span><div class="dist-track"><div class="dist-fill" style="width:17%;background:#c94f4f"></div></div><span>17%</span></div>
+                <div class="dist-row"><span>Limited proxy escalation</span><div class="dist-track"><div class="dist-fill" style="width:14%;background:#b34a4a"></div></div><span>14%</span></div>
+                <div class="dist-row"><span>Controlled suppression</span><div class="dist-track"><div class="dist-fill" style="width:14%;background:#2fa164"></div></div><span>14%</span></div>
+                <div class="dist-row"><span>Status quo</span><div class="dist-track"><div class="dist-fill" style="width:13%;background:#43c878"></div></div><span>13%</span></div>
+              </div>
+            </article>
+
+            <article class="ana-card">
+              <div class="ana-title">Criticality speedometer</div>
+              <div class="ana-sub">composite crisis criticality score</div>
+              <div class="gauge-wrap">
+                <svg width="256" height="170" viewBox="0 0 256 170" aria-label="criticality gauge">
+                  <path d="M24 142 A104 104 0 0 1 232 142" fill="none" stroke="#27313b" stroke-width="20" />
+                  <path d="M24 142 A104 104 0 0 1 102 56" fill="none" stroke="#3ea96d" stroke-width="20" />
+                  <path d="M102 56 A104 104 0 0 1 154 56" fill="none" stroke="#d6a047" stroke-width="20" />
+                  <path d="M154 56 A104 104 0 0 1 232 142" fill="none" stroke="#c95b5b" stroke-width="20" />
+                  <line id="criticalityNeedle" x1="128" y1="142" x2="185" y2="86" stroke="#f0f6fc" stroke-width="3" />
+                  <circle cx="128" cy="142" r="6" fill="#f0f6fc" />
+                </svg>
+                <div id="criticalityValue" class="gauge-num">0.61</div>
+                <div id="criticalityBand" class="gauge-cap">amber-red threshold region</div>
+              </div>
+            </article>
+          </div>
+
+          <div class="analytics-charts">
+            <article class="ana-card">
+              <div class="ana-title">Actors GDP trajectory</div>
+              <div class="ana-sub">indexed GDP path (2026=100) for key actors</div>
+              <div class="chart-wrap">
+                <div class="chart-svg-wrap">
+                  <svg id="chartGdp" viewBox="0 0 420 280" preserveAspectRatio="none">
+                    <rect x="0" y="0" width="420" height="280" fill="#121821"/>
+                    <line x1="44" y1="38" x2="390" y2="38" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="90" x2="390" y2="90" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="142" x2="390" y2="142" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="194" x2="390" y2="194" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="246" x2="390" y2="246" stroke="#3a4756"/>
+                    <line x1="44" y1="38" x2="44" y2="246" stroke="#3a4756"/>
+
+                    <polyline fill="none" stroke="#4f8cff" stroke-width="2.8" points="44,224 84,218 124,212 164,202 204,190 244,178 284,166 324,154 364,143 390,136"/>
+                    <polyline fill="none" stroke="#43c878" stroke-width="2.6" points="44,224 84,220 124,216 164,212 204,206 244,198 284,189 324,178 364,167 390,158"/>
+                    <polyline fill="none" stroke="#ffbc52" stroke-width="2.6" points="44,224 84,221 124,218 164,217 204,216 244,216 284,217 324,219 364,222 390,224"/>
+
+                    <text class="y-tick" x="14" y="42" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">130</text>
+                    <text class="y-tick" x="14" y="94" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">120</text>
+                    <text class="y-tick" x="14" y="146" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">110</text>
+                    <text class="y-tick" x="14" y="198" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">100</text>
+                    <text class="y-tick" x="14" y="250" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">90</text>
+
+                    <text class="x-tick" x="44" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2026</text>
+                    <text class="x-tick" x="131" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2028</text>
+                    <text class="x-tick" x="218" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2030</text>
+                    <text class="x-tick" x="305" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2032</text>
+                    <text class="x-tick" x="390" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2034</text>
+                  </svg>
+                </div>
+                <div id="legendGdp" class="chart-legend"></div>
+              </div>
+            </article>
+
+            <article class="ana-card">
+              <div class="ana-title">Social tension by actor</div>
+              <div class="ana-sub">scaled social_stress / trust deterioration proxy</div>
+              <div class="chart-wrap">
+                <div class="chart-svg-wrap">
+                  <svg id="chartTension" viewBox="0 0 420 280" preserveAspectRatio="none">
+                    <rect x="0" y="0" width="420" height="280" fill="#121821"/>
+                    <line x1="44" y1="38" x2="390" y2="38" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="90" x2="390" y2="90" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="142" x2="390" y2="142" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="194" x2="390" y2="194" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="246" x2="390" y2="246" stroke="#3a4756"/>
+                    <line x1="44" y1="38" x2="44" y2="246" stroke="#3a4756"/>
+
+                    <polyline fill="none" stroke="#ff6c6c" stroke-width="2.8" points="44,225 84,216 124,203 164,188 204,170 244,154 284,135 324,118 364,102 390,90"/>
+                    <polyline fill="none" stroke="#ffbc52" stroke-width="2.6" points="44,226 84,221 124,214 164,206 204,196 244,186 284,175 324,164 364,151 390,140"/>
+                    <polyline fill="none" stroke="#43c878" stroke-width="2.6" points="44,226 84,224 124,223 164,221 204,220 244,217 284,214 324,211 364,208 390,205"/>
+
+                    <text class="y-tick" x="14" y="42" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">0.9</text>
+                    <text class="y-tick" x="14" y="94" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">0.7</text>
+                    <text class="y-tick" x="14" y="146" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">0.5</text>
+                    <text class="y-tick" x="14" y="198" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">0.3</text>
+                    <text class="y-tick" x="14" y="250" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">0.1</text>
+
+                    <text class="x-tick" x="44" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2026</text>
+                    <text class="x-tick" x="131" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2028</text>
+                    <text class="x-tick" x="218" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2030</text>
+                    <text class="x-tick" x="305" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2032</text>
+                    <text class="x-tick" x="390" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2034</text>
+                  </svg>
+                </div>
+                <div id="legendTension" class="chart-legend"></div>
+              </div>
+            </article>
+
+            <article class="ana-card">
+              <div class="ana-title">Inflation / price stress</div>
+              <div class="ana-sub">CPI impulse vs energy shock contribution</div>
+              <div class="chart-wrap">
+                <div class="chart-svg-wrap">
+                  <svg id="chartInflation" viewBox="0 0 420 280" preserveAspectRatio="none">
+                    <rect x="0" y="0" width="420" height="280" fill="#121821"/>
+                    <line x1="44" y1="38" x2="390" y2="38" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="90" x2="390" y2="90" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="142" x2="390" y2="142" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="194" x2="390" y2="194" stroke="#33414f" stroke-dasharray="4 4"/>
+                    <line x1="44" y1="246" x2="390" y2="246" stroke="#3a4756"/>
+                    <line x1="44" y1="38" x2="44" y2="246" stroke="#3a4756"/>
+
+                    <polyline fill="none" stroke="#ff6c6c" stroke-width="2.8" points="44,214 84,198 124,184 164,170 204,157 244,146 284,136 324,126 364,116 390,108"/>
+                    <polyline fill="none" stroke="#4f8cff" stroke-width="2.6" points="44,222 84,213 124,205 164,198 204,191 244,185 284,179 324,174 364,170 390,166"/>
+                    <polyline fill="none" stroke="#43c878" stroke-width="2.6" points="44,226 84,223 124,220 164,217 204,214 244,212 284,210 324,209 364,208 390,207"/>
+
+                    <text class="y-tick" x="14" y="42" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">8%</text>
+                    <text class="y-tick" x="14" y="94" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">6%</text>
+                    <text class="y-tick" x="14" y="146" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">4%</text>
+                    <text class="y-tick" x="14" y="198" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2%</text>
+                    <text class="y-tick" x="14" y="250" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">0%</text>
+
+                    <text class="x-tick" x="44" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2026</text>
+                    <text class="x-tick" x="131" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2028</text>
+                    <text class="x-tick" x="218" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2030</text>
+                    <text class="x-tick" x="305" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2032</text>
+                    <text class="x-tick" x="390" y="266" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">2034</text>
+                  </svg>
+                </div>
+                <div id="legendInflation" class="chart-legend"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="quant-row">
+            <article class="quant">
+              <div id="quantLabel0" class="scale-label">Global oil market stress</div>
+              <div id="quantValue0" class="v">1.015</div>
+              <div id="quantNote0" class="scale-note">severity scale (0-1)</div>
+              <div class="scale">
+                <div class="scale-track"><div id="quantMarker0" class="scale-marker" style="left:58%;"></div></div>
+                <div id="quantEnds0" class="scale-ends"><span>0.80</span><span>1.20</span></div>
+              </div>
+            </article>
+            <article class="quant">
+              <div id="quantLabel1" class="scale-label">Sanctions footprint</div>
+              <div id="quantValue1" class="v">0.670</div>
+              <div id="quantNote1" class="scale-note">severity scale (0-1)</div>
+              <div class="scale">
+                <div class="scale-track"><div id="quantMarker1" class="scale-marker" style="left:67%;"></div></div>
+                <div id="quantEnds1" class="scale-ends"><span>0.00</span><span>1.00</span></div>
+              </div>
+            </article>
+            <article class="quant">
+              <div id="quantLabel2" class="scale-label">Trade fragmentation</div>
+              <div id="quantValue2" class="v">0.524</div>
+              <div id="quantNote2" class="scale-note">severity scale (0-1)</div>
+              <div class="scale">
+                <div class="scale-track"><div id="quantMarker2" class="scale-marker" style="left:52%;"></div></div>
+                <div id="quantEnds2" class="scale-ends"><span>0.00</span><span>1.00</span></div>
+              </div>
+            </article>
+            <article class="quant">
+              <div id="quantLabel3" class="scale-label">Tail pressure</div>
+              <div id="quantValue3" class="v">1.566</div>
+              <div id="quantNote3" class="scale-note">severity scale (0-1)</div>
+              <div class="scale">
+                <div class="scale-track"><div id="quantMarker3" class="scale-marker" style="left:78%;"></div></div>
+                <div id="quantEnds3" class="scale-ends"><span>0.50</span><span>1.80</span></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="brief-grid">
+            <article class="brief-card">
+              <div class="ana-title">Outcome distribution</div>
+              <div class="ana-sub">ranked crisis branches from the executed run</div>
+              <div id="briefOutcomes" class="brief-lines">
+                <div>Outcome distribution will populate after the next successful run.</div>
+              </div>
+            </article>
+            <article class="brief-card">
+              <div class="ana-title">Main drivers</div>
+              <div class="ana-sub">dominant channels behind the realized crisis profile</div>
+              <div id="briefDrivers" class="brief-lines">
+                <div>Main drivers will populate after the next successful run.</div>
+              </div>
+            </article>
+          </div>
+
+          <div class="tooltip-bar">
+            Tooltip: bottom cards use normalized crisis severity on a 0-1 scale; raw physical units remain visible in the small note under each metric.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.tab-panel');
+    const q = id => document.getElementById(id);
+    let currentRunId = null;
+    let activeArtifacts = { artifacts: {} };
+    let stateCsvs = [];
+    let stateCsvIdx = -1;
+    let actorOptions = [];
+    let selectedActors = [];
+
+    function activateTab(key) {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      const t = [...tabs].find(x => x.dataset.tab === key);
+      const p = document.getElementById(key);
+      if (t && p) {
+        t.classList.add('active');
+        p.classList.add('active');
+      }
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => activateTab(tab.dataset.tab)));
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) activateTab(urlTab);
+
+    function valueOrEmpty(id) {
+      const el = q(id);
+      return el ? String(el.value || '').trim() : '';
+    }
+
+    function textOrEmpty(id) {
+      const el = q(id);
+      return el ? String(el.textContent || '').trim() : '';
+    }
+
+    function checked(id) {
+      const el = q(id);
+      return !!(el && el.checked);
+    }
+
+    function setStateCsvDisplay(value) {
+      const el = q('fileName');
+      if (!el) return;
+      el.textContent = value || '';
+      el.classList.toggle('empty', !value);
+    }
+
+    function updateWorkspaceMeta(runId) {
+      if (!q('workspaceMeta')) return;
+      const suffix = runId ? ` • run_id #${runId}` : '';
+      q('workspaceMeta').textContent = `GIM15 global simulation • operator: Nazar${suffix}`;
+    }
+
+    function setActorToggleLabel() {
+      if (!q('actorToggleLabel')) return;
+      if (!selectedActors.length) {
+        q('actorToggleLabel').textContent = 'Choose actors from operational_2026';
+        return;
+      }
+      q('actorToggleLabel').textContent =
+        selectedActors.length <= 2
+          ? selectedActors.join(', ')
+          : `${selectedActors.slice(0, 2).join(', ')} +${selectedActors.length - 2}`;
+    }
+
+    function toggleActorMenu(forceOpen = null) {
+      const menu = q('actorMenu');
+      if (!menu) return;
+      const shouldOpen = forceOpen === null ? !menu.classList.contains('open') : forceOpen;
+      menu.classList.toggle('open', shouldOpen);
+    }
+
+    function renderActorList(filter = '') {
+      const host = q('actorList');
+      if (!host) return;
+      host.innerHTML = '';
+      const lowered = String(filter || '').trim().toLowerCase();
+      const filtered = actorOptions.filter(actor =>
+        !lowered ||
+        actor.name.toLowerCase().includes(lowered) ||
+        actor.id.toLowerCase().includes(lowered)
+      );
+      if (!filtered.length) {
+        host.textContent = 'No actors match the current filter.';
+        return;
+      }
+      filtered.forEach(actor => {
+        const label = document.createElement('label');
+        label.className = 'actor-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = selectedActors.includes(actor.name);
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            if (!selectedActors.includes(actor.name)) selectedActors.push(actor.name);
+          } else {
+            selectedActors = selectedActors.filter(name => name !== actor.name);
+          }
+          setActorToggleLabel();
+        });
+
+        const name = document.createElement('span');
+        name.textContent = actor.name;
+
+        const meta = document.createElement('span');
+        meta.style.color = '#738599';
+        meta.textContent = ` [${actor.id}]`;
+
+        label.append(checkbox, name, meta);
+        host.appendChild(label);
+      });
+    }
+
+    async function loadActors(stateCsv = null) {
+      try {
+        const url = new URL('/api/actors', window.location.origin);
+        if (stateCsv) url.searchParams.set('state_csv', stateCsv);
+        const resp = await fetch(url);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        actorOptions = data.actors || [];
+        const available = new Set(actorOptions.map(actor => actor.name));
+        selectedActors = selectedActors.filter(name => available.has(name));
+        renderActorList(q('actorSearch') ? q('actorSearch').value : '');
+        setActorToggleLabel();
+      } catch (_) {}
+    }
+
+    function downloadFile(name, content, mime = 'application/json') {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function payloadFromForm() {
+      return {
+        command: valueOrEmpty('fCommand') || 'question',
+        question: valueOrEmpty('fQuestion'),
+        actors: selectedActors,
+        template: valueOrEmpty('fTemplate'),
+        state_year: valueOrEmpty('fStateYear'),
+        horizon: valueOrEmpty('fHorizon'),
+        max_countries: valueOrEmpty('fMaxCountries'),
+        background_policy: valueOrEmpty('fPolicy'),
+        llm_refresh: valueOrEmpty('fRefresh'),
+        llm_refresh_years: valueOrEmpty('fRefreshYears'),
+        state_csv: textOrEmpty('fileName'),
+        dashboard_output: valueOrEmpty('fDashboardOut'),
+        brief_output: valueOrEmpty('fBriefOut'),
+        sim: checked('flSim') && valueOrEmpty('fHorizon') !== '',
+        dashboard: checked('flDashboard'),
+        brief: checked('flBrief'),
+        narrative: checked('flNarrative'),
+        json: checked('flJson'),
+        deepseek_api_key: valueOrEmpty('fApiKey'),
+      };
+    }
+
+    function seriesRange(seriesArrays, fixedRange = null) {
+      if (fixedRange) return fixedRange;
+      const all = seriesArrays.flat().filter(v => Number.isFinite(v));
+      if (!all.length) return [0, 1];
+      const lo = Math.min(...all);
+      const hi = Math.max(...all);
+      return lo === hi ? [lo - 1, hi + 1] : [lo, hi];
+    }
+
+    function sampleAxisLabels(values, count) {
+      if (!Array.isArray(values) || !values.length) return new Array(count).fill('');
+      if (values.length === 1) {
+        const labels = new Array(count).fill('');
+        labels[Math.floor(count / 2)] = String(values[0]);
+        return labels;
+      }
+      if (values.length <= count) {
+        const labels = new Array(count).fill('');
+        values.forEach((value, idx) => {
+          const pos = Math.round(idx * (count - 1) / Math.max(1, values.length - 1));
+          labels[pos] = String(value);
+        });
+        return labels;
+      }
+      return Array.from({ length: count }, (_, idx) => {
+        const pos = Math.round(idx * (values.length - 1) / Math.max(1, count - 1));
+        return String(values[pos]);
+      });
+    }
+
+    function buildTickLabels(lo, hi, count, formatter) {
+      return Array.from({ length: count }, (_, idx) => {
+        const t = idx / Math.max(1, count - 1);
+        return formatter(hi - (hi - lo) * t);
+      });
+    }
+
+    function renderBarChart(svgId, seriesArrays, options = {}) {
+      const svg = q(svgId);
+      if (!svg) return;
+      const width = 420;
+      const height = 280;
+      const x0 = 44;
+      const x1 = 390;
+      const yTop = 28;
+      const yBottom = 240;
+      const colors = options.colors || ['#4f8cff', '#43c878', '#ffbc52'];
+      const years = Array.isArray(options.years) ? options.years : [];
+      const filteredSeries = (Array.isArray(seriesArrays) ? seriesArrays : []).map(values =>
+        (Array.isArray(values) ? values : []).map(value => Number(value))
+      );
+      const all = filteredSeries.flat().filter(Number.isFinite);
+      const hasData = all.length > 0;
+      let lo = Array.isArray(options.range) ? Number(options.range[0]) : (hasData ? Math.min(...all) : 0);
+      let hi = Array.isArray(options.range) ? Number(options.range[1]) : (hasData ? Math.max(...all) : 1);
+      if (!Number.isFinite(lo)) lo = 0;
+      if (!Number.isFinite(hi)) hi = 1;
+      if (Math.abs(hi - lo) < 1e-9) {
+        lo -= 0.5;
+        hi += 0.5;
+      }
+      const barGroups = Math.max(...filteredSeries.map(values => values.length), 0);
+      const innerW = x1 - x0;
+      const groupStep = barGroups > 0 ? innerW / barGroups : innerW;
+      const groupWidth = Math.max(10, Math.min(28, groupStep * 0.74));
+      const activeSeriesCount = Math.max(1, filteredSeries.filter(values => values.length).length || filteredSeries.length || 1);
+      const barWidth = Math.max(4, Math.min(16, (groupWidth / activeSeriesCount) - 2));
+      const y = value => {
+        const span = Math.max(1e-9, hi - lo);
+        return yBottom - ((value - lo) / span) * (yBottom - yTop);
+      };
+      const yLabels = buildTickLabels(lo, hi, 5, options.yFormatter || (value => value.toFixed(2)));
+      const xTickCount = Math.min(5, Math.max(1, barGroups || years.length || 1));
+      const xTickLabels = sampleAxisLabels(years.length ? years : Array.from({ length: barGroups }, (_, idx) => idx + 1), xTickCount);
+      const xTickPositions = Array.from({ length: xTickCount }, (_, idx) => {
+        if (barGroups <= 1) return (x0 + x1) / 2;
+        return x0 + (Math.round(idx * (barGroups - 1) / Math.max(1, xTickCount - 1)) + 0.5) * groupStep;
+      });
+
+      const grid = Array.from({ length: 5 }, (_, idx) => {
+        const yy = yTop + ((yBottom - yTop) * idx / 4);
+        return `<line x1="${x0}" y1="${yy.toFixed(1)}" x2="${x1}" y2="${yy.toFixed(1)}" stroke="${idx === 4 ? '#3a4756' : '#33414f'}" ${idx === 4 ? '' : 'stroke-dasharray="4 4"'} />`;
+      }).join('');
+      const yText = yLabels.map((label, idx) => {
+        const yy = yTop + ((yBottom - yTop) * idx / 4);
+        return `<text x="8" y="${(yy + 4).toFixed(1)}" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">${label}</text>`;
+      }).join('');
+      const xText = xTickLabels.map((label, idx) => {
+        const xx = xTickPositions[idx];
+        return `<text x="${xx.toFixed(1)}" y="264" text-anchor="middle" fill="#95a5b6" font-size="10" font-family="IBM Plex Mono">${label}</text>`;
+      }).join('');
+
+      const bars = hasData ? filteredSeries.map((values, seriesIdx) => {
+        return values.map((value, idx) => {
+          if (!Number.isFinite(value) || barGroups === 0) return '';
+          const cx = x0 + (idx * groupStep) + (groupStep / 2);
+          const offset = ((seriesIdx - ((activeSeriesCount - 1) / 2)) * (barWidth + 2));
+          const x = cx + offset - (barWidth / 2);
+          const top = y(value);
+          return `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(1, yBottom - top).toFixed(1)}" rx="1.5" fill="${colors[seriesIdx] || '#95a5b6'}" opacity="0.92" />`;
+        }).join('');
+      }).join('') : `<text x="${width / 2}" y="${height / 2}" text-anchor="middle" fill="#7f92a7" font-size="12" font-family="IBM Plex Mono">No data</text>`;
+
+      svg.innerHTML = `
+        <rect x="0" y="0" width="${width}" height="${height}" fill="#121821"></rect>
+        ${grid}
+        <line x1="${x0}" y1="${yTop}" x2="${x0}" y2="${yBottom}" stroke="#3a4756"></line>
+        ${bars}
+        ${yText}
+        ${xText}
+      `;
+    }
+
+    function setLegend(hostId, labels, colors) {
+      const host = q(hostId);
+      if (!host) return;
+      host.innerHTML = '';
+      labels.forEach((label, idx) => {
+        if (!label) return;
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+
+        const swatch = document.createElement('span');
+        swatch.className = 'legend-swatch';
+        swatch.style.background = colors[idx] || '#95a5b6';
+
+        const text = document.createElement('span');
+        text.textContent = label;
+
+        item.append(swatch, text);
+        host.appendChild(item);
+      });
+    }
+
+    function setCriticality(value) {
+      const v = Math.max(0, Math.min(1, Number(value || 0)));
+      if (q('criticalityValue')) q('criticalityValue').textContent = v.toFixed(2);
+      if (q('criticalityBand')) {
+        q('criticalityBand').textContent =
+          v < 0.33 ? 'green threshold region' :
+          v < 0.66 ? 'amber threshold region' :
+          'red threshold region';
+      }
+      const needle = q('criticalityNeedle');
+      if (!needle) return;
+      const cx = 128;
+      const cy = 142;
+      const length = 78;
+      const theta = Math.PI - (v * Math.PI);
+      needle.setAttribute('x2', (cx + (length * Math.cos(theta))).toFixed(1));
+      needle.setAttribute('y2', (cy - (length * Math.sin(theta))).toFixed(1));
+    }
+
+    function setScenarioDistribution(items) {
+      const host = q('scenarioDistList');
+      if (!host) return;
+      if (!Array.isArray(items) || !items.length) {
+        host.innerHTML = '<div class="dist-row"><span>No scenario probabilities available</span><div class="dist-track"><div class="dist-fill" style="width:0%;background:#33414f"></div></div><span>0%</span></div>';
+        return;
+      }
+      host.innerHTML = items.map(item => {
+        const pct = (Number(item.value || 0) * 100).toFixed(1);
+        return `<div class="dist-row"><span>${item.name}</span><div class="dist-track"><div class="dist-fill" style="width:${pct}%;background:${item.color || '#f0b85d'}"></div></div><span>${pct}%</span></div>`;
+      }).join('');
+    }
+
+    function setQuant(quant) {
+      const items = Array.isArray(quant) ? quant.slice(0, 4) : [];
+      [...Array(4).keys()].forEach(i => {
+        const m = items[i];
+        if (!m) {
+          if (q(`quantLabel${i}`)) q(`quantLabel${i}`).textContent = 'Metric unavailable';
+          if (q(`quantValue${i}`)) q(`quantValue${i}`).textContent = 'n/a';
+          if (q(`quantNote${i}`)) q(`quantNote${i}`).textContent = 'No normalized metric available';
+          if (q(`quantMarker${i}`)) q(`quantMarker${i}`).style.left = '0%';
+          if (q(`quantEnds${i}`)) q(`quantEnds${i}`).innerHTML = '<span>--</span><span>--</span>';
+          return;
+        }
+        const val = Number(m.value || 0);
+        const lo = Number(m.min ?? 0);
+        const hi = Number(m.max ?? 1);
+        const pct = ((val - lo) / Math.max(1e-9, hi - lo)) * 100;
+        if (q(`quantLabel${i}`)) q(`quantLabel${i}`).textContent = m.name;
+        if (q(`quantValue${i}`)) q(`quantValue${i}`).textContent = val.toFixed(3);
+        if (q(`quantNote${i}`)) q(`quantNote${i}`).textContent = m.note || 'severity scale (0-1)';
+        if (q(`quantMarker${i}`)) q(`quantMarker${i}`).style.left = `${Math.max(0, Math.min(100, pct))}%`;
+        if (q(`quantEnds${i}`)) q(`quantEnds${i}`).innerHTML = `<span>${lo.toFixed(2)}</span><span>${hi.toFixed(2)}</span>`;
+      });
+    }
+
+    function setBriefLines(hostId, lines, emptyText) {
+      const host = q(hostId);
+      if (!host) return;
+      const items = Array.isArray(lines) ? lines.filter(line => String(line || '').trim()) : [];
+      if (!items.length) {
+        host.innerHTML = `<div>${emptyText}</div>`;
+        return;
+      }
+      host.innerHTML = '';
+      items.forEach(line => {
+        const row = document.createElement('div');
+        row.textContent = line;
+        host.appendChild(row);
+      });
+    }
+
+    async function loadAnalytics(runId = null) {
+      try {
+        const endpoint = runId ? `/api/run/${runId}/analytics` : '/api/analytics/latest';
+        const resp = await fetch(endpoint);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        updateWorkspaceMeta(data.run_id || runId || null);
+        if (q('summaryText')) q('summaryText').textContent = data.summary || q('summaryText').textContent;
+        setCriticality(data.criticality || 0);
+        setScenarioDistribution(data.scenario_distribution || []);
+        setQuant(data.quant || []);
+        setBriefLines('briefOutcomes', data.brief_outcomes || [], 'No outcome distribution available.');
+        setBriefLines('briefDrivers', data.brief_drivers || [], 'No main drivers available.');
+
+        const years = data.years || [];
+        const gdpMeta = data.gdp_series || [];
+        const gdpSeries = gdpMeta.map(s => s.values || []);
+        if (gdpSeries.length) {
+          const gdpRange = seriesRange(gdpSeries);
+          renderBarChart('chartGdp', [gdpSeries[0] || [], gdpSeries[1] || [], gdpSeries[2] || []], {
+            years,
+            range: gdpRange,
+            colors: ['#4f8cff', '#43c878', '#ffbc52'],
+            years,
+            yFormatter: v => v.toFixed(0),
+          });
+          setLegend('legendGdp', gdpMeta.map(s => s.name || s.id).slice(0, 3), ['#4f8cff', '#43c878', '#ffbc52']);
+        } else {
+          renderBarChart('chartGdp', [], { years: [] });
+          setLegend('legendGdp', [], []);
+        }
+
+        const tensionMeta = data.social_tension_series || [];
+        const tension = tensionMeta.map(s => s.values || []);
+        if (tension.length) {
+          renderBarChart('chartTension', [tension[0] || [], tension[1] || [], tension[2] || []], {
+            years,
+            range: [0, 1],
+            colors: ['#ff6c6c', '#ffbc52', '#43c878'],
+            yFormatter: v => v.toFixed(2),
+          });
+          setLegend('legendTension', tensionMeta.map(s => s.name || s.id).slice(0, 3), ['#ff6c6c', '#ffbc52', '#43c878']);
+        } else {
+          renderBarChart('chartTension', [], { years: [], range: [0, 1] });
+          setLegend('legendTension', [], []);
+        }
+
+        const infl = data.inflation_series || [];
+        const energy = data.energy_pass_series || [];
+        const core = data.core_infl_series || [];
+        if (infl.length || energy.length || core.length) {
+          const inflationScale = Math.max(0.01, ...infl, ...core);
+          const energyScaled = energy.map(v => v * inflationScale);
+          const inflRange = seriesRange([infl, energyScaled, core]);
+          renderBarChart('chartInflation', [infl, energyScaled, core], {
+            years,
+            range: inflRange,
+            colors: ['#ff6c6c', '#4f8cff', '#43c878'],
+            yFormatter: v => `${(100 * v).toFixed(1)}%`,
+          });
+          setLegend('legendInflation', ['Headline CPI', 'Scaled energy pass-through', 'Core CPI'], ['#ff6c6c', '#4f8cff', '#43c878']);
+        } else {
+          renderBarChart('chartInflation', [], { years: [] });
+          setLegend('legendInflation', [], []);
+        }
+      } catch (_) {}
+    }
+
+    function artifactPath(name) {
+      return (activeArtifacts.artifacts || {})[name];
+    }
+
+    function updateArtifactButtons(allowDownload = false) {
+      q('btnExportManifest').disabled = !allowDownload || !artifactPath('run_manifest.json');
+      q('btnExportDashboard').disabled = !allowDownload || !artifactPath('dashboard.html');
+    }
+
+    async function refreshArtifacts(runId = null) {
+      try {
+        const endpoint = runId ? `/api/run/${runId}/artifacts` : '/api/artifacts/latest';
+        const resp = await fetch(endpoint);
+        if (!resp.ok) return;
+        activeArtifacts = await resp.json();
+      } catch (_) {}
+    }
+
+    function openArtifact(name) {
+      const path = artifactPath(name);
+      if (!path) return;
+      window.open(`/api/download?path=${encodeURIComponent(path)}`, '_blank');
+    }
+
+    async function pollRunStatus(runId) {
+      const resp = await fetch(`/api/run/${runId}/status`);
+      if (!resp.ok) return null;
+      return resp.json();
+    }
+
+    async function startRun() {
+      q('btnRun').disabled = true;
+      q('btnRun').textContent = 'Running...';
+      activeArtifacts = { artifacts: {} };
+      updateArtifactButtons(false);
+      q('progressFill').style.width = '2%';
+      q('progressPct').textContent = '2%';
+      q('progressNote').textContent = 'Run queued';
+      try {
+        const payload = payloadFromForm();
+        const resp = await fetch('/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!resp.ok) throw new Error('run start failed');
+        const started = await resp.json();
+        currentRunId = started.run_id;
+        updateWorkspaceMeta(started.run_id);
+
+        const timer = setInterval(async () => {
+          const st = await pollRunStatus(currentRunId);
+          if (!st) return;
+          q('progressFill').style.width = `${Math.max(1, st.progress || 0)}%`;
+          q('progressPct').textContent = `${Math.round(st.progress || 0)}%`;
+          q('progressNote').textContent = st.note || q('progressNote').textContent;
+          if (st.status === 'completed' || st.status === 'failed') {
+            clearInterval(timer);
+            q('btnRun').disabled = false;
+            q('btnRun').textContent = st.status === 'completed' ? 'Run chosen modes' : 'Run failed • retry';
+            if (st.status === 'completed') {
+              await refreshArtifacts(currentRunId);
+              updateArtifactButtons(true);
+              await loadAnalytics(currentRunId);
+              activateTab('ana');
+            }
+          }
+        }, 1500);
+      } catch (_) {
+        q('btnRun').disabled = false;
+        q('btnRun').textContent = 'Run failed • retry';
+        q('progressNote').textContent = 'Unable to start local run';
+      }
+    }
+
+    async function initStateCsvs() {
+      try {
+        const resp = await fetch('/api/state-csvs');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        stateCsvs = data.state_csvs || [];
+        const current = textOrEmpty('fileName');
+        const idx = stateCsvs.indexOf(current);
+        stateCsvIdx = idx >= 0 ? idx : -1;
+      } catch (_) {}
+    }
+
+    q('btnPickCsv').addEventListener('click', async () => {
+      if (!stateCsvs.length) await initStateCsvs();
+      if (!stateCsvs.length) return;
+      stateCsvIdx = (stateCsvIdx + 1 + stateCsvs.length) % stateCsvs.length;
+      setStateCsvDisplay(stateCsvs[stateCsvIdx]);
+      await loadActors(stateCsvs[stateCsvIdx]);
+    });
+
+    q('actorToggle').addEventListener('click', event => {
+      event.stopPropagation();
+      toggleActorMenu();
+    });
+
+    q('actorSearch').addEventListener('input', event => {
+      renderActorList(event.target.value || '');
+    });
+
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.multi-select')) toggleActorMenu(false);
+    });
+
+    q('btnExportPayload').addEventListener('click', () => {
+      const payload = { ...payloadFromForm(), created_at: new Date().toISOString() };
+      downloadFile('run_payload.json', JSON.stringify(payload, null, 2));
+    });
+
+    q('btnExportManifest').addEventListener('click', () => openArtifact('run_manifest.json'));
+    q('btnExportDashboard').addEventListener('click', () => openArtifact('dashboard.html'));
+    q('btnRun').addEventListener('click', startRun);
+
+    (async function init() {
+      setStateCsvDisplay('');
+      await initStateCsvs();
+      await loadActors();
+      await refreshArtifacts();
+      updateArtifactButtons(false);
+      await loadAnalytics();
+    })();
+  </script>
+</body>
+</html>

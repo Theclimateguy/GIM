@@ -27,6 +27,7 @@ This directory is split into:
 
 - `agent_state_data_contract.md` - CSV/state artifact contract for loaders.
 - `OBJECTIVE_RELATIONSHIPS.md` - objective definitions and linkage map.
+- `UI_WORKSPACE.md` - production local dashboard layout, bindings, and API surface.
 
 ## Legacy Docs
 

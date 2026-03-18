@@ -6,6 +6,7 @@ The codebase combines:
 
 - the core yearly world model (`gim/core/*`)
 - the scenario/game/orchestration layer (`gim/__main__.py`, `gim/game_runner.py`, `gim/sim_bridge.py`)
+- the local analytical workspace UI (`gim/ui_server.py`, `ui_prototype/gim15_dashboard_prototype.html`)
 - calibration harnesses and regression suites (`gim/calibration.py`, `gim/historical_backtest.py`, `misc/calibration/*`)
 
 ## What Runs Here
@@ -33,6 +34,7 @@ python3 -m gim metrics --agents Iran "United States"
 python3 -m gim calibrate --suite operational_v1
 python3 -m gim brief --from-json results/<run-id>/evaluation.json
 python3 -m gim console
+python3 -m gim ui --host 127.0.0.1 --port 8090
 ```
 
 Supported subcommands are:
@@ -43,6 +45,7 @@ Supported subcommands are:
 - `calibrate`
 - `brief`
 - `console`
+- `ui`
 
 ## Results Layout
 
@@ -63,6 +66,36 @@ Each run writes a `run_manifest.json`. Depending on command flags, folders can i
 - credit map HTML
 
 `calibrate` currently prints suite output to stdout and does not create a run folder.
+
+## Local Analytical Workspace
+
+Launch the production local dashboard with:
+
+```bash
+python3 -m gim ui --host 127.0.0.1 --port 8090
+```
+
+The UI is bound directly to this repository and local model runtime:
+
+- `Simulation Modes` builds real `python3 -m gim ...` runs from UI controls.
+- actors are selected from `data/agent_states_operational_2026_calibrated.csv`
+- template is optional; blank means backend auto-detect
+- exports are tied to real run artifacts (`run_manifest.json`, `dashboard.html`, `decision_brief.md`, `evaluation.json`)
+- `Analytics` renders run-specific outputs, not static placeholders
+
+Current analytics layout:
+
+- top summary block from `decision_brief.md` / narrative-derived brief
+- scenario distribution and crisis criticality gauge
+- grouped bar charts for GDP by actor, social tension by actor, and inflation / price stress
+- normalized crisis scale cards with raw-unit notes
+- separate `Outcome Distribution` and `Main Drivers` briefing panels
+
+Implementation reference:
+
+- `gim/ui_server.py`
+- `ui_prototype/gim15_dashboard_prototype.html`
+- `tests/test_ui_server.py`
 
 ## State Inputs and Defaults
 
@@ -146,6 +179,7 @@ python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-
 Active docs index:
 
 - `docs/README.md`
+- `docs/UI_WORKSPACE.md`
 
 Core runtime and contracts:
 

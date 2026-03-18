@@ -18,6 +18,7 @@ python3 -m gim --version
 - `python3 -m gim calibrate`
 - `python3 -m gim brief`
 - `python3 -m gim console`
+- `python3 -m gim ui`
 
 ## Quick Start Commands
 
@@ -155,6 +156,35 @@ Interactive menu wrapper for question/game flows.
 ```bash
 python3 -m gim console --state-csv data/agent_states_operational.csv --state-year 2026
 ```
+
+### `ui`
+
+Launch local analytical web UI bound to this repository and local runtime.
+
+```bash
+python3 -m gim ui --host 127.0.0.1 --port 8090
+```
+
+Behavior:
+
+- `Simulation Modes` builds real `python3 -m gim <command>` invocations from UI controls.
+- actor selection is sourced from `data/agent_states_operational_2026_calibrated.csv`.
+- leaving `Template` blank enables backend auto-detection.
+- `Run chosen modes` starts a real local run and tracks progress against the phase pipeline.
+- export buttons map to actual run artifacts and only enable when the artifact exists.
+- `Analytics` reads the executed run's `evaluation.json`, `run_manifest.json`, and `decision_brief.md`.
+
+Primary UI-backed endpoints:
+
+- `GET /api/docs`
+- `GET /api/state-csvs`
+- `GET /api/actors`
+- `POST /api/run`
+- `GET /api/run/<id>/status`
+- `GET /api/run/<id>/artifacts`
+- `GET /api/run/<id>/analytics`
+- `GET /api/analytics/latest`
+- `GET /api/download?path=...`
 
 ## Artifacts and Paths
 
