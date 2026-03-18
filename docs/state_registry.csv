@@ -31,7 +31,11 @@ agent.risk.regime_stability,agent,stock,share,0,1,propagate,social.py,trust;tens
 agent.risk.debt_crisis_prone,agent,stock,share,0,1,baseline,initialization_or_overrides,structural_fin_fragility,interest_spread;debt_event_prob,EQ-RSK-003,Structural debt fragility
 agent.risk.conflict_proneness,agent,stock,share,0,1,baseline,initialization_or_overrides,structural_geopolitical_risk,war_prob;migration_push,EQ-RSK-004,Conflict baseline factor
 agent.risk.debt_crisis_active_years,agent,event,years,0,10,detect,social.py,debt_ratio;interest_rate;exit_rules,propagation_debt_shocks,EQ-EVT-001,Debt crisis state variable
-agent.risk.regime_crisis_active_years,agent,event,years,0,10,detect,social.py,trust;tension;exit_rules,propagation_regime_shocks,EQ-EVT-002,Regime crisis state variable
+agent.risk.fx_crisis_active_years,agent,event,years,0,10,detect,social.py,external_debt;current_account;reserve_cover,propagation_fx_shocks,EQ-EVT-002,FX crisis state variable
+agent.risk.regime_crisis_active_years,agent,event,years,0,10,detect,social.py,trust;tension;exit_rules,propagation_regime_shocks,EQ-EVT-003,Regime crisis state variable
+agent.risk.external_debt_ratio,agent,latent,share,0,,detect,social.py,public_debt;fx_reserves,fx_crisis_trigger,EQ-RSK-005,Net external debt proxy used by FX crisis trigger
+agent.risk.current_account_ratio,agent,flow,share_of_gdp,, ,detect,social.py,net_exports;import_bill,fx_crisis_trigger,EQ-FIN-003,Current-account proxy used by FX crisis trigger
+agent.risk.fx_reserve_cover_months,agent,latent,months,0,,detect,social.py,fx_reserves;import_bill,fx_crisis_trigger;fx_recovery,EQ-FIN-004,Reserve cover in months of imports
 agent.technology.tech_level,agent,stock,index,0.5,,baseline,actions.py;metrics.py,rd_spending;diffusion,productivity;decarbonization,EQ-TECH-002,Improves TFP and resilience
 agent.technology.military_power,agent,stock,index,0,,propagate,actions.py;geopolitics.py,military_spend;war_losses,war_outcomes;deterrence,EQ-SEC-002,Used in conflict losses
 agent.technology.security_index,agent,latent,share,0,1,baseline,initialization_or_overrides,scenario_or_input,security_action_rules,EQ-SEC-003,Heuristic threat context

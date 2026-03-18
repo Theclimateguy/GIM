@@ -106,8 +106,12 @@ class RiskState:
     debt_crisis_prone: float
     conflict_proneness: float
     debt_crisis_active_years: int = 0
+    fx_crisis_active_years: int = 0
     regime_crisis_active_years: int = 0
     debt_crisis_trigger: str = "debt"
+    external_debt_ratio: float = 0.0
+    current_account_ratio: float = 0.0
+    fx_reserve_cover_months: float = 0.0
 
 
 @dataclass

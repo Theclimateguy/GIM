@@ -68,6 +68,8 @@ from .simulation import (
 )
 from .social import (
     check_debt_crisis,
+    check_financial_crises,
+    check_fx_crisis,
     check_regime_stability,
     update_population,
     update_social_state,

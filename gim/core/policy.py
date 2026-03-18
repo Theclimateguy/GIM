@@ -404,7 +404,7 @@ LLM_POLICY_PROMPT_TEMPLATE = (
     "- Eurasian: build ties within block and with NonAligned/GlobalSouth;\n"
     "           treat Western military alliances carefully.\n"
     "- NonAligned/Latin/MENA: diversify partners to reduce dependence on any bloc.\n\n"
-    "COERCION & SECURITY ACTIONS (use sparingly but decisively):\n"
+    "COERCION & SECURITY ACTIONS (deploy foreign-policy tools proportional to the severity of the geopolitical situation):\n"
     "- If any neighbor conflict_level >= 0.30, propose at least one coercive OR defensive\n"
     "  move (sanction, trade_restriction, military_exercise, or arms_buildup) unless your\n"
     "  own social/economic fragility is extreme.\n"

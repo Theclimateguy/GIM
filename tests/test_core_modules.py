@@ -231,13 +231,13 @@ class CoreModuleTests(unittest.TestCase):
         stable = self._make_agent(agent_id="A")
         stressed = self._make_agent(agent_id="B", public_debt=2.0)
         stressed.risk.debt_crisis_active_years = 2
+        stressed.risk.fx_crisis_active_years = 1
         world = self._make_world(stable, stressed)
 
         self.assertEqual(compute_crisis_flags(stable, world), [])
-        self.assertIn(
-            "debt_crisis",
-            {flag["type"] for flag in compute_crisis_flags(stressed, world)},
-        )
+        flag_types = {flag["type"] for flag in compute_crisis_flags(stressed, world)}
+        self.assertIn("debt_crisis", flag_types)
+        self.assertIn("fx_crisis", flag_types)
 
     def test_political_constraints_downgrade_overreach(self) -> None:
         agent = self._make_agent(agent_id="A")

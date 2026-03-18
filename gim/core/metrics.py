@@ -96,6 +96,28 @@ def compute_crisis_flags(agent: AgentState, world: WorldState) -> list[dict[str,
             }
         )
 
+    fx_years = agent.risk.fx_crisis_active_years
+    if fx_years > 0:
+        flags.append(
+            {
+                "type": "fx_crisis",
+                "active_years": fx_years,
+                "severity": "high" if fx_years >= 2 else "moderate",
+            }
+        )
+    elif (
+        agent.risk.external_debt_ratio >= cal.FX_CRISIS_EXTERNAL_DEBT_THRESHOLD * 0.9
+        and agent.risk.current_account_ratio <= cal.FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD * 0.75
+        and agent.risk.fx_reserve_cover_months <= cal.FX_CRISIS_RESERVE_MONTHS_THRESHOLD * 1.25
+    ):
+        flags.append(
+            {
+                "type": "fx_stress_elevated",
+                "active_years": 0,
+                "severity": "watch",
+            }
+        )
+
     regime_years = agent.risk.regime_crisis_active_years
     if regime_years > 0:
         flags.append(

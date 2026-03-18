@@ -48,6 +48,7 @@ Near-miss cases are calibrated close to thresholds. A valid model should keep cr
 Primary near-miss indicators:
 
 - no `debt_crisis_active_years > 0`
+- no `fx_crisis_active_years > 0`
 - no `regime_crisis_active_years > 0`
 - no abrupt collapse in GDP/trust inconsistent with scenario design
 
@@ -68,7 +69,7 @@ Interpretation:
 Implemented in harness:
 
 - for each `ablation_target`, run baseline and channel-off simulation
-- report `delta_vs_baseline` for key metrics (`gdp`, `trade_intensity`, `trust_gov`, `social_tension`, `debt_ratio`, `debt_crisis_active_years`, `credit_risk_score`)
+- report `delta_vs_baseline` for key metrics (`gdp`, `trade_intensity`, `trust_gov`, `social_tension`, `debt_ratio`, `debt_crisis_active_years`, `fx_crisis_active_years`, `credit_risk_score`)
 
 ## 6. Minimal run contract for harness
 
@@ -77,7 +78,7 @@ Per run, persist:
 - `phase_trace` snapshots
 - `detect_cards` and `propagate_cards`
 - invariant report
-- key trajectories (`gdp`, `public_debt`, `trust_gov`, `social_tension`, `credit_risk_score`)
+- key trajectories (`gdp`, `public_debt`, `trust_gov`, `social_tension`, `debt_crisis_active_years`, `fx_crisis_active_years`, `credit_risk_score`)
 
 Output table columns:
 

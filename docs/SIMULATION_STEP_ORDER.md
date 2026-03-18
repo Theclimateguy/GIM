@@ -25,7 +25,7 @@ This note documents the effective yearly write order in [`simulation.py`](/Users
 19. `apply_climate_extreme_events`
 20. `update_economy_output`
 21. `update_public_finances`
-22. `check_debt_crisis`
+22. `check_financial_crises` (`check_debt_crisis` + `check_fx_crisis`)
 23. `update_migration_flows`
 24. `update_population`
 25. `update_social_state`
@@ -58,6 +58,7 @@ Critical fields are computed as deltas/signals during propagate and finalized on
 | `society.trust_gov` | `gim/core/transitions/reconcile.py` |
 | `society.social_tension` | `gim/core/transitions/reconcile.py` |
 | `risk.debt_crisis_active_years` | `social.py` only |
+| `risk.fx_crisis_active_years` | `social.py` only |
 | `risk.regime_crisis_active_years` | `social.py` only |
 
 Implementation note:

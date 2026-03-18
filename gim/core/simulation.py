@@ -31,7 +31,7 @@ from .resources import (
     update_resource_stocks,
 )
 from .social import (
-    check_debt_crisis,
+    check_financial_crises,
     check_regime_stability,
     update_migration_flows,
     update_population,
@@ -518,6 +518,36 @@ def _collect_detection_cards(world: WorldState) -> List[Dict[str, Any]]:
             )
 
         if (
+            agent.risk.external_debt_ratio >= cal.FX_CRISIS_EXTERNAL_DEBT_THRESHOLD * 0.9
+            and agent.risk.current_account_ratio <= cal.FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD * 0.75
+            and agent.risk.fx_reserve_cover_months <= cal.FX_CRISIS_RESERVE_MONTHS_THRESHOLD * 1.25
+        ):
+            score = min(
+                1.0,
+                0.4 * (agent.risk.external_debt_ratio / max(cal.FX_CRISIS_EXTERNAL_DEBT_THRESHOLD, 1e-6))
+                + 0.3
+                * (
+                    max(0.0, -agent.risk.current_account_ratio)
+                    / max(abs(cal.FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD), 1e-6)
+                )
+                + 0.3
+                * (
+                    max(0.0, cal.FX_CRISIS_RESERVE_MONTHS_THRESHOLD - agent.risk.fx_reserve_cover_months)
+                    / max(cal.FX_CRISIS_RESERVE_MONTHS_THRESHOLD, 1e-6)
+                ),
+            )
+            cards.append(
+                {
+                    "type": "fx_crisis_watch",
+                    "agent_id": agent.id,
+                    "score": float(score),
+                    "external_debt_ratio": float(agent.risk.external_debt_ratio),
+                    "current_account_ratio": float(agent.risk.current_account_ratio),
+                    "reserve_cover_months": float(agent.risk.fx_reserve_cover_months),
+                }
+            )
+
+        if (
             agent.society.trust_gov <= cal.REGIME_COLLAPSE_TRUST_THRESHOLD + 0.05
             and agent.society.social_tension >= cal.REGIME_COLLAPSE_TENSION_THRESHOLD - 0.05
         ):
@@ -591,6 +621,15 @@ def _collect_propagation_cards(world: WorldState) -> List[Dict[str, Any]]:
                     "agent_id": agent.id,
                     "score": float(min(1.0, agent.risk.debt_crisis_active_years / 4.0)),
                     "active_years": int(agent.risk.debt_crisis_active_years),
+                }
+            )
+        if agent.risk.fx_crisis_active_years > 0:
+            cards.append(
+                {
+                    "type": "fx_crisis_active",
+                    "agent_id": agent.id,
+                    "score": float(min(1.0, agent.risk.fx_crisis_active_years / 4.0)),
+                    "active_years": int(agent.risk.fx_crisis_active_years),
                 }
             )
         if agent.risk.regime_crisis_active_years > 0:
@@ -824,7 +863,7 @@ def _run_phase_propagation(
     for agent in world.agents.values():
         update_public_finances(agent, world, defer_critical_writes=True)
         apply_economy_pending_deltas(world, agent_ids=[agent.id])
-        check_debt_crisis(agent, world, defer_critical_writes=True)
+        check_financial_crises(agent, world, defer_critical_writes=True)
     if channel_snapshots is not None:
         channel_snapshots["after_climate_macro"] = capture_effective_critical_fields(world)
 

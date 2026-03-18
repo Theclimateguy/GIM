@@ -161,6 +161,7 @@ def _event_time(token: str, series: Dict[str, List[float]]) -> int | None:
     tension = series.get("society.social_tension", [])
     debt_ratio = series.get("debt_ratio", [])
     debt_active = series.get("risk.debt_crisis_active_years", [])
+    fx_active = series.get("risk.fx_crisis_active_years", [])
     credit = series.get("credit_risk_score", [])
 
     if token == "trade_intensity_drop" and trade:
@@ -175,6 +176,8 @@ def _event_time(token: str, series: Dict[str, List[float]]) -> int | None:
         return _first([v > cal.DEBT_STRESS_THRESHOLD for v in debt_ratio])
     if token == "debt_crisis_activation" and debt_active:
         return _first([v > 0.0 for v in debt_active])
+    if token == "fx_crisis_activation" and fx_active:
+        return _first([v > 0.0 for v in fx_active])
     if token == "credit_risk_rise" and credit:
         return _first([v > credit[0] + 0.01 for v in credit])
     return None
@@ -262,6 +265,7 @@ def run_case(case: Dict[str, Any], max_agents: int = 21) -> CaseResult:
         "society.social_tension": _extract_target_metric(world, target_id, "target.society.social_tension"),
         "debt_ratio": _extract_target_metric(world, target_id, "target.debt_ratio"),
         "risk.debt_crisis_active_years": _extract_target_metric(world, target_id, "target.risk.debt_crisis_active_years"),
+        "risk.fx_crisis_active_years": _extract_target_metric(world, target_id, "target.risk.fx_crisis_active_years"),
         "credit_risk_score": _extract_target_metric(world, target_id, "target.credit_risk_score"),
     }
     series: Dict[str, List[float]] = {k: [v] for k, v in tracked_metrics.items()}
@@ -289,6 +293,7 @@ def run_case(case: Dict[str, Any], max_agents: int = 21) -> CaseResult:
         "society.social_tension": series["society.social_tension"][-1],
         "debt_ratio": series["debt_ratio"][-1],
         "risk.debt_crisis_active_years": series["risk.debt_crisis_active_years"][-1],
+        "risk.fx_crisis_active_years": series["risk.fx_crisis_active_years"][-1],
         "credit_risk_score": series["credit_risk_score"][-1],
     }
     before_for_mag = {
@@ -298,6 +303,7 @@ def run_case(case: Dict[str, Any], max_agents: int = 21) -> CaseResult:
         "society.social_tension": series["society.social_tension"][0],
         "debt_ratio": series["debt_ratio"][0],
         "risk.debt_crisis_active_years": series["risk.debt_crisis_active_years"][0],
+        "risk.fx_crisis_active_years": series["risk.fx_crisis_active_years"][0],
         "credit_risk_score": series["credit_risk_score"][0],
     }
     mag_ok, mag_note = _magnitude_check(case.get("magnitude_bounds", {}), before_for_mag, final_metrics)
@@ -323,6 +329,8 @@ def run_case(case: Dict[str, Any], max_agents: int = 21) -> CaseResult:
         "debt_ratio": final_metrics["debt_ratio"] - before_for_mag["debt_ratio"],
         "debt_crisis_active_years": final_metrics["risk.debt_crisis_active_years"]
         - before_for_mag["risk.debt_crisis_active_years"],
+        "fx_crisis_active_years": final_metrics["risk.fx_crisis_active_years"]
+        - before_for_mag["risk.fx_crisis_active_years"],
         "credit_risk_score": final_metrics["credit_risk_score"] - before_for_mag["credit_risk_score"],
     }
 
@@ -369,6 +377,7 @@ def _run_case_with_overrides(
         "society.social_tension": _extract_target_metric(world, target_id, "target.society.social_tension"),
         "debt_ratio": _extract_target_metric(world, target_id, "target.debt_ratio"),
         "risk.debt_crisis_active_years": _extract_target_metric(world, target_id, "target.risk.debt_crisis_active_years"),
+        "risk.fx_crisis_active_years": _extract_target_metric(world, target_id, "target.risk.fx_crisis_active_years"),
         "credit_risk_score": _extract_target_metric(world, target_id, "target.credit_risk_score"),
     }
     series: Dict[str, List[float]] = {k: [v] for k, v in tracked_metrics.items()}
@@ -396,6 +405,7 @@ def _run_case_with_overrides(
         "society.social_tension": series["society.social_tension"][-1],
         "debt_ratio": series["debt_ratio"][-1],
         "risk.debt_crisis_active_years": series["risk.debt_crisis_active_years"][-1],
+        "risk.fx_crisis_active_years": series["risk.fx_crisis_active_years"][-1],
         "credit_risk_score": series["credit_risk_score"][-1],
     }
     before_for_mag = {
@@ -405,6 +415,7 @@ def _run_case_with_overrides(
         "society.social_tension": series["society.social_tension"][0],
         "debt_ratio": series["debt_ratio"][0],
         "risk.debt_crisis_active_years": series["risk.debt_crisis_active_years"][0],
+        "risk.fx_crisis_active_years": series["risk.fx_crisis_active_years"][0],
         "credit_risk_score": series["credit_risk_score"][0],
     }
     mag_ok, mag_note = _magnitude_check(case.get("magnitude_bounds", {}), before_for_mag, final_metrics)
@@ -430,6 +441,8 @@ def _run_case_with_overrides(
         "debt_ratio": final_metrics["debt_ratio"] - before_for_mag["debt_ratio"],
         "debt_crisis_active_years": final_metrics["risk.debt_crisis_active_years"]
         - before_for_mag["risk.debt_crisis_active_years"],
+        "fx_crisis_active_years": final_metrics["risk.fx_crisis_active_years"]
+        - before_for_mag["risk.fx_crisis_active_years"],
         "credit_risk_score": final_metrics["credit_risk_score"] - before_for_mag["credit_risk_score"],
     }
 

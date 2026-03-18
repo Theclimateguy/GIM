@@ -242,4 +242,10 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `15.1.0`
+Current package version: `15.5.0`
+
+Current release highlights:
+
+- explicit, separately tracked `fx_crisis` pathway with debt/FX co-occurrence support
+- synchronized FX crisis parameters in `data/parameters_v15.csv`
+- severity-proportional foreign-policy wording in the legacy LLM prompt path

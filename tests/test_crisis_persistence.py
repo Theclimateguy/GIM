@@ -22,7 +22,7 @@ from gim.core.core import (
 )
 from gim.core.observation import build_observation
 from gim.core.simulation import step_world
-from gim.core.social import check_debt_crisis, check_regime_stability
+from gim.core.social import check_debt_crisis, check_financial_crises, check_fx_crisis, check_regime_stability
 
 
 class CrisisPersistenceTests(unittest.TestCase):
@@ -46,7 +46,9 @@ class CrisisPersistenceTests(unittest.TestCase):
         name: str = "Agent A",
         gdp: float = 1.0,
         public_debt: float = 3.0,
+        fx_reserves: float = 0.1,
         unemployment: float = 0.08,
+        net_exports: float = 0.0,
         trust_gov: float = 0.15,
         social_tension: float = 0.92,
         climate_shock_years: int = 0,
@@ -58,8 +60,9 @@ class CrisisPersistenceTests(unittest.TestCase):
             capital=2.0,
             population=50_000_000,
             public_debt=public_debt,
-            fx_reserves=0.1,
+            fx_reserves=fx_reserves,
             unemployment=unemployment,
+            net_exports=net_exports,
             climate_shock_years=climate_shock_years,
         )
         economy.gdp_per_capita = economy.gdp * 1e12 / economy.population
@@ -133,22 +136,71 @@ class CrisisPersistenceTests(unittest.TestCase):
     def test_fx_trigger_can_start_crisis_without_debt_threshold_breach(self) -> None:
         agent = self._make_agent(
             public_debt=0.55,
+            fx_reserves=0.01,
+            net_exports=-0.08,
             trust_gov=0.45,
             social_tension=0.55,
             regime_stability=0.40,
             debt_crisis_prone=0.35,
         )
-        agent.economy.inflation = 0.28
-        agent.economy.fx_reserves = 0.01
         agent.resources["energy"].production = 0.1
         agent.resources["energy"].consumption = 1.6
         world = self._make_world(agent)
 
-        check_debt_crisis(agent, world)
+        check_fx_crisis(agent, world)
+
+        self.assertEqual(agent.risk.fx_crisis_active_years, 1)
+        self.assertEqual(agent.risk.debt_crisis_active_years, 0)
+        self.assertGreater(agent.risk.external_debt_ratio, cal.FX_CRISIS_EXTERNAL_DEBT_THRESHOLD)
+        self.assertLess(agent.risk.current_account_ratio, cal.FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD)
+        self.assertLess(agent.economy.gdp, 0.90)
+        self.assertGreater(agent.economy.public_debt, 0.55)
+
+    def test_fx_crisis_recovers_when_reserve_cover_restored(self) -> None:
+        agent = self._make_agent(
+            public_debt=0.58,
+            fx_reserves=0.01,
+            net_exports=-0.06,
+            trust_gov=0.45,
+            social_tension=0.55,
+            regime_stability=0.45,
+            debt_crisis_prone=0.30,
+        )
+        agent.resources["energy"].production = 0.1
+        agent.resources["energy"].consumption = 1.6
+        world = self._make_world(agent)
+
+        check_fx_crisis(agent, world)
+        self.assertEqual(agent.risk.fx_crisis_active_years, 1)
+
+        agent.economy.fx_reserves = 0.80
+        check_fx_crisis(agent, world)
+
+        self.assertEqual(agent.risk.fx_crisis_active_years, 0)
+        self.assertGreater(agent.risk.fx_reserve_cover_months, cal.FX_CRISIS_RECOVERY_RESERVE_MONTHS)
+
+    def test_fx_and_debt_crises_can_cooccur(self) -> None:
+        agent = self._make_agent(
+            public_debt=1.60,
+            fx_reserves=0.01,
+            net_exports=-0.10,
+            trust_gov=0.38,
+            social_tension=0.62,
+            regime_stability=0.25,
+            debt_crisis_prone=0.85,
+        )
+        agent.resources["energy"].production = 0.1
+        agent.resources["energy"].consumption = 1.6
+        world = self._make_world(agent)
+
+        check_financial_crises(agent, world)
+        obs = build_observation(world, agent.id)
+        crisis_types = {flag["type"] for flag in obs.self_state["competitive"]["crisis_flags"]}
 
         self.assertEqual(agent.risk.debt_crisis_active_years, 1)
-        self.assertLess(agent.economy.gdp, 1.0)
-        self.assertGreater(agent.economy.public_debt, 0.55)
+        self.assertEqual(agent.risk.fx_crisis_active_years, 1)
+        self.assertIn("debt_crisis", crisis_types)
+        self.assertIn("fx_crisis", crisis_types)
 
     def test_regime_crisis_persists_multiple_years(self) -> None:
         agent = self._make_agent()
@@ -215,7 +267,7 @@ class CrisisPersistenceTests(unittest.TestCase):
         world.relations[focal.id][peer.id].at_war = True
         world.relations[focal.id][peer.id].war_years = 2
 
-        check_debt_crisis(focal, world)
+        check_financial_crises(focal, world)
         check_regime_stability(focal)
         obs = build_observation(world, focal.id)
         crisis_types = {flag["type"] for flag in obs.self_state["competitive"]["crisis_flags"]}

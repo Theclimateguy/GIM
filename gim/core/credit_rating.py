@@ -159,6 +159,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
     interest_rate = compute_effective_interest_rate(agent, world)
     debt_stress = clamp01(compute_debt_stress(agent) / 3.0)
     debt_crisis_now = 1.0 if agent.risk.debt_crisis_active_years > 0 else 0.0
+    fx_crisis_now = 1.0 if agent.risk.fx_crisis_active_years > 0 else 0.0
 
     gdp_trend = float(memory_summary.get("gdp_trend", 0.0))
     gdp_trend_ratio = _safe_div(gdp_trend, gdp)
@@ -174,7 +175,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
         + cal.CR_FINANCIAL_NOW_RATE_W
         * _normalize(interest_rate, cal.CR_FINANCIAL_RATE_LO, cal.CR_FINANCIAL_RATE_HI)
         + cal.CR_FINANCIAL_NOW_STRESS_W * debt_stress
-        + cal.CR_FINANCIAL_NOW_CRISIS_W * debt_crisis_now
+        + cal.CR_FINANCIAL_NOW_CRISIS_W * max(debt_crisis_now, fx_crisis_now)
     )
     financial_next = clamp01(
         cal.CR_FINANCIAL_NEXT_STRESS_W * debt_stress
@@ -279,6 +280,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
         "debt_gdp": debt_gdp,
         "interest_rate": interest_rate,
         "debt_crisis_now": debt_crisis_now,
+        "fx_crisis_now": fx_crisis_now,
         "at_war_now": at_war,
         "war_links": float(war_links),
         "high_conflict_links": float(high_conflict_links),

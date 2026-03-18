@@ -38,7 +38,7 @@ Source: `data/agent_states_operational.artifacts.json`
 
 Rule: these values are loaded through `ACTIVE_STATE_ARTIFACT` and must be changed only via refresh scripts, not by direct hand-editing.
 
-### 2.1b Release baseline defaults (v15.1)
+### 2.1b Release baseline defaults (v15.5 current; introduced in v15.1)
 
 Source: rolling walk-forward Stage B/C artifacts
 
@@ -47,7 +47,7 @@ Source: rolling walk-forward Stage B/C artifacts
 - `HEAT_CAP_SURFACE = 18.000000`
 - `DECARB_RATE_STRUCTURAL = 0.052000` (kept artifact-bound from the operational manifest)
 
-Rule: release `15.1` uses a hybrid baseline: macro sensitivity and heat capacity are switched to rolling-selected values, while structural decarb remains manifest-bound to preserve historical CO2 fit.
+Rule: release `15.5` retains the hybrid baseline introduced in `15.1`: macro sensitivity and heat capacity use rolling-selected values, while structural decarb remains manifest-bound to preserve historical CO2 fit.
 
 ### 2.2 Climate/macro tuned parameters
 
@@ -71,6 +71,11 @@ Source: `gim/core/calibration_params.py`, provenance in `misc/calibration/crisis
 - `DEBT_CRISIS_EXIT_THRESHOLD = 0.70`
 - `DEBT_CRISIS_EXIT_RATE = 0.08`
 - `DEBT_CRISIS_MAX_YEARS = 6`
+- `FX_CRISIS_EXTERNAL_DEBT_THRESHOLD = 0.50`
+- `FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD = -0.04`
+- `FX_CRISIS_RESERVE_MONTHS_THRESHOLD = 3.0`
+- `FX_CRISIS_GDP_MULT = 0.85`
+- `FX_CRISIS_RECOVERY_RESERVE_MONTHS = 3.0`
 - `REGIME_CRISIS_PERSIST_GDP_MULT = 0.96`
 - `REGIME_CRISIS_PERSIST_CAPITAL_MULT = 0.975`
 - `REGIME_CRISIS_MAX_YEARS = 5`

@@ -362,62 +362,68 @@ def check_regime_stability(agent: AgentState, world: WorldState | None = None) -
         agent.risk.regime_crisis_active_years = 0
 
 
+def _estimate_annual_import_bill(agent: AgentState, world: WorldState) -> float:
+    prices = getattr(world.global_state, "prices", {}) or {}
+    annual_import_bill = 0.0
+    for resource_name in ("energy", "food", "metals"):
+        resource = agent.resources.get(resource_name)
+        if resource is None:
+            continue
+        unit_price = float(prices.get(resource_name, 1.0))
+        net_import_volume = max(0.0, float(resource.consumption) - float(resource.production))
+        annual_import_bill += net_import_volume * max(unit_price, 1e-6)
+    return annual_import_bill
+
+
+def _fx_crisis_inputs(agent: AgentState, world: WorldState) -> Dict[str, float]:
+    gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
+    debt_gdp = _effective_critical(agent, world, "public_debt") / gdp
+    annual_import_bill = _estimate_annual_import_bill(agent, world)
+    monthly_import_bill = max(annual_import_bill / 12.0, 1e-6)
+    fx_cover_months = float(agent.economy.fx_reserves) / monthly_import_bill
+    reserve_ratio = float(agent.economy.fx_reserves) / gdp
+    import_ratio = annual_import_bill / gdp
+    trade_balance_ratio = float(agent.economy.net_exports) / gdp
+    current_account_ratio = min(0.0, trade_balance_ratio)
+    if current_account_ratio < 0.0:
+        current_account_ratio -= cal.FX_CRISIS_IMPORT_LEAKAGE_WEIGHT * import_ratio
+    external_debt_ratio = max(0.0, debt_gdp - cal.FX_CRISIS_RESERVE_OFFSET_WEIGHT * reserve_ratio)
+    return {
+        "annual_import_bill": annual_import_bill,
+        "fx_cover_months": fx_cover_months,
+        "current_account_ratio": current_account_ratio,
+        "external_debt_ratio": external_debt_ratio,
+    }
+
+
 def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_writes: bool = False) -> None:
     economy = agent.economy
     risk = agent.risk
 
     # WRITES: risk.debt_crisis_active_years, economy.public_debt, economy.gdp,
     # economy.unemployment, society.trust_gov, society.social_tension
-    def _estimate_fx_cover_months() -> float:
-        prices = getattr(world.global_state, "prices", {}) or {}
-        annual_import_bill = 0.0
-        for resource_name in ("energy", "food", "metals"):
-            resource = agent.resources.get(resource_name)
-            if resource is None:
-                continue
-            unit_price = float(prices.get(resource_name, 1.0))
-            net_import_volume = max(0.0, float(resource.consumption) - float(resource.production))
-            annual_import_bill += net_import_volume * max(unit_price, 1e-6)
-        monthly_import_bill = max(annual_import_bill / 12.0, 1e-6)
-        return float(economy.fx_reserves) / monthly_import_bill
-
     gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
     debt_gdp = _effective_critical(agent, world, "public_debt") / gdp
     interest_rate = compute_effective_interest_rate(agent, world)
-    fx_cover_months = _estimate_fx_cover_months()
-    inflation = float(economy.inflation)
 
     debt_trigger = (
         debt_gdp > cal.DEBT_CRISIS_DEBT_THRESHOLD
         and interest_rate > cal.DEBT_CRISIS_RATE_THRESHOLD
     )
-    fx_trigger = (
-        inflation > cal.FX_CRISIS_INFLATION_THRESHOLD
-        and fx_cover_months < cal.FX_CRISIS_RESERVE_MONTHS_THRESHOLD
-    )
-    trigger_kind = "fx" if fx_trigger and not debt_trigger else "debt"
 
     if risk.debt_crisis_active_years == 0:
-        in_crisis = debt_trigger or fx_trigger
-        if in_crisis:
-            risk.debt_crisis_trigger = trigger_kind
+        in_crisis = debt_trigger
         recovered = False
-    else:
-        current_trigger = risk.debt_crisis_trigger if risk.debt_crisis_trigger in {"debt", "fx"} else "debt"
-        if debt_trigger:
-            current_trigger = "debt"
+        if in_crisis:
             risk.debt_crisis_trigger = "debt"
+    else:
         recovery_window_open = risk.debt_crisis_active_years >= 2
-        debt_recovered = (
+        recovered = (
             debt_gdp < cal.DEBT_CRISIS_EXIT_THRESHOLD
             and interest_rate < cal.DEBT_CRISIS_EXIT_RATE
         )
-        fx_recovered = (
-            inflation < cal.FX_CRISIS_EXIT_INFLATION
-            and fx_cover_months > cal.FX_CRISIS_EXIT_RESERVE_MONTHS
-        )
-        recovered = fx_recovered if current_trigger == "fx" else debt_recovered
         in_crisis = not (recovery_window_open and recovered)
+
     if in_crisis:
         risk.debt_crisis_active_years = min(
             risk.debt_crisis_active_years + 1,
@@ -425,58 +431,35 @@ def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_wr
         )
         crisis_year = risk.debt_crisis_active_years
         if crisis_year == 1:
-            if risk.debt_crisis_trigger == "fx":
-                _set_critical_effective(
-                    world,
-                    agent,
-                    "public_debt",
-                    _effective_critical(agent, world, "public_debt") * cal.FX_CRISIS_DEBT_MULT,
-                )
-                _set_critical_effective(
-                    world,
-                    agent,
-                    "gdp",
-                    _effective_critical(agent, world, "gdp") * cal.FX_CRISIS_GDP_MULT,
-                )
-                unemployment_hit = cal.FX_CRISIS_UNEMPLOYMENT_HIT
-                trust_hit = cal.FX_CRISIS_TRUST_HIT
-                tension_hit = cal.FX_CRISIS_TENSION_HIT
-                stability_hit = cal.FX_CRISIS_STABILITY_HIT
-            else:
-                _set_critical_effective(
-                    world,
-                    agent,
-                    "public_debt",
-                    _effective_critical(agent, world, "public_debt") * cal.DEBT_CRISIS_DEBT_MULT,
-                )
-                _set_critical_effective(
-                    world,
-                    agent,
-                    "gdp",
-                    _effective_critical(agent, world, "gdp") * cal.DEBT_CRISIS_GDP_MULT,
-                )
-                unemployment_hit = cal.DEBT_CRISIS_UNEMPLOYMENT_HIT
-                trust_hit = cal.DEBT_CRISIS_TRUST_HIT
-                tension_hit = cal.DEBT_CRISIS_TENSION_HIT
-                stability_hit = cal.DEBT_CRISIS_STABILITY_HIT
+            _set_critical_effective(
+                world,
+                agent,
+                "public_debt",
+                _effective_critical(agent, world, "public_debt") * cal.DEBT_CRISIS_DEBT_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.DEBT_CRISIS_GDP_MULT,
+            )
             economy.unemployment = min(
                 cal.DEBT_CRISIS_UNEMPLOYMENT_MAX,
-                economy.unemployment + unemployment_hit,
+                economy.unemployment + cal.DEBT_CRISIS_UNEMPLOYMENT_HIT,
             )
-
             _set_critical_effective(
                 world,
                 agent,
                 "trust_gov",
-                max(0.0, _effective_critical(agent, world, "trust_gov") - trust_hit),
+                max(0.0, _effective_critical(agent, world, "trust_gov") - cal.DEBT_CRISIS_TRUST_HIT),
             )
             _set_critical_effective(
                 world,
                 agent,
                 "social_tension",
-                min(1.0, _effective_critical(agent, world, "social_tension") + tension_hit),
+                min(1.0, _effective_critical(agent, world, "social_tension") + cal.DEBT_CRISIS_TENSION_HIT),
             )
-            risk.regime_stability = max(0.0, risk.regime_stability - stability_hit)
+            risk.regime_stability = max(0.0, risk.regime_stability - cal.DEBT_CRISIS_STABILITY_HIT)
         elif not recovered:
             _set_critical_effective(
                 world,
@@ -502,5 +485,106 @@ def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_wr
     else:
         risk.debt_crisis_active_years = 0
         risk.debt_crisis_trigger = "debt"
+    if not defer_critical_writes:
+        _flush_social_pending_for_agent(world, agent)
+
+
+def check_fx_crisis(agent: AgentState, world: WorldState, *, defer_critical_writes: bool = False) -> None:
+    economy = agent.economy
+    risk = agent.risk
+
+    # WRITES: risk.fx_crisis_active_years, risk.external_debt_ratio,
+    # risk.current_account_ratio, risk.fx_reserve_cover_months, economy.public_debt,
+    # economy.gdp, economy.unemployment, society.trust_gov, society.social_tension
+    fx_inputs = _fx_crisis_inputs(agent, world)
+    external_debt_ratio = float(fx_inputs["external_debt_ratio"])
+    current_account_ratio = float(fx_inputs["current_account_ratio"])
+    fx_cover_months = float(fx_inputs["fx_cover_months"])
+
+    risk.external_debt_ratio = external_debt_ratio
+    risk.current_account_ratio = current_account_ratio
+    risk.fx_reserve_cover_months = fx_cover_months
+
+    fx_trigger = (
+        external_debt_ratio > cal.FX_CRISIS_EXTERNAL_DEBT_THRESHOLD
+        and current_account_ratio < cal.FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD
+        and fx_cover_months < cal.FX_CRISIS_RESERVE_MONTHS_THRESHOLD
+    )
+
+    if risk.fx_crisis_active_years == 0:
+        in_crisis = fx_trigger
+        recovered = False
+    else:
+        recovery_window_open = risk.fx_crisis_active_years >= 1
+        recovered = fx_cover_months > cal.FX_CRISIS_RECOVERY_RESERVE_MONTHS
+        in_crisis = not (recovery_window_open and recovered)
+
+    if in_crisis:
+        risk.fx_crisis_active_years = min(
+            risk.fx_crisis_active_years + 1,
+            cal.FX_CRISIS_MAX_YEARS,
+        )
+        crisis_year = risk.fx_crisis_active_years
+        if crisis_year == 1:
+            _set_critical_effective(
+                world,
+                agent,
+                "public_debt",
+                _effective_critical(agent, world, "public_debt") * cal.FX_CRISIS_DEBT_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.FX_CRISIS_GDP_MULT,
+            )
+            economy.unemployment = min(
+                cal.DEBT_CRISIS_UNEMPLOYMENT_MAX,
+                economy.unemployment + cal.FX_CRISIS_UNEMPLOYMENT_HIT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "trust_gov",
+                max(0.0, _effective_critical(agent, world, "trust_gov") - cal.FX_CRISIS_TRUST_HIT),
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "social_tension",
+                min(1.0, _effective_critical(agent, world, "social_tension") + cal.FX_CRISIS_TENSION_HIT),
+            )
+            risk.regime_stability = max(0.0, risk.regime_stability - cal.FX_CRISIS_STABILITY_HIT)
+        elif not recovered:
+            _set_critical_effective(
+                world,
+                agent,
+                "gdp",
+                _effective_critical(agent, world, "gdp") * cal.FX_CRISIS_PERSIST_GDP_MULT,
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "trust_gov",
+                max(0.0, _effective_critical(agent, world, "trust_gov") - cal.FX_CRISIS_PERSIST_TRUST_HIT),
+            )
+            _set_critical_effective(
+                world,
+                agent,
+                "social_tension",
+                min(
+                    1.0,
+                    _effective_critical(agent, world, "social_tension") + cal.FX_CRISIS_PERSIST_TENSION_HIT,
+                ),
+            )
+    else:
+        risk.fx_crisis_active_years = 0
+    if not defer_critical_writes:
+        _flush_social_pending_for_agent(world, agent)
+
+
+def check_financial_crises(agent: AgentState, world: WorldState, *, defer_critical_writes: bool = False) -> None:
+    check_debt_crisis(agent, world, defer_critical_writes=True)
+    check_fx_crisis(agent, world, defer_critical_writes=True)
     if not defer_critical_writes:
         _flush_social_pending_for_agent(world, agent)

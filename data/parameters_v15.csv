@@ -129,7 +129,7 @@ DEBT_CRISIS_DEBT_MULT,0.6,dimensionless,gim.core.calibration_params,PRIOR,high,u
 DEBT_CRISIS_DEBT_THRESHOLD,1.2,dimensionless,gim.core.calibration_params,PRIOR,high,prior
 DEBT_CRISIS_EXIT_RATE,0.08,dimensionless,gim.core.calibration_params,DATA plateau-guardrail,medium,data
 DEBT_CRISIS_EXIT_THRESHOLD,0.7,dimensionless,gim.core.calibration_params,DATA plateau-guardrail,medium,data
-DEBT_CRISIS_GDP_MULT,0.9,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
+DEBT_CRISIS_GDP_MULT,0.93,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
 DEBT_CRISIS_MAX_YEARS,6,count,gim.core.calibration_params,DATA plateau-guardrail,medium,data
 DEBT_CRISIS_PERSIST_GDP_MULT,0.965,dimensionless,gim.core.calibration_params,DATA plateau-guardrail,medium,data
 DEBT_CRISIS_PERSIST_TENSION_HIT,0.02,dimensionless,gim.core.calibration_params,DATA plateau-guardrail,medium,data
@@ -183,6 +183,22 @@ FORCING_LOG_COEFF,5.35,dimensionless,gim.core.calibration_params,IPCC_AR6,low,va
 FUEL_TAX_EFFECT_MAX,1.4,dimensionless,gim.core.calibration_params,UNSPECIFIED,unspecified,unspecified
 FUEL_TAX_EFFECT_MIN,0.6,dimensionless,gim.core.calibration_params,UNSPECIFIED,unspecified,unspecified
 FUEL_TAX_EMISSIONS_SENS,0.12,dimensionless,gim.core.calibration_params,PRIOR,high,unspecified
+FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD,-0.04,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_DEBT_MULT,1.1,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_EXTERNAL_DEBT_THRESHOLD,0.5,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_GDP_MULT,0.85,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_IMPORT_LEAKAGE_WEIGHT,0.15,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_MAX_YEARS,4,count,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_PERSIST_GDP_MULT,0.98,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_PERSIST_TENSION_HIT,0.015,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_PERSIST_TRUST_HIT,0.02,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_RECOVERY_RESERVE_MONTHS,3,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_RESERVE_MONTHS_THRESHOLD,3,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_RESERVE_OFFSET_WEIGHT,1,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_STABILITY_HIT,0.12,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_TENSION_HIT,0.14,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_TRUST_HIT,0.12,dimensionless,gim.core.calibration_params,PRIOR,high,prior
+FX_CRISIS_UNEMPLOYMENT_HIT,0.06,dimensionless,gim.core.calibration_params,PRIOR,high,prior
 F_NONCO2_BASE_YEAR,2015,count,gim.core.calibration_params,IPCC_AR6,low,unspecified
 F_NONCO2_DEFAULT,0.4,dimensionless,gim.core.calibration_params,IPCC_AR6,low,validated
 F_NONCO2_TREND,0.012,dimensionless,gim.core.calibration_params,IPCC_AR6,low,unspecified

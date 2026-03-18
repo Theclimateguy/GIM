@@ -69,6 +69,11 @@ Note: the matrix below reflects the pre-fix snapshot used to define the work pac
   - latest rerun package: `results/validation/non_llm/wp3_wp5_package_2026-03-17/`
   - explicit LLM-mode revalidation with live-provider uncertainty: **DEFERRED** by operator decision.
 
+### Addendum (2026-03-18, v15.5 closure)
+
+- WP1 legacy prompt wording closure: `gim/core/policy.py` no longer contains the conservative `use sparingly` phrasing in the coercion/security section; regression coverage added in `tests/test_policy_prompt.py`.
+- WP4 FX crisis closure: runtime now exposes a separate `fx_crisis_active_years` state with explicit trigger components for external-debt proxy, current-account proxy, and reserve-cover months; debt and FX crises can co-occur and are both surfaced in validation outputs.
+
 ## 3) New Work Packages (execution order)
 
 ## WP0. Guardrails for release integrity (small, immediate)
