@@ -52,7 +52,55 @@ Legacy compatibility:
 
 - `generic_tail_risk` remains accepted by runtime and historical fixtures as an alias of `general_tail_risk`
 
-### 2. Analytics
+### 2. Game
+
+Purpose: run facilitator-led human-in-the-loop rounds from the local UI while preserving the same backend `hybrid` contract and yearly `step_world` core.
+
+Current control model:
+
+- mode selector: `ACTION | WHAT_IF`
+- human table count selector
+- one card per table:
+  - distinct actor selector
+  - free-text intent field
+- runtime controls:
+  - `round_years`
+  - `ensemble_size`
+  - `seed`
+  - `state_year`
+  - `max_countries`
+  - `background_policy`
+  - `llm_refresh`
+  - `llm_refresh_years`
+  - `DEEPSEEK_API_KEY` (local field, with fallback to the global workspace field)
+- output toggles:
+  - `dashboard`
+  - `brief`
+- `Run game round` trigger
+
+Execution and validation rules:
+
+- the tab emits `python3 -m gim hybrid ...`
+- each configured human table must be mapped to a distinct country
+- each configured human table must contain a non-empty natural-language command
+- intents are compiled into the existing domestic / foreign policy levers before the unchanged yearly core runs
+- the artifact grid renders real run outputs and supports `Open` / `Download`
+
+Primary artifacts exposed by the tab:
+
+- `run_manifest.json`
+- `evaluation.json`
+- `hybrid_result.json`
+- `dashboard.html`
+- `hybrid_report.md`
+- `hybrid_policy_round_t*.csv`
+- `hybrid_baseline_round_t*.csv`
+- `hybrid_policy_round_actions.csv`
+- `hybrid_baseline_round_actions.csv`
+- `hybrid_policy_round_institutions.csv`
+- `hybrid_baseline_round_institutions.csv`
+
+### 3. Analytics
 
 Purpose: show the actual outputs of the executed run rather than static mock values.
 
@@ -78,8 +126,10 @@ Primary artifacts:
 
 - `run_manifest.json`
 - `evaluation.json`
+- `hybrid_result.json`
 - `dashboard.html`
 - `decision_brief.md`
+- `hybrid_report.md`
 - `game_result.json`
 - `metrics.json`
 - `world.csv`
@@ -112,6 +162,8 @@ Primary routes:
 - Blank template does not emit `--template`; the model selects the template itself.
 - Actor names are emitted from repository CSV metadata instead of free-text entry.
 - Export buttons only activate after the corresponding artifact exists.
+- `Game` defaults `state_year=2026` and `max_countries=20` to match the facilitator surface.
+- `Game` does not launch until the requested number of human tables is fully configured.
 - Lower quantitative cards use normalized severity scale `0..1`; raw units remain in the note text.
 
 ## Validation

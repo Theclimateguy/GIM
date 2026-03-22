@@ -6,7 +6,7 @@
   <title>GIM16 Intelligence Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #090b0f;
@@ -151,9 +151,11 @@
       color: #dde6f2;
       font-size: 12px;
       border-radius: var(--radius);
-      padding: 8px 11px;
+      padding: 9px 12px;
       font-weight: 500;
       cursor: pointer;
+      font-family: 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+      line-height: 1;
     }
 
     .btn.primary {
@@ -181,11 +183,13 @@
       border: 1px solid transparent;
       background: transparent;
       color: #a2b0be;
-      padding: 8px 12px;
+      padding: 9px 13px;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      font-family: 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+      line-height: 1;
     }
 
     .tab.active {
@@ -267,7 +271,7 @@
       height: auto;
       min-height: 74px;
       padding: 8px 9px;
-      resize: vertical;
+      resize: none;
       line-height: 1.45;
     }
 
@@ -286,9 +290,9 @@
     }
 
     .table-card {
-      border: 1px solid #2f3945;
+      border: 1px solid #2d3845;
       border-radius: 8px;
-      background: #111821;
+      background: #11171f;
       padding: 11px;
       display: grid;
       gap: 8px;
@@ -323,12 +327,12 @@
     }
 
     .intent-input {
-      min-height: 104px;
+      min-height: 74px;
     }
 
     .hint-text {
-      color: #7f92a7;
-      font-size: 10px;
+      color: #8fa2b7;
+      font-size: 11px;
       line-height: 1.45;
       font-family: 'IBM Plex Mono', monospace;
     }
@@ -481,7 +485,7 @@
       border: 1px solid #354452;
       border-radius: 6px;
       background: #121922;
-      color: #c8d6e6;
+      color: #9eb1c7;
       font-size: 12px;
       padding: 0 10px;
       display: flex;
@@ -997,8 +1001,8 @@
                 <div class="form-row"><div class="row-label">Round horizon (years)</div><input id="gRoundYears" type="number" min="1" max="10" class="ctrl" value="4" /></div>
                 <div class="form-row"><div class="row-label">Ensemble size</div><input id="gEnsembleSize" type="number" min="1" max="20" class="ctrl" value="3" /></div>
                 <div class="form-row"><div class="row-label">Seed</div><input id="gSeed" type="number" class="ctrl" value="2026" /></div>
-                <div class="form-row"><div class="row-label">State year</div><input id="gStateYear" type="number" class="ctrl" value="" placeholder="2026" /></div>
-                <div class="form-row"><div class="row-label">Max countries</div><input id="gMaxCountries" type="number" class="ctrl" value="" placeholder="20" /></div>
+                <div class="form-row"><div class="row-label">State year</div><input id="gStateYear" type="number" class="ctrl" value="2026" placeholder="2026" /></div>
+                <div class="form-row"><div class="row-label">Max countries</div><input id="gMaxCountries" type="number" class="ctrl" value="20" placeholder="20" /></div>
                 <div class="form-row"><div class="row-label">Background autopilot</div><select id="gPolicy" class="ctrl"><option value="compiled-llm">compiled-llm</option><option value="llm">llm</option><option value="simple">simple</option><option value="growth">growth</option></select></div>
                 <div class="form-row"><div class="row-label">LLM refresh</div><select id="gRefresh" class="ctrl"><option value="trigger">trigger</option><option value="periodic">periodic</option><option value="never">never</option></select></div>
                 <div class="form-row"><div class="row-label">LLM refresh years</div><input id="gRefreshYears" type="number" class="ctrl" value="2" /></div>

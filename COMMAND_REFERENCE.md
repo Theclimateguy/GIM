@@ -113,6 +113,13 @@ Hybrid round flags (`hybrid`):
 - `--brief` / `--brief-output <name.md>`
 - `--json`
 
+`Game` tab in the local UI uses `hybrid` under the hood:
+
+- one row per human-controlled table
+- each row requires a distinct actor and natural-language intent
+- UI forwards `DEEPSEEK_API_KEY` to the runtime when provided
+- artifact panel exposes `dashboard.html`, `hybrid_report.md`, `evaluation.json`, `hybrid_result.json`, and policy/baseline CSV logs
+
 ## Command Details
 
 ### `world`
@@ -161,7 +168,9 @@ Outputs include:
 - `evaluation.json` with policy trajectory plus baseline trajectory
 - `hybrid_result.json` with compiled intents, benchmark run and channel decomposition
 - `hybrid_report.md` when `--brief`
+- `dashboard.html` when `--dashboard`
 - baseline/policy world, action and institution CSV logs
+- `run_manifest.json` with exact round inputs and resolved artifact paths
 
 ### `metrics`
 
@@ -206,11 +215,15 @@ python3 -m gim ui --host 127.0.0.1 --port 8090
 Behavior:
 
 - `Simulation Modes` builds real `python3 -m gim <command>` invocations from UI controls.
+- `Game` builds real `python3 -m gim hybrid ...` runs for facilitator-led human-in-the-loop rounds.
 - actor selection is sourced from `data/agent_states_operational_2026_calibrated.csv`.
 - leaving `Template` blank enables backend auto-detection.
 - public templates currently exposed in UI: `general_tail_risk`, `sanctions_spiral`, `alliance_fragmentation`, `regional_pressure`, `maritime_deterrence`, `resource_competition`, `tech_blockade`, `trade_war`, `cyber_disruption`, `regime_stress`
 - `Run chosen modes` starts a real local run and tracks progress against the phase pipeline.
+- `Run game round` requires the configured number of distinct human tables to be fully specified.
+- each table submits a short natural-language command that is compiled into existing domestic/foreign policy levers before the unchanged yearly core runs.
 - export buttons map to actual run artifacts and only enable when the artifact exists.
+- `Game` artifact cards expose `Open` and `Download` actions for the actual run folder outputs.
 - `Analytics` reads the executed run's `evaluation.json`, `run_manifest.json`, and `decision_brief.md`.
 
 Primary UI-backed endpoints:

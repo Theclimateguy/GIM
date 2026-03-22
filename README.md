@@ -82,9 +82,12 @@ python3 -m gim ui --host 127.0.0.1 --port 8090
 The UI is bound directly to this repository and local model runtime:
 
 - `Simulation Modes` builds real `python3 -m gim ...` runs from UI controls.
+- `Game` is the human-in-the-loop facilitator surface for hybrid rounds and emits `python3 -m gim hybrid ...`.
 - actors are selected from `data/agent_states_operational_2026_calibrated.csv`
 - template is optional; blank means backend auto-detect
-- exports are tied to real run artifacts (`run_manifest.json`, `dashboard.html`, `decision_brief.md`, `evaluation.json`)
+- `Game` requires one distinct country plus one natural-language intent per configured human table.
+- `Game` accepts `ACTION|WHAT_IF`, human table count, round horizon, ensemble size, seed, `state_year`, `max_countries`, autonomous background policy, refresh policy and `DEEPSEEK_API_KEY`.
+- exports are tied to real run artifacts (`run_manifest.json`, `dashboard.html`, `decision_brief.md`, `evaluation.json`, `hybrid_result.json`, `hybrid_report.md`)
 - `Analytics` renders run-specific outputs, not static placeholders
 
 Current analytics layout:
@@ -94,6 +97,31 @@ Current analytics layout:
 - grouped bar charts for GDP by actor, social tension by actor, and inflation / price stress
 - normalized crisis scale cards with raw-unit notes
 - separate `Outcome Distribution` and `Main Drivers` briefing panels
+
+Current `Game` flow:
+
+- choose `ACTION` or `WHAT_IF`
+- choose human table count
+- assign one distinct country and one intent per table
+- run the round and inspect/download `dashboard.html`, `hybrid_report.md`, `evaluation.json`, `hybrid_result.json`, plus policy/baseline CSV logs from the artifact panel
+
+Validated live smoke on this branch:
+
+```bash
+python3 -m gim hybrid \
+  --tables "United States" \
+  --intent "United States=Increase AI spending moderately, strengthen domestic innovation capacity, and avoid debt stress or major trade escalation." \
+  --state-year 2026 \
+  --max-countries 6 \
+  --round-years 1 \
+  --ensemble-size 1 \
+  --background-policy compiled-llm \
+  --llm-refresh trigger \
+  --dashboard \
+  --brief
+```
+
+Artifacts from the verified run were written under `results/hybrid-20260322-212110/`.
 
 Implementation reference:
 
