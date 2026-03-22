@@ -1,4 +1,4 @@
-# GIM15 Command Reference v15.5.1
+# GIM16 Command Reference v16.0.0
 
 Operational CLI reference for `python3 -m gim`.
 
@@ -14,6 +14,7 @@ python3 -m gim --version
 - `python3 -m gim world`
 - `python3 -m gim question`
 - `python3 -m gim game`
+- `python3 -m gim hybrid`
 - `python3 -m gim metrics`
 - `python3 -m gim calibrate`
 - `python3 -m gim brief`
@@ -47,6 +48,17 @@ python3 -m gim game \
   --horizon 3 \
   --sim \
   --equilibrium \
+  --dashboard \
+  --brief
+
+# Hybrid human + agent round
+python3 -m gim hybrid \
+  --tables "United States" \
+  --intent "United States=Increase AI spending moderately." \
+  --state-csv data/agent_states_operational_2026_calibrated.csv \
+  --state-year 2026 \
+  --round-years 4 \
+  --background-policy simple \
   --dashboard \
   --brief
 
@@ -84,6 +96,21 @@ Report flags (`question`, `game`):
 - `--dashboard` / `--dashboard-output <name.html>`
 - `--brief` / `--brief-output <name.md>`
 - `--narrative`
+- `--json`
+
+Hybrid round flags (`hybrid`):
+
+- `--tables <actor...>`
+- `--intent ACTOR=TEXT` (repeatable) or `--intent-file <json>`
+- `--mode ACTION|WHAT_IF`
+- `--round-years <n>`
+- `--ensemble-size <n>`
+- `--seed <n>`
+- `--background-policy compiled-llm|llm|simple|growth`
+- `--llm-refresh trigger|periodic|never`
+- `--llm-refresh-years <n>`
+- `--dashboard`
+- `--brief` / `--brief-output <name.md>`
 - `--json`
 
 ## Command Details
@@ -124,6 +151,17 @@ Adds game-specific flags:
 - `--threshold`
 - `--trust-alpha`
 - `--max-combinations`
+
+### `hybrid`
+
+Runs a mixed human/autopilot policy round on top of the same yearly `step_world` core.
+
+Outputs include:
+
+- `evaluation.json` with policy trajectory plus baseline trajectory
+- `hybrid_result.json` with compiled intents, benchmark run and channel decomposition
+- `hybrid_report.md` when `--brief`
+- baseline/policy world, action and institution CSV logs
 
 ### `metrics`
 

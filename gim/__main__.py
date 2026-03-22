@@ -28,6 +28,14 @@ from .explanations import (
 )
 from .game_theory.equilibrium_runner import run_equilibrium_search
 from .game_runner import GameRunner
+from .hybrid_simulator import (
+    HUMAN_MODE_ACTION,
+    HUMAN_MODE_WHAT_IF,
+    HybridSimulator,
+    format_hybrid_result,
+    hybrid_result_payload,
+    render_hybrid_report_markdown,
+)
 from .results import build_run_artifacts, resolve_run_output_path, write_json_artifact, write_run_manifest
 from .runtime import MISC_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
@@ -49,8 +57,8 @@ def _resolve_case_path(raw_value: str) -> Path:
 
 
 def build_parser() -> ArgumentParser:
-    parser = ArgumentParser(description="GIM15 scenario, game and reporting layer")
-    parser.add_argument("--version", action="version", version=f"GIM15 {__version__}")
+    parser = ArgumentParser(description="GIM16 scenario, game and reporting layer")
+    parser.add_argument("--version", action="version", version=f"GIM16 {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     question_parser = subparsers.add_parser("question", help="Compile and evaluate a question-driven scenario")
@@ -207,6 +215,53 @@ def build_parser() -> ArgumentParser:
     ui_parser.add_argument("--host", default="127.0.0.1")
     ui_parser.add_argument("--port", type=int, default=8090)
 
+    hybrid_parser = subparsers.add_parser(
+        "hybrid",
+        help="Run a human-in-the-loop hybrid policy round with human tables and autonomous background countries",
+    )
+    hybrid_parser.add_argument("--tables", nargs="*")
+    hybrid_parser.add_argument(
+        "--intent",
+        action="append",
+        default=[],
+        help='Human intent in the form ACTOR=TEXT. If exactly one table is supplied, plain TEXT is also accepted.',
+    )
+    hybrid_parser.add_argument("--intent-file")
+    hybrid_parser.add_argument(
+        "--mode",
+        choices=(HUMAN_MODE_ACTION, HUMAN_MODE_WHAT_IF),
+        default=HUMAN_MODE_WHAT_IF,
+    )
+    hybrid_parser.add_argument("--round-years", type=int, default=4)
+    hybrid_parser.add_argument("--ensemble-size", type=int, default=3)
+    hybrid_parser.add_argument("--seed", type=int, default=2026)
+    hybrid_parser.add_argument("--state-csv")
+    hybrid_parser.add_argument("--state-year", type=int)
+    hybrid_parser.add_argument("--max-countries", type=int)
+    hybrid_parser.add_argument("--json", dest="json_output", action="store_true")
+    hybrid_parser.add_argument("--dashboard", action="store_true")
+    hybrid_parser.add_argument("--dashboard-output", default="dashboard.html")
+    hybrid_parser.add_argument("--brief", action="store_true")
+    hybrid_parser.add_argument("--brief-output", default="hybrid_report.md")
+    hybrid_parser.add_argument(
+        "--background-policy",
+        choices=BACKGROUND_POLICY_CHOICES,
+        default="compiled-llm",
+        help="Autonomous policy mode for non-table countries.",
+    )
+    hybrid_parser.add_argument(
+        "--llm-refresh",
+        choices=LLM_REFRESH_CHOICES,
+        default="trigger",
+        help="How often compiled-llm doctrines are refreshed.",
+    )
+    hybrid_parser.add_argument(
+        "--llm-refresh-years",
+        type=int,
+        default=2,
+        help="Periodic doctrine refresh interval in years when --llm-refresh=periodic.",
+    )
+
     return parser
 
 
@@ -319,6 +374,74 @@ def _emit_artifact_notice(message: str, *, json_output: bool) -> None:
     print(message, file=_artifact_stream(json_output))
 
 
+def _load_hybrid_intent_file(path: str) -> dict[str, object]:
+    payload = json.loads(Path(path).expanduser().read_text(encoding="utf-8"))
+    intents: dict[str, object] = {}
+    if isinstance(payload, dict):
+        if isinstance(payload.get("intents"), dict):
+            intents.update(payload["intents"])
+        elif isinstance(payload.get("tables"), list):
+            for item in payload["tables"]:
+                if not isinstance(item, dict):
+                    continue
+                actor = str(item.get("agent", item.get("actor", ""))).strip()
+                if not actor:
+                    continue
+                if "intent" in item:
+                    intents[actor] = item["intent"]
+        else:
+            reserved = {"mode", "round_years", "ensemble_size", "seed"}
+            for key, value in payload.items():
+                if key in reserved:
+                    continue
+                intents[str(key)] = value
+    elif isinstance(payload, list):
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            actor = str(item.get("agent", item.get("actor", ""))).strip()
+            if actor and "intent" in item:
+                intents[actor] = item["intent"]
+    return intents
+
+
+def _resolve_hybrid_intents(args) -> dict[str, object]:
+    intents: dict[str, object] = {}
+    if getattr(args, "intent_file", None):
+        intents.update(_load_hybrid_intent_file(args.intent_file))
+
+    explicit_tables = list(getattr(args, "tables", []) or [])
+    raw_intents = list(getattr(args, "intent", []) or [])
+    for raw in raw_intents:
+        text = str(raw).strip()
+        if not text:
+            continue
+        if "=" in text:
+            actor, intent_text = text.split("=", 1)
+            intents[actor.strip()] = intent_text.strip()
+            continue
+        if len(explicit_tables) == 1:
+            intents.setdefault(explicit_tables[0], text)
+            continue
+        raise SystemExit(
+            "Each --intent must be ACTOR=TEXT unless exactly one --tables actor is supplied."
+        )
+
+    for actor in explicit_tables:
+        intents.setdefault(actor, "Hold current course and avoid major policy changes.")
+
+    if not intents:
+        raise SystemExit("hybrid requires at least one human intent via --intent or --intent-file")
+    return intents
+
+
+def _write_markdown_artifact(content: str, output_path: str | Path) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    return path
+
+
 def _apply_world_cli_overrides(argv: list[str]) -> None:
     parser = ArgumentParser(add_help=False)
     parser.add_argument("--state-csv")
@@ -334,7 +457,7 @@ def _apply_world_cli_overrides(argv: list[str]) -> None:
 
 
 def main() -> None:
-    orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief", "ui"}
+    orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief", "ui", "hybrid"}
     argv = sys.argv[1:]
     if not argv:
         core_main()
@@ -406,13 +529,136 @@ def main() -> None:
             return
         print(format_calibration_suite_result(result))
         return
+    max_agents_for_load = args.max_countries
+    # For question mode, explicit actor picks from UI must always be resolvable.
+    # Loading only top-N economies can drop user-selected actors (e.g., ISR/CHE),
+    # which distorts baseline aggregates and scenario composition.
+    if args.command == "question" and getattr(args, "actors", None):
+        max_agents_for_load = None
+    if args.command == "hybrid" and getattr(args, "tables", None):
+        max_agents_for_load = None
+
     world = load_world(
         state_csv=args.state_csv,
-        max_agents=args.max_countries,
+        max_agents=max_agents_for_load,
         state_year=args.state_year,
     )
     runner = GameRunner(world)
     metrics_engine = CrisisMetricsEngine()
+
+    if args.command == "hybrid":
+        run_artifacts = build_run_artifacts(args.command)
+        simulator = HybridSimulator()
+        hybrid_result = simulator.run_round(
+            world,
+            intents_by_actor=_resolve_hybrid_intents(args),
+            mode=args.mode,
+            round_years=args.round_years,
+            ensemble_size=args.ensemble_size,
+            seed=args.seed,
+            default_mode=args.background_policy,
+            llm_refresh=args.llm_refresh,
+            llm_refresh_years=args.llm_refresh_years,
+            artifact_dir=str(run_artifacts.run_dir),
+        )
+        evaluation_payload = hybrid_result_payload(hybrid_result)
+        evaluation_json_path = write_json_artifact(
+            evaluation_payload,
+            run_artifacts.run_dir / "evaluation.json",
+        )
+        hybrid_json_path = write_json_artifact(
+            evaluation_payload,
+            run_artifacts.run_dir / "hybrid_result.json",
+        )
+
+        written = None
+        if args.dashboard:
+            dashboard_output = resolve_run_output_path(run_artifacts.run_dir, args.dashboard_output, "dashboard.html")
+            written = write_dashboard_artifacts(
+                renderer=DashboardRenderer(),
+                evaluation=hybrid_result.policy_run.evaluation,
+                game_result=None,
+                equilibrium_result=None,
+                trajectory=hybrid_result.policy_run.trajectory,
+                scenario_def=hybrid_result.scenario,
+                config=DashboardConfig(
+                    output_path=str(dashboard_output),
+                    show_trajectory=True,
+                    show_game_results=False,
+                    show_narrative=False,
+                    execution_label="hybrid",
+                    policy_mode_label=args.background_policy,
+                    run_timestamp=run_artifacts.run_timestamp,
+                    run_id=run_artifacts.run_id,
+                    n_runs=args.ensemble_size,
+                    horizon_years=args.round_years,
+                ),
+                save_json=False,
+            )
+
+        brief_path = None
+        if args.brief:
+            brief_output = resolve_run_output_path(run_artifacts.run_dir, args.brief_output, "hybrid_report.md")
+            brief_path = _write_markdown_artifact(
+                render_hybrid_report_markdown(hybrid_result),
+                brief_output,
+            )
+
+        manifest_path = write_run_manifest(
+            {
+                "command": args.command,
+                "run_id": run_artifacts.run_id,
+                "run_timestamp": run_artifacts.run_timestamp,
+                "artifacts_dir": str(run_artifacts.run_dir),
+                "inputs": {
+                    "tables": list(args.tables or []),
+                    "intent": list(args.intent or []),
+                    "intent_file": args.intent_file,
+                    "mode": args.mode,
+                    "round_years": args.round_years,
+                    "ensemble_size": args.ensemble_size,
+                    "seed": args.seed,
+                    "state_csv": args.state_csv,
+                    "state_year": args.state_year,
+                    "max_countries": args.max_countries,
+                    "background_policy": args.background_policy,
+                    "llm_refresh": args.llm_refresh,
+                    "llm_refresh_years": args.llm_refresh_years,
+                },
+                "outputs": {
+                    "evaluation_json": str(evaluation_json_path.resolve()),
+                    "hybrid_result_json": str(hybrid_json_path.resolve()),
+                    "dashboard_html": written["html"] if written is not None else None,
+                    "brief_markdown": str(Path(brief_path).resolve()) if brief_path is not None else None,
+                    "policy_world_csv": hybrid_result.policy_world_csv,
+                    "baseline_world_csv": hybrid_result.baseline_world_csv,
+                    "policy_actions_csv": hybrid_result.policy_actions_csv,
+                    "baseline_actions_csv": hybrid_result.baseline_actions_csv,
+                    "policy_institutions_csv": hybrid_result.policy_institutions_csv,
+                    "baseline_institutions_csv": hybrid_result.baseline_institutions_csv,
+                },
+            },
+            run_artifacts.run_dir,
+        )
+        if args.json_output:
+            print(json.dumps(evaluation_payload, indent=2, ensure_ascii=False))
+            _emit_artifact_notice(f"JSON artifact written to {evaluation_json_path}", json_output=True)
+            _emit_artifact_notice(f"Hybrid JSON artifact written to {hybrid_json_path}", json_output=True)
+            if written is not None:
+                _emit_artifact_notice(f"Dashboard written to {written['html']}", json_output=True)
+            if brief_path is not None:
+                _emit_artifact_notice(f"Hybrid report written to {brief_path}", json_output=True)
+            _emit_artifact_notice(f"Run manifest written to {manifest_path}", json_output=True)
+            return
+        print(format_hybrid_result(hybrid_result))
+        print(f"\nJSON artifact written to {evaluation_json_path}")
+        print(f"Hybrid JSON artifact written to {hybrid_json_path}")
+        if written is not None:
+            print(f"\nDashboard written to {written['html']}")
+        if brief_path is not None:
+            print(f"Hybrid report written to {brief_path}")
+        print(f"Run manifest written to {manifest_path}")
+        return
 
     if args.command == "question":
         use_sim = _should_use_simulation(args)

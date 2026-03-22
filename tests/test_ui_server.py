@@ -88,6 +88,48 @@ class UIServerTests(unittest.TestCase):
         argv = _build_cli_from_payload(payload)
         self.assertNotIn("--template", argv)
 
+    def test_build_cli_for_game_uses_description_from_question(self):
+        payload = {
+            "command": "game",
+            "question": "Assess escalation path under maritime pressure.",
+            "state_year": 2026,
+            "horizon": 5,
+            "sim": True,
+            "dashboard": True,
+            "brief": True,
+        }
+        argv = _build_cli_from_payload(payload)
+        self.assertEqual(argv[:4], ["python3", "-m", "gim", "game"])
+        self.assertIn("--description", argv)
+        self.assertIn("Assess escalation path under maritime pressure.", argv)
+
+    def test_build_cli_for_hybrid_round(self):
+        payload = {
+            "command": "hybrid",
+            "tables": ['United States'],
+            "intents": {"United States": "Increase AI spending moderately."},
+            "mode": "WHAT_IF",
+            "round_years": 4,
+            "ensemble_size": 3,
+            "seed": 2026,
+            "state_year": 2026,
+            "background_policy": "simple",
+            "llm_refresh": "trigger",
+            "llm_refresh_years": 2,
+            "dashboard": True,
+            "brief": True,
+            "json": True,
+        }
+        argv = _build_cli_from_payload(payload)
+        joined = " ".join(argv)
+        self.assertEqual(argv[:4], ["python3", "-m", "gim", "hybrid"])
+        self.assertIn("--tables", argv)
+        self.assertIn("--intent", argv)
+        self.assertIn("--mode WHAT_IF", joined)
+        self.assertIn("--round-years 4", joined)
+        self.assertIn("--ensemble-size 3", joined)
+        self.assertIn("--brief-output hybrid_report.md", joined)
+
     def test_manifest_payloads_are_run_specific(self):
         with tempfile.TemporaryDirectory(prefix="test-ui-run-", dir=ROOT / "results") as tmp:
             run_dir = Path(tmp)
@@ -207,6 +249,30 @@ class UIServerTests(unittest.TestCase):
             self.assertEqual(analytics["brief_outcomes"][0], "1. Internal Destabilization: 42.0%")
             self.assertEqual(analytics["brief_drivers"][0], "Debt Rollover: 0.91")
             self.assertTrue(all(0.0 <= float(metric["value"]) <= 1.0 for metric in analytics["quant"]))
+
+    def test_manifest_payload_uses_actual_custom_artifact_name(self):
+        with tempfile.TemporaryDirectory(prefix="test-ui-hybrid-", dir=ROOT / "results") as tmp:
+            run_dir = Path(tmp)
+            manifest_path = run_dir / "run_manifest.json"
+            brief_path = run_dir / "hybrid_report.md"
+            brief_path.write_text("## Executive Summary\ncustom\n", encoding="utf-8")
+            manifest_path.write_text(
+                (
+                    "{\n"
+                    '  "command": "hybrid",\n'
+                    '  "run_id": "hybrid-test-ui",\n'
+                    f'  "artifacts_dir": "{run_dir}",\n'
+                    '  "outputs": {\n'
+                    f'    "brief_markdown": "{brief_path}"\n'
+                    "  }\n"
+                    "}"
+                ),
+                encoding="utf-8",
+            )
+
+            artifacts = _artifacts_payload_from_manifest_path(manifest_path)
+            self.assertIn("hybrid_report.md", artifacts["artifacts"])
+            self.assertNotIn("decision_brief.md", artifacts["artifacts"])
 
     def test_latest_artifacts_payload_shape(self):
         payload = _latest_artifacts_payload()

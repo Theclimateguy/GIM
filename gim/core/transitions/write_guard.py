@@ -161,7 +161,7 @@ class CriticalWriteGuard(AbstractContextManager):
 
 
 def resolve_guard_mode(*, phase_trace_requested: bool) -> str:
-    raw = os.getenv("GIM15_CRITICAL_WRITE_GUARD")
+    raw = os.getenv("GIM16_CRITICAL_WRITE_GUARD") or os.getenv("GIM15_CRITICAL_WRITE_GUARD")
     if raw:
         return raw.strip().lower()
     return "observe" if phase_trace_requested else "off"

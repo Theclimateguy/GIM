@@ -1,4 +1,4 @@
-# GIM15 Calibration Reference
+# GIM16 Calibration Reference
 
 This file is the current calibration ledger for the code in this repository.
 
@@ -38,7 +38,7 @@ Source: `data/agent_states_operational.artifacts.json`
 
 Rule: these values are loaded through `ACTIVE_STATE_ARTIFACT` and must be changed only via refresh scripts, not by direct hand-editing.
 
-### 2.1b Release baseline defaults (v15.5 current; introduced in v15.1)
+### 2.1b Release baseline defaults (v16.0 current; introduced in v16.0)
 
 Source: rolling walk-forward Stage B/C artifacts
 

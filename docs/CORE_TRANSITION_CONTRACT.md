@@ -1,4 +1,4 @@
-# Core Transition Contract (GIM15)
+# Core Transition Contract (GIM16)
 
 ## Purpose
 

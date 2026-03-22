@@ -1,6 +1,6 @@
 # GIM Model Methodology
 
-This document describes the model implemented in the current `GIM15` codebase.
+This document describes the model implemented in the current `GIM16` codebase.
 
 It is a runtime methodology document, not a historical changelog.
 

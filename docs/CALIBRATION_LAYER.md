@@ -1,4 +1,4 @@
-# GIM15 Calibration Layer
+# GIM16 Calibration Layer
 
 This document describes the executable calibration workflow in the current codebase.
 
@@ -107,7 +107,7 @@ python3 -m unittest \
 ### Release validation package
 
 ```bash
-./scripts/run_validation_package_v15.sh
+./scripts/run_validation_package_gim16.sh
 ```
 
 ### Operational suite checks

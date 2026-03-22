@@ -18,7 +18,7 @@ from .policy import llm_enablement_status, make_policy_map, resolve_policy_mode,
 from .simulation import step_world
 from .world_factory import make_world_from_csv
 
-MODEL_DISPLAY_NAME = "GIM15"
+MODEL_DISPLAY_NAME = "GIM16"
 
 
 def _resolve_state_csv() -> str:
@@ -58,6 +58,7 @@ def _bool_env(name: str, default: bool) -> bool:
 
 def _resolve_state_year() -> int:
     for env_name in (
+        "GIM16_STATE_YEAR",
         "GIM15_STATE_YEAR",
         "GIM_STATE_YEAR",
         "GIM13_STATE_YEAR",

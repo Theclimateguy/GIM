@@ -28,7 +28,7 @@ EXCLUDED_YEARS = (2020, 2021)
 PPP_GDP_INDICATOR = "NY.GDP.MKTP.PP.KD"
 WORLD_BANK_API = "https://api.worldbank.org/v2/country/{code}/indicator/{indicator}?format=json&per_page=80"
 GCB_EMISSIONS_URL = "https://zenodo.org/records/17417124/files/GCB2025v15_MtCO2_flat.csv?download=1"
-USER_AGENT = "GIM15 decarb calibration/1.0"
+USER_AGENT = "GIM16 decarb calibration/1.0"
 TCRIT_95 = {
     1: 12.706,
     2: 4.303,

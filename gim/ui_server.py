@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import html
 import json
+import math
 import mimetypes
 import os
 import shlex
@@ -17,7 +18,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-UI_HTML = ROOT / "ui_prototype" / "gim15_dashboard_prototype.html"
+UI_HTML = ROOT / "ui_prototype" / "gim16_dashboard_prototype.html"
 RESULTS_DIR = ROOT / "results"
 DATA_DIR = ROOT / "data"
 DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational_2026_calibrated.csv"
@@ -26,7 +27,7 @@ DOC_PATHS = [
     "README.md",
     "docs/README.md",
     "docs/MODEL_METHODOLOGY.md",
-    "docs/GIM15_UNIFIED_MODEL_SPEC.md",
+    "docs/GIM16_UNIFIED_MODEL_SPEC.md",
     "docs/CALIBRATION_REFERENCE.md",
     "docs/CALIBRATION_LAYER.md",
     "docs/SIMULATION_STEP_ORDER.md",
@@ -201,8 +202,10 @@ def _artifacts_payload_from_run_dir(run_dir: Path, *, run_id: str | None = None,
     candidates = {
         "run_manifest.json": resolved_dir / "run_manifest.json",
         "evaluation.json": resolved_dir / "evaluation.json",
+        "hybrid_result.json": resolved_dir / "hybrid_result.json",
         "dashboard.html": resolved_dir / "dashboard.html",
         "decision_brief.md": resolved_dir / "decision_brief.md",
+        "hybrid_report.md": resolved_dir / "hybrid_report.md",
         "game_result.json": resolved_dir / "game_result.json",
         "metrics.json": resolved_dir / "metrics.json",
         "world.csv": resolved_dir / "world.csv",
@@ -236,6 +239,7 @@ def _artifacts_payload_from_manifest_path(manifest_path: Path) -> dict[str, Any]
     if isinstance(outputs, dict):
         explicit_names = {
             "evaluation_json": "evaluation.json",
+            "hybrid_result_json": "hybrid_result.json",
             "dashboard_html": "dashboard.html",
             "brief_markdown": "decision_brief.md",
             "game_result_json": "game_result.json",
@@ -246,7 +250,7 @@ def _artifacts_payload_from_manifest_path(manifest_path: Path) -> dict[str, Any]
             resolved = _resolve_repo_path(outputs.get(output_key))
             rel = _repo_relative(resolved) if resolved and resolved.exists() else None
             if rel is not None:
-                payload["artifacts"][artifact_name] = rel
+                payload["artifacts"][resolved.name if resolved is not None else artifact_name] = rel
         for raw_path in outputs.values():
             resolved = _resolve_repo_path(raw_path)
             rel = _repo_relative(resolved) if resolved and resolved.exists() else None
@@ -447,6 +451,44 @@ def _global_inflation_series(trajectory: list[dict[str, Any]]) -> list[float]:
     return out
 
 
+def _inflation_proxy_channels(trajectory: list[dict[str, Any]]) -> tuple[list[float], list[float], list[float]]:
+    """
+    Build dynamic inflation channels from global price baskets.
+
+    We intentionally avoid using the raw mean of per-actor inflation because it can stay
+    nearly constant in long runs; dashboard users need visible dynamics from shock channels.
+    """
+    if not trajectory:
+        return [], [], []
+
+    def _prices(state: dict[str, Any], last: tuple[float, float, float]) -> tuple[float, float, float]:
+        g = state.get("global_state", {}) if isinstance(state, dict) else {}
+        prices = g.get("prices", {}) if isinstance(g, dict) else {}
+        e = float(prices.get("energy", last[0]))
+        f = float(prices.get("food", last[1]))
+        m = float(prices.get("metals", last[2]))
+        return max(1e-9, e), max(1e-9, f), max(1e-9, m)
+
+    first = _prices(trajectory[0], (1.0, 1.0, 1.0))
+    base_energy, base_food, base_metals = first
+    base_headline = max(1e-9, 0.50 * base_energy + 0.30 * base_food + 0.20 * base_metals)
+    base_core = max(1e-9, 0.65 * base_food + 0.35 * base_metals)
+
+    headline: list[float] = []
+    energy_pass: list[float] = []
+    core: list[float] = []
+    last_prices = first
+    for state in trajectory:
+        energy, food, metals = _prices(state, last_prices)
+        last_prices = (energy, food, metals)
+        headline_basket = max(1e-9, 0.50 * energy + 0.30 * food + 0.20 * metals)
+        core_basket = max(1e-9, 0.65 * food + 0.35 * metals)
+        headline.append(math.log(headline_basket / base_headline))
+        core.append(math.log(core_basket / base_core))
+        energy_pass.append(0.35 * math.log(energy / base_energy))
+    return headline, energy_pass, core
+
+
 def _global_metric_series(trajectory: list[dict[str, Any]], metric: str) -> list[float]:
     # Trajectory snapshots do not always include crisis_dashboard metrics;
     # derive stable synthetic channel from global_state when needed.
@@ -551,9 +593,7 @@ def _analytics_payload_from_evaluation_path(
         {**s, "values": _normalize_unit(s["values"])} for s in tension_series
     ]
 
-    inflation = _global_inflation_series(trajectory)
-    energy = _global_metric_series(trajectory, "energy_stress")
-    core = [max(0.0, i - 0.4 * (e - 1.0)) for i, e in zip(inflation, energy)] if inflation else []
+    inflation, energy_pass, core = _inflation_proxy_channels(trajectory)
 
     global_metrics = (
         evaluation.get("crisis_dashboard", {})
@@ -613,7 +653,7 @@ def _analytics_payload_from_evaluation_path(
         "gdp_series": gdp_series,
         "social_tension_series": tension_series,
         "inflation_series": inflation,
-        "energy_pass_series": _normalize_unit(energy),
+        "energy_pass_series": energy_pass,
         "core_infl_series": core,
         "quant": quant,
     }
@@ -818,6 +858,41 @@ def _build_cli_from_payload(payload: dict[str, Any]) -> list[str]:
         if parsed_actors:
             args.extend(["--actors", *parsed_actors])
         add_flag("--template", payload.get("template"))
+    elif command == "game":
+        description = str(payload.get("description", "")).strip() or str(payload.get("question", "")).strip()
+        # game command requires either --case or --description; UI currently provides free-text question field.
+        add_flag("--description", description or "General tail risk assessment.")
+    elif command == "hybrid":
+        raw_tables = payload.get("tables", "")
+        if isinstance(raw_tables, (list, tuple)):
+            parsed_tables = [str(actor).strip() for actor in raw_tables if str(actor).strip()]
+        else:
+            tables = str(raw_tables).strip()
+            if tables:
+                try:
+                    parsed_tables = shlex.split(tables)
+                except ValueError:
+                    parsed_tables = tables.split()
+            else:
+                parsed_tables = []
+        if parsed_tables:
+            args.extend(["--tables", *parsed_tables])
+
+        raw_intents = payload.get("intents", payload.get("intent", []))
+        if isinstance(raw_intents, dict):
+            intent_items = [f"{actor}={text}" for actor, text in raw_intents.items()]
+        elif isinstance(raw_intents, (list, tuple)):
+            intent_items = [str(item).strip() for item in raw_intents if str(item).strip()]
+        else:
+            intent_items = [str(raw_intents).strip()] if str(raw_intents).strip() else []
+        for item in intent_items:
+            args.extend(["--intent", item])
+
+        add_flag("--intent-file", payload.get("intent_file"))
+        add_flag("--mode", payload.get("mode"))
+        add_flag("--round-years", payload.get("round_years"))
+        add_flag("--ensemble-size", payload.get("ensemble_size"))
+        add_flag("--seed", payload.get("seed"))
 
     add_flag("--state-year", payload.get("state_year"))
     max_countries = payload.get("max_countries")
@@ -835,14 +910,21 @@ def _build_cli_from_payload(payload: dict[str, Any]) -> list[str]:
         add_flag("--background-policy", payload.get("background_policy"))
         add_flag("--llm-refresh", payload.get("llm_refresh"))
         add_flag("--llm-refresh-years", payload.get("llm_refresh_years"))
+    elif command == "hybrid":
+        add_flag("--background-policy", payload.get("background_policy"))
+        add_flag("--llm-refresh", payload.get("llm_refresh"))
+        add_flag("--llm-refresh-years", payload.get("llm_refresh_years"))
 
-    if command in {"question", "game"}:
+    if command in {"question", "game", "hybrid"}:
         if payload.get("dashboard", True):
             args.append("--dashboard")
             add_flag("--dashboard-output", payload.get("dashboard_output") or "dashboard.html")
         if payload.get("brief", True):
             args.append("--brief")
-            add_flag("--brief-output", payload.get("brief_output") or "decision_brief.md")
+            add_flag(
+                "--brief-output",
+                payload.get("brief_output") or ("hybrid_report.md" if command == "hybrid" else "decision_brief.md"),
+            )
         if payload.get("narrative", False):
             args.append("--narrative")
 
@@ -853,7 +935,7 @@ def _build_cli_from_payload(payload: dict[str, Any]) -> list[str]:
 
 
 class UIHandler(BaseHTTPRequestHandler):
-    server_version = "GIM15UI/1.0"
+    server_version = "GIM16UI/1.0"
 
     def _send_json(self, payload: Any, status: int = 200) -> None:
         raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -1038,7 +1120,7 @@ class UIHandler(BaseHTTPRequestHandler):
 
 def run_ui_server(host: str = "127.0.0.1", port: int = 8090) -> None:
     server = ThreadingHTTPServer((host, port), UIHandler)
-    print(f"[ui] GIM15 UI server running at http://{host}:{port}")
+    print(f"[ui] GIM16 UI server running at http://{host}:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

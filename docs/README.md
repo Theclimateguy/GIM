@@ -1,4 +1,4 @@
-# GIM15 Documentation Index
+# GIM16 Documentation Index
 
 This directory is split into:
 
@@ -8,7 +8,7 @@ This directory is split into:
 ## Active Core Docs
 
 - `MODEL_METHODOLOGY.md` - runtime behavior and module-level methodology.
-- `GIM15_UNIFIED_MODEL_SPEC.md` - unified model equations and state/evolution specification.
+- `GIM16_UNIFIED_MODEL_SPEC.md` - unified model equations and state/evolution specification.
 - `CORE_TRANSITION_CONTRACT.md` - phase contract and canonical finalize rules.
 - `SIMULATION_STEP_ORDER.md` - effective yearly order and runtime writer contract.
 - `MODEL_STATE_MAP.md` - state vector map and transition links.

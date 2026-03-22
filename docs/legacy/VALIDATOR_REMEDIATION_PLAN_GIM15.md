@@ -1,12 +1,12 @@
-# GIM15 Remediation Plan from Validator Reports (Physics + LLM)
+# GIM16 Remediation Plan from Validator Reports (Physics + LLM)
 
 Date: 2026-03-17  
 Sources:
 - `/Users/theclimateguy/Downloads/gim14_validation_report.docx`
 - `/Users/theclimateguy/Downloads/gim14_llm_validation_report.docx`
 
-This plan maps GIM14 validator findings onto current GIM15 code, separating:
-- already addressed in GIM15,
+This plan maps GIM14 validator findings onto current GIM16 code, separating:
+- already addressed in GIM16,
 - partially addressed,
 - still open and required before release hardening.
 
@@ -26,7 +26,7 @@ Note: the matrix below reflects the pre-fix snapshot used to define the work pac
 - No explicit confidence flag showing explicit match vs GDP fallback.
 
 2. T2 Parameter sensitivity dead zones: **PARTIAL**
-- GIM15 already has rolling backtest + stage calibration harness.
+- GIM16 already has rolling backtest + stage calibration harness.
 - But no explicit re-run protocol for “simple vs growth/llm” sensitivity decomposition tied to this finding.
 - Need a formal “active/inert by mode” parameter registry and report.
 
@@ -53,7 +53,7 @@ Note: the matrix below reflects the pre-fix snapshot used to define the work pac
 7. LLM T8 Coherence edge case (debt stress vs military exceptions): **PARTIAL**
 - Constraint logic exists, but no explicit codified exception rule tied to security margin/conflict context in validator terms.
 
-8. Numerical core stability / 4-phase causality / write-audit concerns: **ADDRESSED in GIM15**
+8. Numerical core stability / 4-phase causality / write-audit concerns: **ADDRESSED in GIM16**
 - Four-phase transition architecture and critical-write guard migration are in place.
 
 ### Progress update (2026-03-17, local branch)
@@ -65,11 +65,11 @@ Note: the matrix below reflects the pre-fix snapshot used to define the work pac
 - WP5 bilateral asymmetry stabilizer (trust/conflict damping + stronger mean reversion): **DONE**
 - WP6 re-validation package:
   - non-LLM snapshot (`simple`, `growth`) for `operational_v2`: **DONE**, results in `results/validation/non_llm/wp3_wp5_2026-03-17/`
-  - reproducible runner script: `scripts/run_validation_package_v15.sh`
+  - reproducible runner script: `scripts/run_validation_package_gim16.sh`
   - latest rerun package: `results/validation/non_llm/wp3_wp5_package_2026-03-17/`
   - explicit LLM-mode revalidation with live-provider uncertainty: **DEFERRED** by operator decision.
 
-### Addendum (2026-03-18, v15.5 closure)
+### Addendum (2026-03-18, v16.0 closure)
 
 - WP1 legacy prompt wording closure: `gim/core/policy.py` no longer contains the conservative `use sparingly` phrasing in the coercion/security section; regression coverage added in `tests/test_policy_prompt.py`.
 - WP4 FX crisis closure: runtime now exposes a separate `fx_crisis_active_years` state with explicit trigger components for external-debt proxy, current-account proxy, and reserve-cover months; debt and FX crises can co-occur and are both surfaced in validation outputs.
@@ -178,12 +178,12 @@ Acceptance:
 Goal: produce v15-ready evidence with old-vs-new comparability.
 
 Tasks:
-- Run non-LLM + LLM suites on GIM15 post-fixes.
+- Run non-LLM + LLM suites on GIM16 post-fixes.
 - Store outputs in:
   - `results/validation/non_llm/...`
   - `results/validation/llm/...`
 - Publish summary table:
-  - GIM14 baseline vs GIM15 current vs GIM15 remediated.
+  - GIM14 baseline vs GIM16 current vs GIM16 remediated.
 
 Acceptance:
 - No regression on physical bounds/stability tests.

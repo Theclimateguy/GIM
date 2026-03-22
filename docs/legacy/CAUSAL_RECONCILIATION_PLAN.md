@@ -1,8 +1,8 @@
-# Causal Reconciliation Plan (Post-15.1)
+# Causal Reconciliation Plan (Post-GIM16)
 
 ## Context
 
-GIM15.1 has strong operational maturity (tests/calibration/CLI/release package), but the core transition layer still reflects a transition state:
+GIM16 has strong operational maturity (tests/calibration/CLI/release package), but the core transition layer still reflects a transition state:
 
 - formal contract targets canonical reconcile finalization,
 - effective runtime ordering is preserved from legacy flow,

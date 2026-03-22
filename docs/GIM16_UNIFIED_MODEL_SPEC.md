@@ -1,8 +1,8 @@
-# GIM15 Unified Model Specification
+# GIM16 Unified Model Specification
 
 ## 1. Purpose
 
-This document is the single consolidated specification for GIM15:
+This document is the single consolidated specification for GIM16:
 
 - full state vector
 - yearly transition equations
@@ -12,9 +12,9 @@ This document is the single consolidated specification for GIM15:
 
 Authoritative registries:
 
-- state registry: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/docs/state_registry.csv)
-- parameter registry: [`data/parameters_v15.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/parameters_v15.csv)
-- parameter lock: [`data/parameters_v15.lock.json`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/parameters_v15.lock.json)
+- state registry: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/docs/state_registry.csv)
+- parameter registry: [`data/parameters_gim16.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/data/parameters_gim16.csv)
+- parameter lock: [`data/parameters_gim16.lock.json`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/data/parameters_gim16.lock.json)
 
 ## 2. Global notation
 
@@ -300,12 +300,12 @@ Recalibration is required when numeric values, equation structure, or free param
 
 Policy document:
 
-- [`docs/PARAMETER_CHANGE_POLICY.md`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/docs/PARAMETER_CHANGE_POLICY.md)
+- [`docs/PARAMETER_CHANGE_POLICY.md`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/docs/PARAMETER_CHANGE_POLICY.md)
 
 ## 9. Implementation pointers
 
-- kernel phases and tracing: [`gim/core/simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/gim/core/simulation.py)
-- full state list: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/docs/state_registry.csv)
-- parameter list: [`data/parameters_v15.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/parameters_v15.csv)
-- crisis validation harness: [`gim/crisis_validation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/gim/crisis_validation.py)
+- kernel phases and tracing: [`gim/core/simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/gim/core/simulation.py)
+- full state list: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/docs/state_registry.csv)
+- parameter list: [`data/parameters_gim16.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/data/parameters_gim16.csv)
+- crisis validation harness: [`gim/crisis_validation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/gim/crisis_validation.py)
 

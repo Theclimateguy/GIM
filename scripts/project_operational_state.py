@@ -16,7 +16,7 @@ from gim.state_projection import project_state_csv, write_projection_metadata  #
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Project a compiled operational state CSV forward with deterministic GIM15 simulation."
+        description="Project a compiled operational state CSV forward with deterministic GIM16 simulation."
     )
     parser.add_argument(
         "--state-csv",

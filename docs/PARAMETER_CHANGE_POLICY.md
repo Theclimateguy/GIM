@@ -1,10 +1,10 @@
-# Parameter Change Policy (GIM15)
+# Parameter Change Policy (GIM16)
 
 ## Recalibration decision rule
 
 Recalibration is required if and only if at least one of the following is true:
 
-1. Numeric values in `data/parameters_v15.csv` changed.
+1. Numeric values in `data/parameters_gim16.csv` changed.
 2. New free parameters were added to transition equations.
 3. Existing equation structure changed (not just variable renaming/extraction).
 
@@ -18,9 +18,9 @@ Recalibration is **not required** for:
 
 Current lock:
 
-- `data/parameters_v15.lock.json`
+- `data/parameters_gim16.lock.json`
 
-This lock stores SHA-256 of `parameters_v15.csv`.
+This lock stores SHA-256 of `parameters_gim16.csv`.
 If SHA changes, run calibration and update lock.
 
 ## Minimum post-change checks

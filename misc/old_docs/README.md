@@ -6,7 +6,7 @@ Legacy files in this folder intentionally preserve older naming (for example `GI
 Current active documentation lives in:
 
 - `README.md`
+- `docs/README.md`
 - `docs/MODEL_METHODOLOGY.md`
 - `docs/CALIBRATION_REFERENCE.md`
 - `docs/CALIBRATION_LAYER.md`
-- `AUDIT_GIM15.md`

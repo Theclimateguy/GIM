@@ -15,6 +15,7 @@ from .economy import (
     update_public_finances,
 )
 from .geopolitics import apply_sanctions_effects, apply_security_actions
+from .human_policy import action_from_intent, make_human_policy, make_human_policy_map
 from .institutions import build_default_institutions, update_institutions
 from .logging_utils import (
     log_actions_to_csv,

@@ -1,4 +1,4 @@
-# GIM15 Release Readiness (15.1)
+# GIM16 Release Readiness (16.0)
 
 ## Scope
 
@@ -37,7 +37,7 @@ Stage B/C robust candidate from re-check:
 - [x] P1-P4 deliverables completed
 - [x] rolling OOS baseline selected
 - [x] apply approved baseline switch values to `gim/core/calibration_params.py`
-- [x] refresh `data/parameters_v15.csv` and `data/parameters_v15.lock.json`
+- [x] refresh `data/parameters_gim16.csv` and `data/parameters_gim16.lock.json`
 - [x] run full non-LLM verification suite and archive run report
 
 Archived non-LLM validation package:

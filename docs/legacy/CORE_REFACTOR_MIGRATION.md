@@ -1,4 +1,4 @@
-# Core Refactor Migration Notes (GIM15)
+# Core Refactor Migration Notes (GIM16)
 
 This file tracks migration from multi-writer yearly mutation to causal four-phase accounting.
 
@@ -56,7 +56,7 @@ Behavior intent:
   - `gim/core/transitions/write_guard.py`
   - integrated into `step_world()` with phase-aware write tracing.
   - `phase_trace["critical_write_guard"]` now records counts by phase/module/field.
-  - env control: `GIM15_CRITICAL_WRITE_GUARD=off|observe|strict`.
+  - env control: `GIM16_CRITICAL_WRITE_GUARD=off|observe|strict`.
 
 ## I6
 

@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CAL_PATH = REPO_ROOT / "gim" / "core" / "calibration_params.py"
-OUT_PATH = REPO_ROOT / "data" / "parameters_v15.csv"
+OUT_PATH = REPO_ROOT / "data" / "parameters_gim16.csv"
 
 TAG_RE = re.compile(r"^([A-Z][A-Z0-9_]+)\s*=.*?#\s*\[([^\]]+)\]")
 ASSIGN_RE = re.compile(r"^([A-Z][A-Z0-9_]+)\s*=")

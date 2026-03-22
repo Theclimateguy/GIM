@@ -1,6 +1,6 @@
-# GIM15 UI Workspace
+# GIM16 UI Workspace
 
-Production local dashboard for running GIM15 scenarios and reading run-specific analytics.
+Production local dashboard for running GIM16 scenarios and reading run-specific analytics.
 
 ## Entry Point
 
@@ -9,7 +9,7 @@ python3 -m gim ui --host 127.0.0.1 --port 8090
 ```
 
 Backend entry point: `gim/ui_server.py`  
-Frontend shell: `ui_prototype/gim15_dashboard_prototype.html`
+Frontend shell: `ui_prototype/gim16_dashboard_prototype.html`
 
 ## Screen Structure
 

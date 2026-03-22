@@ -1,6 +1,6 @@
 # Simulation Step Order
 
-This note documents the effective yearly write order in [`simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/gim/core/simulation.py) and the runtime contract for critical-field finalization.
+This note documents the effective yearly write order in [`simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/gim/core/simulation.py) and the runtime contract for critical-field finalization.
 
 ## Yearly Order
 
@@ -35,7 +35,7 @@ This note documents the effective yearly write order in [`simulation.py`](/Users
 29. `update_credit_ratings`
 30. increment `world.time`
 
-## Phase Grouping (GIM15 canonical reconcile runtime)
+## Phase Grouping (GIM16 canonical reconcile runtime)
 
 `step_world()` uses an explicit 4-phase scaffold while preserving the same effective operation order:
 

@@ -14,7 +14,7 @@ DEFAULT_STATE_CSV = REPO_ROOT / "data" / "agent_states_operational.csv"
 DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"
 DEFAULT_DECARB_CALIBRATION = Path(__file__).resolve().with_name("decarb_rate_calibration.json")
-DEFAULT_BUILDER_REFERENCE = "GIM15/scripts/build_gim13_agent_states.py"
+DEFAULT_BUILDER_REFERENCE = "GIM16/scripts/build_gim13_agent_states.py"
 DEFAULT_HANDOFF_CONTRACT = (
     "EMISSIONS_SCALE is data-derived during manifest refresh from the historical backtest fixture, "
     "while DECARB_RATE may be stamped from either the legacy pipeline value or an observed prior. "

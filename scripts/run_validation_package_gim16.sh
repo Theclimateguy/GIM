@@ -58,7 +58,7 @@ for mode in ("simple", "growth"):
     )
 
 lines = [
-    f"# GIM15 Validation Package ({stamp})",
+    f"# GIM16 Validation Package ({stamp})",
     "",
     "Suite: `operational_v2`, runs=3, horizon=2",
     "",

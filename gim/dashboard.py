@@ -208,7 +208,7 @@ class DashboardRenderer:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GIM15 Decision Brief - {title}</title>
+  <title>GIM16 Decision Brief - {title}</title>
   <style>
     :root {{
       --bg: #f5f1e8;

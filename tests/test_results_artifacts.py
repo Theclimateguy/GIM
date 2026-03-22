@@ -72,10 +72,10 @@ class ResultsArtifactsTests(unittest.TestCase):
             older_dir.mkdir(parents=True)
             newer_dir.mkdir(parents=True)
 
-            older_world = older_dir / "GIM15_2026-03-15_19-00-00_t0-t5.csv"
-            newer_world = newer_dir / "GIM15_2026-03-15_20-00-00_t0-t5.csv"
-            ignored_actions = newer_dir / "GIM15_2026-03-15_20-00-00_actions.csv"
-            ignored_institutions = newer_dir / "GIM15_2026-03-15_20-00-00_institutions.csv"
+            older_world = older_dir / "GIM16_2026-03-15_19-00-00_t0-t5.csv"
+            newer_world = newer_dir / "GIM16_2026-03-15_20-00-00_t0-t5.csv"
+            ignored_actions = newer_dir / "GIM16_2026-03-15_20-00-00_actions.csv"
+            ignored_institutions = newer_dir / "GIM16_2026-03-15_20-00-00_institutions.csv"
 
             for path in (older_world, newer_world, ignored_actions, ignored_institutions):
                 path.write_text("time,agent_id\n", encoding="utf-8")

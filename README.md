@@ -1,12 +1,12 @@
-# GIM15
+# GIM16
 
-`GIM15` is the active repository for the yearly geopolitical-economy simulator and its scenario/game tooling.
+`GIM16` is the active repository for the yearly geopolitical-economy simulator and its scenario/game tooling.
 
 The codebase combines:
 
 - the core yearly world model (`gim/core/*`)
 - the scenario/game/orchestration layer (`gim/__main__.py`, `gim/game_runner.py`, `gim/sim_bridge.py`)
-- the local analytical workspace UI (`gim/ui_server.py`, `ui_prototype/gim15_dashboard_prototype.html`)
+- the local analytical workspace UI (`gim/ui_server.py`, `ui_prototype/gim16_dashboard_prototype.html`)
 - calibration harnesses and regression suites (`gim/calibration.py`, `gim/historical_backtest.py`, `misc/calibration/*`)
 
 ## What Runs Here
@@ -30,6 +30,7 @@ This path runs `gim/core/cli.py` and executes multi-year `step_world` simulation
 ```bash
 python3 -m gim question "Will Red Sea tensions escalate?"
 python3 -m gim game --case misc/cases/maritime_pressure_game.json --dashboard
+python3 -m gim hybrid --tables "United States" --intent "United States=Increase AI spending moderately." --round-years 4 --background-policy simple --brief
 python3 -m gim metrics --agents Iran "United States"
 python3 -m gim calibrate --suite operational_v1
 python3 -m gim brief --from-json results/<run-id>/evaluation.json
@@ -41,6 +42,7 @@ Supported subcommands are:
 
 - `question`
 - `game`
+- `hybrid`
 - `metrics`
 - `calibrate`
 - `brief`
@@ -54,14 +56,16 @@ Run artifacts are written to timestamped folders under `results/`:
 - `results/world-YYYYMMDD-HHMMSS/`
 - `results/question-YYYYMMDD-HHMMSS/`
 - `results/game-YYYYMMDD-HHMMSS/`
+- `results/hybrid-YYYYMMDD-HHMMSS/`
 - `results/metrics-YYYYMMDD-HHMMSS/`
 - `results/brief-YYYYMMDD-HHMMSS/`
 
 Each run writes a `run_manifest.json`. Depending on command flags, folders can include:
 
 - `evaluation.json` / `game_result.json` / `metrics.json`
+- `hybrid_result.json`
 - `dashboard.html`
-- `decision_brief.md`
+- `decision_brief.md` / `hybrid_report.md`
 - world/action/institution CSV logs
 - credit map HTML
 
@@ -94,7 +98,7 @@ Current analytics layout:
 Implementation reference:
 
 - `gim/ui_server.py`
-- `ui_prototype/gim15_dashboard_prototype.html`
+- `ui_prototype/gim16_dashboard_prototype.html`
 - `tests/test_ui_server.py`
 
 ## State Inputs and Defaults
@@ -152,7 +156,7 @@ Crisis layer:
 ## Repository Map
 
 ```text
-GIM15/
+GIM16/
 ├── gim/                    # installable package
 │   ├── core/               # yearly simulator
 │   ├── __main__.py         # orchestration CLI
@@ -184,7 +188,7 @@ Active docs index:
 Core runtime and contracts:
 
 - `docs/MODEL_METHODOLOGY.md`
-- `docs/GIM15_UNIFIED_MODEL_SPEC.md`
+- `docs/GIM16_UNIFIED_MODEL_SPEC.md`
 - `docs/CORE_TRANSITION_CONTRACT.md`
 - `docs/SIMULATION_STEP_ORDER.md`
 - `docs/MODEL_STATE_MAP.md`
@@ -220,13 +224,13 @@ python3 -m unittest discover -s tests -v
 Release validation package (non-LLM by default):
 
 ```bash
-./scripts/run_validation_package_v15.sh
+./scripts/run_validation_package_gim16.sh
 ```
 
 Optional LLM package:
 
 ```bash
-RUN_LLM=1 DEEPSEEK_API_KEY=... ./scripts/run_validation_package_v15.sh
+RUN_LLM=1 DEEPSEEK_API_KEY=... ./scripts/run_validation_package_gim16.sh
 ```
 
 Core calibration checks:
@@ -242,10 +246,10 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `15.5.1`
+Current package version: `16.0.0`
 
 Current release highlights:
 
 - explicit, separately tracked `fx_crisis` pathway with debt/FX co-occurrence support
-- synchronized FX crisis parameters in `data/parameters_v15.csv`
+- synchronized FX crisis parameters in `data/parameters_gim16.csv`
 - severity-proportional foreign-policy wording in the legacy LLM prompt path

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GIM15 Intelligence Workspace</title>
+  <title>GIM16 Intelligence Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -203,6 +203,19 @@
       gap: 10px;
     }
 
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .game-stack {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
     .sim-card {
       background: var(--surface);
       border: 1px solid var(--line);
@@ -224,6 +237,13 @@
 
     .form-row:last-child { border-bottom: none; }
 
+    .form-row.tall {
+      align-items: start;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      min-height: 78px;
+    }
+
     .row-label {
       color: #ccd7e3;
       font-size: 12px;
@@ -241,6 +261,143 @@
       padding: 0 9px;
       font-family: 'IBM Plex Mono', monospace;
       font-variant-numeric: tabular-nums;
+    }
+
+    textarea.ctrl {
+      height: auto;
+      min-height: 74px;
+      padding: 8px 9px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .scope-note {
+      margin: 6px 0 10px;
+      color: #9fb0c3;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .table-card {
+      border: 1px solid #2f3945;
+      border-radius: 8px;
+      background: #111821;
+      padding: 11px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .table-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      border: 1px solid #35506f;
+      background: #162334;
+      color: #d9e7f7;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .table-meta {
+      color: #8090a3;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .intent-input {
+      min-height: 104px;
+    }
+
+    .hint-text {
+      color: #7f92a7;
+      font-size: 10px;
+      line-height: 1.45;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .protocol-list {
+      display: grid;
+      gap: 9px;
+      color: #d4dfeb;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .protocol-step {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #2d3743;
+      background: #11171f;
+    }
+
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .artifact-card {
+      display: grid;
+      gap: 8px;
+      padding: 11px;
+      border-radius: 8px;
+      border: 1px solid #2d3845;
+      background: #11171f;
+      min-height: 118px;
+    }
+
+    .artifact-title {
+      color: #f2f6fa;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .artifact-meta {
+      color: #8fa2b7;
+      font-size: 11px;
+      line-height: 1.45;
+      font-family: 'IBM Plex Mono', monospace;
+      word-break: break-word;
+    }
+
+    .artifact-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .artifact-empty {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px dashed #39506b;
+      color: #9fb0c3;
+      background: #10161e;
+      font-size: 12px;
+      line-height: 1.5;
+      font-family: 'IBM Plex Mono', monospace;
+      grid-column: 1 / -1;
     }
 
     .multi-select {
@@ -390,6 +547,11 @@
       letter-spacing: .07em;
       font-family: 'IBM Plex Mono', monospace;
     }
+
+    .exec-status.done { color: #43c878; }
+    .exec-status.running { color: #f0b85d; }
+    .exec-status.queued { color: #8ea1b6; }
+    .exec-status.failed { color: #ff6c6c; }
 
     .progress-wrap {
       margin-top: 12px;
@@ -686,7 +848,8 @@
     @media (max-width: 1280px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { display: none; }
-      .sim-grid, .analytics-top, .analytics-charts { grid-template-columns: 1fr; }
+      .sim-grid, .game-grid, .analytics-top, .analytics-charts { grid-template-columns: 1fr; }
+      .table-grid, .artifact-grid { grid-template-columns: 1fr; }
       .quant-row { grid-template-columns: repeat(2, 1fr); }
       .brief-grid { grid-template-columns: 1fr; }
     }
@@ -705,7 +868,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <h1>GIM15 Intelligence</h1>
+        <h1>GIM16 Intelligence</h1>
         <p>world simulation command</p>
       </div>
 
@@ -715,7 +878,7 @@
           <a class="doc-link" href="/docs/view?path=README.md" target="_blank">README.md<div class="doc-meta">project overview and run basics</div></a>
           <a class="doc-link" href="/docs/view?path=docs/README.md" target="_blank">docs/README.md<div class="doc-meta">documentation index</div></a>
           <a class="doc-link" href="/docs/view?path=docs/MODEL_METHODOLOGY.md" target="_blank">MODEL_METHODOLOGY.md<div class="doc-meta">runtime methodology</div></a>
-          <a class="doc-link" href="/docs/view?path=docs/GIM15_UNIFIED_MODEL_SPEC.md" target="_blank">GIM15_UNIFIED_MODEL_SPEC.md<div class="doc-meta">equations and state evolution</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/GIM16_UNIFIED_MODEL_SPEC.md" target="_blank">GIM16_UNIFIED_MODEL_SPEC.md<div class="doc-meta">equations and state evolution</div></a>
           <a class="doc-link" href="/docs/view?path=docs/CALIBRATION_REFERENCE.md" target="_blank">CALIBRATION_REFERENCE.md<div class="doc-meta">baseline calibration values</div></a>
           <a class="doc-link" href="/docs/view?path=docs/CALIBRATION_LAYER.md" target="_blank">CALIBRATION_LAYER.md<div class="doc-meta">calibration workflow</div></a>
           <a class="doc-link" href="/docs/view?path=docs/SIMULATION_STEP_ORDER.md" target="_blank">SIMULATION_STEP_ORDER.md<div class="doc-meta">execution order contract</div></a>
@@ -728,7 +891,7 @@
       <section class="panel">
         <div class="panel-title">Run Artifact Status</div>
         <div class="doc-meta">Pre-run: run_payload.json</div>
-        <div class="doc-meta">Post-run: run_manifest.json, evaluation.json, dashboard.html, decision_brief.md, game_result.json</div>
+        <div class="doc-meta">Post-run: run_manifest.json, evaluation.json, dashboard.html, decision_brief.md, hybrid_report.md, game_result.json</div>
       </section>
     </aside>
 
@@ -736,7 +899,7 @@
       <header class="header">
         <div class="title">
           <h2>Personal Analytical Workspace</h2>
-          <p id="workspaceMeta">GIM15 global simulation • operator: Nazar</p>
+          <p id="workspaceMeta">GIM16 global simulation • operator: Nazar</p>
         </div>
         <div class="actions">
           <button id="btnExportPayload" class="btn">Export run_payload.json</button>
@@ -747,6 +910,7 @@
 
       <div class="tabs">
         <button class="tab" data-tab="sim">Simulation Modes</button>
+        <button class="tab" data-tab="game">Game</button>
         <button class="tab active" data-tab="ana">Analytics</button>
       </div>
 
@@ -807,17 +971,8 @@
             </article>
 
             <article class="sim-card">
-              <div class="panel-title">Execution pipeline (real step_world phases)</div>
-              <div class="execution-list">
-                <div class="exec-row"><span>1. baseline: metrics, political states, institutions, policy generation</span><span class="exec-status good">done</span></div>
-                <div class="exec-row"><span>2. detect: resolve_foreign_policy</span><span class="exec-status good">done</span></div>
-                <div class="exec-row"><span>3. propagate: sanctions, security, conflicts, trade barriers/actions/deals</span><span class="exec-status warn">running</span></div>
-                <div class="exec-row"><span>4. propagate: resources, prices, climate, extreme events</span><span class="exec-status">queued</span></div>
-                <div class="exec-row"><span>5. propagate: economy, public finances, debt checks</span><span class="exec-status">queued</span></div>
-                <div class="exec-row"><span>6. propagate: migration, population, social state, regime stability</span><span class="exec-status">queued</span></div>
-                <div class="exec-row"><span>7. reconcile: finalize GDP/debt/trust/tension critical fields</span><span class="exec-status">queued</span></div>
-                <div class="exec-row"><span>8. finalize: memory, credit ratings, policy records, time increment</span><span class="exec-status">queued</span></div>
-              </div>
+              <div class="panel-title">Execution pipeline</div>
+              <div id="execList" class="execution-list"></div>
 
               <div class="progress-wrap">
                 <div class="progress-head"><span>Overall simulation progress</span><span id="progressPct">37%</span></div>
@@ -825,6 +980,86 @@
                 <div id="progressNote" class="progress-note">Step 3/8 running • climate-economy propagation phase</div>
               </div>
             </article>
+          </div>
+        </div>
+
+        <div id="game" class="tab-panel">
+          <div class="game-grid">
+            <article class="sim-card">
+              <div class="panel-title">Human-in-the-loop game (`python3 -m gim hybrid`)</div>
+              <div class="scope-note">
+                Configure a hybrid round, assign human-controlled countries, and let the remaining world run on the background policy layer.
+                After each completed round, open the generated artifacts below, let each table review them, and enter the next round of commands directly into the same fields.
+              </div>
+              <div class="form-grid">
+                <div class="form-row"><div class="row-label">Round mode</div><select id="gMode" class="ctrl"><option value="WHAT_IF">WHAT_IF</option><option value="ACTION">ACTION</option></select></div>
+                <div class="form-row"><div class="row-label">Humans in the loop</div><input id="gHumanCount" type="number" min="1" max="12" class="ctrl" value="3" /></div>
+                <div class="form-row"><div class="row-label">Round horizon (years)</div><input id="gRoundYears" type="number" min="1" max="10" class="ctrl" value="4" /></div>
+                <div class="form-row"><div class="row-label">Ensemble size</div><input id="gEnsembleSize" type="number" min="1" max="20" class="ctrl" value="3" /></div>
+                <div class="form-row"><div class="row-label">Seed</div><input id="gSeed" type="number" class="ctrl" value="2026" /></div>
+                <div class="form-row"><div class="row-label">State year</div><input id="gStateYear" type="number" class="ctrl" value="" placeholder="2026" /></div>
+                <div class="form-row"><div class="row-label">Max countries</div><input id="gMaxCountries" type="number" class="ctrl" value="" placeholder="20" /></div>
+                <div class="form-row"><div class="row-label">Background autopilot</div><select id="gPolicy" class="ctrl"><option value="compiled-llm">compiled-llm</option><option value="llm">llm</option><option value="simple">simple</option><option value="growth">growth</option></select></div>
+                <div class="form-row"><div class="row-label">LLM refresh</div><select id="gRefresh" class="ctrl"><option value="trigger">trigger</option><option value="periodic">periodic</option><option value="never">never</option></select></div>
+                <div class="form-row"><div class="row-label">LLM refresh years</div><input id="gRefreshYears" type="number" class="ctrl" value="2" /></div>
+                <div class="form-row">
+                  <div class="row-label">Shared state CSV</div>
+                  <div class="file-display" id="gameStateCsvEcho">using default operational snapshot</div>
+                </div>
+                <div class="form-row">
+                  <div class="row-label">Artifacts to generate</div>
+                  <div class="check-row">
+                    <label><input id="gDashboard" type="checkbox" checked> dashboard.html</label>
+                    <label><input id="gBrief" type="checkbox" checked> hybrid_report.md</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel-title" style="margin-top:14px;">Human tables</div>
+              <div id="gameTableGrid" class="table-grid"></div>
+
+              <div class="run-footer">
+                <div class="key-wrap">
+                  <label>DeepSeek API key (DEEPSEEK_API_KEY)</label>
+                  <input id="gApiKey" class="ctrl" type="password" placeholder="sk-..." />
+                </div>
+                <button id="btnGameRun" class="btn primary" style="height:32px;">Run game round</button>
+              </div>
+            </article>
+
+            <div class="game-stack">
+              <article class="sim-card">
+                <div class="panel-title">Round protocol</div>
+                <div class="protocol-list">
+                  <div class="protocol-step">1. Pick the number of human tables and assign each one to a country.</div>
+                  <div class="protocol-step">2. Enter a short natural-language command per table, for example: “Increase AI spending moderately but avoid trade escalation.”</div>
+                  <div class="protocol-step">3. Launch the hybrid round and wait for the artifacts.</div>
+                  <div class="protocol-step">4. Open the dashboard, report, and action logs in separate browser tabs or download them for the room.</div>
+                  <div class="protocol-step">5. Let each table review the new world state and type the next command in the same input field for the next round.</div>
+                </div>
+              </article>
+
+              <article class="sim-card">
+                <div class="panel-title">Round execution</div>
+                <div id="gameExecList" class="execution-list"></div>
+
+                <div class="progress-wrap">
+                  <div class="progress-head"><span>Overall round progress</span><span id="gameProgressPct">0%</span></div>
+                  <div class="progress-track"><div id="gameProgressFill" class="progress-fill" style="width:0%;"></div></div>
+                  <div id="gameProgressNote" class="progress-note">No round running</div>
+                </div>
+              </article>
+
+              <article class="sim-card">
+                <div class="panel-title">Artifacts for tables</div>
+                <div class="scope-note">
+                  Open generated dashboards and briefs in separate tabs, or download the raw JSON/CSV logs for facilitators.
+                </div>
+                <div id="gameArtifactGrid" class="artifact-grid">
+                  <div class="artifact-empty">Run a hybrid round to populate dashboard, hybrid report, evaluation JSON, decomposition JSON and action logs.</div>
+                </div>
+              </article>
+            </div>
           </div>
         </div>
 
@@ -1043,12 +1278,45 @@
     const tabs = document.querySelectorAll('.tab');
     const panels = document.querySelectorAll('.tab-panel');
     const q = id => document.getElementById(id);
+    const PIPELINE_PHASES = [
+      'baseline: metrics, political states, institutions, policy generation',
+      'detect: resolve_foreign_policy',
+      'propagate: sanctions, security, conflicts, trade barriers/actions/deals',
+      'propagate: resources, prices, climate, extreme events',
+      'propagate: economy, public finances, debt checks',
+      'propagate: migration, population, social state, regime stability',
+      'reconcile: finalize GDP/debt/trust/tension critical fields',
+      'finalize: memory, credit ratings, policy records, time increment',
+    ];
     let currentRunId = null;
     let activeArtifacts = { artifacts: {} };
     let stateCsvs = [];
     let stateCsvIdx = -1;
     let actorOptions = [];
     let selectedActors = [];
+    let gameTables = [];
+
+    const GAME_ARTIFACT_PRIORITY = [
+      'dashboard.html',
+      'hybrid_report.md',
+      'evaluation.json',
+      'hybrid_result.json',
+      'hybrid_policy_round_actions.csv',
+      'hybrid_baseline_round_actions.csv',
+      'hybrid_policy_round_t0-t1.csv',
+      'hybrid_baseline_round_t0-t1.csv',
+      'run_manifest.json',
+    ];
+
+    const GAME_ARTIFACT_HINTS = {
+      'dashboard.html': 'Visual dashboard for the room. Open on a second screen or distribute as a browser tab.',
+      'hybrid_report.md': 'Compact textual debrief with intent parsing, deltas, regret and decomposition.',
+      'evaluation.json': 'Policy trajectory and analytics payload used by the dashboard.',
+      'hybrid_result.json': 'Hybrid round payload with compiled intents, benchmark comparison and channel decomposition.',
+      'hybrid_policy_round_actions.csv': 'Effective actions after political constraints for the policy run.',
+      'hybrid_baseline_round_actions.csv': 'Baseline effective actions for comparison.',
+      'run_manifest.json': 'Artifact index for the round.',
+    };
 
     function activateTab(key) {
       tabs.forEach(t => t.classList.remove('active'));
@@ -1085,12 +1353,50 @@
       if (!el) return;
       el.textContent = value || '';
       el.classList.toggle('empty', !value);
+      const echo = q('gameStateCsvEcho');
+      if (echo) {
+        const hasValue = !!value;
+        echo.textContent = hasValue ? value : 'using default operational snapshot';
+        echo.classList.toggle('empty', !hasValue);
+      }
     }
 
     function updateWorkspaceMeta(runId) {
       if (!q('workspaceMeta')) return;
       const suffix = runId ? ` • run_id #${runId}` : '';
-      q('workspaceMeta').textContent = `GIM15 global simulation • operator: Nazar${suffix}`;
+      q('workspaceMeta').textContent = `GIM16 global simulation • operator: Nazar${suffix}`;
+    }
+
+    function renderExecutionPipeline(hostId, stepIndex = 0, runStatus = 'queued') {
+      const host = q(hostId);
+      if (!host) return;
+      const idx = Math.max(0, Number(stepIndex || 0));
+      host.innerHTML = PIPELINE_PHASES.map((phase, i) => {
+        const phaseNo = i + 1;
+        let label = 'queued';
+        let cls = 'queued';
+        if (runStatus === 'completed') {
+          label = 'done';
+          cls = 'done';
+        } else if (phaseNo < idx) {
+          label = 'done';
+          cls = 'done';
+        } else if (phaseNo === idx && runStatus === 'running') {
+          label = 'running';
+          cls = 'running';
+        } else if (phaseNo === idx && runStatus === 'failed') {
+          label = 'failed';
+          cls = 'failed';
+        }
+        return `<div class="exec-row"><span>${phaseNo}. ${phase}</span><span class="exec-status ${cls}">${label}</span></div>`;
+      }).join('');
+    }
+
+    function setProgressUi(fillId, pctId, noteId, progress, note) {
+      const pct = Math.max(0, Math.min(100, Number(progress || 0)));
+      if (q(fillId)) q(fillId).style.width = `${Math.max(0, pct)}%`;
+      if (q(pctId)) q(pctId).textContent = `${Math.round(pct)}%`;
+      if (q(noteId) && note) q(noteId).textContent = note;
     }
 
     function setActorToggleLabel() {
@@ -1140,6 +1446,7 @@
             selectedActors = selectedActors.filter(name => name !== actor.name);
           }
           setActorToggleLabel();
+          renderGameTableRows();
         });
 
         const name = document.createElement('span');
@@ -1154,6 +1461,75 @@
       });
     }
 
+    function preferredGameActors(count) {
+      const preferred = [];
+      selectedActors.forEach(name => {
+        if (preferred.length < count && !preferred.includes(name)) preferred.push(name);
+      });
+      actorOptions.forEach(actor => {
+        if (preferred.length < count && !preferred.includes(actor.name)) preferred.push(actor.name);
+      });
+      return preferred;
+    }
+
+    function syncGameTableCount() {
+      const count = Math.max(1, Math.min(12, Number(valueOrEmpty('gHumanCount') || 3)));
+      const preferred = preferredGameActors(count);
+      while (gameTables.length < count) {
+        const nextIndex = gameTables.length;
+        gameTables.push({
+          actor: preferred[nextIndex] || '',
+          intent: '',
+        });
+      }
+      gameTables = gameTables.slice(0, count).map((row, idx) => ({
+        actor: row.actor || preferred[idx] || '',
+        intent: row.intent || '',
+      }));
+      return count;
+    }
+
+    function gameActorOptions(selectedValue) {
+      const options = ['<option value="">choose actor</option>'];
+      actorOptions.forEach(actor => {
+        const selected = actor.name === selectedValue ? ' selected' : '';
+        options.push(`<option value="${actor.name.replace(/"/g, '&quot;')}"${selected}>${actor.name} [${actor.id}]</option>`);
+      });
+      return options.join('');
+    }
+
+    function renderGameTableRows() {
+      const host = q('gameTableGrid');
+      if (!host) return;
+      const count = syncGameTableCount();
+      host.innerHTML = '';
+      for (let idx = 0; idx < count; idx += 1) {
+        const row = gameTables[idx] || { actor: '', intent: '' };
+        const card = document.createElement('div');
+        card.className = 'table-card';
+        card.innerHTML = `
+          <div class="table-head">
+            <span class="mini-badge">Table ${idx + 1}</span>
+            <span class="table-meta">human-controlled country</span>
+          </div>
+          <select class="ctrl" data-role="actor">
+            ${gameActorOptions(row.actor)}
+          </select>
+          <textarea class="ctrl intent-input" data-role="intent" placeholder="Example: Increase AI spending moderately, protect debt sustainability and avoid trade escalation.">${row.intent || ''}</textarea>
+          <div class="hint-text">Short natural-language command. The backend compiles it into existing domestic / foreign policy levers and then runs the unchanged yearly core.</div>
+        `;
+        const actorSelect = card.querySelector('[data-role="actor"]');
+        const intentInput = card.querySelector('[data-role="intent"]');
+        actorSelect.addEventListener('change', event => {
+          gameTables[idx].actor = String(event.target.value || '');
+        });
+        intentInput.addEventListener('input', event => {
+          gameTables[idx].intent = String(event.target.value || '');
+        });
+        host.appendChild(card);
+      }
+    }
+
     async function loadActors(stateCsv = null) {
       try {
         const url = new URL('/api/actors', window.location.origin);
@@ -1166,6 +1542,7 @@
         selectedActors = selectedActors.filter(name => available.has(name));
         renderActorList(q('actorSearch') ? q('actorSearch').value : '');
         setActorToggleLabel();
+        renderGameTableRows();
       } catch (_) {}
     }
 
@@ -1205,13 +1582,139 @@
       };
     }
 
-    function seriesRange(seriesArrays, fixedRange = null) {
+    function gamePayloadFromForm() {
+      syncGameTableCount();
+      const rows = gameTables
+        .map(row => ({ actor: String(row.actor || '').trim(), intent: String(row.intent || '').trim() }))
+        .filter(row => row.actor && row.intent);
+      return {
+        command: 'hybrid',
+        tables: rows.map(row => row.actor),
+        intents: Object.fromEntries(rows.map(row => [row.actor, row.intent])),
+        mode: valueOrEmpty('gMode') || 'WHAT_IF',
+        round_years: valueOrEmpty('gRoundYears') || '4',
+        ensemble_size: valueOrEmpty('gEnsembleSize') || '3',
+        seed: valueOrEmpty('gSeed') || '2026',
+        state_year: valueOrEmpty('gStateYear'),
+        max_countries: valueOrEmpty('gMaxCountries'),
+        background_policy: valueOrEmpty('gPolicy') || 'compiled-llm',
+        llm_refresh: valueOrEmpty('gRefresh') || 'trigger',
+        llm_refresh_years: valueOrEmpty('gRefreshYears') || '2',
+        state_csv: textOrEmpty('fileName'),
+        dashboard: checked('gDashboard'),
+        brief: checked('gBrief'),
+        brief_output: 'hybrid_report.md',
+        dashboard_output: 'dashboard.html',
+        json: false,
+        deepseek_api_key: valueOrEmpty('gApiKey') || valueOrEmpty('fApiKey'),
+      };
+    }
+
+    function validateGamePayload(payload) {
+      const requiredTables = Math.max(1, Math.min(12, Number(valueOrEmpty('gHumanCount') || 3)));
+      const tables = Array.isArray(payload.tables) ? payload.tables : [];
+      const intents = payload.intents || {};
+      if (tables.length !== requiredTables) {
+        throw new Error(`Configure ${requiredTables} distinct human-controlled countries and enter a command for each one.`);
+      }
+      const unique = new Set(tables);
+      if (unique.size !== tables.length) {
+        throw new Error('Each human table must map to a distinct country.');
+      }
+      const missingIntent = tables.find(actor => !String(intents[actor] || '').trim());
+      if (missingIntent) {
+        throw new Error(`Enter a command for ${missingIntent}.`);
+      }
+    }
+
+    function artifactNameList(artifacts) {
+      const names = Object.keys((artifacts && artifacts.artifacts) || {});
+      return names.sort((a, b) => {
+        const ia = GAME_ARTIFACT_PRIORITY.indexOf(a);
+        const ib = GAME_ARTIFACT_PRIORITY.indexOf(b);
+        if (ia === -1 && ib === -1) return a.localeCompare(b);
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+    }
+
+    function gameArtifactHint(name) {
+      if (GAME_ARTIFACT_HINTS[name]) return GAME_ARTIFACT_HINTS[name];
+      if (name.endsWith('.csv')) return 'Raw facilitator log for actions, institutions or state trajectories.';
+      if (name.endsWith('.json')) return 'Structured machine-readable artifact for deeper inspection.';
+      if (name.endsWith('.html')) return 'Browser-ready dashboard view.';
+      if (name.endsWith('.md')) return 'Markdown briefing for operators and tables.';
+      return 'Generated round artifact.';
+    }
+
+    function downloadArtifact(path, filename) {
+      const anchor = document.createElement('a');
+      anchor.href = `/api/download?path=${encodeURIComponent(path)}`;
+      anchor.download = filename || '';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    }
+
+    function renderGameArtifacts(artifactsPayload) {
+      const host = q('gameArtifactGrid');
+      if (!host) return;
+      const names = artifactNameList(artifactsPayload);
+      if (!names.length) {
+        host.innerHTML = '<div class="artifact-empty">Run a hybrid round to populate dashboard, hybrid report, evaluation JSON, decomposition JSON and action logs.</div>';
+        return;
+      }
+      host.innerHTML = '';
+      names.forEach(name => {
+        const path = artifactsPayload.artifacts[name];
+        const card = document.createElement('div');
+        card.className = 'artifact-card';
+        const title = document.createElement('div');
+        title.className = 'artifact-title';
+        title.textContent = name;
+
+        const meta = document.createElement('div');
+        meta.className = 'artifact-meta';
+        meta.textContent = gameArtifactHint(name);
+
+        const pathLine = document.createElement('div');
+        pathLine.className = 'artifact-meta';
+        pathLine.textContent = path;
+
+        const actions = document.createElement('div');
+        actions.className = 'artifact-actions';
+
+        const openBtn = document.createElement('button');
+        openBtn.className = 'btn';
+        openBtn.textContent = 'Open';
+        openBtn.addEventListener('click', () => window.open(`/api/download?path=${encodeURIComponent(path)}`, '_blank'));
+
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'btn';
+        dlBtn.textContent = 'Download';
+        dlBtn.addEventListener('click', () => downloadArtifact(path, name));
+
+        actions.append(openBtn, dlBtn);
+        card.append(title, meta, pathLine, actions);
+        host.appendChild(card);
+      });
+    }
+
+    function seriesRange(seriesArrays, fixedRange = null, padding = 0) {
       if (fixedRange) return fixedRange;
       const all = seriesArrays.flat().filter(v => Number.isFinite(v));
       if (!all.length) return [0, 1];
       const lo = Math.min(...all);
       const hi = Math.max(...all);
-      return lo === hi ? [lo - 1, hi + 1] : [lo, hi];
+      if (lo === hi) {
+        const span = Math.max(1e-6, Math.abs(lo) * 0.1, 0.01);
+        return [lo - span, hi + span];
+      }
+      if (!padding || padding <= 0) return [lo, hi];
+      const span = hi - lo;
+      const pad = span * padding;
+      return [lo - pad, hi + pad];
     }
 
     function sampleAxisLabels(values, count) {
@@ -1462,16 +1965,14 @@
         const energy = data.energy_pass_series || [];
         const core = data.core_infl_series || [];
         if (infl.length || energy.length || core.length) {
-          const inflationScale = Math.max(0.01, ...infl, ...core);
-          const energyScaled = energy.map(v => v * inflationScale);
-          const inflRange = seriesRange([infl, energyScaled, core]);
-          renderBarChart('chartInflation', [infl, energyScaled, core], {
+          const inflRange = seriesRange([infl, energy, core], null, 0.12);
+          renderBarChart('chartInflation', [infl, energy, core], {
             years,
             range: inflRange,
             colors: ['#ff6c6c', '#4f8cff', '#43c878'],
             yFormatter: v => `${(100 * v).toFixed(1)}%`,
           });
-          setLegend('legendInflation', ['Headline CPI', 'Scaled energy pass-through', 'Core CPI'], ['#ff6c6c', '#4f8cff', '#43c878']);
+          setLegend('legendInflation', ['Headline CPI', 'Energy pass-through', 'Core CPI'], ['#ff6c6c', '#4f8cff', '#43c878']);
         } else {
           renderBarChart('chartInflation', [], { years: [] });
           setLegend('legendInflation', [], []);
@@ -1492,9 +1993,12 @@
       try {
         const endpoint = runId ? `/api/run/${runId}/artifacts` : '/api/artifacts/latest';
         const resp = await fetch(endpoint);
-        if (!resp.ok) return;
+        if (!resp.ok) return false;
         activeArtifacts = await resp.json();
-      } catch (_) {}
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
 
     function openArtifact(name) {
@@ -1509,16 +2013,17 @@
       return resp.json();
     }
 
-    async function startRun() {
-      q('btnRun').disabled = true;
-      q('btnRun').textContent = 'Running...';
+    async function launchRun(payload, config) {
+      const button = q(config.buttonId);
+      if (!button) return;
+      button.disabled = true;
+      button.textContent = config.runningLabel || 'Running...';
       activeArtifacts = { artifacts: {} };
       updateArtifactButtons(false);
-      q('progressFill').style.width = '2%';
-      q('progressPct').textContent = '2%';
-      q('progressNote').textContent = 'Run queued';
+      renderGameArtifacts(activeArtifacts);
+      setProgressUi(config.fillId, config.pctId, config.noteId, 2, 'Run queued');
+      renderExecutionPipeline(config.execListId, 0, 'queued');
       try {
-        const payload = payloadFromForm();
         const resp = await fetch('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1532,25 +2037,67 @@
         const timer = setInterval(async () => {
           const st = await pollRunStatus(currentRunId);
           if (!st) return;
-          q('progressFill').style.width = `${Math.max(1, st.progress || 0)}%`;
-          q('progressPct').textContent = `${Math.round(st.progress || 0)}%`;
-          q('progressNote').textContent = st.note || q('progressNote').textContent;
+          setProgressUi(
+            config.fillId,
+            config.pctId,
+            config.noteId,
+            Math.max(1, st.progress || 0),
+            st.note || textOrEmpty(config.noteId)
+          );
+          renderExecutionPipeline(config.execListId, st.step_index || 0, st.status || 'queued');
           if (st.status === 'completed' || st.status === 'failed') {
             clearInterval(timer);
-            q('btnRun').disabled = false;
-            q('btnRun').textContent = st.status === 'completed' ? 'Run chosen modes' : 'Run failed • retry';
+            button.disabled = false;
+            button.textContent = st.status === 'completed' ? config.defaultLabel : config.failedLabel;
             if (st.status === 'completed') {
               await refreshArtifacts(currentRunId);
               updateArtifactButtons(true);
+              renderGameArtifacts(activeArtifacts);
               await loadAnalytics(currentRunId);
-              activateTab('ana');
+              activateTab(config.successTab);
             }
           }
         }, 1500);
-      } catch (_) {
-        q('btnRun').disabled = false;
-        q('btnRun').textContent = 'Run failed • retry';
-        q('progressNote').textContent = 'Unable to start local run';
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = config.failedLabel;
+        setProgressUi(config.fillId, config.pctId, config.noteId, 0, error?.message || 'Unable to start local run');
+        renderExecutionPipeline(config.execListId, 1, 'failed');
+      }
+    }
+
+    async function startRun() {
+      return launchRun(payloadFromForm(), {
+        buttonId: 'btnRun',
+        defaultLabel: 'Run chosen modes',
+        runningLabel: 'Running...',
+        failedLabel: 'Run failed • retry',
+        fillId: 'progressFill',
+        pctId: 'progressPct',
+        noteId: 'progressNote',
+        execListId: 'execList',
+        successTab: 'ana',
+      });
+    }
+
+    async function startGameRun() {
+      try {
+        const payload = gamePayloadFromForm();
+        validateGamePayload(payload);
+        return launchRun(payload, {
+          buttonId: 'btnGameRun',
+          defaultLabel: 'Run game round',
+          runningLabel: 'Running round...',
+          failedLabel: 'Round failed • retry',
+          fillId: 'gameProgressFill',
+          pctId: 'gameProgressPct',
+          noteId: 'gameProgressNote',
+          execListId: 'gameExecList',
+          successTab: 'game',
+        });
+      } catch (error) {
+        setProgressUi('gameProgressFill', 'gameProgressPct', 'gameProgressNote', 0, error?.message || 'Unable to start round');
+        renderExecutionPipeline('gameExecList', 1, 'failed');
       }
     }
 
@@ -1588,20 +2135,31 @@
     });
 
     q('btnExportPayload').addEventListener('click', () => {
-      const payload = { ...payloadFromForm(), created_at: new Date().toISOString() };
-      downloadFile('run_payload.json', JSON.stringify(payload, null, 2));
+      const activeTab = [...tabs].find(tab => tab.classList.contains('active'))?.dataset.tab;
+      const payload = {
+        ...(activeTab === 'game' ? gamePayloadFromForm() : payloadFromForm()),
+        created_at: new Date().toISOString(),
+      };
+      downloadFile(activeTab === 'game' ? 'hybrid_run_payload.json' : 'run_payload.json', JSON.stringify(payload, null, 2));
     });
 
     q('btnExportManifest').addEventListener('click', () => openArtifact('run_manifest.json'));
     q('btnExportDashboard').addEventListener('click', () => openArtifact('dashboard.html'));
     q('btnRun').addEventListener('click', startRun);
+    q('btnGameRun').addEventListener('click', startGameRun);
+    q('gHumanCount').addEventListener('input', renderGameTableRows);
 
     (async function init() {
+      renderExecutionPipeline('execList', 0, 'queued');
+      renderExecutionPipeline('gameExecList', 0, 'queued');
       setStateCsvDisplay('');
+      renderGameTableRows();
       await initStateCsvs();
       await loadActors();
-      await refreshArtifacts();
-      updateArtifactButtons(false);
+      const artifactsLoaded = await refreshArtifacts();
+      const hasArtifacts = artifactsLoaded && Object.keys(activeArtifacts.artifacts || {}).length > 0;
+      updateArtifactButtons(hasArtifacts);
+      renderGameArtifacts(activeArtifacts);
       await loadAnalytics();
     })();
   </script>

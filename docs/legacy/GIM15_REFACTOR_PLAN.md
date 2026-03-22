@@ -1,9 +1,9 @@
-# GIM15 Refactor Plan (4-Phase Kernel + Full State Equation Structure)
+# GIM16 Refactor Plan (4-Phase Kernel + Full State Equation Structure)
 
 ## 0) Scope and constraints
 
 - Work mode: local only, no commits, no push.
-- Base branch/worktree: `GIM15` in `/Users/theclimateguy/Documents/jupyter_lab/GIM15`.
+- Base branch/worktree: `GIM16` in `/Users/theclimateguy/Documents/jupyter_lab/GIM16`.
 - Objective: refactor simulation architecture to reduce execution-order artifacts and make crisis causality auditable.
 - Primary focus: 4-phase yearly kernel and full descriptive equation structure of model state transitions.
 
@@ -211,7 +211,7 @@ Definition of Done:
 Deliverables:
 
 - `docs/MODEL_SPEC_V15.md` with equation-indexed transition definitions,
-- parameter registry file (`data/parameters_v15.csv` or `yaml`) with source and uncertainty tags.
+- parameter registry file (`data/parameters_gim16.csv` or `yaml`) with source and uncertainty tags.
 
 Minimum parameter columns:
 
@@ -234,7 +234,7 @@ Definition of Done:
 - Reliable build (3-7 days): full P2 + protocol scaffold + first crisis pack.
 - Research build (1-2 weeks): full P3/P4 + uncertainty/sensitivity workflow.
 
-## 7) Immediate next execution steps inside GIM15
+## 7) Immediate next execution steps inside GIM16
 
 1. Build `state_registry.csv` from current dataclasses and active writers.
 2. Introduce explicit phase function skeleton in `simulation.py` with no behavior change.

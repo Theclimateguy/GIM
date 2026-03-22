@@ -53,9 +53,9 @@ Status: completed (documentation baseline)
 Artifacts:
 
 - `docs/MODEL_SPEC_V15.md`
-- `docs/GIM15_UNIFIED_MODEL_SPEC.md`
-- `data/parameters_v15.csv`
-- `data/parameters_v15.lock.json`
+- `docs/GIM16_UNIFIED_MODEL_SPEC.md`
+- `data/parameters_gim16.csv`
+- `data/parameters_gim16.lock.json`
 - `docs/PARAMETER_CHANGE_POLICY.md`
 
 Capabilities:
@@ -77,7 +77,7 @@ Artifacts:
 
 Outcome:
 
-- v15.1 active baseline defaults:
+- v16.0 active baseline defaults:
   - `TFP_RD_SHARE_SENS=0.300000`
   - `GAMMA_ENERGY=0.042000`
   - `DECARB_RATE_STRUCTURAL=0.052000` (artifact-bound)

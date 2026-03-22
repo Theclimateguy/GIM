@@ -1,4 +1,4 @@
-# MODEL_STATE_MAP (GIM15 draft)
+# MODEL_STATE_MAP (GIM16 draft)
 
 ## 1. State vector
 
@@ -103,7 +103,7 @@ Reconciliation step finalizes year outputs and constraints:
 - recompute relative metrics and credit ratings
 - write audit payload with per-phase contribution tags
 
-## 3. Event set for GIM15 refactor
+## 3. Event set for GIM16 refactor
 
 - Debt crisis: onset + persistence + recovery windows
 - Regime crisis: low trust + high tension trigger

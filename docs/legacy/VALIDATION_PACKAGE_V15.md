@@ -1,4 +1,4 @@
-# GIM15 Validation Package (Release Track)
+# GIM16 Validation Package (Release Track)
 
 ## Purpose
 
@@ -7,13 +7,13 @@ Provide a reproducible local validation package for release hardening with artif
 ## One-command run (non-LLM baseline)
 
 ```bash
-./scripts/run_validation_package_v15.sh
+./scripts/run_validation_package_gim16.sh
 ```
 
 Optional date tag:
 
 ```bash
-./scripts/run_validation_package_v15.sh 2026-03-17
+./scripts/run_validation_package_gim16.sh 2026-03-17
 ```
 
 Default output:
@@ -28,7 +28,7 @@ Default output:
 LLM runs are opt-in and separated from the non-LLM baseline.
 
 ```bash
-RUN_LLM=1 DEEPSEEK_API_KEY=... ./scripts/run_validation_package_v15.sh
+RUN_LLM=1 DEEPSEEK_API_KEY=... ./scripts/run_validation_package_gim16.sh
 ```
 
 Output:

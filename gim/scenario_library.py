@@ -321,7 +321,7 @@ def build_scenario_from_template(
 ) -> ScenarioDefinition:
     template = TEMPLATE_REGISTRY.get(template_id, TEMPLATE_REGISTRY["general_tail_risk"])
     scenario_assumptions = [
-        "The GIM15 calibration is the baseline prior for moderate outcomes.",
+        "The GIM16 calibration is the baseline prior for moderate outcomes.",
         "Critical states remain in the distribution when stress channels align in the same direction.",
         "Hard clipping is replaced by soft guardrails; impossible states remain forbidden.",
     ]

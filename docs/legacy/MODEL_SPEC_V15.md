@@ -2,7 +2,7 @@
 
 Canonical consolidated specification is maintained in:
 
-- [`GIM15_UNIFIED_MODEL_SPEC.md`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/docs/GIM15_UNIFIED_MODEL_SPEC.md)
+- [`GIM16_UNIFIED_MODEL_SPEC.md`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/docs/GIM16_UNIFIED_MODEL_SPEC.md)
 
 ## 1) Formal transition
 
@@ -12,7 +12,7 @@ X_{t+1}=\mathcal{R}\left(\mathcal{P}\left(\mathcal{D}(\mathcal{B}(X_t,u_t,\theta
 
 - \(X_t\): world state (`agents`, `relations`, `global_state`, `institutions`)
 - \(u_t\): action vector after policy generation + political filters
-- \(\theta\): parameter vector from [`data/parameters_v15.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/parameters_v15.csv)
+- \(\theta\): parameter vector from [`data/parameters_gim16.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/data/parameters_gim16.csv)
 
 ## 2) Equation index (core)
 
@@ -161,7 +161,7 @@ Parameters: internal weights in `credit_rating.py` (next iteration: externalize 
 
 ## 4) Parameter governance
 
-Primary registry: [`data/parameters_v15.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM15/data/parameters_v15.csv)
+Primary registry: [`data/parameters_gim16.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM16/data/parameters_gim16.csv)
 
 Columns:
 - `parameter`

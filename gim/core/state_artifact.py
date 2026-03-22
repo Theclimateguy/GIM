@@ -58,7 +58,7 @@ def _resolve_state_csv_path(path: str | Path) -> Path:
 
 
 def _active_state_csv_override() -> str | None:
-    for env_name in ("GIM15_STATE_CSV", "GIM_STATE_CSV", "GIM13_STATE_CSV"):
+    for env_name in ("GIM16_STATE_CSV", "GIM15_STATE_CSV", "GIM_STATE_CSV", "GIM13_STATE_CSV"):
         raw = os.environ.get(env_name)
         if raw is None:
             continue

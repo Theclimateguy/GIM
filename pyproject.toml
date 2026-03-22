@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gim15"
-version = "15.5.1"
-description = "Unified local GIM15 simulator package"
+name = "gim16"
+version = "16.0.0"
+description = "Unified local GIM16 simulator package"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
