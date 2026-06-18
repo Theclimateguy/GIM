@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional, Tuple
-import random
 
 from .critical_pending import get_transition_pending
 from .core import Action, AgentState, RelationState, WorldState, clamp01
+from .rng import get_rng
 
 _GEOPOLITICAL_CRITICAL_PENDING_ATTR = "_geopolitical_critical_pending"
 
@@ -255,7 +255,7 @@ def _auto_security_action(world: WorldState, actor_id: str) -> Optional[Tuple[st
     if trigger < 0.45 or rel.conflict_level < 0.45:
         return None
 
-    roll = random.random()
+    roll = get_rng(world).random()
     if trigger > 0.8 and roll < 0.2 * trigger:
         return "border_incident", best_target
     if trigger > 0.65 and roll < 0.12 * trigger:

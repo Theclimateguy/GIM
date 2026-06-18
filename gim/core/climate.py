@@ -4,6 +4,7 @@ from typing import Dict
 
 from . import calibration_params as cal
 from .critical_pending import get_transition_pending
+from .rng import get_rng
 from .core import (
     CO2_PREINDUSTRIAL_GT,
     F2XCO2_W_M2,
@@ -313,7 +314,7 @@ def apply_climate_extreme_events(
         event_prob *= 1.0 - cal.EVENT_RESILIENCE_DAMP * resilience
         event_prob = min(cal.EVENT_PROB_MAX, max(0.0, event_prob))
 
-        if random.random() >= event_prob:
+        if get_rng(world).random() >= event_prob:
             continue
 
         severity = cal.EVENT_SEVERITY_BASE + cal.EVENT_SEVERITY_RISK_SENS * risk

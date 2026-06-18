@@ -9,6 +9,14 @@ description = "Unified local GIM17 simulator package"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
+# Core runtime is standard-library only. Third-party packages are optional features.
+dependencies = []
+
+[project.optional-dependencies]
+llm = ["requests>=2.31"]          # LLM / orchestration policy path
+analysis = ["numpy>=1.26", "pandas>=2.0"]  # game theory + data scripts
+viz = ["matplotlib>=3.8"]         # credit maps / plotting scripts
+dev = ["requests>=2.31", "numpy>=1.26", "pandas>=2.0", "matplotlib>=3.8"]
 
 [tool.setuptools]
 include-package-data = false

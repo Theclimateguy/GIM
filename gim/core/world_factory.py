@@ -419,6 +419,8 @@ def make_world_from_csv(
     global_state._enable_temperature_variability = True
     global_state._temperature_variability_seed = 0
     global_state._temperature_variability_sign = 1.0
+    # Master seed for the world-scoped RNG (Stage D). get_rng() creates the stream lazily.
+    global_state._sim_seed = 0
 
     world = WorldState(time=0, agents=agents, global_state=global_state, relations=relations)
 

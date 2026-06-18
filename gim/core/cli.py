@@ -1,13 +1,13 @@
 import copy
 from datetime import datetime
 import os
-import random
 import subprocess
 import sys
 from pathlib import Path
 
 from ..paths import DEFAULT_STATE_CSV, LEAFLET_CSS, LEAFLET_JS, MAP_SCRIPT, WORLD_GEOJSON
 from ..results import build_run_artifacts, write_run_manifest
+from .invariants import aggregate_run as aggregate_invariants
 from .logging_utils import (
     log_actions_to_csv,
     log_institutions_to_csv,
@@ -15,6 +15,7 @@ from .logging_utils import (
     make_sim_id,
 )
 from .policy import llm_enablement_status, make_policy_map, resolve_policy_mode, should_use_llm
+from .rng import seed_world
 from .simulation import step_world
 from .world_factory import make_world_from_csv
 
@@ -120,7 +121,9 @@ def main() -> None:
     print(f"MODEL {MODEL_DISPLAY_NAME}")
     print("=" * 70)
 
-    policy_mode = resolve_policy_mode(os.getenv("POLICY_MODE", "auto"))
+    # Deterministic, reproducible runs by default (Stage D): rule-based policy unless the
+    # operator explicitly opts into LLM via POLICY_MODE=llm.
+    policy_mode = resolve_policy_mode(os.getenv("POLICY_MODE", "simple"))
     use_llm = should_use_llm(policy_mode)
     _, llm_reason = llm_enablement_status(policy_mode)
 
@@ -138,8 +141,7 @@ def main() -> None:
     seed_raw = os.getenv("SIM_SEED")
     if seed_raw is not None:
         seed = int(seed_raw)
-        random.seed(seed)
-        world.global_state._temperature_variability_seed = seed
+        seed_world(world, seed)
         print(f"Using SIM_SEED={seed_raw}")
 
     policies = make_policy_map(world.agents.keys(), mode=policy_mode)
@@ -173,6 +175,7 @@ def main() -> None:
     history = [copy.deepcopy(world)] if save_csv_logs else []
     action_log = [] if save_csv_logs else None
     institution_log = [] if save_csv_logs else None
+    invariant_log: list[dict] = []
     for step in range(1, years + 1):
         world = step_world(
             world,
@@ -180,6 +183,7 @@ def main() -> None:
             enable_extreme_events=enable_extreme_events,
             action_log=action_log,
             institution_log=institution_log,
+            invariant_log=invariant_log,
         )
         if save_csv_logs:
             history.append(copy.deepcopy(world))
@@ -266,6 +270,7 @@ def main() -> None:
                 "institutions_csv": institutions_path,
                 "credit_map_html": map_path,
             },
+            "invariants": aggregate_invariants(invariant_log),
         },
         run_artifacts.run_dir,
     )

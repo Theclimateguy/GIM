@@ -10,7 +10,7 @@ from . import calibration_params as cal
 from .actions import apply_action, apply_trade_deals
 from .climate import apply_climate_extreme_events, update_climate_risks, update_global_climate
 from .credit_rating import update_credit_ratings
-from .core import Action, AgentMemory, Observation, PolicyRecord, TGLOBAL_2023_C, WorldState
+from .core import Action, AgentMemory, Observation, PolicyRecord, RESOURCE_NAMES, TGLOBAL_2023_C, WorldState
 from .economy import compute_effective_interest_rate, update_economy_output, update_public_finances
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
@@ -57,6 +57,8 @@ from .transitions import (
     reset_transition_pending,
     resolve_guard_mode,
 )
+from .invariants import enforce as enforce_invariants
+from .invariants import resolve_invariant_mode, summarize_step
 
 LOGGER = logging.getLogger(__name__)
 
@@ -676,7 +678,22 @@ def _invariant_report(
     breaches: List[Dict[str, Any]] = []
     debt_residuals: List[Dict[str, Any]] = []
 
+    # World-balance accumulators (Stage C): trade closure and resource aggregates.
+    net_exports_sum = 0.0
+    world_gdp = 0.0
+    res_own: Dict[str, float] = {name: 0.0 for name in RESOURCE_NAMES}
+    res_prod: Dict[str, float] = {name: 0.0 for name in RESOURCE_NAMES}
+    res_cons: Dict[str, float] = {name: 0.0 for name in RESOURCE_NAMES}
+
     for agent_id, agent in world.agents.items():
+        net_exports_sum += float(agent.economy.net_exports)
+        world_gdp += max(0.0, float(agent.economy.gdp))
+        for resource_name in RESOURCE_NAMES:
+            resource = agent.resources.get(resource_name)
+            if resource is not None:
+                res_own[resource_name] += max(0.0, float(resource.own_reserve))
+                res_prod[resource_name] += max(0.0, float(resource.production))
+                res_cons[resource_name] += max(0.0, float(resource.consumption))
         if agent.economy.gdp < 0.0:
             breaches.append({"agent_id": agent_id, "field": "economy.gdp", "value": float(agent.economy.gdp)})
         if agent.economy.capital < 0.0:
@@ -719,10 +736,42 @@ def _invariant_report(
         reverse=True,
     )[:10]
 
+    abs_shares = [abs(float(item["residual_gdp_share"])) for item in debt_residuals]
+
+    # Stage C: world trade-balance closure (closed economy => sum of net exports == 0).
+    trade_balance = {
+        "net_exports_sum": float(net_exports_sum),
+        "world_gdp": float(world_gdp),
+        "abs_share": float(abs(net_exports_sum) / max(world_gdp, 1e-6)),
+    }
+
+    # Stage C: resource accounting consistency (diagnostic). The global_reserves pool is
+    # tracked separately from the sum of country own_reserves; this surfaces the divergence
+    # and flags pools exhausted while production is still active (see Finding C-1).
+    resource_consistency: Dict[str, Any] = {}
+    for resource_name in RESOURCE_NAMES:
+        global_reserve = float(world.global_state.global_reserves.get(resource_name, 0.0))
+        sum_own = res_own[resource_name]
+        resource_consistency[resource_name] = {
+            "global_reserve": global_reserve,
+            "sum_own_reserve": sum_own,
+            "sum_production": res_prod[resource_name],
+            "sum_consumption": res_cons[resource_name],
+            "global_to_own_ratio": float(global_reserve / sum_own) if sum_own > 1e-9 else None,
+            "global_exhausted_with_active_production": bool(
+                global_reserve <= 1e-9 and res_prod[resource_name] > 1e-9
+            ),
+        }
+
     return {
         "breach_count": int(len(breaches)),
         "breaches": breaches[:50],
         "debt_accounting_residual_top10": top_residuals,
+        "debt_residual_abs_share_max": max(abs_shares) if abs_shares else 0.0,
+        "debt_residual_abs_share_mean": (sum(abs_shares) / len(abs_shares)) if abs_shares else 0.0,
+        "debt_residual_count": len(abs_shares),
+        "trade_balance": trade_balance,
+        "resource_consistency": resource_consistency,
     }
 
 
@@ -920,6 +969,8 @@ def step_world(
     policy_progress: Optional[Callable[[str], None]] = None,
     phase_trace: Optional[Dict[str, Any]] = None,
     channel_overrides: Optional[Dict[str, bool]] = None,
+    invariant_log: Optional[List[Dict[str, Any]]] = None,
+    invariant_mode: Optional[str] = None,
 ) -> WorldState:
     if memory is None:
         memory = {}
@@ -1004,10 +1055,22 @@ def step_world(
                 propagated_critical_fields,
                 channel_snapshots,
             )
+            # Build the auditable invariant record for the year just finalized
+            # (world.time was incremented inside reconciliation). In strict mode
+            # this raises InvariantViolation on any enforceable breach.
+            invariant_summary = summarize_step(
+                year=int(world.time) - 1,
+                invariant_report=invariants,
+                critical_accounting=critical_accounting,
+            )
+            enforce_invariants(invariant_summary, resolve_invariant_mode(invariant_mode))
+            if invariant_log is not None:
+                invariant_log.append(invariant_summary)
             if phase_trace is not None:
                 reconcile_metrics = _aggregate_world_metrics(world)
                 phase_trace["reconcile"] = reconcile_metrics
                 phase_trace["invariants"] = invariants
+                phase_trace["invariant_summary"] = invariant_summary
                 phase_trace["critical_field_accounting"] = critical_accounting
                 transition_envelope.reconcile = build_reconciled_writes(
                     world,
