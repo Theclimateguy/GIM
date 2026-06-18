@@ -274,10 +274,16 @@ python3 -m unittest \
 
 ## Version
 
-Current package version: `16.0.0`
+Current package version: `17.0.0.dev0`
 
-Current release highlights:
+GIM17 highlights (vs. the frozen GIM16 baseline):
 
-- explicit, separately tracked `fx_crisis` pathway with debt/FX co-occurrence support
-- synchronized FX crisis parameters in `data/parameters_gim17.csv`
-- severity-proportional foreign-policy wording in the legacy LLM prompt path
+- Python 3.10+ portability, lean repo, and CI (3.10/3.13 matrix + strict-invariants gate).
+- Accounting/integrity invariant layer (bounds, reconcile-clamp, channel-telescope, trade
+  balance) with diagnostics — see `docs/INVARIANTS.md`.
+- Deterministic, reproducible runs via a world-scoped RNG — see `docs/DETERMINISM.md`.
+- **Uncertainty quantification**: literature-grounded priors, a reproducible Monte-Carlo
+  ensemble, Morris/Sobol sensitivity, and fan-chart outputs — see `docs/UNCERTAINTY.md` and
+  `docs/PRIORS.md`. Point forecasts are replaced by distributions.
+
+See `docs/WORKLOG_GIM17.md` for the full engineering record.

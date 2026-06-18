@@ -2,6 +2,7 @@ from dataclasses import asdict
 from statistics import median
 
 from . import calibration_params as cal
+from .params import resolve_params
 from .climate import effective_damage_multiplier
 from .core import Observation, WorldState
 from .metrics import (
@@ -167,6 +168,7 @@ def _inbound_sanctions(world: WorldState, agent_id: str) -> dict[str, dict[str, 
 
 
 def build_observation(world: WorldState, agent_id: str) -> Observation:
+    cal = resolve_params(world)
     agent = world.agents[agent_id]
     inbound_sanctions = _inbound_sanctions(world, agent_id)
     climate_damage_factor = getattr(agent.economy, "climate_damage_factor", None)
@@ -239,8 +241,8 @@ def build_observation(world: WorldState, agent_id: str) -> Observation:
         "influence_score": getattr(agent, "influence_score", 0.0),
         "security_margin": getattr(agent, "security_margin", 1.0),
         "reserve_years": compute_reserve_years(agent),
-        "debt_stress": compute_debt_stress(agent),
-        "protest_risk": compute_protest_risk(agent),
+        "debt_stress": compute_debt_stress(agent, cal),
+        "protest_risk": compute_protest_risk(agent, cal),
         "peer_standing": peer_standing,
         "climate_damage_factor": climate_damage_factor,
         "inbound_sanctions": inbound_sanctions,

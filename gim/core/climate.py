@@ -3,6 +3,7 @@ import random
 from typing import Dict
 
 from . import calibration_params as cal
+from .params import default_params, resolve_params
 from .critical_pending import get_transition_pending
 from .rng import get_rng
 from .core import (
@@ -65,7 +66,8 @@ def pop_climate_critical_deltas(world: WorldState) -> Dict[str, Dict[str, float]
     }
 
 
-def _climate_resilience(agent: AgentState) -> float:
+def _climate_resilience(agent: AgentState, params=None) -> float:
+    cal = params if params is not None else default_params()
     tech_res = clamp01(agent.technology.tech_level / cal.RESILIENCE_TECH_REF)
     gdp = max(agent.economy.gdp, 1e-6)
     adapt_spend = getattr(agent.economy, "climate_adaptation_spending", 0.0)
@@ -82,7 +84,9 @@ def _climate_resilience(agent: AgentState) -> float:
 def _structural_transition_multiplier(
     policy_reduction: float,
     fuel_tax_change: float,
+    params=None,
 ) -> float:
+    cal = params if params is not None else default_params()
     multiplier = 1.0 + cal.STRUCTURAL_TRANSITION_POLICY_SENS * max(0.0, policy_reduction)
     multiplier += cal.STRUCTURAL_TRANSITION_TAX_SENS * max(0.0, fuel_tax_change)
     return min(cal.STRUCTURAL_TRANSITION_MULT_MAX, max(cal.STRUCTURAL_TRANSITION_MULT_MIN, multiplier))
@@ -93,7 +97,9 @@ def update_emissions_from_economy(
     time: int,
     policy_reduction: float = 0.0,
     fuel_tax_change: float = 0.0,
+    params=None,
 ) -> None:
+    cal = params if params is not None else default_params()
     gdp = max(agent.economy.gdp, 1e-6)
     base_intensity = getattr(agent.climate, "_co2_intensity_base", None)
     if base_intensity is None or base_intensity <= 0.0:
@@ -114,7 +120,7 @@ def update_emissions_from_economy(
     else:
         structural_progress = max(max(0.0, float(time)), float(stored_progress))
 
-    structural_multiplier = _structural_transition_multiplier(policy_reduction, fuel_tax_change)
+    structural_multiplier = _structural_transition_multiplier(policy_reduction, fuel_tax_change, cal)
     structural_transition = math.exp(-cal.DECARB_RATE_STRUCTURAL * structural_progress)
     tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
     tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
@@ -142,6 +148,7 @@ def _init_carbon_pools(world: WorldState, fractions: list[float]) -> None:
 
 
 def _resolve_nonco2_forcing(world: WorldState, f_nonco2: float | None) -> float:
+    cal = resolve_params(world)
     if f_nonco2 is not None:
         return max(0.0, f_nonco2)
     base_year = getattr(world.global_state, "_calendar_year_base", 2023)
@@ -152,6 +159,7 @@ def _resolve_nonco2_forcing(world: WorldState, f_nonco2: float | None) -> float:
 
 
 def _resolve_temperature_variability_sigma(world: WorldState) -> float:
+    cal = resolve_params(world)
     override = getattr(world.global_state, "_temperature_variability_sigma", None)
     if override is not None:
         return max(0.0, float(override))
@@ -185,6 +193,7 @@ def update_global_climate(
     carbon_pool_fractions: tuple[float, ...] | None = None,
     carbon_pool_timescales: tuple[float, ...] | None = None,
 ) -> None:
+    cal = resolve_params(world)
     if ecs is None:
         ecs = cal.ECS_DEFAULT
     if heat_cap_surface is None:
@@ -262,7 +271,7 @@ def update_global_climate(
 
     temp_increase = world.global_state.temperature_global - TGLOBAL_2023_C
     for agent in world.agents.values():
-        resilience = _climate_resilience(agent)
+        resilience = _climate_resilience(agent, cal)
         effective_risk = clamp01(agent.climate.climate_risk) * (
             1.0 - cal.BIODIVERSITY_RISK_DAMP * resilience
         )
@@ -278,6 +287,7 @@ def update_climate_risks(
     base_water: float = cal.CRISK_WATER_WEIGHT,
     base_gini: float = cal.CRISK_GINI_WEIGHT,
 ) -> None:
+    cal = resolve_params(world)
     delta_t = max(0.0, world.global_state.temperature_global - TGLOBAL_2023_C)
     for agent in world.agents.values():
         base = base_const + base_water * agent.risk.water_stress
@@ -297,6 +307,7 @@ def apply_climate_extreme_events(
 ) -> None:
     # WRITES: economy.capital, economy.population, economy.climate_shock_years,
     # economy.climate_shock_penalty, society.social_tension, society.trust_gov
+    cal = resolve_params(world)
     temperature = world.global_state.temperature_global
 
     for agent in world.agents.values():
@@ -306,7 +317,7 @@ def apply_climate_extreme_events(
 
         # Endogenous resilience dampens both event likelihood and impact.
         # Better institutions, higher tech, and stronger trust improve coping capacity.
-        resilience = _climate_resilience(agent)
+        resilience = _climate_resilience(agent, cal)
 
         extra_warming = max(0.0, temperature - TGLOBAL_2023_C)
         temp_factor = 1.0 + cal.EVENT_TEMP_WARMING_SENS * extra_warming
@@ -368,7 +379,8 @@ def apply_climate_extreme_events(
             )
 
 
-def climate_damage_multiplier(temperature: float) -> float:
+def climate_damage_multiplier(temperature: float, params=None) -> float:
+    cal = params if params is not None else default_params()
     delta_t = temperature - TGLOBAL_2023_C
 
     benefit = cal.DAMAGE_BENEFIT_MAX * math.exp(
@@ -380,7 +392,8 @@ def climate_damage_multiplier(temperature: float) -> float:
 
 
 def effective_damage_multiplier(agent: AgentState, world: WorldState) -> float:
-    base = climate_damage_multiplier(world.global_state.temperature_global)
+    cal = resolve_params(world)
+    base = climate_damage_multiplier(world.global_state.temperature_global, cal)
     risk = agent.climate.climate_risk
     adjustment = 1.0 + cal.DAMAGE_RISK_ADJ * (1.0 - risk)
     return max(0.0, base * adjustment)

@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from . import calibration_params as cal
+from .params import resolve_params
 from .actions import apply_action, apply_trade_deals
 from .climate import apply_climate_extreme_events, update_climate_risks, update_global_climate
 from .credit_rating import update_credit_ratings
@@ -407,6 +408,7 @@ def _append_policy_records(
     actions: Dict[str, Action],
     baselines: Dict[str, Dict[str, float]],
 ) -> None:
+    cal = resolve_params(world)
     for agent_id, agent in world.agents.items():
         action = actions.get(agent_id)
         if action is None:
@@ -499,6 +501,7 @@ def _channel_enabled(
 
 
 def _collect_detection_cards(world: WorldState) -> List[Dict[str, Any]]:
+    cal = resolve_params(world)
     cards: List[Dict[str, Any]] = []
 
     debt_watch = cal.DEBT_CRISIS_DEBT_THRESHOLD * 0.9

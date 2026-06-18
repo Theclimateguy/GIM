@@ -38,7 +38,7 @@ Source: `data/agent_states_operational.artifacts.json`
 
 Rule: these values are loaded through `ACTIVE_STATE_ARTIFACT` and must be changed only via refresh scripts, not by direct hand-editing.
 
-### 2.1b Release baseline defaults (v16.0 current; introduced in v16.0)
+### 2.1b Release baseline defaults (v17.0 current; carried from the GIM16 baseline)
 
 Source: rolling walk-forward Stage B/C artifacts
 

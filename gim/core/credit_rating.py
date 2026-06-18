@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from . import calibration_params as cal
+from .params import default_params, resolve_params
 from .core import AgentState, WorldState, clamp01
 from .economy import compute_effective_interest_rate
 from .memory import summarize_agent_memory
@@ -41,6 +42,7 @@ def rating_zone(rating: int) -> str:
 
 
 def _inbound_sanction_pressure(world: WorldState, agent_id: str) -> tuple[float, int, int]:
+    cal = resolve_params(world)
     mild = 0
     strong = 0
     for actor in world.agents.values():
@@ -56,6 +58,7 @@ def _inbound_sanction_pressure(world: WorldState, agent_id: str) -> tuple[float,
 
 
 def _war_metrics(agent: AgentState, world: WorldState) -> tuple[float, float, int, int]:
+    cal = resolve_params(world)
     rels = world.relations.get(agent.id, {})
     war_links = 0
     high_conflict_links = 0
@@ -89,6 +92,7 @@ def _war_metrics(agent: AgentState, world: WorldState) -> tuple[float, float, in
 
 
 def _sanction_risk_next_year(agent: AgentState, world: WorldState) -> float:
+    cal = resolve_params(world)
     rels = world.relations.get(agent.id, {})
     if not rels:
         return 0.0
@@ -113,7 +117,8 @@ def _sanction_risk_next_year(agent: AgentState, world: WorldState) -> float:
     return candidate
 
 
-def _social_structural_risk(agent: AgentState) -> tuple[float, float]:
+def _social_structural_risk(agent: AgentState, params=None) -> tuple[float, float]:
+    cal = params if params is not None else default_params()
     gini = _normalize(agent.society.inequality_gini, cal.CR_SOCIAL_GINI_LO, cal.CR_SOCIAL_GINI_HI)
     unemployment = _normalize(
         agent.economy.unemployment,
@@ -154,10 +159,11 @@ def _social_structural_risk(agent: AgentState) -> tuple[float, float]:
 
 
 def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary: Dict[str, Any]) -> Dict[str, float]:
+    cal = resolve_params(world)
     gdp = max(agent.economy.gdp, 1e-6)
     debt_gdp = _safe_div(agent.economy.public_debt, gdp)
     interest_rate = compute_effective_interest_rate(agent, world)
-    debt_stress = clamp01(compute_debt_stress(agent) / 3.0)
+    debt_stress = clamp01(compute_debt_stress(agent, cal) / 3.0)
     debt_crisis_now = 1.0 if agent.risk.debt_crisis_active_years > 0 else 0.0
     fx_crisis_now = 1.0 if agent.risk.fx_crisis_active_years > 0 else 0.0
 
@@ -189,7 +195,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
     at_war, next_year_war_risk, war_links, high_conflict_links = _war_metrics(agent, world)
     war_risk = clamp01(cal.CR_WAR_BLEND_AT_WAR_W * at_war + cal.CR_WAR_BLEND_NEXT_W * next_year_war_risk)
 
-    protest_risk = clamp01(compute_protest_risk(agent))
+    protest_risk = clamp01(compute_protest_risk(agent, cal))
     trust = clamp01(agent.society.trust_gov)
     tension = clamp01(agent.society.social_tension)
     regime_fragility = 1.0 - clamp01(agent.risk.regime_stability)
@@ -206,7 +212,7 @@ def _credit_risk_components(agent: AgentState, world: WorldState, memory_summary
         * _normalize(tension_trend - trust_trend, cal.CR_REV_TREND_LO, cal.CR_REV_TREND_HI)
     )
 
-    structural_risk, management_strength = _social_structural_risk(agent)
+    structural_risk, management_strength = _social_structural_risk(agent, cal)
     social_risk = clamp01(
         cal.CR_SOCIAL_RISK_REV_W * next_year_revolution_risk
         + cal.CR_SOCIAL_RISK_STRUCT_W * structural_risk

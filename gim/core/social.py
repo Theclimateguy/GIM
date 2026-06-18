@@ -2,6 +2,7 @@ import math
 from typing import Dict
 
 from . import calibration_params as cal
+from .params import resolve_params
 from .critical_pending import get_transition_pending
 from .core import Action, AgentState, WorldState, clamp01, effective_trade_intensity
 from .economy import compute_effective_interest_rate
@@ -106,6 +107,7 @@ def _flush_social_pending_for_agent(world: WorldState, agent: AgentState) -> Non
 
 
 def update_population(agent: AgentState, world: WorldState) -> None:
+    cal = resolve_params(world)
     gdp_per_capita = agent.economy.gdp_per_capita
     gini = agent.society.inequality_gini / 100.0
 
@@ -139,6 +141,7 @@ def update_population(agent: AgentState, world: WorldState) -> None:
 
 
 def update_migration_flows(world: WorldState) -> None:
+    cal = resolve_params(world)
     baseline = getattr(world.global_state, "baseline_gdp_pc", 0.0) or 1.0
     base_rate = cal.MIGRATION_BASE_RATE
     max_share = cal.MIGRATION_MAX_SHARE
@@ -199,6 +202,7 @@ def update_migration_flows(world: WorldState) -> None:
 
 
 def update_social_state(agent: AgentState, action: Action, world: WorldState) -> None:
+    cal = resolve_params(world)
     gdp_pc_effect = cal.TRUST_GDP_PC_SENS * (agent.economy.gdp_per_capita / cal.TRUST_GDP_PC_REF)
     unemployment_effect = cal.TRUST_UNEMPLOYMENT_SENS * agent.economy.unemployment
     inflation_effect = cal.TRUST_INFLATION_SENS * agent.economy.inflation
@@ -262,6 +266,7 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
 def check_regime_stability(agent: AgentState, world: WorldState | None = None) -> None:
     # WRITES: risk.regime_crisis_active_years, economy.capital, economy.gdp,
     # economy.public_debt, society.trust_gov, society.social_tension
+    cal = resolve_params(world)
     if world is None:
         trust_threshold = cal.REGIME_COLLAPSE_TRUST_THRESHOLD
         tension_threshold = cal.REGIME_COLLAPSE_TENSION_THRESHOLD
@@ -376,6 +381,7 @@ def _estimate_annual_import_bill(agent: AgentState, world: WorldState) -> float:
 
 
 def _fx_crisis_inputs(agent: AgentState, world: WorldState) -> Dict[str, float]:
+    cal = resolve_params(world)
     gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
     debt_gdp = _effective_critical(agent, world, "public_debt") / gdp
     annual_import_bill = _estimate_annual_import_bill(agent, world)
@@ -397,6 +403,7 @@ def _fx_crisis_inputs(agent: AgentState, world: WorldState) -> Dict[str, float]:
 
 
 def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_writes: bool = False) -> None:
+    cal = resolve_params(world)
     economy = agent.economy
     risk = agent.risk
 
@@ -490,6 +497,7 @@ def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_wr
 
 
 def check_fx_crisis(agent: AgentState, world: WorldState, *, defer_critical_writes: bool = False) -> None:
+    cal = resolve_params(world)
     economy = agent.economy
     risk = agent.risk
 

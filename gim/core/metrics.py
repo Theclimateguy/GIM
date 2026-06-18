@@ -2,6 +2,7 @@ import math
 from typing import Dict
 
 from . import calibration_params as cal
+from .params import default_params, resolve_params
 from .core import AgentState, WorldState, effective_trade_intensity
 
 
@@ -50,7 +51,8 @@ def compute_relative_metrics(world: WorldState) -> None:
             agent.security_margin = 1.0
 
 
-def compute_debt_stress(agent: AgentState) -> float:
+def compute_debt_stress(agent: AgentState, params=None) -> float:
+    cal = params if params is not None else default_params()
     gdp = max(agent.economy.gdp, 1e-6)
     debt_gdp = agent.economy.public_debt / gdp
     raw = max(0.0, debt_gdp - cal.DEBT_STRESS_THRESHOLD)
@@ -58,7 +60,8 @@ def compute_debt_stress(agent: AgentState) -> float:
     return float(min(stress, cal.DEBT_STRESS_CAP))
 
 
-def compute_protest_risk(agent: AgentState) -> float:
+def compute_protest_risk(agent: AgentState, params=None) -> float:
+    cal = params if params is not None else default_params()
     tension = agent.society.social_tension
     trust = agent.society.trust_gov
     gini = agent.society.inequality_gini
@@ -75,6 +78,7 @@ def compute_protest_risk(agent: AgentState) -> float:
 
 
 def compute_crisis_flags(agent: AgentState, world: WorldState) -> list[dict[str, object]]:
+    cal = resolve_params(world)
     flags: list[dict[str, object]] = []
     gdp = max(agent.economy.gdp, 1e-6)
 
@@ -171,6 +175,7 @@ def compute_crisis_flags(agent: AgentState, world: WorldState) -> list[dict[str,
 
 
 def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
+    cal = resolve_params(world)
     economy = agent.economy
 
     # Initialize TFP from observed current state once.

@@ -2,6 +2,7 @@ import math
 from typing import Dict
 
 from .climate import update_emissions_from_economy
+from .params import resolve_params
 from .critical_pending import get_transition_pending
 from .core import Action, PricePreference, WorldState, clamp01
 
@@ -333,6 +334,7 @@ def apply_action(world: WorldState, action: Action, *, defer_critical_writes: bo
         world.time,
         policy_reduction=policy_reduction,
         fuel_tax_change=fuel_tax_delta,
+        params=resolve_params(world),
     )
     if not defer_critical_writes:
         _flush_actions_pending(world, {action.agent_id})

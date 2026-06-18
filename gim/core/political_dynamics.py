@@ -9,16 +9,18 @@ from .core import (
     effective_trade_intensity,
 )
 from .metrics import compute_debt_stress, compute_protest_risk, compute_reserve_years
+from .params import resolve_params
 
 
 def update_political_state(agent: AgentState, world: WorldState) -> None:
+    cal = resolve_params(world)
     del world
     trust = clamp01(agent.society.trust_gov)
     tension = clamp01(agent.society.social_tension)
     gini = clamp01(agent.society.inequality_gini / 100.0)
 
-    protest_risk = clamp01(compute_protest_risk(agent))
-    debt_stress = clamp01(compute_debt_stress(agent) / 3.0)
+    protest_risk = clamp01(compute_protest_risk(agent, cal))
+    debt_stress = clamp01(compute_debt_stress(agent, cal) / 3.0)
 
     legitimacy = clamp01(0.6 * trust + 0.4 * (1.0 - tension))
     protest_pressure = clamp01(0.5 * protest_risk + 0.5 * tension)

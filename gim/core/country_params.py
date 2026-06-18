@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from . import calibration_params as cal
+from .params import default_params
 
 
 # Country-level macro priors for the 20-actor historical backtest surface.
@@ -64,18 +65,21 @@ def get_country_macro_prior(country_name: str) -> CountryMacroPrior | None:
     return COUNTRY_MACRO_PRIORS.get(normalize_country_name(country_name))
 
 
-def get_savings_rate(country_name: str) -> float:
+def get_savings_rate(country_name: str, params=None) -> float:
+    cal = params if params is not None else default_params()
     prior = get_country_macro_prior(country_name)
     if prior is None:
         return cal.SAVINGS_BASE
     return min(prior.savings_rate, cal.SAVINGS_BASE)
 
 
-def get_tax_rate(country_name: str) -> float:
+def get_tax_rate(country_name: str, params=None) -> float:
+    cal = params if params is not None else default_params()
     prior = get_country_macro_prior(country_name)
     return prior.tax_rate if prior is not None else cal.TAX_RATE_BASE
 
 
-def get_social_spend_share(country_name: str) -> float:
+def get_social_spend_share(country_name: str, params=None) -> float:
+    cal = params if params is not None else default_params()
     prior = get_country_macro_prior(country_name)
     return prior.social_spend_share if prior is not None else cal.SOCIAL_SPEND_BASE

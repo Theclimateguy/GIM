@@ -235,6 +235,9 @@ class WorldState:
     relations: Dict[str, Dict[str, RelationState]]
     institutions: Dict[str, InstitutionState] = field(default_factory=dict)
     institution_reports: List[Dict[str, Any]] = field(default_factory=list)
+    # NOTE: the per-run parameter context (Phase 1, option B2) is attached at runtime as
+    # ``world.params`` (a ParameterSet) by world_factory, NOT as a dataclass field, so it is
+    # excluded from dataclasses.asdict() serialization. Access it via params.resolve_params().
 
 
 @dataclass

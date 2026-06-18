@@ -1,4 +1,5 @@
 from . import calibration_params as cal
+from .params import resolve_params
 from .climate import effective_damage_multiplier
 from .critical_pending import get_transition_pending
 from .core import AgentState, WorldState, clamp01, effective_trade_intensity
@@ -109,6 +110,7 @@ def _credit_zone_premium(zone: str) -> float:
 
 
 def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
+    cal = resolve_params(world)
     economy = agent.economy
     risk = agent.risk
 
@@ -117,7 +119,7 @@ def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
     capital = max(_effective_critical(agent, world, "capital"), 1e-6)
     depreciation = cal.CAPITAL_DEPRECIATION
 
-    base_savings = get_savings_rate(agent.name)
+    base_savings = get_savings_rate(agent.name, cal)
     stability = clamp01(risk.regime_stability)
     tension = clamp01(agent.society.social_tension)
 
@@ -143,6 +145,7 @@ def update_economy_output(
     *,
     defer_critical_writes: bool = False,
 ) -> None:
+    cal = resolve_params(world)
     economy = agent.economy
     update_tfp_endogenous(agent, world)
 
@@ -199,6 +202,7 @@ def update_economy_output(
 
 
 def compute_effective_interest_rate(agent: AgentState, world: WorldState | None = None) -> float:
+    cal = resolve_params(world)
     economy = agent.economy
     risk = agent.risk
 
@@ -258,12 +262,13 @@ def update_public_finances(
     *,
     defer_critical_writes: bool = False,
 ) -> None:
+    cal = resolve_params(world)
     economy = agent.economy
 
     gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
 
     # Baseline fiscal drivers to avoid mechanical debt repayment.
-    base_social_share = get_social_spend_share(agent.name)
+    base_social_share = get_social_spend_share(agent.name, cal)
     base_military_share = cal.MILITARY_SPEND_BASE
     climate_adaptation_share = cal.CLIMATE_ADAPT_BASE + cal.CLIMATE_ADAPT_RISK_SENS * max(
         0.0,
@@ -275,7 +280,7 @@ def update_public_finances(
     policy_spending = economy.social_spending + economy.military_spending + economy.rd_spending
     economy.gov_spending = max(0.0, baseline_spending + policy_spending)
 
-    economy.taxes = get_tax_rate(agent.name) * gdp
+    economy.taxes = get_tax_rate(agent.name, cal) * gdp
     effective_rate = compute_effective_interest_rate(agent, world)
     debt_effective = _effective_critical(agent, world, "public_debt")
     economy.interest_payments = effective_rate * debt_effective

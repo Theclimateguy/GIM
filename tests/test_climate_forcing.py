@@ -4,6 +4,7 @@ import unittest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 from gim.core import calibration_params as cal
+from gim.core.params import default_params
 from gim.core.climate import update_emissions_from_economy, update_global_climate
 from gim.core.core import (
     CO2_PREINDUSTRIAL_GT,
@@ -90,16 +91,13 @@ class ClimateForcingTests(unittest.TestCase):
     def test_heat_cap_surface_is_resolved_at_call_time(self) -> None:
         world_fast = self._make_world()
         world_slow = self._make_world()
+        # Parameters are now resolved per-run from world.params (option B2),
+        # not from module-level mutation.
+        world_fast.params = default_params().with_overrides({"HEAT_CAP_SURFACE": 10.0})
+        world_slow.params = default_params().with_overrides({"HEAT_CAP_SURFACE": 50.0})
 
-        original_surface = cal.HEAT_CAP_SURFACE
-        try:
-            cal.HEAT_CAP_SURFACE = 10.0
-            update_global_climate(world_fast, dt=1.0, f_nonco2=0.4)
-
-            cal.HEAT_CAP_SURFACE = 50.0
-            update_global_climate(world_slow, dt=1.0, f_nonco2=0.4)
-        finally:
-            cal.HEAT_CAP_SURFACE = original_surface
+        update_global_climate(world_fast, dt=1.0, f_nonco2=0.4)
+        update_global_climate(world_slow, dt=1.0, f_nonco2=0.4)
 
         self.assertGreater(
             abs(world_fast.global_state.temperature_global - 1.0),
@@ -150,22 +148,15 @@ class ClimateForcingTests(unittest.TestCase):
         self.assertAlmostEqual(world.global_state.temperature_global, original_temp, places=12)
 
     def test_tech_decarb_channel_works_without_structural_rate(self) -> None:
-        original_structural = cal.DECARB_RATE_STRUCTURAL
-        original_alias = cal.DECARB_RATE
-        try:
-            cal.DECARB_RATE_STRUCTURAL = 0.0
-            cal.DECARB_RATE = 0.0
+        params = default_params().with_overrides({"DECARB_RATE_STRUCTURAL": 0.0, "DECARB_RATE": 0.0})
 
-            baseline = self._make_agent(tech_level=1.0, efficiency=1.0)
-            improved = self._make_agent(tech_level=2.0, efficiency=1.3)
+        baseline = self._make_agent(tech_level=1.0, efficiency=1.0)
+        improved = self._make_agent(tech_level=2.0, efficiency=1.3)
 
-            update_emissions_from_economy(baseline, time=8)
-            update_emissions_from_economy(improved, time=8)
+        update_emissions_from_economy(baseline, time=8, params=params)
+        update_emissions_from_economy(improved, time=8, params=params)
 
-            self.assertLess(improved.climate.co2_annual_emissions, baseline.climate.co2_annual_emissions)
-        finally:
-            cal.DECARB_RATE_STRUCTURAL = original_structural
-            cal.DECARB_RATE = original_alias
+        self.assertLess(improved.climate.co2_annual_emissions, baseline.climate.co2_annual_emissions)
 
     def test_policy_tools_accelerate_structural_transition_over_time(self) -> None:
         self.assertGreater(cal.DECARB_RATE_STRUCTURAL, 0.0)

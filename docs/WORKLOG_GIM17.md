@@ -219,6 +219,13 @@ migrate if they enter scientific/ensemble pipelines.
   isolation with `setuptools>=68`, which reads `[project]` correctly; config validated
   structurally.
 
+**CI fix (post-push).** First CI run failed: `test_geo_calibration` →
+`FileNotFoundError: tests/fixtures/baseline_evaluation.json`. Root cause: the `.gitignore`
+artifact pattern `*_evaluation.json` also matched that committed test fixture, so it was
+never pushed (it existed locally, so every local run passed — the failure only surfaced on
+a clean CI checkout). Fix: added `!tests/fixtures/**` to `.gitignore` and committed the
+fixture (commit `6aa86f6`). All 196 tests otherwise passed (2 `scipy` skips are expected).
+
 ## Phase 0 — done
 
 GIM17 now has: Python 3.10+ portability, a clean lean repo, an enforceable
@@ -226,3 +233,125 @@ accounting/integrity invariant layer (bounds, reconcile-clamp, channel-telescope
 balance) with diagnostics surfacing Findings B-1 (debt) and C-1 (resources), deterministic
 reproducible runs, and CI gating it all. Foundations are in place for Phase 1 (uncertainty
 quantification).
+
+---
+
+# Phase 1 — Uncertainty quantification
+
+## P1-A — Per-run ParameterSet refactor (option B2)
+
+**Status:** complete (uncommitted).
+
+**Goal.** Move model parameters off the process-global `calibration_params` module onto an
+immutable per-run context so Monte-Carlo ensemble members can vary parameters in parallel
+without global mutation. Chosen realization: **B2** — an immutable `ParameterSet` carried on
+the already-threaded `WorldState`.
+
+**Changes**
+- New `gim/core/params.py`: `ParameterSet` (immutable, attribute access, `with_overrides()`
+  with unknown-key validation, `__deepcopy__` returns self); `build_params()` (fresh snapshot
+  of current `calibration_params`, uncached) and `default_params()` (cached fallback);
+  `resolve_params(world)`.
+- `world.params` is attached at runtime by `world_factory` via `build_params()` — **not** a
+  dataclass field, so it is excluded from `dataclasses.asdict()` (snapshots stay JSON-safe).
+- All **337** `cal.X` reads across 8 core modules now resolve per-run: world-scoped functions
+  rebind `cal = resolve_params(world)`; 10 world-less helpers take an explicit `params` arg
+  threaded from their callers. AST audit confirms zero remaining global-`cal` reads on the
+  hot path.
+- `world_factory` uses the *fresh* `build_params()` so calibration harnesses that mutate
+  `calibration_params` (e.g. the decarb-rate backtest's `_temporary_decarb_rate`) are still
+  reflected in freshly-built worlds.
+- Tests adapted: `test_climate_forcing` now overrides `world.params` instead of mutating the
+  module. New `tests/test_params.py` (10 tests) proves immutability, override validation,
+  serialization exclusion, and — decisively — that overriding `world.params` changes outputs
+  (CO2 via `EMISSIONS_SCALE`, GDP via `ALPHA_CAPITAL`) while a same-value override is an exact
+  identity.
+
+**Verification (Python 3.10).** Backtest golden RMSEs unchanged (1.025 / 1.605 / 0.138);
+decarb-sensitivity candidates still differentiate; full suite green; strict invariants clean;
+determinism intact. Behaviour-preserving with the parameter context fully wired.
+
+## P1-B — Literature-grounded parameter priors
+
+**Status:** complete (uncommitted).
+
+**Changes**
+- `data/parameter_priors.csv`: ~18 key climate-economy priors, each with an explicit source and
+  rationale, **validated against authoritative consensus** via the research connectors:
+  ECS (IPCC AR6 WG1 — 3.0 best, 2.0–5.0 very likely); damage coefficient (DICE-2016R2 0.00236
+  → Howard-Sterner 6.7–8.3%/3 °C → RFF 7–10%); production elasticities & depreciation
+  (PWT/Gollin); two-layer EBM heat capacities (Geoffroy et al. 2013 / DICE); emissions scale
+  (GCP 2023); demographics (WDI 2023). ECS and the damage coefficient use lognormals for their
+  right-skew.
+- `gim/core/priors.py`: `Prior` (truncated normal/lognormal/triangular/uniform/fixed),
+  `key_priors()` (literature core), `all_priors()` (adds tag-derived bounded bands for the long
+  tail; skips carbon-pool vectors and `*_MAX/_MIN/_CAP/_FLOOR`), and
+  `sample_parameter_set(base, priors, rng)` producing an immutable per-run `ParameterSet`.
+- Docs: `docs/PRIORS.md`. Tests: `tests/test_priors.py` (10) assert well-formedness + sourcing,
+  bound-respecting samples, and that the samples reproduce the published central estimates and
+  ranges (ECS median 3.0 with 2.5–4.0 inside 5–95%; damage spanning DICE→Howard-Sterner).
+
+**Verification.** Priors tests green; statistical sanity (ECS 5–95% ≈ [1.9, 4.7]; damage 5–95% ≈
+[0.0029, 0.0125]); core suite + backtest unchanged. Ready to feed the P1-C ensemble.
+
+## P1-C — Monte-Carlo ensemble runtime
+
+**Status:** complete (uncommitted).
+
+**Changes**
+- `gim/ensemble.py`: `run_ensemble(EnsembleConfig)` samples priors into a per-run
+  `world.params`, runs N independent members (member `i` seeded from `(master_seed, i)`),
+  collects 8 headline metrics per year, and aggregates into percentile fan bands
+  (`p5/p25/p50/p75/p95/mean`). Serial or `ProcessPoolExecutor` parallel; results are
+  order-independent. `default` N=500.
+- `scripts/run_ensemble.py`: env-driven CLI writing `results/ensemble-<ts>/ensemble.json` +
+  manifest. Docs: `docs/UNCERTAINTY.md`. Tests: `tests/test_ensemble.py` (7).
+
+**Verification.** Fan bands form with real spread (temperature ±~0.4 °C from ECS/heat-capacity
+priors). **Serial and parallel runs are bit-for-bit identical**; same seed reproducible, different
+seed differs. Pure-Python percentiles (no numpy dependency in core). Backtest/core unchanged.
+
+## P1-D — Global sensitivity analysis
+
+**Status:** complete (uncommitted).
+
+**Changes**
+- `gim/sensitivity.py`: native-numpy **Morris** elementary effects (mu*/sigma screening) and
+  **Sobol** indices (S1/ST via Saltelli-2010/Jansen estimators) — no SALib dependency. Model
+  wrapped as a deterministic scalar function of a parameter vector (fixed world seed); factor
+  ranges = prior bounds. `make_output_fn`, `rank`, `bounds_for` helpers.
+- `scripts/run_sensitivity.py` (env-driven CLI, saves ranked `sensitivity.json`); docs section
+  in `docs/UNCERTAINTY.md`. Tests: `tests/test_sensitivity.py` (6).
+
+**Verification.** **Sobol validated against the analytical Ishigami benchmark**: S1 ≈
+[0.325, 0.454, −0.005] vs [0.314, 0.442, 0]; ST ≈ [0.577, 0.443, 0.252] vs [0.557, 0.442, 0.244];
+x3 pure-interaction captured. Morris ranks x1 most influential and flags x3 interaction via
+sigma. Real model: `HEAT_CAP_SURFACE` + `ECS_DEFAULT` dominate short-horizon temperature
+sensitivity (physically correct). Only new dependency is numpy (already in the analysis/dev
+extras); core stays stdlib-only.
+
+## P1-E / P1-F — Probabilistic outputs, tests & CI
+
+**Status:** complete (uncommitted). Closes Phase 1.
+
+**Changes**
+- `gim/fan_charts.py`: `render_fan_charts(result)` → self-contained HTML with one SVG panel per
+  headline metric (5–95% and 25–75% bands + median line), pure SVG, no plotting dependency.
+- `scripts/run_ensemble.py` now writes `fan_charts.html` next to `ensemble.json`; manifest carries
+  final-year p5/p50/p95.
+- CI (`.github/workflows/ci.yml`): the fast core-only gate now also runs `test_params`,
+  `test_priors`, `test_ensemble`; the full matrix job (with dev extras / numpy) covers
+  `test_sensitivity` and `test_fan_charts` via discovery.
+- Tests: `tests/test_fan_charts.py` (4). Docs: `docs/UNCERTAINTY.md` updated.
+
+**Verification.** Fan charts render (8-panel HTML; e.g. 40-member/8-year temperature fan
+1.02/1.32/1.64). All Phase-1 tests green; backtest golden RMSEs unchanged.
+
+## Phase 1 — done
+
+GIM17 is now a **probabilistic** simulator: literature-grounded priors (validated vs IPCC AR6 /
+DICE / Howard-Sterner / PWT / GCP) → immutable per-run parameter context → reproducible
+Monte-Carlo ensemble (serial==parallel) → Morris/Sobol sensitivity (Ishigami-validated) →
+fan-chart outputs. Point forecasts are replaced by distributions, and every step is
+deterministic and CI-gated. Foundations are in place for Phase 2 (formal calibration &
+validation), which can now target the parameters sensitivity flags as the real drivers.

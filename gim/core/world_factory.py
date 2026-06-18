@@ -423,6 +423,11 @@ def make_world_from_csv(
     global_state._sim_seed = 0
 
     world = WorldState(time=0, agents=agents, global_state=global_state, relations=relations)
+    # Attach the per-run parameter context (Phase 1, option B2). Defaults snapshot the
+    # current calibration_params values, so behaviour is identical to before the refactor.
+    from .params import build_params
+
+    world.params = build_params()
 
     from .political_dynamics import update_political_states
     from .institutions import build_default_institutions

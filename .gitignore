@@ -24,3 +24,6 @@ ui/
 # Test fixtures must always be tracked, even if they match the artifact patterns above.
 !tests/fixtures/
 !tests/fixtures/**
+
+# stray sandbox lock files
+.lock
