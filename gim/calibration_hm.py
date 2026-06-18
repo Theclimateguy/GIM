@@ -133,10 +133,32 @@ def history_match(
     return HistoryMatchResult(list(names), threshold, tolerances, members)
 
 
+def constrained_priors(
+    result: HistoryMatchResult, base_priors: Optional[Dict[str, Prior]] = None
+) -> Dict[str, Prior]:
+    """Turn an NROY posterior into priors: calibrated params restricted to their NROY range.
+
+    The result feeds straight into the ensemble (`gim.ensemble`) for a calibrated, tightened
+    projection — closing the loop priors -> calibration -> constrained ensemble.
+    """
+    priors = dict(base_priors or key_priors())
+    cons = result.constraints()
+    for name in result.names:
+        c = cons.get(name, {})
+        lo, hi = c.get("nroy_min"), c.get("nroy_max")
+        if lo is not None and hi is not None and hi > lo:
+            priors[name] = Prior(
+                name, "uniform", (lo + hi) / 2.0, 0.0, lo, hi,
+                "history-matching NROY", "calibrated to 2015-2023 backtest",
+            )
+    return priors
+
+
 __all__ = [
     "history_match",
     "backtest_rmses",
     "implausibility",
+    "constrained_priors",
     "HistoryMatchResult",
     "DEFAULT_TOLERANCES",
     "DEFAULT_CALIBRATION_PARAMS",

@@ -384,5 +384,15 @@ validation), which can now target the parameters sensitivity flags as the real d
 ## P2-C/D — Docs & CI
 
 - `docs/VALIDATION.md`; fast CI gate now also runs `test_scoring`; backtest golden RMSEs
-  unchanged after the `params_override` addition. The forward calibrated ensemble (re-run
-  restricted to NROY) is a production run, scripted via `run_calibration.py` + `run_ensemble.py`.
+  unchanged after the `params_override` addition.
+- `calibration_hm.constrained_priors()` closes the loop: an NROY posterior becomes priors
+  (calibrated params restricted to their NROY range) that feed `gim.ensemble` directly for a
+  tightened, calibrated projection. The full forward calibrated ensemble is a production run
+  (`run_calibration.py` → constrained priors → `run_ensemble.py`).
+
+## Phase 2 — status
+
+P2-A (scoring + baselines) and P2-B (history-matching calibration) complete and pushed; the
+calibration→ensemble loop is wired via `constrained_priors`. Remaining for a full Phase 2:
+a longer observation panel (pre-2015) for stronger out-of-sample identification, and a
+large-sample production calibration run.

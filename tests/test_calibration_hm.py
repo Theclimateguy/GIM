@@ -6,9 +6,11 @@ from gim.calibration_hm import (
     DEFAULT_CALIBRATION_PARAMS,
     DEFAULT_TOLERANCES,
     backtest_rmses,
+    constrained_priors,
     history_match,
     implausibility,
 )
+from gim.core.priors import key_priors
 
 
 class ImplausibilityTests(unittest.TestCase):
@@ -56,6 +58,19 @@ class HistoryMatchTests(unittest.TestCase):
             a.to_dict()["best"]["implausibility"]["max"],
             b.to_dict()["best"]["implausibility"]["max"],
         )
+
+
+class ConstrainedPriorsTests(unittest.TestCase):
+    def test_nroy_priors_are_within_base_bounds(self):
+        res = history_match(n_samples=8, seed=2026)
+        base = key_priors()
+        cp = constrained_priors(res, base)
+        # Calibrated params' constrained priors must lie within the original prior support.
+        for name in res.names:
+            self.assertGreaterEqual(cp[name].low, base[name].low - 1e-9)
+            self.assertLessEqual(cp[name].high, base[name].high + 1e-9)
+        # Non-calibrated key priors are unchanged.
+        self.assertEqual(cp["BASE_BIRTH_RATE"].low, base["BASE_BIRTH_RATE"].low)
 
 
 if __name__ == "__main__":
