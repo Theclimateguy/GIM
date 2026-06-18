@@ -1,0 +1,47 @@
+{
+  "start_year": 2015,
+  "end_year": 2015,
+  "gdp_trillions_by_year": {
+    "2015": {
+      "United States": 18.206020741,
+      "China": 11.2808147874689,
+      "Japan": 4.44493065196418,
+      "Germany": 3.42509957874609,
+      "India": 2.10358836004494,
+      "United Kingdom": 2.94557989025846,
+      "France": 2.4424834526425,
+      "Italy": 1.8454280488391002,
+      "Brazil": 1.8022119994564199,
+      "Canada": 1.5565088162171399,
+      "South Korea": 1.53921230113555,
+      "Russia": 1.36348218219771,
+      "Australia": 1.3568058399359,
+      "Spain": 1.2061647775531201,
+      "Mexico": 1.21329446771688,
+      "Indonesia": 0.860854232686214,
+      "Netherlands": 0.775743675302734,
+      "Saudi Arabia": 0.6934144,
+      "Turkey": 0.8654600506836561,
+      "Switzerland": 0.6941181863796281
+    }
+  },
+  "global_co2_gtco2": {
+    "2015": 35.40489697074173
+  },
+  "temperature_c_preindustrial": {
+    "2015": 1.1753113687647059
+  },
+  "atmospheric_co2_ppm": {
+    "2015": 399.65
+  },
+  "source_notes": {
+    "wdi_gdp": "World Bank WDI API, indicator NY.GDP.MKTP.CD, annual current USD for the 20-country legacy backtest surface.",
+    "wdi_population": "World Bank WDI API, indicator SP.POP.TOTL, used for 2015 initial-state alignment.",
+    "wdi_fx_reserves": "World Bank WDI API, indicator FI.RES.XGLD.CD, used for 2015 initial-state alignment.",
+    "wdi_public_debt": "World Bank WDI API, indicator GC.DOD.TOTL.GD.ZS, used for 2015 initial-state alignment.",
+    "wdi_country_co2": "World Bank WDI API, indicator EN.GHG.CO2.MT.CE.AR5, used for 2015 initial-state alignment.",
+    "gcp_global_co2": "Global Carbon Budget 2024 workbook, sheet 'Global Carbon Budget', column 'fossil emissions excluding carbonation', converted from GtC/yr to GtCO2/yr.",
+    "hadcrut5_temperature": "HadCRUT.5.1.0.0 annual global summary series from the Met Office, rebased to an 1850-1900 mean so the anomaly matches the model's preindustrial framing.",
+    "noaa_atmospheric_co2": "NOAA GML global annual mean atmospheric CO2 concentration, used to seed the 2015 atmospheric stock before the simulation starts."
+  }
+}

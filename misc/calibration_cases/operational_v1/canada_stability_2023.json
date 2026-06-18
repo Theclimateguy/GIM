@@ -1,0 +1,29 @@
+{
+  "id": "canada_stability_2023",
+  "title": "Canada stable baseline",
+  "description": "Low-stress baseline case for Canada in 2023, used to catch false-alarm regressions in the crisis suite.",
+  "reference_period": "2023-01 to 2024-12",
+  "tags": ["historical", "stable", "negative", "canada"],
+  "scenario": {
+    "question": "Is Canada likely to remain broadly stable without a major crisis over the next two years?",
+    "base_year": 2023,
+    "horizon_months": 24,
+    "actors": ["Canada"]
+  },
+  "expectations": {
+    "top_outcomes": ["status_quo"],
+    "dominant_outcomes": ["status_quo", "direct_strike_exchange"],
+    "drivers": ["tail_pressure", "policy_space", "military_posture"],
+    "actor_metrics": {
+      "Canada": ["strategic_dependency", "conflict_escalation_pressure"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.4,
+    "minimum_case_score": 0.72
+  },
+  "historical_signals": [
+    "The baseline should remain status_quo-dominant with only moderate geopolitical spillover channels.",
+    "Conflict-escalation pressure can remain visible without becoming the dominant scenario."
+  ]
+}

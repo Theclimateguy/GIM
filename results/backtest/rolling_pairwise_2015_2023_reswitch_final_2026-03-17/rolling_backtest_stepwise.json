@@ -1,0 +1,224 @@
+{
+  "created_at_utc": "2026-03-17T13:33:49Z",
+  "base_state_csv": "tests/fixtures/historical_backtest_state_2015.csv",
+  "observed_fixture": "tests/fixtures/historical_backtest_observed.json",
+  "origin_start_year": 2015,
+  "origin_end_year": 2022,
+  "economy_param_name": "TFP_RD_SHARE_SENS",
+  "climate_param_name": "DECARB_RATE_STRUCTURAL",
+  "economy_param_grid": [
+    0.18,
+    0.21,
+    0.24,
+    0.27,
+    0.3,
+    0.32999999999999996,
+    0.36,
+    0.39,
+    0.42
+  ],
+  "climate_param_grid": [
+    0.0312,
+    0.036399999999999995,
+    0.0416,
+    0.046799999999999994,
+    0.05199999999999999,
+    0.057199999999999994,
+    0.06239999999999999,
+    0.0676,
+    0.07279999999999999
+  ],
+  "objective_weights": {
+    "gdp": 0.1,
+    "co2": 1.0,
+    "temperature": 10.0
+  },
+  "windows": [
+    {
+      "origin_year": 2015,
+      "train_start_year": 2015,
+      "train_end_year": 2015,
+      "validation_start_year": 2015,
+      "validation_end_year": 2016,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2015.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2015.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2015_2016.json"
+    },
+    {
+      "origin_year": 2016,
+      "train_start_year": 2015,
+      "train_end_year": 2016,
+      "validation_start_year": 2016,
+      "validation_end_year": 2017,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2016.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2016.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2016_2017.json"
+    },
+    {
+      "origin_year": 2017,
+      "train_start_year": 2015,
+      "train_end_year": 2017,
+      "validation_start_year": 2017,
+      "validation_end_year": 2018,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2017.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2017.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2017_2018.json"
+    },
+    {
+      "origin_year": 2018,
+      "train_start_year": 2015,
+      "train_end_year": 2018,
+      "validation_start_year": 2018,
+      "validation_end_year": 2019,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2018.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2018.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2018_2019.json"
+    },
+    {
+      "origin_year": 2019,
+      "train_start_year": 2015,
+      "train_end_year": 2019,
+      "validation_start_year": 2019,
+      "validation_end_year": 2020,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2019.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2019.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2019_2020.json"
+    },
+    {
+      "origin_year": 2020,
+      "train_start_year": 2015,
+      "train_end_year": 2020,
+      "validation_start_year": 2020,
+      "validation_end_year": 2021,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2020.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2020.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2020_2021.json"
+    },
+    {
+      "origin_year": 2021,
+      "train_start_year": 2015,
+      "train_end_year": 2021,
+      "validation_start_year": 2021,
+      "validation_end_year": 2022,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2021.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2021.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2021_2022.json"
+    },
+    {
+      "origin_year": 2022,
+      "train_start_year": 2015,
+      "train_end_year": 2022,
+      "validation_start_year": 2022,
+      "validation_end_year": 2023,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2022.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2022.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2022_2023.json"
+    }
+  ],
+  "passes": [
+    {
+      "origin_year": 2015,
+      "selected_economy_param_value": 0.3,
+      "selected_climate_param_value": 0.05199999999999999,
+      "train_objective": 0.8876264446927706,
+      "train_gdp_rmse_trillions": 1.0532500405730103e-16,
+      "train_global_co2_rmse_gtco2": 0.8876264446927706,
+      "train_temperature_rmse_c": 0.0,
+      "validation_gdp_rmse_trillions": 0.17323305678132353,
+      "validation_global_co2_rmse_gtco2": 0.6214469183852783,
+      "validation_temperature_rmse_c": 0.06021836416001381,
+      "validation_temperature_bias_c": -0.04258081364950672
+    },
+    {
+      "origin_year": 2016,
+      "selected_economy_param_value": 0.3,
+      "selected_climate_param_value": 0.05199999999999999,
+      "train_objective": 1.2466326702414636,
+      "train_gdp_rmse_trillions": 0.17323349721651968,
+      "train_global_co2_rmse_gtco2": 0.627713689887695,
+      "train_temperature_rmse_c": 0.06015956306321167,
+      "validation_gdp_rmse_trillions": 0.23838248207773785,
+      "validation_global_co2_rmse_gtco2": 1.0188956821430475,
+      "validation_temperature_rmse_c": 0.07479981855876083,
+      "validation_temperature_bias_c": 0.05289145893442315
+    },
+    {
+      "origin_year": 2017,
+      "selected_economy_param_value": 0.42,
+      "selected_climate_param_value": 0.0312,
+      "train_objective": 1.6738630697526664,
+      "train_gdp_rmse_trillions": 0.1941926396456827,
+      "train_global_co2_rmse_gtco2": 1.1473570632400967,
+      "train_temperature_rmse_c": 0.05070867425480015,
+      "validation_gdp_rmse_trillions": 0.3188171310432211,
+      "validation_global_co2_rmse_gtco2": 1.1474344807559185,
+      "validation_temperature_rmse_c": 0.07704189115673099,
+      "validation_temperature_bias_c": 0.05447684367236039
+    },
+    {
+      "origin_year": 2018,
+      "selected_economy_param_value": 0.42,
+      "selected_climate_param_value": 0.0312,
+      "train_objective": 2.039975230801181,
+      "train_gdp_rmse_trillions": 0.26724433492419825,
+      "train_global_co2_rmse_gtco2": 1.2637543757262673,
+      "train_temperature_rmse_c": 0.07494964215824937,
+      "validation_gdp_rmse_trillions": 0.15579634574262904,
+      "validation_global_co2_rmse_gtco2": 0.9016314728931311,
+      "validation_temperature_rmse_c": 0.07094523066705274,
+      "validation_temperature_bias_c": -0.050165853697516805
+    },
+    {
+      "origin_year": 2019,
+      "selected_economy_param_value": 0.42,
+      "selected_climate_param_value": 0.0312,
+      "train_objective": 1.8400541296200452,
+      "train_gdp_rmse_trillions": 0.39164907297277674,
+      "train_global_co2_rmse_gtco2": 1.1304209717550349,
+      "train_temperature_rmse_c": 0.06704682505677327,
+      "validation_gdp_rmse_trillions": 0.1345038160747986,
+      "validation_global_co2_rmse_gtco2": 0.7544345985354378,
+      "validation_temperature_rmse_c": 0.0013547521249706244,
+      "validation_temperature_bias_c": -0.0009579544143936136
+    },
+    {
+      "origin_year": 2020,
+      "selected_economy_param_value": 0.18,
+      "selected_climate_param_value": 0.0416,
+      "train_objective": 2.4007900443431365,
+      "train_gdp_rmse_trillions": 0.6426343385560972,
+      "train_global_co2_rmse_gtco2": 1.7229480355126023,
+      "train_temperature_rmse_c": 0.061357857497492466,
+      "validation_gdp_rmse_trillions": 0.68455359679506,
+      "validation_global_co2_rmse_gtco2": 1.9289633671371873,
+      "validation_temperature_rmse_c": 0.12446961217155851,
+      "validation_temperature_bias_c": 0.08801330681816866
+    },
+    {
+      "origin_year": 2021,
+      "selected_economy_param_value": 0.18,
+      "selected_climate_param_value": 0.046799999999999994,
+      "train_objective": 2.572698522707508,
+      "train_gdp_rmse_trillions": 0.792939412343027,
+      "train_global_co2_rmse_gtco2": 1.688965044931979,
+      "train_temperature_rmse_c": 0.0804439536541226,
+      "validation_gdp_rmse_trillions": 0.39153528238373053,
+      "validation_global_co2_rmse_gtco2": 0.8564276282828289,
+      "validation_temperature_rmse_c": 0.0036531982047279974,
+      "validation_temperature_bias_c": 0.002583201223581688
+    },
+    {
+      "origin_year": 2022,
+      "selected_economy_param_value": 0.18,
+      "selected_climate_param_value": 0.05199999999999999,
+      "train_objective": 2.645502354877691,
+      "train_gdp_rmse_trillions": 0.9096387959129012,
+      "train_global_co2_rmse_gtco2": 1.6741061144952507,
+      "train_temperature_rmse_c": 0.088043236079115,
+      "validation_gdp_rmse_trillions": 0.3420394220101116,
+      "validation_global_co2_rmse_gtco2": 1.0004797453489738,
+      "validation_temperature_rmse_c": 0.18974259631530455,
+      "validation_temperature_bias_c": -0.13416827653449348
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "input_source": "fetched_and_cached",
+  "generated_at": "2026-03-15T16:51:43.113047+00:00",
+  "methodology": {
+    "start_year": 2000,
+    "end_year": 2023,
+    "excluded_years": [
+      2020,
+      2021
+    ],
+    "fit": "log_linear_ols",
+    "dependent_variable": "ln(CO2 / GDP_PPP)",
+    "gdp_indicator": "NY.GDP.MKTP.PP.KD",
+    "grouping": "current_oecd_membership_vs_non_oecd"
+  },
+  "sources": {
+    "emissions": {
+      "label": "Global Carbon Project / Global Carbon Budget 2025 flat country dataset",
+      "url": "https://zenodo.org/records/17417124/files/GCB2025v15_MtCO2_flat.csv?download=1",
+      "unit": "MtCO2"
+    },
+    "gdp": {
+      "label": "World Bank GDP, PPP (constant 2021 international $)",
+      "indicator": "NY.GDP.MKTP.PP.KD",
+      "aggregate_codes": {
+        "global": "WLD",
+        "oecd": "OED"
+      },
+      "unit": "trillion PPP dollars"
+    }
+  },
+  "global": {
+    "estimate": 0.016025082589816386,
+    "ci_95": [
+      0.014283116322687032,
+      0.01776704885694574
+    ],
+    "r2": 0.9484875787265998,
+    "n": 22,
+    "start_year": 2000,
+    "end_year": 2023,
+    "excluded_years": [
+      2020,
+      2021
+    ]
+  },
+  "oecd": {
+    "estimate": 0.02521266878067502,
+    "ci_95": [
+      0.023637644149373038,
+      0.026787693411977006
+    ],
+    "r2": 0.9823795193812149,
+    "n": 22,
+    "start_year": 2000,
+    "end_year": 2023,
+    "excluded_years": [
+      2020,
+      2021
+    ]
+  },
+  "non_oecd": {
+    "estimate": 0.02706044798881387,
+    "ci_95": [
+      0.026008512174305387,
+      0.02811238380332235
+    ],
+    "r2": 0.9931023064332717,
+    "n": 22,
+    "start_year": 2000,
+    "end_year": 2023,
+    "excluded_years": [
+      2020,
+      2021
+    ]
+  },
+  "active_rate_backtest": {
+    "active_artifact_rate": 0.052,
+    "observed_data_rate": 0.016025082589816386,
+    "recommended_active_rate": 0.052,
+    "comparisons": [
+      {
+        "rate": 0.016025,
+        "label": "observed_data_fit",
+        "gdp_rmse_trillions": 1.0502051826408079,
+        "global_co2_rmse_gtco2": 6.25780770739925,
+        "temperature_rmse_c": 0.13594501667355902
+      },
+      {
+        "rate": 0.052,
+        "label": "active_artifact",
+        "gdp_rmse_trillions": 1.0503297852341267,
+        "global_co2_rmse_gtco2": 1.6302959855506234,
+        "temperature_rmse_c": 0.1362822319376967
+      }
+    ]
+  },
+  "recommendation": {
+    "observed_reference_rate": 0.016025082589816386,
+    "active_structural_rate": 0.052,
+    "notes": "Use the observed global fit as the manifest reference prior. Keep the active structural rate manifest-bound until the historical backtest stops preferring the compiled-state artifact value."
+  }
+}

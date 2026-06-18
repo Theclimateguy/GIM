@@ -1,0 +1,89 @@
+{
+  "created_at_utc": "2026-03-17T13:33:36Z",
+  "base_state_csv": "tests/fixtures/historical_backtest_state_2015.csv",
+  "observed_fixture": "tests/fixtures/historical_backtest_observed.json",
+  "origin_start_year": 2015,
+  "origin_end_year": 2022,
+  "windows": [
+    {
+      "origin_year": 2015,
+      "train_start_year": 2015,
+      "train_end_year": 2015,
+      "validation_start_year": 2015,
+      "validation_end_year": 2016,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2015.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2015.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2015_2016.json"
+    },
+    {
+      "origin_year": 2016,
+      "train_start_year": 2015,
+      "train_end_year": 2016,
+      "validation_start_year": 2016,
+      "validation_end_year": 2017,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2016.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2016.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2016_2017.json"
+    },
+    {
+      "origin_year": 2017,
+      "train_start_year": 2015,
+      "train_end_year": 2017,
+      "validation_start_year": 2017,
+      "validation_end_year": 2018,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2017.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2017.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2017_2018.json"
+    },
+    {
+      "origin_year": 2018,
+      "train_start_year": 2015,
+      "train_end_year": 2018,
+      "validation_start_year": 2018,
+      "validation_end_year": 2019,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2018.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2018.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2018_2019.json"
+    },
+    {
+      "origin_year": 2019,
+      "train_start_year": 2015,
+      "train_end_year": 2019,
+      "validation_start_year": 2019,
+      "validation_end_year": 2020,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2019.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2019.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2019_2020.json"
+    },
+    {
+      "origin_year": 2020,
+      "train_start_year": 2015,
+      "train_end_year": 2020,
+      "validation_start_year": 2020,
+      "validation_end_year": 2021,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2020.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2020.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2020_2021.json"
+    },
+    {
+      "origin_year": 2021,
+      "train_start_year": 2015,
+      "train_end_year": 2021,
+      "validation_start_year": 2021,
+      "validation_end_year": 2022,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2021.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2021.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2021_2022.json"
+    },
+    {
+      "origin_year": 2022,
+      "train_start_year": 2015,
+      "train_end_year": 2022,
+      "validation_start_year": 2022,
+      "validation_end_year": 2023,
+      "origin_state_csv": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/origin_states/historical_backtest_state_2022.csv",
+      "train_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_train_2015_2022.json",
+      "validation_observed_fixture": "results/backtest/rolling_pairwise_2015_2023_reswitch_final_2026-03-17/fixtures/observed_val_2022_2023.json"
+    }
+  ]
+}

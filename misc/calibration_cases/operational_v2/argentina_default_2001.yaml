@@ -1,0 +1,58 @@
+{
+  "case_id": "argentina_default_2001",
+  "title": "Argentina default collapse",
+  "description": "Argentina 2001 default and political collapse: a hard negative-control for status_quo and negotiated_deescalation under extreme debt and legitimacy stress.",
+  "reference_period": "2001-Q4 to 2002-Q1",
+  "tags": ["historical", "near_miss", "default", "argentina"],
+  "question": "Could debt default, bank runs and political collapse destabilize Argentina during the 2001 corralito crisis?",
+  "template": "generic_tail_risk",
+  "risk_bias_overrides": {
+    "status_quo": -0.15,
+    "internal_destabilization": 0.20,
+    "controlled_suppression": -0.05,
+    "negotiated_deescalation": -0.20
+  },
+  "scenario_year": 2001,
+  "horizon_months": 12,
+  "agents": ["Argentina"],
+  "initial_state_overrides": {
+    "Argentina": {
+      "economy.public_debt_gdp": 0.62,
+      "economy.fx_reserves": 0.009,
+      "economy.unemployment": 0.185,
+      "economy.inflation": 0.012,
+      "economy.gdp_growth": -0.044,
+      "risk.debt_crisis_prone": 0.91,
+      "risk.regime_stability": 0.22,
+      "society.trust_gov": 0.18,
+      "society.social_tension": 0.83,
+      "society.inequality_gini": 51.3,
+      "political.policy_space": 0.11,
+      "political.legitimacy": 0.21
+    }
+  },
+  "observed_pressure": {
+    "conflict_stress": 0.15,
+    "social_stress": 0.83,
+    "debt_stress": 0.91,
+    "resource_gap": 0.22,
+    "policy_space": 0.11,
+    "negotiation_capacity": 0.12,
+    "sanctions_pressure": 0.08,
+    "actor_count_pressure": 0.05,
+    "military_posture": 0.22,
+    "energy_dependence": 0.10,
+    "tail_pressure": 1.56
+  },
+  "expected_outcomes": {
+    "dominant": "internal_destabilization",
+    "excluded": ["status_quo", "negotiated_deescalation", "direct_strike_exchange"]
+  },
+  "criticality": "critical",
+  "discriminating_weights": [
+    "outcome_intercept:status_quo",
+    "internal_destabilization:debt_stress",
+    "internal_destabilization:social_stress"
+  ],
+  "notes": "Hard negative for status_quo. If the status-quo intercept still rescues this case, the crisis layer remains under-calibrated."
+}
