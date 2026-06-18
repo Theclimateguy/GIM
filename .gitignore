@@ -20,3 +20,7 @@ decision_brief.md
 *_brief.md
 *_evaluation.json
 ui/
+
+# Test fixtures must always be tracked, even if they match the artifact patterns above.
+!tests/fixtures/
+!tests/fixtures/**
