@@ -46,5 +46,5 @@ jobs:
         env:
           GIM17_INVARIANT_MODE: strict
         run: python scripts/check_invariants.py
-      - name: Core unit tests (invariants, determinism, params, priors, ensemble)
-        run: python -m unittest tests.test_invariants tests.test_determinism tests.test_params tests.test_priors tests.test_ensemble -v
+      - name: Core unit tests (invariants, determinism, params, priors, ensemble, scoring)
+        run: python -m unittest tests.test_invariants tests.test_determinism tests.test_params tests.test_priors tests.test_ensemble tests.test_scoring -v

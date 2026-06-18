@@ -234,6 +234,7 @@ def _run_historical_backtest_member(
     temperature_variability_sigma: float = 0.0,
     temperature_variability_seed: int = 0,
     temperature_variability_sign: float = 1.0,
+    params_override: dict | None = None,
 ) -> HistoricalBacktestResult:
     state_csv_path = Path(state_csv)
     observed_path = Path(observed_fixture)
@@ -256,6 +257,8 @@ def _run_historical_backtest_member(
 
     with _temporary_decarb_rate(decarb_rate_override):
         world = make_world_from_csv(str(state_csv_path))
+        if params_override:
+            world.params = world.params.with_overrides(params_override)
         _seed_historical_globals(world, observed, start_year)
         world.global_state._enable_temperature_variability = temperature_variability_sigma > 0.0
         world.global_state._temperature_variability_sigma = max(0.0, temperature_variability_sigma)
@@ -418,6 +421,7 @@ def run_historical_backtest(
     temperature_variability_sigma_override: float | None = None,
     temperature_ensemble_size: int | None = None,
     temperature_seed_base: int = 0,
+    params_override: dict | None = None,
 ) -> HistoricalBacktestResult:
     temperature_variability_sigma = (
         cal.TEMP_NATURAL_VARIABILITY_SIGMA
@@ -440,6 +444,7 @@ def run_historical_backtest(
             temperature_variability_sign=(
                 -1.0 if temperature_variability_sigma > 0.0 and ensemble_index % 2 else 1.0
             ),
+            params_override=params_override,
         )
         for ensemble_index in range(temperature_ensemble_size)
     ]

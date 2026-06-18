@@ -355,3 +355,34 @@ Monte-Carlo ensemble (serial==parallel) → Morris/Sobol sensitivity (Ishigami-v
 fan-chart outputs. Point forecasts are replaced by distributions, and every step is
 deterministic and CI-gated. Foundations are in place for Phase 2 (formal calibration &
 validation), which can now target the parameters sensitivity flags as the real drivers.
+
+---
+
+# Phase 2 — Calibration & validation
+
+## P2-A — Skill scoring + baselines
+
+**Status:** complete (uncommitted).
+
+- `gim/scoring.py`: RMSE/MAE, **CRPS** (ensemble proper score), interval coverage, persistence
+  + naive-trend baselines, skill scores. `scripts/run_scoring.py`; `tests/test_scoring.py` (9).
+- **Finding:** on the 2015–2023 backtest (anchored 2015), the model beats persistence on
+  temperature (skill ≈ +0.14) and marginally on GDP, but loses to a naive linear trend for GDP
+  and CO₂ over the short window — the honest, baseline-grounded picture.
+
+## P2-B — History-matching calibration
+
+**Status:** complete (uncommitted).
+
+- `gim/calibration_hm.py`: implausibility scoring of prior draws vs observations → NROY
+  posterior; per-parameter constraints. Threaded a parallel-safe `params_override` through
+  `run_historical_backtest`. `scripts/run_calibration.py`; `tests/test_calibration_hm.py` (6).
+- **Finding:** production params (`GAMMA_ENERGY`, `ALPHA_CAPITAL`, `EMISSIONS_SCALE`) are
+  constrained most by the backtest; climate-response params (`ECS`, `HEAT_CAP_SURFACE`,
+  `DECARB_RATE_STRUCTURAL`) are weakly identified over 8 years — consistent with P1-D sensitivity.
+
+## P2-C/D — Docs & CI
+
+- `docs/VALIDATION.md`; fast CI gate now also runs `test_scoring`; backtest golden RMSEs
+  unchanged after the `params_override` addition. The forward calibrated ensemble (re-run
+  restricted to NROY) is a production run, scripted via `run_calibration.py` + `run_ensemble.py`.
