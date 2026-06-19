@@ -40,6 +40,10 @@ SAVINGS_STABILITY_SENS = 0.60  # [PRIOR]
 SAVINGS_TENSION_SENS = 0.40  # [PRIOR]
 SAVINGS_MIN = 0.05
 SAVINGS_MAX = 0.40
+
+# Welfare / social cost of carbon (Phase 3).
+ELASTICITY_MARGINAL_UTILITY = 1.45  # [DICE16] eta: CRRA elasticity of marginal utility (DICE-2016R2)
+PURE_TIME_PREFERENCE = 0.015        # [DICE16] rho: pure rate of social time preference per year (DICE-2016R2)
 TECH_OUTPUT_SENS = 0.60  # [PRIOR]
 GDP_ADJUST_SPEED_BASE = 0.30  # [PRIOR]
 GDP_ADJUST_SPEED_GAP_SENS = 0.35  # [PRIOR]

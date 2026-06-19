@@ -396,3 +396,27 @@ P2-A (scoring + baselines) and P2-B (history-matching calibration) complete and 
 calibration→ensemble loop is wired via `constrained_priors`. Remaining for a full Phase 2:
 a longer observation panel (pre-2015) for stronger out-of-sample identification, and a
 large-sample production calibration run.
+
+---
+
+# Phase 3 — Welfare & Social Cost of Carbon
+
+**Status:** P3-A/B/C complete (uncommitted). The DICE/RICE valuation layer.
+
+**Changes**
+- New params `ELASTICITY_MARGINAL_UTILITY` (η=1.45) and `PURE_TIME_PREFERENCE` (ρ=0.015),
+  DICE-2016R2 defaults, with literature priors spanning the Nordhaus↔Stern debate.
+- `gim/welfare.py` (P3-A): consumption from GDP/savings, CRRA utility, Ramsey-discounted social
+  welfare. `gim/scc.py` (P3-B): marginal CO₂-pulse SCC (FAIR-style pool injection, common random
+  numbers); (P3-C) `scc_distribution` propagates the climate-economy + discounting priors → an
+  SCC distribution. `scripts/run_scc.py`; `docs/WELFARE_SCC.md`.
+- Tests: `tests/test_welfare.py` (4), `tests/test_scc.py` (5). CI fast gate runs `test_welfare`.
+
+**Results.** Central **SCC ≈ $22/tCO₂** (30-year horizon); probabilistic SCC right-skewed
+(median ≈ $13, p95 ≈ $32) — the characteristic IAM shape. SCC is **linear in pulse size**
+(marginality confirmed) and deterministic. Level is horizon-sensitive (30y truncates long-run
+damages; sits at the lower end of the DICE→EPA range, which a multi-century horizon would raise).
+Backtest golden RMSEs unchanged.
+
+**Remaining for full Phase 3:** multi-century horizon for a DICE-comparable SCC level; optional
+welfare-optimization mode (optimal mitigation maximizing W).

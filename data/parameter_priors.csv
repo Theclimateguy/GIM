@@ -17,3 +17,5 @@ BASE_BIRTH_RATE,triangular,0.025,0,0.015,0.035,World Bank WDI 2023,"Baseline cru
 BASE_DEATH_RATE,triangular,0.012,0,0.007,0.017,World Bank WDI 2023,"Baseline crude death rate (pre-modifier). Global crude death ~8/1000 (2023)."
 BASE_INTEREST_RATE,triangular,0.02,0,0.005,0.04,IMF WEO 2025; r* literature,"Baseline real interest rate; neutral-rate (r*) estimates ~0.5-2.5%."
 TFP_RD_SHARE_SENS,triangular,0.3,0,0.1,0.6,GIM backtest; endogenous-growth R&D elasticity literature,"Sensitivity of TFP growth to R&D spending share; backtest-selected 0.3, wide prior."
+ELASTICITY_MARGINAL_UTILITY,triangular,1.45,0,1.0,2.0,"DICE-2016R2 (Nordhaus); Stern Review 2007","eta: CRRA elasticity of marginal utility. Nordhaus 1.45, Stern 1.0; range spans the discounting debate."
+PURE_TIME_PREFERENCE,triangular,0.015,0,0.001,0.03,"DICE-2016R2 (Nordhaus); Stern Review 2007","rho: pure rate of time preference. Nordhaus ~1.5%/yr, Stern ~0.1%/yr; the central ethical-discounting parameter."
