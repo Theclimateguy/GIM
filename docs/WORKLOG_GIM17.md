@@ -511,3 +511,25 @@ disturbance); `docs/CLIMATE_BACKTEST.md`.
 {ECS, heat capacities, ocean exchange} against trend (1990-2023) + levels (2015-2023),
 moving HEAT_CAP_SURFACE to its physical value — a deliberate calibration decision, since
 lowering it in isolation worsens the short-window golden RMSE.
+
+## T1.3b — Joint multi-window climate recalibration
+
+**Decision.** T1.3 showed the long window wants a physical surface heat capacity (~8)
+while the short window had been fit with 18. Rather than leave the tension documented,
+ran a constrained joint search over {ECS, HEAT_CAP_SURFACE, OCEAN_EXCHANGE} minimising
+the 1990-2023 concentration-driven temperature RMSE subject to the 2015-2023 economic
+gates (temp RMSE < 0.15, |bias| < 0.02).
+
+**Result.** A feasible optimum improves BOTH windows at physical values:
+`HEAT_CAP_SURFACE 18->8`, `OCEAN_EXCHANGE 0.7->1.0` (ECS unchanged at 3.0). Stronger ocean
+heat uptake damps the short-window overshoot the faster surface response would cause.
+Long-window temp RMSE 0.237->0.161; economic temp RMSE 0.138->0.134 (bias +0.012);
+GDP/CO2 RMSE essentially unchanged (1.026/1.606). SCC 200-yr ~$56->~$48 (heat drawn deeper).
+
+**Changed.** `calibration_params.py` (the two values); `data/parameter_priors.csv` (priors
+recentred on the physical values); regenerated `tests/fixtures/historical_backtest_baseline.json`
+and the `GOLDEN` constants in `tests/test_historical_backtest.py`; pinned the long-window ECS
+identification test to its original (cap=8, oex=0.7) configuration so it is independent of the
+new production defaults; updated `docs/CLIMATE_BACKTEST.md` and `docs/WELFARE_SCC.md`.
+Verified: historical/climate/forcing/scc/welfare/invariants/params/priors + calibration,
+decarb, equilibrium, projection, contract suites all green (~150 tests).

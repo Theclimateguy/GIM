@@ -34,12 +34,18 @@ long-run damage tail. `scc_multi_horizon()` reports several horizons:
 
 | Horizon | Central SCC |
 | --- | --- |
-| 30 y | ~$17 |
-| 100 y | ~$54 |
-| 200 y | ~$63 |
+| 30 y | ~$15 |
+| 100 y | ~$45 |
+| 200 y | ~$48 |
+
+(Values from the post-T1.3b calibration, `max_agents=12`, `seed=2026`; exact magnitudes
+depend on agent count and seed. The T1.3b recalibration — `HEAT_CAP_SURFACE 18→8`,
+`OCEAN_EXCHANGE 0.7→1.0` — lowers the long-horizon SCC somewhat, e.g. 200 y ~$56→~$48,
+because stronger ocean heat uptake draws more heat to the deep ocean and slightly reduces
+long-run surface warming.)
 
 So the headline 30-year value sits below DICE (~$31) **purely because of the horizon**, not
-low damages — at 200 years GIM17 already reaches the DICE/EPA-comparable range (~$40–60+).
+low damages — at 200 years GIM17 reaches the DICE/EPA-comparable range (~$40–60+).
 (Note: GIM's damage coefficient 0.006 → 5.4%/3 °C is ~2.5× DICE's, *not* lower.) The
 probabilistic SCC (varying ECS, the damage coefficient, η, ρ, heat capacity, emissions scale)
 is **right-skewed** — median ≈ $13, p95 ≈ $32 at 30 y — the characteristic shape of modern IAM

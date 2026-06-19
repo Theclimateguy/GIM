@@ -67,15 +67,37 @@ the multi-decadal transient: with it, temperature RMSE falls monotonically in EC
 the best fit pins at the 4C ceiling. The long window resolves the degeneracy in favour
 of (C_surface ~ 8, ECS = 3.0).
 
-## Recommended follow-up (not applied here)
+## Joint multi-window recalibration (T1.3b - APPLIED)
 
-A **joint multi-window recalibration** of `{ECS, HEAT_CAP_SURFACE, HEAT_CAP_DEEP,
-OCEAN_EXCHANGE}` against 1990-2023 (trend) **and** 2015-2023 (levels) simultaneously,
-moving `HEAT_CAP_SURFACE` toward its physical value. This is deferred because lowering
-it in isolation worsens the 2015-2023 golden temperature RMSE; it is a deliberate
-calibration decision, not a silent change. The production values are unchanged by
-T1.3; the long-window machinery and evidence are now in place to drive that
-recalibration.
+The follow-up recalibration has now been carried out. A constrained joint search over
+`{ECS, HEAT_CAP_SURFACE, OCEAN_EXCHANGE}` minimised the 1990-2023 concentration-driven
+temperature RMSE (trend) **subject to** the 2015-2023 economic-backtest gates (temp RMSE
+< 0.15, |bias| < 0.02; levels). A feasible optimum exists that improves **both** windows
+at physical parameter values:
+
+| parameter | old | new | basis |
+|---|---|---|---|
+| `HEAT_CAP_SURFACE` | 18.0 | **8.0** | Geoffroy et al. 2013 CMIP5 mean |
+| `OCEAN_EXCHANGE` | 0.7 | **1.0** | within Geoffroy gamma range |
+| `ECS_DEFAULT` | 3.0 | 3.0 (unchanged) | IPCC AR6 central |
+
+The higher ocean heat uptake (`OCEAN_EXCHANGE = 1.0`) is the reconciler: it damps the
+short-window overshoot that the faster surface response (`HEAT_CAP_SURFACE = 8`) would
+otherwise cause, so the 2015-2023 levels stay unbiased while the 1990-2023 transient
+warms correctly.
+
+Result:
+
+| window | metric | before | after |
+|---|---|---|---|
+| 1990-2023 (concentration) | temperature RMSE | 0.237 | **0.161** |
+| 2015-2023 (economic backtest) | temperature RMSE | 0.138 | **0.134** |
+| 2015-2023 | temperature bias | -0.005 | +0.012 (within +-0.02) |
+| 2015-2023 | GDP / CO2 RMSE | 1.025 / 1.605 | 1.026 / 1.606 (unchanged) |
+
+Golden values and the baseline fixture were regenerated; the SCC shifts modestly with
+the faster ocean uptake (200-yr horizon ~$56 -> ~$48/tCO2, as more heat is drawn to the
+deep ocean and long-run surface warming is slightly lower).
 
 ## Reproduce
 

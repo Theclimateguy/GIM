@@ -13,10 +13,13 @@ from gim.historical_backtest import (
 
 
 class HistoricalBacktestTests(unittest.TestCase):
+    # Updated by the T1.3 joint multi-window climate recalibration
+    # (HEAT_CAP_SURFACE 18->8, OCEAN_EXCHANGE 0.7->1.0): the 2015-2023 temperature
+    # RMSE improves from 0.138 to 0.134 while moving to physical climate parameters.
     GOLDEN = {
-        "gdp_rmse_trillions": 1.025,
-        "global_co2_rmse_gtco2": 1.605,
-        "temperature_rmse_c": 0.138,
+        "gdp_rmse_trillions": 1.026,
+        "global_co2_rmse_gtco2": 1.606,
+        "temperature_rmse_c": 0.134,
     }
     TOLERANCE = 0.005
 

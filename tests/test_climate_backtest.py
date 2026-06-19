@@ -55,12 +55,13 @@ class BacktestRunTests(unittest.TestCase):
         self.assertEqual(a.predicted_temperature, b.predicted_temperature)
 
     def test_long_window_identifies_central_ecs_at_physical_heat_capacity(self):
-        # The headline T1.3 result: with the physical Geoffroy surface heat capacity
-        # (~8), the 34-year concentration-driven window has a clear interior minimum
-        # at ECS=3.0 (the IPCC AR6 central estimate) - i.e. the window *identifies* ECS.
+        # The headline T1.3 result: at the physical Geoffroy surface heat capacity
+        # (~8) with Geoffroy-baseline ocean exchange (0.7), the 34-year
+        # concentration-driven window has a clear interior minimum at ECS=3.0 (the
+        # IPCC AR6 central estimate) - i.e. the window *identifies* ECS. (Params are
+        # pinned here so the test is independent of the production defaults, which the
+        # T1.3b joint recalibration moved to cap=8/oex=1.0.)
         obs = load_observations()
-        grid = sweep_ecs([2.0, 2.5, 3.0, 3.5, 4.0], obs, mode="concentration")
-        # Re-run the grid at the physical heat capacity via best_ecs's machinery.
         from gim.climate_backtest import load_emissions_history as _h
 
         hist = _h()
@@ -68,7 +69,8 @@ class BacktestRunTests(unittest.TestCase):
         for e in (2.5, 3.0, 3.5):
             r = run_climate_backtest(
                 obs, ecs=e, mode="concentration",
-                params_override={"HEAT_CAP_SURFACE": 8.0}, emissions_history=hist,
+                params_override={"HEAT_CAP_SURFACE": 8.0, "OCEAN_EXCHANGE": 0.7},
+                emissions_history=hist,
             )
             rmse[e] = r.scores["temperature_rmse"]
         self.assertLess(rmse[3.0], rmse[2.5])
