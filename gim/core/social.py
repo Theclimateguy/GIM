@@ -3,7 +3,7 @@ from typing import Dict
 
 from . import calibration_params as cal
 from .params import resolve_params
-from .critical_pending import get_transition_pending
+from .critical_pending import get_transition_pending, record_debt_flow
 from .core import Action, AgentState, WorldState, clamp01, effective_trade_intensity
 from .economy import compute_effective_interest_rate
 
@@ -55,6 +55,7 @@ def _add_critical_delta(
     values["gdp"] += float(gdp)
     values["capital"] += float(capital)
     values["public_debt"] += float(public_debt)
+    record_debt_flow(world, agent.id, "restructuring", public_debt)
     values["trust_gov"] += float(trust_gov)
     values["social_tension"] += float(social_tension)
 

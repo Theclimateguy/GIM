@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from .core import InstitutionState, WorldState, clamp01
+from .critical_pending import record_debt_flow
 
 
 ORG_TYPES = {
@@ -53,6 +54,7 @@ def _queue_critical_deltas(
         },
     )
     agent_delta["public_debt"] += float(public_debt)
+    record_debt_flow(world, agent_id, "institution", public_debt)
     agent_delta["trust_gov"] += float(trust_gov)
     agent_delta["social_tension"] += float(social_tension)
 

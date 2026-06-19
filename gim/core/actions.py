@@ -3,7 +3,7 @@ from typing import Dict
 
 from .climate import update_emissions_from_economy
 from .params import resolve_params
-from .critical_pending import get_transition_pending
+from .critical_pending import get_transition_pending, record_debt_flow
 from .core import Action, PricePreference, WorldState, clamp01
 
 _ACTIONS_CRITICAL_PENDING_ATTR = "_actions_critical_pending"
@@ -55,6 +55,7 @@ def _add_critical_delta(
     values["gdp"] += float(gdp)
     values["capital"] += float(capital)
     values["public_debt"] += float(public_debt)
+    record_debt_flow(world, agent_id, "policy", public_debt)
     values["trust_gov"] += float(trust_gov)
     values["social_tension"] += float(social_tension)
 

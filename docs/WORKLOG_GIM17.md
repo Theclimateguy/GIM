@@ -420,3 +420,31 @@ Backtest golden RMSEs unchanged.
 
 **Remaining for full Phase 3:** multi-century horizon for a DICE-comparable SCC level; optional
 welfare-optimization mode (optimal mitigation maximizing W).
+
+---
+
+# Tier 1 — Structural integrity (peer-review-driven, blocks Phase 4)
+
+A June-2026 academic peer review re-prioritized the roadmap: Tier-1 macro-accounting fixes
+must precede Phase 4. (It also mis-stated GIM's damage as "1/4 of DICE" — actually ~2.5×;
+the low $22 SCC is purely the 30-year horizon, confirmed: 30y→$17, 100y→$54, 200y→$63.)
+
+## T1.1 — Debt stock-flow identity (resolves Finding B-1)
+
+**Status:** complete (uncommitted).
+
+**Problem.** `Δdebt − [(gov_spending−taxes)+interest]` left a residual reaching ~0.84·GDP/yr
+(IRN/RUS/DEU): the borrowing cap, the zero-floor, and the discrete crisis "haircut" all moved
+debt outside the fiscal identity — a Godley-Lavoie stock-flow inconsistency.
+
+**Fix (accounting only — debt values unchanged).** A per-step **debt-flow ledger**
+(`critical_pending.py`: `record_debt_flow`/`get_debt_flows`/`reset_debt_flows`) records every
+`public_debt` write by source: `fiscal` (economy), `restructuring` (the now-explicit crisis
+haircut, social), `policy` (actions), `institution` (bailout grants). The four module debt
+writers were instrumented; `simulation._invariant_report` computes the residual as
+`Δdebt − Σ(flows)`.
+
+**Result.** Residual **0.84 → 1.6e-16**. Promoted to an **enforceable** invariant
+(`debt_identity`, tol 1e-9) in the `enforceable.clean` gate. Backtest golden RMSEs unchanged;
+strict gate clean; 3 new tests. Docs: `docs/INVARIANTS.md` (B-1 marked RESOLVED).
+**Remaining:** the restructuring lacks a bilateral creditor counterpart (Phase-4 financial sector).

@@ -29,34 +29,26 @@ Set via `GIM17_INVARIANT_MODE` (or the `invariant_mode=` argument to `step_world
 Under the default 2026 calibrated scenario all four are clean
 (`enforceable.clean = true`), so `strict` is safe to enable in CI.
 
-## Diagnostic: debt fiscal residual (reported, NOT enforced)
+5. **debt_identity** (T1.1) — every public_debt write is recorded by source in a per-step
+   ledger (`fiscal`, `restructuring`, `policy`, `institution`), so the stock-flow identity
+   `Δpublic_debt == Σ recorded flows` must hold within `DEBT_IDENTITY_TOL` (1e-9 of GDP).
 
-For each actor the layer reports the deviation of the realised debt change from the
-clean fiscal identity:
+### Finding B-1 — RESOLVED (T1.1)
 
-```
-residual = Δpublic_debt − [(gov_spending − taxes) + interest_payments]
-```
+Previously the clean fiscal identity `Δdebt − [(gov_spending − taxes) + interest]` left a
+residual reaching **~0.84·GDP/yr** for some actors (IRN/RUS/DEU), because the borrowing cap,
+the zero-floor, and the discrete crisis "haircut" all moved debt outside that identity.
 
-reported as a share of GDP (`debt_fiscal_residual`), plus a run-level worst-offender
-roll-up (`diagnostic_debt_fiscal_residual`).
+**Fix:** a debt-flow ledger (`gim/core/critical_pending.py`) records every debt write by its
+economic source. The crisis haircut is now an explicit, labelled `restructuring` flow rather
+than an unexplained shock. The identity `Δdebt = Σ(fiscal + restructuring + policy +
+institution)` now closes to **~1e-16** and is an **enforceable** invariant (in the
+`enforceable.clean` gate). Debt *values* are unchanged (backtest golden RMSEs identical) —
+this is accounting instrumentation, not a dynamics change.
 
-### Finding B-1 — the fiscal identity does not currently hold
-
-Measured on the default scenario, `|residual| / GDP` reaches **~0.84 per year** for some
-actors (e.g. IRN, RUS, DEU). Three implementation mechanisms break the identity:
-
-1. **Borrowing cap** — `update_public_finances` caps new debt at `MAX_NEW_DEBT_GDP`
-   (0.05·GDP/yr), so large deficits are not fully financed.
-2. **Zero-flooring** — debt is floored at 0 inside `economy.py` (`max(0.0, …)`), so fiscal
-   surpluses larger than the debt stock cannot reduce debt further (e.g. DEU).
-3. **Crisis debt shocks** — debt/FX/regime crisis channels move debt outside the fiscal
-   identity (e.g. IRN debt falls despite a deficit).
-
-This is a genuine stock-flow-consistency gap inherited from GIM16. Stage B deliberately
-**measures and reports** it rather than silencing it; closing it is a modeling change
-(debt dynamics + recalibration) scheduled for a later phase, at which point the residual
-can be promoted to an enforceable invariant.
+**Remaining (Phase 4 / financial sector):** the restructuring is now explicit but lacks a
+*bilateral counterpart* (creditor write-down), since the model does not yet track bilateral
+debt holdings. The within-actor identity is closed; the cross-actor counterpart is deferred.
 
 ## Diagnostic: resource accounting consistency (reported, NOT enforced)
 

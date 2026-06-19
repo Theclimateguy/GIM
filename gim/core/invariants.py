@@ -41,6 +41,7 @@ CHANNEL_KEYS = ("sanctions_conflict", "policy_trade", "climate_macro", "social_f
 RECONCILE_CLAMP_TOL = 1e-6
 CHANNEL_TELESCOPE_TOL = 1e-6
 TRADE_BALANCE_TOL = 1e-6  # |sum(net_exports)| / world_gdp for a closed world economy
+DEBT_IDENTITY_TOL = 1e-9  # |Delta(debt) - sum(recorded debt flows)| / gdp (T1.1: closes exactly)
 
 # Diagnostic threshold (reported, not enforced) used only for run-level flagging.
 DEBT_FISCAL_RESIDUAL_FLAG_SHARE = 0.05
@@ -120,6 +121,10 @@ def summarize_step(
             "count": int(invariant_report.get("debt_residual_count", 0)),
             "top": list(invariant_report.get("debt_accounting_residual_top10", []))[:10],
         },
+        # T1.1: the debt stock-flow identity is now an ENFORCEABLE invariant (closes to ~1e-16).
+        "debt_identity": {
+            "abs_share_max": float(invariant_report.get("debt_residual_abs_share_max", 0.0)),
+        },
         "trade_balance": dict(invariant_report.get("trade_balance", {})),
         "resource_consistency": dict(invariant_report.get("resource_consistency", {})),
     }
@@ -154,6 +159,12 @@ def evaluate_violations(summary: Dict[str, Any]) -> List[str]:
             f"(|sum net_exports|/gdp={trade['abs_share']:.3e} > {TRADE_BALANCE_TOL:.0e}, "
             f"sum={trade.get('net_exports_sum')})"
         )
+    debt = summary.get("debt_identity", {})
+    if float(debt.get("abs_share_max", 0.0)) > DEBT_IDENTITY_TOL:
+        violations.append(
+            f"year {year}: debt stock-flow identity not closed "
+            f"(max |Δdebt - Σflows|/gdp={debt['abs_share_max']:.3e} > {DEBT_IDENTITY_TOL:.0e})"
+        )
     return violations
 
 
@@ -175,6 +186,7 @@ def aggregate_run(step_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
     max_clamp = max(float(s["reconcile_clamp"]["max_abs"]) for s in step_summaries)
     max_tele = max(float(s["channel_telescope"]["max_abs"]) for s in step_summaries)
     max_trade = max(float(s.get("trade_balance", {}).get("abs_share", 0.0)) for s in step_summaries)
+    max_debt_identity = max(float(s.get("debt_identity", {}).get("abs_share_max", 0.0)) for s in step_summaries)
 
     worst_debt = max(
         step_summaries,
@@ -218,11 +230,13 @@ def aggregate_run(step_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
             "max_reconcile_clamp": max_clamp,
             "max_channel_telescope": max_tele,
             "max_trade_balance_abs_share": max_trade,
+            "max_debt_identity_abs_share": max_debt_identity,
             "clean": (
                 total_bounds == 0
                 and max_clamp <= RECONCILE_CLAMP_TOL
                 and max_tele <= CHANNEL_TELESCOPE_TOL
                 and max_trade <= TRADE_BALANCE_TOL
+                and max_debt_identity <= DEBT_IDENTITY_TOL
             ),
         },
         "diagnostic_debt_fiscal_residual": {

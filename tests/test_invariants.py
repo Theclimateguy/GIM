@@ -120,6 +120,34 @@ class ResourceConsistencyTests(unittest.TestCase):
             )
 
 
+class DebtIdentityTests(unittest.TestCase):
+    """T1.1: the debt stock-flow identity (Delta debt == sum of recorded flows) is enforceable."""
+
+    def test_identity_closes_over_run(self):
+        log = _run(years=12, max_agents=30)
+        agg = aggregate_run(log)
+        from gim.core.invariants import DEBT_IDENTITY_TOL
+        self.assertLessEqual(agg["enforceable"]["max_debt_identity_abs_share"], DEBT_IDENTITY_TOL)
+        self.assertTrue(agg["enforceable"]["clean"])
+
+    def test_strict_mode_runs_without_raising(self):
+        _run(years=10, max_agents=30, mode="strict")  # must not raise InvariantViolation
+
+    def test_debt_flow_ledger_records_and_resets(self):
+        from gim.core.critical_pending import get_debt_flows, record_debt_flow, reset_debt_flows
+        from gim.core.world_factory import make_world_from_csv
+
+        w = make_world_from_csv(STATE_CSV, max_agents=4, base_year=2026)
+        reset_debt_flows(w)
+        aid = next(iter(w.agents))
+        record_debt_flow(w, aid, "restructuring", -0.5)
+        record_debt_flow(w, aid, "fiscal", 0.2)
+        self.assertAlmostEqual(get_debt_flows(w)[aid]["restructuring"], -0.5)
+        self.assertAlmostEqual(get_debt_flows(w)[aid]["fiscal"], 0.2)
+        reset_debt_flows(w)
+        self.assertEqual(get_debt_flows(w), {})
+
+
 class DiagnosticResidualTests(unittest.TestCase):
     def test_fiscal_residual_is_reported_not_enforced(self):
         # A large debt fiscal residual must NOT trigger an enforceable violation.

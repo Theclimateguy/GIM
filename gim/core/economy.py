@@ -1,7 +1,7 @@
 from . import calibration_params as cal
 from .params import resolve_params
 from .climate import effective_damage_multiplier
-from .critical_pending import get_transition_pending
+from .critical_pending import get_transition_pending, record_debt_flow
 from .core import AgentState, WorldState, clamp01, effective_trade_intensity
 from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
 from .metrics import update_tfp_endogenous
@@ -48,6 +48,7 @@ def _add_critical_delta(
     values["gdp"] += float(gdp)
     values["capital"] += float(capital)
     values["public_debt"] += float(public_debt)
+    record_debt_flow(world, agent.id, "fiscal", public_debt)
 
 
 def _set_critical_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:

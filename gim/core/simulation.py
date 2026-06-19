@@ -12,6 +12,7 @@ from .actions import apply_action, apply_trade_deals
 from .climate import apply_climate_extreme_events, update_climate_risks, update_global_climate
 from .credit_rating import update_credit_ratings
 from .core import Action, AgentMemory, Observation, PolicyRecord, RESOURCE_NAMES, TGLOBAL_2023_C, WorldState
+from .critical_pending import get_debt_flows, reset_debt_flows
 from .economy import compute_effective_interest_rate, update_economy_output, update_public_finances
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
@@ -680,6 +681,7 @@ def _invariant_report(
 ) -> Dict[str, Any]:
     breaches: List[Dict[str, Any]] = []
     debt_residuals: List[Dict[str, Any]] = []
+    debt_flows = get_debt_flows(world)
 
     # World-balance accumulators (Stage C): trade closure and resource aggregates.
     net_exports_sum = 0.0
@@ -719,13 +721,19 @@ def _invariant_report(
             continue
         debt_start = float(baseline.get("debt", agent.economy.public_debt))
         debt_end = float(agent.economy.public_debt)
-        expected_delta = float(agent.economy.gov_spending - agent.economy.taxes + agent.economy.interest_payments)
+        # Stock-flow identity (T1.1): debt change must equal the sum of recorded, labelled
+        # debt flows (fiscal + restructuring + policy + institution). The borrowing cap, the
+        # zero-floor, and the (now-explicit) crisis restructuring are all captured as flows,
+        # so the residual closes to floating-point noise and is promoted to enforceable.
+        flows = debt_flows.get(agent_id, {})
+        expected_delta = float(sum(flows.values()))
         residual = debt_end - debt_start - expected_delta
         debt_residuals.append(
             {
                 "agent_id": agent_id,
                 "residual": float(residual),
                 "residual_gdp_share": float(residual / max(agent.economy.gdp, 1e-6)),
+                "restructuring": float(flows.get("restructuring", 0.0)),
             }
         )
 
@@ -993,6 +1001,7 @@ def step_world(
     try:
         with write_guard:
             trend_baselines = _capture_trend_baselines(world)
+            reset_debt_flows(world)  # T1.1: fresh debt-flow ledger for this year
             transition_envelope = TransitionEnvelope()
             if phase_trace is not None:
                 pre_metrics = _aggregate_world_metrics(world)
