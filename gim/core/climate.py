@@ -192,6 +192,7 @@ def update_global_climate(
     ocean_exchange: float | None = None,
     carbon_pool_fractions: tuple[float, ...] | None = None,
     carbon_pool_timescales: tuple[float, ...] | None = None,
+    prescribed_co2_gt: float | None = None,
 ) -> None:
     cal = resolve_params(world)
     if ecs is None:
@@ -233,6 +234,13 @@ def update_global_climate(
         CO2_PREINDUSTRIAL_GT + sum(new_pools),
         CO2_PREINDUSTRIAL_GT,
     )
+
+    # Concentration-driven mode: override the emission-derived CO2 stock with a
+    # prescribed observed value so the EBM is forced by observed concentrations
+    # (the standard set-up for energy-balance ECS estimation; the carbon cycle is
+    # still advanced above so pools stay consistent if the run later reverts).
+    if prescribed_co2_gt is not None:
+        world.global_state.co2 = max(CO2_PREINDUSTRIAL_GT, float(prescribed_co2_gt))
 
     c_ppm = max(1e-6, world.global_state.co2 / GTCO2_PER_PPM)
     c0_ppm = CO2_PREINDUSTRIAL_GT / GTCO2_PER_PPM

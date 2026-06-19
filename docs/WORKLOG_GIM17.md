@@ -478,3 +478,36 @@ replacing the old divergent global update). Ratio is now exactly 1.0; no pool fl
 Promoted to an **enforceable** `resource_ledger` invariant (tol 1e-9) in `enforceable.clean`.
 Backtest golden RMSEs unchanged; strict gate clean; `docs/INVARIANTS.md` C-1 RESOLVED; the
 old Stage-C "flags C-1" test updated to assert coherence.
+
+## T1.3 — Long-window climate calibration (1990-2023)
+
+**Decision.** Add an observational window long enough to identify the climate-response
+parameters (the peer review flagged ECS as unconstrained over the 8-year economic
+window). Built a climate-only backtest that reuses the exact production carbon cycle +
+two-box EBM, spun up free-running from the 1750 pre-industrial state under observed
+emissions; only 1990-2023 is scored.
+
+**Data (primary sources, validated).** GCB fossil+cement CO2 1750-2024 (OWID OWID_WRL,
+`data/global_co2_emissions_owid.csv`; cumulative 1750-2023 = 494 GtC, matches GCB);
+NOAA GML CO2 ppm; HadCRUT.5.1.0.0 temperature rebased to 1850-1900 with a fixed offset
+that reproduces the legacy 2015-2023 fixture bit-for-bit. Built by
+`scripts/build_climate_observations.py`.
+
+**Findings.** (1) Emission-driven CO2 runs ~10 ppm low — the missing land-use-change
+source (model is fossil-only). (2) Concentration-driven, the 34-year window has a clear
+interior temperature-RMSE minimum at **ECS = 3.0** (AR6 central) once surface heat
+capacity is at its physical ~8. (3) The production `HEAT_CAP_SURFACE = 18` is a
+short-window artifact: it fits 2015-2023 marginally better (noise) but over-damps the
+multi-decadal transient and, left free, pushes ECS to the 4C ceiling.
+
+**Changed.** New `gim/climate_backtest.py` (emission + concentration modes, ECS sweep,
+best_ecs); added inert `prescribed_co2_gt` hook to `update_global_climate` for
+concentration-driven forcing (golden backtest RMSEs unchanged: 1.025/1.605/0.138);
+`tests/test_climate_backtest.py` (7 tests); enriched ECS/HEAT_CAP_SURFACE prior
+rationales with the observational evidence (prior numerics unchanged — no ensemble
+disturbance); `docs/CLIMATE_BACKTEST.md`.
+
+**Deferred (documented, not applied).** Joint multi-window recalibration of
+{ECS, heat capacities, ocean exchange} against trend (1990-2023) + levels (2015-2023),
+moving HEAT_CAP_SURFACE to its physical value — a deliberate calibration decision, since
+lowering it in isolation worsens the short-window golden RMSE.
