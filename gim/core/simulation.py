@@ -756,25 +756,31 @@ def _invariant_report(
         "abs_share": float(abs(net_exports_sum) / max(world_gdp, 1e-6)),
     }
 
-    # Stage C: resource accounting consistency (diagnostic). The global_reserves pool is
-    # tracked separately from the sum of country own_reserves; this surfaces the divergence
-    # and flags pools exhausted while production is still active (see Finding C-1).
+    # T1.2 (Finding C-1): the global reserve ledger is now the coherent aggregate of the
+    # country ledgers (global_reserves[r] == sum_i own_reserve[r]). resource_ledger_max_abs_share
+    # is the worst |global - sum_own| / max(sum_own) divergence and is an ENFORCEABLE invariant.
     resource_consistency: Dict[str, Any] = {}
+    resource_ledger_max_abs_share = 0.0
     for resource_name in RESOURCE_NAMES:
         global_reserve = float(world.global_state.global_reserves.get(resource_name, 0.0))
         sum_own = res_own[resource_name]
+        divergence = abs(global_reserve - sum_own) / max(sum_own, 1e-6)
+        if divergence > resource_ledger_max_abs_share:
+            resource_ledger_max_abs_share = divergence
         resource_consistency[resource_name] = {
             "global_reserve": global_reserve,
             "sum_own_reserve": sum_own,
             "sum_production": res_prod[resource_name],
             "sum_consumption": res_cons[resource_name],
             "global_to_own_ratio": float(global_reserve / sum_own) if sum_own > 1e-9 else None,
+            "ledger_divergence_share": float(divergence),
             "global_exhausted_with_active_production": bool(
                 global_reserve <= 1e-9 and res_prod[resource_name] > 1e-9
             ),
         }
 
     return {
+        "resource_ledger_max_abs_share": resource_ledger_max_abs_share,
         "breach_count": int(len(breaches)),
         "breaches": breaches[:50],
         "debt_accounting_residual_top10": top_residuals,

@@ -42,6 +42,7 @@ RECONCILE_CLAMP_TOL = 1e-6
 CHANNEL_TELESCOPE_TOL = 1e-6
 TRADE_BALANCE_TOL = 1e-6  # |sum(net_exports)| / world_gdp for a closed world economy
 DEBT_IDENTITY_TOL = 1e-9  # |Delta(debt) - sum(recorded debt flows)| / gdp (T1.1: closes exactly)
+RESOURCE_LEDGER_TOL = 1e-9  # |global_reserve - sum(own_reserve)| / sum_own (T1.2: coherent aggregate)
 
 # Diagnostic threshold (reported, not enforced) used only for run-level flagging.
 DEBT_FISCAL_RESIDUAL_FLAG_SHARE = 0.05
@@ -125,6 +126,10 @@ def summarize_step(
         "debt_identity": {
             "abs_share_max": float(invariant_report.get("debt_residual_abs_share_max", 0.0)),
         },
+        # T1.2: the resource ledger (global_reserves == sum of country own_reserve) is enforceable.
+        "resource_ledger": {
+            "max_abs_share": float(invariant_report.get("resource_ledger_max_abs_share", 0.0)),
+        },
         "trade_balance": dict(invariant_report.get("trade_balance", {})),
         "resource_consistency": dict(invariant_report.get("resource_consistency", {})),
     }
@@ -165,6 +170,12 @@ def evaluate_violations(summary: Dict[str, Any]) -> List[str]:
             f"year {year}: debt stock-flow identity not closed "
             f"(max |Δdebt - Σflows|/gdp={debt['abs_share_max']:.3e} > {DEBT_IDENTITY_TOL:.0e})"
         )
+    res_ledger = summary.get("resource_ledger", {})
+    if float(res_ledger.get("max_abs_share", 0.0)) > RESOURCE_LEDGER_TOL:
+        violations.append(
+            f"year {year}: resource ledger incoherent "
+            f"(max |global - Σown|/Σown={res_ledger['max_abs_share']:.3e} > {RESOURCE_LEDGER_TOL:.0e})"
+        )
     return violations
 
 
@@ -187,6 +198,7 @@ def aggregate_run(step_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
     max_tele = max(float(s["channel_telescope"]["max_abs"]) for s in step_summaries)
     max_trade = max(float(s.get("trade_balance", {}).get("abs_share", 0.0)) for s in step_summaries)
     max_debt_identity = max(float(s.get("debt_identity", {}).get("abs_share_max", 0.0)) for s in step_summaries)
+    max_resource_ledger = max(float(s.get("resource_ledger", {}).get("max_abs_share", 0.0)) for s in step_summaries)
 
     worst_debt = max(
         step_summaries,
@@ -231,12 +243,14 @@ def aggregate_run(step_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
             "max_channel_telescope": max_tele,
             "max_trade_balance_abs_share": max_trade,
             "max_debt_identity_abs_share": max_debt_identity,
+            "max_resource_ledger_abs_share": max_resource_ledger,
             "clean": (
                 total_bounds == 0
                 and max_clamp <= RECONCILE_CLAMP_TOL
                 and max_tele <= CHANNEL_TELESCOPE_TOL
                 and max_trade <= TRADE_BALANCE_TOL
                 and max_debt_identity <= DEBT_IDENTITY_TOL
+                and max_resource_ledger <= RESOURCE_LEDGER_TOL
             ),
         },
         "diagnostic_debt_fiscal_residual": {

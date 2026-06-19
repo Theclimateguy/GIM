@@ -105,22 +105,26 @@ def update_resource_stocks(
             resource.production = production
             total_primary_production[resource_name] += primary_production
 
-    if (
-        not hasattr(world.global_state, "global_reserves")
-        or world.global_state.global_reserves is None
-    ):
+    # T1.2 (Finding C-1): the global reserve ledger is the coherent aggregate of the country
+    # ledgers — global_reserves[r] == sum_i own_reserve[r] — so it tracks the per-country
+    # production/regen/tech flows exactly instead of evolving on a separate, divergent path
+    # (which made the food/metals global pools floor at 0 within one year). Behaviour-preserving:
+    # global_reserves only feeds the unused `reserve_zj` allocation field, not any dynamics.
+    sync_global_reserves_from_agents(world)
+
+
+def sync_global_reserves_from_agents(world: WorldState) -> None:
+    """Set global_reserves[r] = sum over agents of own_reserve[r] (coherent aggregate)."""
+    reserves = getattr(world.global_state, "global_reserves", None)
+    if reserves is None:
         return
-
     for resource_name in RESOURCE_NAMES:
-        global_reserve = world.global_state.global_reserves.get(resource_name, 0.0)
-        total_production = total_primary_production.get(resource_name, 0.0)
-
-        regen_global = regen_params.get(resource_name, 0.0) * max(global_reserve, 0.0)
-        tech_global = tech_expansion_params.get(resource_name, 0.0) * max(global_reserve, 0.0)
-        world.global_state.global_reserves[resource_name] = max(
-            0.0,
-            global_reserve - total_production + regen_global + tech_global,
-        )
+        total = 0.0
+        for agent in world.agents.values():
+            resource = agent.resources.get(resource_name)
+            if resource is not None:
+                total += max(0.0, float(resource.own_reserve))
+        reserves[resource_name] = total
 
 
 def update_global_resource_prices(

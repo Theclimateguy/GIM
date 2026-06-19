@@ -458,3 +458,23 @@ script and `docs/WELFARE_SCC.md` now report **30y ≈ $17, 100y ≈ $54, 200y �
 the low headline SCC is purely the 30-year horizon (not low damages — GIM's 0.006 → 5.4%/3 °C
 is ~2.5× DICE). Test asserts SCC rises with horizon. **Remaining T1.4:** cross-validate the
 damage coefficients against Burke 2015 / Hsiang 2017 / Howard-Sterner 2017.
+
+## T1.2 — Coherent global resource ledger (resolves Finding C-1)
+
+**Status:** complete (uncommitted).
+
+**Problem.** `global_reserves` was tracked on a separate, divergent path from the country
+`own_reserve` ledgers; the food/metals global pools (init 100) floored at 0 within one year,
+and the energy pool sat at ~3e-4 of the summed country reserves.
+
+**De-risking finding.** `global_reserves` only feeds the `reserve_zj` field of
+`allocate_energy_reserves_and_caps`, which is **never read** — energy production uses
+`prod_cap_zj_per_year` (from `WORLD_ANNUAL_SUPPLY_CAP_ZJ` × country shares) and country
+`own_reserve`. So `global_reserves` drives no dynamics → the fix is behaviour-preserving.
+
+**Fix.** `global_reserves[r]` is now the coherent aggregate `Σ_i own_reserve[r]`, set at world
+build (`world_factory`) and re-synced each year (`resources.sync_global_reserves_from_agents`,
+replacing the old divergent global update). Ratio is now exactly 1.0; no pool floors at 0.
+Promoted to an **enforceable** `resource_ledger` invariant (tol 1e-9) in `enforceable.clean`.
+Backtest golden RMSEs unchanged; strict gate clean; `docs/INVARIANTS.md` C-1 RESOLVED; the
+old Stage-C "flags C-1" test updated to assert coherence.

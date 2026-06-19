@@ -102,13 +102,16 @@ class TradeBalanceTests(unittest.TestCase):
 
 
 class ResourceConsistencyTests(unittest.TestCase):
-    def test_resource_diagnostic_present_and_flags_finding_c1(self):
+    def test_resource_ledger_is_coherent_after_t1_2(self):
+        # T1.2 RESOLVED Finding C-1: global_reserves == sum of country own_reserve, so no pool
+        # is exhausted-with-production and the enforceable ledger divergence is ~0.
         log = _run()
         agg = aggregate_run(log)
         diag = agg["diagnostic_resource_consistency"]
-        self.assertIn("pools_exhausted_with_active_production", diag)
-        # Finding C-1: food/metals global pools collapse to 0 while production continues.
-        self.assertTrue(diag["flagged"])
+        self.assertEqual(diag["pools_exhausted_with_active_production"], [])
+        self.assertFalse(diag["flagged"])
+        from gim.core.invariants import RESOURCE_LEDGER_TOL
+        self.assertLessEqual(agg["enforceable"]["max_resource_ledger_abs_share"], RESOURCE_LEDGER_TOL)
 
     def test_resource_consistency_not_enforced(self):
         # A flagged resource pool must not cause an enforceable violation.

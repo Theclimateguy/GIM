@@ -429,6 +429,12 @@ def make_world_from_csv(
 
     world.params = build_params()
 
+    # T1.2 (Finding C-1): initialise the global resource ledger as the coherent aggregate of
+    # the country reserves (instead of the legacy constants energy=32.5, food=metals=100).
+    from .resources import sync_global_reserves_from_agents
+
+    sync_global_reserves_from_agents(world)
+
     from .political_dynamics import update_political_states
     from .institutions import build_default_institutions
     from .credit_rating import update_credit_ratings

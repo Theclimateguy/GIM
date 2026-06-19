@@ -57,21 +57,22 @@ the summed country `own_reserve`, summed production and consumption, the global-
 ratio, and a flag for pools that are exhausted while production is still active
 (`resource_consistency`), rolled up into `diagnostic_resource_consistency`.
 
-### Finding C-1 — global reserves are dimensionally inconsistent with country accounting
+6. **resource_ledger** (T1.2) — the global reserve pool must equal the sum of country
+   `own_reserve`: `|global_reserve − Σ own_reserve| / Σ own_reserve ≤ RESOURCE_LEDGER_TOL`
+   (1e-9) for every resource.
 
-The `global_reserves` pool is tracked separately from the sum of country `own_reserve`
-and on an incompatible scale. Measured on the default scenario:
+### Finding C-1 — RESOLVED (T1.2)
 
-- **energy**: `global_reserve ≈ 32.5` vs summed country reserves ≈ `1.16e5`
-  (ratio ≈ 3e-4); the global pool depletes slowly only because the energy
-  allocation/cap machinery (`allocate_energy_reserves_and_caps`) governs it.
-- **food, metals**: global pools are initialised to `100` but depleted by country-scale
-  production sums, so they **floor at 0 within one year** and carry no real signal.
+Previously `global_reserves` was tracked on a separate, incompatible scale (energy ≈ 32.5 vs
+summed country reserves ≈ 1.16e5, ratio ≈ 3e-4; food/metals pools initialised to 100 and
+**floored at 0 within one year**).
 
-Only energy's global reserve is coherent. This is a stock-flow inconsistency inherited
-from GIM16. Stage C **measures and reports** it (the trade balance, by contrast, is a
-true closed invariant that holds). Reconciling `global_reserves` with the per-country
-resource ledger is a modeling change scheduled for a later phase.
+**Fix:** `global_reserves[r]` is now the **coherent aggregate** of the country ledgers —
+`global_reserves[r] = Σ_i own_reserve[r]` — set at world build (`world_factory`) and re-synced
+each year (`resources.sync_global_reserves_from_agents`). The ratio is now exactly 1.0 and no
+pool floors at 0. The ledger coherence is an **enforceable** invariant (`resource_ledger`).
+Behaviour-preserving: `global_reserves` only fed the unused `reserve_zj` allocation output, so
+no dynamics changed (backtest golden RMSEs identical).
 
 ## Where it shows up
 
