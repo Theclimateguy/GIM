@@ -2,7 +2,7 @@
 
 import unittest
 
-from gim.scc import scc_distribution, social_cost_of_carbon
+from gim.scc import scc_distribution, scc_multi_horizon, social_cost_of_carbon
 
 CSV = "data/agent_states_operational_2026_calibrated.csv"
 
@@ -24,6 +24,15 @@ class SCCTests(unittest.TestCase):
         a = social_cost_of_carbon(CSV, years=15, max_agents=12, seed=2026)
         b = social_cost_of_carbon(CSV, years=15, max_agents=12, seed=2026)
         self.assertEqual(a["scc_usd_per_tco2"], b["scc_usd_per_tco2"])
+
+
+class SCCHorizonTests(unittest.TestCase):
+    def test_scc_rises_with_horizon(self):
+        # T1.4: longer horizons capture more of the long-run damage tail -> higher SCC.
+        h = scc_multi_horizon(CSV, horizons=(15, 60), max_agents=12, seed=2026)
+        self.assertEqual(set(h), {15, 60})
+        self.assertGreater(h[60], h[15])
+        self.assertGreater(h[60], 0.0)
 
 
 class SCCDistributionTests(unittest.TestCase):

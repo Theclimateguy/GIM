@@ -448,3 +448,13 @@ writers were instrumented; `simulation._invariant_report` computes the residual 
 (`debt_identity`, tol 1e-9) in the `enforceable.clean` gate. Backtest golden RMSEs unchanged;
 strict gate clean; 3 new tests. Docs: `docs/INVARIANTS.md` (B-1 marked RESOLVED).
 **Remaining:** the restructuring lacks a bilateral creditor counterpart (Phase-4 financial sector).
+
+## T1.4 — SCC multi-horizon reporting
+
+**Status:** complete (horizon part; damage cross-validation remains).
+
+`gim/scc.scc_multi_horizon()` reports the central SCC at several integration horizons; the run
+script and `docs/WELFARE_SCC.md` now report **30y ≈ $17, 100y ≈ $54, 200y ≈ $63**. This proves
+the low headline SCC is purely the 30-year horizon (not low damages — GIM's 0.006 → 5.4%/3 °C
+is ~2.5× DICE). Test asserts SCC rises with horizon. **Remaining T1.4:** cross-validate the
+damage coefficients against Burke 2015 / Hsiang 2017 / Howard-Sterner 2017.

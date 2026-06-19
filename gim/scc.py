@@ -100,6 +100,32 @@ def social_cost_of_carbon(
     }
 
 
+def scc_multi_horizon(
+    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    *,
+    horizons: tuple = (30, 100, 200),
+    pulse_year: int = 1,
+    pulse_gtco2: float = 10.0,
+    params: Optional[ParameterSet] = None,
+    seed: int = 2026,
+    max_agents: int = 100,
+    base_year: int = 2026,
+) -> Dict[int, float]:
+    """Central SCC at several integration horizons ($/tCO2).
+
+    SCC is horizon-sensitive: a 30-year horizon truncates the long-run damage tail and
+    understates the value relative to DICE's multi-century integration. Reporting both the
+    short and long horizon is the honest comparison (T1.4 / peer review).
+    """
+    return {
+        int(h): social_cost_of_carbon(
+            state_csv, years=int(h), pulse_year=pulse_year, pulse_gtco2=pulse_gtco2,
+            params=params, seed=seed, max_agents=max_agents, base_year=base_year,
+        )["scc_usd_per_tco2"]
+        for h in horizons
+    }
+
+
 SCC_PRIOR_PARAMS = [
     "ECS_DEFAULT",
     "DAMAGE_QUAD_COEFF",
@@ -164,4 +190,4 @@ def scc_distribution(
     }
 
 
-__all__ = ["social_cost_of_carbon", "scc_distribution", "SCC_PRIOR_PARAMS"]
+__all__ = ["social_cost_of_carbon", "scc_distribution", "scc_multi_horizon", "SCC_PRIOR_PARAMS"]

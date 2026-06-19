@@ -29,12 +29,21 @@ the pulse's physical effect — deterministic and clean.
 SCC_YEARS=30 SCC_SAMPLES=50 python3 scripts/run_scc.py
 ```
 
-**Results** (default 2026 state, 30-year horizon): central **SCC ≈ $22/tCO₂**; the
+**Results** (default 2026 state): SCC is **horizon-sensitive** — a short horizon truncates the
+long-run damage tail. `scc_multi_horizon()` reports several horizons:
+
+| Horizon | Central SCC |
+| --- | --- |
+| 30 y | ~$17 |
+| 100 y | ~$54 |
+| 200 y | ~$63 |
+
+So the headline 30-year value sits below DICE (~$31) **purely because of the horizon**, not
+low damages — at 200 years GIM17 already reaches the DICE/EPA-comparable range (~$40–60+).
+(Note: GIM's damage coefficient 0.006 → 5.4%/3 °C is ~2.5× DICE's, *not* lower.) The
 probabilistic SCC (varying ECS, the damage coefficient, η, ρ, heat capacity, emissions scale)
-is **right-skewed** — median ≈ $13, p95 ≈ $32 — the characteristic shape of modern IAM SCC
-distributions (cf. RFF-SP / Rennert et al. 2022). The absolute level is **horizon-sensitive**:
-a 30-year horizon truncates long-run damages, so these sit at the lower end of the DICE
-(~$31) → EPA-2023 (~$190) range; a multi-century horizon raises the SCC substantially.
+is **right-skewed** — median ≈ $13, p95 ≈ $32 at 30 y — the characteristic shape of modern IAM
+SCC distributions (cf. RFF-SP / Rennert et al. 2022).
 
 ## Verification
 

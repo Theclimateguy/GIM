@@ -14,7 +14,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from gim.results import build_run_artifacts, write_json_artifact, write_run_manifest
-from gim.scc import scc_distribution, social_cost_of_carbon
+from gim.scc import scc_distribution, scc_multi_horizon, social_cost_of_carbon
 
 
 def main() -> int:
@@ -27,11 +27,13 @@ def main() -> int:
 
     t0 = datetime.now()
     central = social_cost_of_carbon(csv, years=years, pulse_gtco2=pulse, max_agents=max_agents, seed=seed)
+    horizons = scc_multi_horizon(csv, horizons=(30, 100, 200), pulse_gtco2=pulse, max_agents=max_agents, seed=seed)
     dist = scc_distribution(csv, n_samples=samples, years=years, pulse_gtco2=pulse,
                             max_agents=max_agents, master_seed=seed)
     elapsed = (datetime.now() - t0).total_seconds()
 
-    payload = {"central": central, "distribution": {k: v for k, v in dist.items() if k != "samples"},
+    payload = {"central": central, "horizons": horizons,
+               "distribution": {k: v for k, v in dist.items() if k != "samples"},
                "samples": dist["samples"]}
     artifacts = build_run_artifacts("scc")
     path = write_json_artifact(payload, artifacts.run_dir / "scc.json")
@@ -44,6 +46,7 @@ def main() -> int:
     )
 
     p = dist["percentiles"]
+    print("SCC by horizon ($/tCO2): " + "  ".join(f"{h}y=${v:.1f}" for h, v in sorted(horizons.items())))
     print(f"Central SCC (eta={central['eta']}, rho={central['rho']}): "
           f"${central['scc_usd_per_tco2']:.2f}/tCO2  (horizon {years}y)")
     print(f"Probabilistic SCC ($/tCO2): p5={p['p5']:.1f}  median={p['p50']:.1f}  p95={p['p95']:.1f}  mean={dist['mean']:.1f}")
