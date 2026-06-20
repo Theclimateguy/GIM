@@ -1,5 +1,7 @@
 # GIM17 Calibration Reference
 
+> **Updated post-T1.3b/Phase-4:** `HEAT_CAP_SURFACE = 8.0`, `OCEAN_EXCHANGE = 1.0`, `ECS_DEFAULT = 3.0` (joint multi-window climate recalibration). New blocks since: labour market (Phillips+Okun), Taylor-rule monetary policy, multi-GHG non-CO2 forcing, AR(1) temperature variability. The authoritative source of truth is `gim/core/calibration_params.py` + `data/parameter_priors.csv`; see docs/LABOR_MARKET.md, MULTI_GHG_FORCING.md, SCENARIO_ALIGNMENT.md, DAMAGE_FUNCTION.md.
+
 This file is the current calibration ledger for the code in this repository.
 
 It documents:
@@ -44,7 +46,7 @@ Source: rolling walk-forward Stage B/C artifacts
 
 - `TFP_RD_SHARE_SENS = 0.300000`
 - `GAMMA_ENERGY = 0.042000`
-- `HEAT_CAP_SURFACE = 18.000000`
+- `HEAT_CAP_SURFACE = 8.000000`
 - `DECARB_RATE_STRUCTURAL = 0.052000` (kept artifact-bound from the operational manifest)
 
 Rule: release `15.5` retains the hybrid baseline introduced in `15.1`: macro sensitivity and heat capacity use rolling-selected values, while structural decarb remains manifest-bound to preserve historical CO2 fit.
@@ -55,7 +57,7 @@ Source: `gim/core/calibration_params.py`
 
 - `GAMMA_ENERGY = 0.042` (`[BACKTEST]`)
 - `TFP_RD_SHARE_SENS = 0.30` (`[BACKTEST]`)
-- `HEAT_CAP_SURFACE = 18.0` (`[BACKTEST]`)
+- `HEAT_CAP_SURFACE = 8.0` (`[BACKTEST]`)
 - `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08` (`[BACKTEST]`)
 - `TEMP_BACKTEST_ENSEMBLE_SIZE = 8` (`[BACKTEST]`)
 
@@ -142,7 +144,7 @@ Post-switch Stage B/C block-4 robust candidate (reference only; not fully promot
 - `TFP_RD_SHARE_SENS = 0.180000`
 - `GAMMA_ENERGY = 0.025200`
 - `DECARB_RATE_STRUCTURAL = 0.031200`
-- `HEAT_CAP_SURFACE = 18.000000`
+- `HEAT_CAP_SURFACE = 8.000000`
 
 ## 4. Refresh and Rebuild Commands
 

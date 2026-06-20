@@ -1,5 +1,7 @@
 # GIM Model Methodology
 
+> **Scope note (Tier-1 + Phase 4):** since this spec was written the model gained endogenous inflation/unemployment (Phillips+Okun), Taylor-rule monetary policy, multi-GHG non-CO2 forcing, AR(1) temperature variability, and enforceable debt/resource accounting identities; the climate core was recalibrated (ECS 3.0, HEAT_CAP_SURFACE 8, OCEAN_EXCHANGE 1.0, TCR 1.79). See docs/README.md (GIM17 Modernization) for the per-area docs and calibration_params.py for the authoritative parameters.
+
 This document describes the model implemented in the current `GIM17` codebase.
 
 It is a runtime methodology document, not a historical changelog.

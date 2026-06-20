@@ -23,6 +23,24 @@ This directory is split into:
 - `CRISIS_VALIDATION_PROTOCOL.md` - operational scenario validation protocol.
 - `PARAMETER_CHANGE_POLICY.md` - rules for changing calibrated parameters.
 
+## GIM17 Modernization (Tier-1 + Phases 1–4)
+
+Engineering spine and per-area docs for the GIM16 → GIM17 work (see `WORKLOG_GIM17.md` first).
+
+- `WORKLOG_GIM17.md` - lean per-stage engineering log (read first when resuming).
+- `STATUS.md` - current state snapshot + roadmap.
+- `INVARIANTS.md` - enforceable accounting/integrity invariants (incl. debt & resource identities).
+- `DETERMINISM.md` - world-scoped RNG and reproducibility.
+- `PRIORS.md` / `UNCERTAINTY.md` - literature priors, ensembles, Morris/Sobol sensitivity.
+- `VALIDATION.md` - skill scoring, history-matching/NROY.
+- `CLIMATE_BACKTEST.md` - 1990–2023 climate calibration window (+ T1.3b recalibration).
+- `WELFARE_SCC.md` - CRRA welfare + Social Cost of Carbon (multi-horizon).
+- `DAMAGE_FUNCTION.md` - damage-function empirical cross-validation (T1.4).
+- `LABOR_MARKET.md` - endogenous inflation/unemployment (Phillips + Okun + Taylor rule).
+- `MULTI_GHG_FORCING.md` - AR6-anchored non-CO2 forcing components + scenario levers.
+- `SCENARIO_ALIGNMENT.md` - SSP/RCP alignment + FAIR/MAGICC emulator benchmark (ECS/TCR).
+- `ECONOMICS_BENCHMARK.md` - honest economics review vs industry IAM/macro models.
+
 ## Active Interface and Objective Docs
 
 - `agent_state_data_contract.md` - CSV/state artifact contract for loaders.

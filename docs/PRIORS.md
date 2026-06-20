@@ -18,7 +18,7 @@ carries an explicit `source` and `rationale`.
 | `BETA_LABOR` | triangular | 0.60 | labor elasticity — PWT/Gollin |
 | `GAMMA_ENERGY` | triangular | 0.042 | energy output elasticity — GIM backtest + energy-economy literature |
 | `CAPITAL_DEPRECIATION` | triangular | 0.05 | ~4.0–4.2% — **PWT 8/9 (Inklaar & Timmer); Karabarbounis & Neiman 2014** |
-| `HEAT_CAP_SURFACE/DEEP`, `OCEAN_EXCHANGE` | triangular | 18 / 100 / 0.7 | two-layer EBM — **Geoffroy et al. 2013 / DICE**, backtest-calibrated |
+| `HEAT_CAP_SURFACE/DEEP`, `OCEAN_EXCHANGE` | triangular | 8 / 100 / 1.0 | two-layer EBM — **Geoffroy et al. 2013 / DICE**, backtest-calibrated |
 | `DECARB_RATE_STRUCTURAL` | triangular | 0.052 | artifact/backtest; constrained (<0.031 fails CO₂ envelope); raw intensity decline ~1.5%/yr (GCP/WDI) |
 | `EMISSIONS_SCALE` | normal | 0.9755 | data-derived — **GCP 2023** (Global Carbon Project) |
 | `BASE_BIRTH_RATE/DEATH_RATE` | triangular | 0.025 / 0.012 | baseline pre-modifier — **World Bank WDI 2023** (global ~17 / ~8 per 1000) |

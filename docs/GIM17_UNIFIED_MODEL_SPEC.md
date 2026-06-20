@@ -1,5 +1,7 @@
 # GIM17 Unified Model Specification
 
+> **Scope note (Tier-1 + Phase 4):** since this spec was written the model gained endogenous inflation/unemployment (Phillips+Okun), Taylor-rule monetary policy, multi-GHG non-CO2 forcing, AR(1) temperature variability, and enforceable debt/resource accounting identities; the climate core was recalibrated (ECS 3.0, HEAT_CAP_SURFACE 8, OCEAN_EXCHANGE 1.0, TCR 1.79). See docs/README.md (GIM17 Modernization) for the per-area docs and calibration_params.py for the authoritative parameters.
+
 ## 1. Purpose
 
 This document is the single consolidated specification for GIM17:
