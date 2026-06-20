@@ -533,3 +533,23 @@ identification test to its original (cap=8, oex=0.7) configuration so it is inde
 new production defaults; updated `docs/CLIMATE_BACKTEST.md` and `docs/WELFARE_SCC.md`.
 Verified: historical/climate/forcing/scc/welfare/invariants/params/priors + calibration,
 decarb, equilibrium, projection, contract suites all green (~150 tests).
+
+## P4-A — Endogenous inflation & unemployment (Phillips + Okun)
+
+**Decision.** `economy.inflation` and `economy.unemployment` drive social tension, trust
+and political stability but were static (only discrete crisis hits). Gave them a law of
+motion so they respond to the output gap and to climate/resource price shocks - closing
+the loop climate damage -> energy price -> inflation/unemployment -> social tension ->
+instability (the model's core thesis).
+
+**Changed.** New `gim/core/labor_market.py` (`update_inflation_unemployment`): Okun's law
+for unemployment (partial adjustment to a growth-gap target) + expectations-augmented
+Phillips curve for inflation (anchored adaptive expectations, flat unemployment-gap slope,
+energy cost-push). Wired into `simulation.py` after the economy/finance updates, before
+the social block. Added calibration block (POTENTIAL_OUTPUT_GROWTH, NAIRU, OKUN_COEFF,
+PHILLIPS_SLOPE, INFLATION_COSTPUSH_COEFF, bounds, ...). `tests/test_labor_market.py`
+(7 tests); `docs/LABOR_MARKET.md`.
+
+**Verified.** 2015-2023 economic backtest golden values unchanged (1.026/1.606/0.134);
+invariants/determinism/contracts/crisis/hybrid/equilibrium/projection suites all green
+(~120 tests).

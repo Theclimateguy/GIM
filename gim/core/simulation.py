@@ -14,6 +14,7 @@ from .credit_rating import update_credit_ratings
 from .core import Action, AgentMemory, Observation, PolicyRecord, RESOURCE_NAMES, TGLOBAL_2023_C, WorldState
 from .critical_pending import get_debt_flows, reset_debt_flows
 from .economy import compute_effective_interest_rate, update_economy_output, update_public_finances
+from .labor_market import update_inflation_unemployment
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
 from .memory import summarize_agent_memory, update_agent_memory
@@ -930,6 +931,12 @@ def _run_phase_propagation(
         update_public_finances(agent, world, defer_critical_writes=True)
         apply_economy_pending_deltas(world, agent_ids=[agent.id])
         check_financial_crises(agent, world, defer_critical_writes=True)
+
+    # Endogenous labor market: unemployment (Okun) and inflation (Phillips + energy
+    # cost-push) respond to the output gap and resource/climate price shocks before
+    # they feed the social block. Non-critical fields, written directly.
+    update_inflation_unemployment(world)
+
     if channel_snapshots is not None:
         channel_snapshots["after_climate_macro"] = capture_effective_critical_fields(world)
 

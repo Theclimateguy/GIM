@@ -116,6 +116,23 @@ FUEL_TAX_EFFECT_MIN = 0.60
 FUEL_TAX_EFFECT_MAX = 1.40
 POLICY_REDUCTION_MAX = 0.90
 
+# Labor market & inflation (Phillips curve + Okun's law) - P4-A.
+# Endogenous unemployment (Okun) and inflation (expectations-augmented Phillips with an
+# energy cost-push term), so both respond to the output gap and to climate/resource price
+# shocks instead of sitting at their initial values.
+POTENTIAL_OUTPUT_GROWTH = 0.025  # [PRIOR] trend/potential real GDP growth (output-gap reference).
+NAIRU = 0.045  # [PRIOR] non-accelerating-inflation rate of unemployment (~natural rate).
+OKUN_COEFF = 0.3  # [OKUN] Okun's law: +1pp growth above potential lowers unemployment ~0.3pp.
+UNEMP_ADJ_SPEED = 0.5  # [PRIOR] partial-adjustment speed of unemployment toward its Okun target.
+UNEMPLOYMENT_MIN = 0.01
+UNEMPLOYMENT_MAX = 0.35
+INFLATION_TARGET = 0.02  # [PRIOR] central-bank/anchor inflation.
+INFLATION_EXPECTATION_ANCHOR = 0.5  # [PRIOR] weight on the anchor vs last year's inflation (adaptive expectations).
+PHILLIPS_SLOPE = 0.25  # [PRIOR] flat modern Phillips curve: +1pp unemployment gap -> +0.25pp inflation.
+INFLATION_COSTPUSH_COEFF = 0.05  # [PRIOR] energy-price pass-through: +20% energy price -> +1pp inflation.
+INFLATION_MIN = -0.02
+INFLATION_MAX = 0.30
+
 # Climate damage and resilience block.
 DAMAGE_QUAD_COEFF = 0.006  # [PRIOR]
 DAMAGE_BENEFIT_PEAK = 0.30  # [PRIOR]
