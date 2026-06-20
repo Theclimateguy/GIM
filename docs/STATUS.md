@@ -20,23 +20,31 @@ Short, thesis-style snapshot of where the model stands and what is next. See
 
 **Economy / politics.**
 - Welfare (CRRA) + Social Cost of Carbon (pulse method; 30/100/200-yr horizons).
-- P4-A: endogenous inflation (Phillips + energy cost-push) and unemployment (Okun),
-  closing the loop climate -> prices -> labor -> social tension -> politics.
+- Endogenous inflation (Phillips + energy cost-push), unemployment (Okun), and a
+  Taylor-rule central bank, closing climate -> prices -> labor -> tension -> politics -> debt.
 - Ensembles (N=500), Morris/Sobol sensitivity, history-matching/NROY, skill scoring.
 
-**Weak / pending.**
-- Non-CO2 forcing is a crude linear term (no separate CH4/N2O/aerosols).
+**Climate emulator (AR6-consistent).**
+- Multi-GHG non-CO2 forcing (AR6 components + per-gas scenario levers).
+- AR(1) red-noise internal variability.
+- Benchmarked vs FAIR/MAGICC: ECS = 3.0 and TCR = 1.79 (AR6 1.8) - matches both.
+- SSP 2100 warming envelopes encoded; baseline classifies as ~SSP1-2.6.
+
+**Weak / pending (Phase 5).**
 - Carbon cycle ~10 ppm low (no land-use-change source).
-- No monetary-policy reaction (rate does not respond to inflation/unemployment).
-- Temperature variability is white noise, not AR(1).
+- Default non-CO2 net is the lumped calibrated path, not yet the full AR6 net (P4-B2).
+- No per-SSP emission-driver presets (emulator matches AR6; drivers missing).
 - Economic backtest panel only 2015-2023 (a 1990 initial state is needed to extend it).
+- Damage function is level-effect (no growth-effect persistence).
 
-## Roadmap (Phase 4 -> 5)
+## Status: Tier-1 + Phase 4 COMPLETE
 
-1. **P4-B Multi-GHG forcing** - separate CH4/N2O/aerosols, SSP/RCP alignment. Biggest
-   remaining climate-realism gap. (next)
-2. **P4-C Monetary-policy reaction** - Taylor rule: rate <- inflation / output gap;
-   closes the central-bank loop on P4-A.
-3. **P4-D AR(1) red-noise** temperature variability + benchmark vs FAIR/MAGICC.
-4. **P4-E Land-use CO2** source in the carbon cycle (close the ~10 ppm gap).
-5. **P5** - economic panel back to 1990, DICE reproduction, market clearing, paper.
+Tier-1 (THE-10/11/18/19) and Phase 4 / Tier-2 (THE-15 + THE-20..25) are all Done and pushed.
+
+## Roadmap (Phase 5 - THE-16)
+
+1. **DICE/RICE reproduction** - reproduce Nordhaus ~$31/tCO2 in the GIM welfare/SCC frame.
+2. **Per-SSP scenario-driver presets** - run SSP2-4.5 / SSP3-7.0 end-to-end.
+3. **Land-use CO2** source (close the ~10 ppm carbon-cycle gap); adopt full AR6 net (P4-B2).
+4. **Energy-sector detail** - fossil/renewables/nuclear tracks with learning-by-doing.
+5. **Growth-effect damages**, market clearing, and the paper.
