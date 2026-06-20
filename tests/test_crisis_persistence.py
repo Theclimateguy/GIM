@@ -348,6 +348,7 @@ class CrisisPersistenceTests(unittest.TestCase):
             enable_extreme_events=False,
             apply_political_filters=False,
             apply_institutions=False,
+            channel_overrides={"monetary_policy_feedback": False},
         )
         self.assertEqual(world.agents[focal.id].risk.debt_crisis_active_years, 1)
 
@@ -357,6 +358,7 @@ class CrisisPersistenceTests(unittest.TestCase):
             enable_extreme_events=False,
             apply_political_filters=False,
             apply_institutions=False,
+            channel_overrides={"monetary_policy_feedback": False},
         )
         self.assertEqual(world.agents[focal.id].risk.debt_crisis_active_years, 2)
 
@@ -366,6 +368,7 @@ class CrisisPersistenceTests(unittest.TestCase):
             enable_extreme_events=False,
             apply_political_filters=False,
             apply_institutions=False,
+            channel_overrides={"monetary_policy_feedback": False},
         )
         self.assertEqual(world.agents[focal.id].risk.debt_crisis_active_years, 0)
 
@@ -411,6 +414,7 @@ class CrisisPersistenceTests(unittest.TestCase):
                 enable_extreme_events=False,
                 apply_political_filters=False,
                 apply_institutions=False,
+                channel_overrides={"monetary_policy_feedback": False},
             )
             peak_years = max(peak_years, world.agents[focal.id].risk.debt_crisis_active_years)
 
