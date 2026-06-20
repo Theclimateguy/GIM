@@ -637,3 +637,14 @@ no-policy SSP2-4.5/3-7.0 reference needs a scenario-driver preset (Phase-5).
 Caught during build: an apparent EBM non-monotonicity in the TCR ramp was internal AR(1)
 variability noise, not instability - the forced response is monotonic (variability disabled
 for TCR). tests/test_scenario_alignment.py (6 tests); docs/SCENARIO_ALIGNMENT.md.
+
+## Phase 5 — Model finalization (all dimensions)
+
+### F1 — Objectivity layer: modern-benchmark alignment + skill-vs-naive
+New gim/benchmark_alignment.py. (1) SCC vs MODERN benchmarks (EPA-2023 $190, RFF-SP $185 @2%;
+not dated DICE): recomputing GIM SCC at the RFF/EPA near-term-2% Ramsey scheme (rho=0.2%,
+eta=1.24) gives ~$97/$191 at 100/200y -> GIM REPRODUCES the EPA/RFF central (~$190) at 200y.
+The low headline SCC was the Nordhaus discount convention, not a deficiency. (2) Skill vs naive
+persistence on the 2015-2023 backtest: temperature +0.15, world GDP +0.09 (both beat naive),
+global CO2 -0.17 (worse than naive -> over-decarbonisation flag). tests/test_benchmark_alignment.py
+(4 tests); docs/BENCHMARK_ALIGNMENT.md.
