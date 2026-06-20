@@ -4,6 +4,7 @@ from typing import Dict
 
 from . import calibration_params as cal
 from .params import default_params, resolve_params
+from .forcing import nonco2_forcing
 from .critical_pending import get_transition_pending
 from .rng import get_rng
 from .core import (
@@ -153,9 +154,10 @@ def _resolve_nonco2_forcing(world: WorldState, f_nonco2: float | None) -> float:
         return max(0.0, f_nonco2)
     base_year = getattr(world.global_state, "_calendar_year_base", 2023)
     year = base_year + max(0, int(world.time))
-    year_offset = year - cal.F_NONCO2_BASE_YEAR
-    forcing = cal.F_NONCO2_DEFAULT + cal.F_NONCO2_TREND * year_offset
-    return max(0.0, forcing)
+    # Multi-GHG decomposition (P4-B): default net is the lumped calibrated path; optional
+    # per-gas scenario levers live on the global state (e.g. methane mitigation).
+    component_scales = getattr(world.global_state, "_nonco2_component_scales", None)
+    return nonco2_forcing(cal, year, component_scales)
 
 
 def _resolve_temperature_variability_sigma(world: WorldState) -> float:

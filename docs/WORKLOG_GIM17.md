@@ -553,3 +553,24 @@ PHILLIPS_SLOPE, INFLATION_COSTPUSH_COEFF, bounds, ...). `tests/test_labor_market
 **Verified.** 2015-2023 economic backtest golden values unchanged (1.026/1.606/0.134);
 invariants/determinism/contracts/crisis/hybrid/equilibrium/projection suites all green
 (~120 tests).
+
+## P4-B — Multi-GHG non-CO2 forcing decomposition
+
+**Decision.** The non-CO2 forcing was a single lumped linear term. Decompose it into
+AR6/IGCC-anchored components (CH4, N2O, halocarbons, O3, aerosols, minor) exposed as
+per-gas scenario/policy levers, WITHOUT changing the default net (so the T1.3b climate
+calibration and backtest golden values stay put).
+
+**Changed.** New `gim/core/forcing.py`: `NONCO2_ERF_REFERENCE` (AR6 ~2019 component ERF,
+net +0.57), `nonco2_forcing` (default == lumped path; `component_scales` perturb a gas's
+AR6 contribution), `nonco2_forcing_components` (sign-correct attribution summing to net),
+`set_nonco2_component_scales` (world lever). Rewired `climate._resolve_nonco2_forcing` to
+delegate and read world levers. `tests/test_forcing.py` (11 tests, incl. an end-to-end
+methane-cut-runs-cooler integration); `docs/MULTI_GHG_FORCING.md`.
+
+**Verified.** Default net bit-identical to the old formula at 1990/2015/2019/2023/2050;
+golden backtest unchanged (1.026/1.606/0.134); forcing/climate/backtest/invariants/
+determinism suites green (55 tests).
+
+**Deferred (P4-B2).** Adopt the full AR6 net (~+0.11 W/m2 higher) with annual per-component
+series - shifts the trajectory, so it must ride with a climate recalibration.
