@@ -171,17 +171,34 @@ def _resolve_temperature_variability_sigma(world: WorldState) -> float:
 
 
 def _sample_temperature_variability(world: WorldState, dt: float) -> float:
+    """Internal (unforced) temperature variability as an AR(1) "red-noise" process (T2.4).
+
+    w_t = rho*w_{t-1} + sqrt(1-rho^2)*sigma*sqrt(dt)*eps_t, with eps_t ~ N(0,1) drawn from a
+    per-year seeded RNG (determinism preserved) and a per-world carried state. The
+    sqrt(1-rho^2) scaling keeps the stationary std equal to sigma, so only the temporal
+    correlation changes versus the old iid draw (rho=0 reproduces it exactly). Persistent
+    (ENSO-like) variability physically widens the ensemble spread. The unsigned state is
+    carried and the antithetic `sign` applied at output, so mirror ensemble members stay
+    exact negatives of each other.
+    """
     if dt <= 0.0:
         return 0.0
     sigma = _resolve_temperature_variability_sigma(world)
     if sigma <= 0.0:
         return 0.0
+    cal = resolve_params(world)
+    rho = min(0.99, max(0.0, getattr(cal, "TEMP_NATURAL_VARIABILITY_AR1_RHO", 0.0)))
     base_year = getattr(world.global_state, "_calendar_year_base", 2023)
     seed_base = int(getattr(world.global_state, "_temperature_variability_seed", 0))
     sign = float(getattr(world.global_state, "_temperature_variability_sign", 1.0))
     year = base_year + max(0, int(world.time))
     rng = random.Random(seed_base + year)
-    return sign * rng.gauss(0.0, sigma * math.sqrt(dt))
+    eps = rng.gauss(0.0, 1.0)
+    innovation = math.sqrt(1.0 - rho * rho) * sigma * math.sqrt(dt) * eps
+    w_prev = float(getattr(world.global_state, "_temperature_variability_state", 0.0))
+    w = rho * w_prev + innovation
+    world.global_state._temperature_variability_state = w
+    return sign * w
 
 
 def update_global_climate(

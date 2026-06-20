@@ -598,3 +598,15 @@ reflected in the right-skewed lognormal prior.
 empirical envelope + `gim_within_envelope` guard); `tests/test_damage_validation.py`
 (7 tests, incl. retraction flag + envelope bracketing); enriched `DAMAGE_QUAD_COEFF` prior
 rationale; `docs/DAMAGE_FUNCTION.md`. SCC / golden backtest unchanged (coefficient unchanged).
+
+## Phase 4 remainder (autonomous)
+
+### T2.4 — AR(1) red-noise temperature variability
+Replaced iid Gaussian internal variability with an AR(1) process
+w_t = rho*w_{t-1} + sqrt(1-rho^2)*sigma*sqrt(dt)*eps_t (rho=TEMP_NATURAL_VARIABILITY_AR1_RHO=0.65;
+rho=0 reproduces iid). sqrt(1-rho^2) keeps the stationary std = sigma, so per-year marginal
+variance (what the backtest scores) is preserved while year-to-year correlation becomes
+physical (ENSO-like). Unsigned state carried on global_state; antithetic `sign` applied at
+output so mirror ensemble members stay exact negatives. Verified: lag-1 autocorr ~0.70,
+std ~0.088, antithetic mirror exact, deterministic; golden backtest unchanged
+(1.026/1.606/0.134). `tests/test_temperature_variability.py` (5 tests).

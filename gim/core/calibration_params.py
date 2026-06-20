@@ -93,6 +93,7 @@ HEAT_CAP_SURFACE = 8.0  # [BACKTEST] T1.3 joint multi-window recal: Geoffroy phy
 HEAT_CAP_DEEP = 100.0  # [DICE16]
 OCEAN_EXCHANGE = 1.0  # [BACKTEST] T1.3 joint multi-window recal: stronger heat uptake reconciles 1990-2023 trend with 2015-2023 levels (was 0.7).
 TEMP_NATURAL_VARIABILITY_SIGMA = 0.08  # [BACKTEST]
+TEMP_NATURAL_VARIABILITY_AR1_RHO = 0.65  # [T2.4] AR(1) "red-noise" persistence of internal variability (ENSO-like ~0.6-0.7); 0 == iid.
 TEMP_BACKTEST_ENSEMBLE_SIZE = 8  # [BACKTEST]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
 EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived during manifest refresh and bound to the active state manifest.
