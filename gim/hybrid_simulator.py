@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import math
-import random
 import re
 from dataclasses import asdict, dataclass, field
 from statistics import median
@@ -10,6 +9,7 @@ from typing import Any, Mapping
 
 from .core import Action, Observation, action_from_intent, build_observation, make_human_policy
 from .core.logging_utils import log_actions_to_csv, log_institutions_to_csv, log_world_to_csv
+from .core.rng import seed_world
 from .core.simulation import step_world
 from .crisis_metrics import CrisisDashboard, CrisisMetricsEngine
 from .runtime import WorldState
@@ -780,7 +780,7 @@ class HybridSimulator:
 
         sim_world.global_state._temperature_variability_seed = int(seed)
         for year_offset in range(round_years):
-            random.seed(int(seed) + year_offset)
+            seed_world(sim_world, int(seed) + year_offset)  # T2.6: world-isolated RNG
             phase_trace: dict[str, Any] = {}
             sim_world = step_world(
                 sim_world,

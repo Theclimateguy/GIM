@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import csv
 import json
-import random
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .core.policy import make_policy_map
+from .core.rng import seed_world
 from .core.simulation import step_world
 from .core.world_factory import make_world_from_csv
 
@@ -180,7 +180,7 @@ def project_state_csv(
     baseline_year = int(getattr(world.global_state, "_calendar_year_base", resolved_state_year))
 
     if seed is not None:
-        random.seed(seed)
+        seed_world(world, seed)  # T2.6: world-isolated RNG instead of global random.seed
         world.global_state._temperature_variability_seed = seed
 
     policies = make_policy_map(world.agents.keys(), mode=policy_mode)

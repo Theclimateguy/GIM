@@ -5,6 +5,7 @@ import math
 import random
 from typing import Dict, Optional
 
+from ..core.rng import get_rng
 from ..game_runner import GameRunner
 from ..runtime import WorldState
 from ..types import GameCombinationResult, GameDefinition
@@ -69,8 +70,9 @@ def run_equilibrium_search(
             "space exceeded the configured combination budget."
         )
 
+    rng = get_rng(world)  # T2.6: world-isolated RNG instead of the global random module
     for episode in range(max_episodes):
-        selected = _hedge_select(stage_game, weights, exploration_eps)
+        selected = _hedge_select(stage_game, weights, exploration_eps, rng)
         external_regret = compute_external_regret(
             runner,
             game,
@@ -161,6 +163,7 @@ def _hedge_select(
     game_result,
     weights: Dict[str, Dict[str, float]],
     exploration_eps: float,
+    rng: "random.Random | None" = None,
 ) -> GameCombinationResult:
     scored = sorted(
         [
@@ -175,9 +178,10 @@ def _hedge_select(
     )
     if not scored:
         raise ValueError("No combinations available for equilibrium search")
-    if random.random() > exploration_eps:
+    draw = rng if rng is not None else random
+    if draw.random() > exploration_eps:
         return scored[0][1]
-    return random.choice(game_result.combinations)
+    return draw.choice(game_result.combinations)
 
 
 def _hedge_update(

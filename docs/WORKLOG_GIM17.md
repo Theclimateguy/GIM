@@ -619,3 +619,10 @@ u==NAIRU, so the calibration steady state (and the golden backtest) are preserve
 central-bank loop on P4-A (inflation up / economy hot -> CB hikes -> higher debt service).
 Disable-able via the `monetary_policy_feedback` channel. tests/test_monetary_policy.py
 (5 tests); golden backtest unchanged.
+
+### T2.6 — World-isolate remaining global RNG
+Replaced the last global-`random` users with world-scoped RNG: state_projection and
+hybrid_simulator now call `seed_world(world, seed)` instead of `random.seed(...)`;
+game_theory/equilibrium_runner `_hedge_select` draws from `get_rng(world)` instead of the
+global `random` module. Dropped the now-dead `import random`. Determinism preserved
+(same seed -> identical trajectory); equilibrium/state_projection/determinism suites green.
