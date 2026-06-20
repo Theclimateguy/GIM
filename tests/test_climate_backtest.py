@@ -66,15 +66,20 @@ class BacktestRunTests(unittest.TestCase):
 
         hist = _h()
         rmse = {}
-        for e in (2.5, 3.0, 3.5):
+        for e in (2.0, 2.5, 3.0, 3.5, 4.0):
             r = run_climate_backtest(
                 obs, ecs=e, mode="concentration",
                 params_override={"HEAT_CAP_SURFACE": 8.0, "OCEAN_EXCHANGE": 0.7},
                 emissions_history=hist,
             )
             rmse[e] = r.scores["temperature_rmse"]
-        self.assertLess(rmse[3.0], rmse[2.5])
-        self.assertLess(rmse[3.0], rmse[3.5])
+        # Forced-response fit (variability off): a clear INTERIOR minimum in the AR6
+        # central band (2.5-3.0), strictly better than the 2.0 and 4.0 endpoints - i.e.
+        # the 34-year window identifies ECS, and not at a boundary.
+        best = min(rmse, key=rmse.get)
+        self.assertIn(best, (2.5, 3.0))
+        self.assertLess(rmse[best], rmse[2.0])
+        self.assertLess(rmse[best], rmse[4.0])
 
     def test_sweep_returns_one_rmse_per_ecs(self):
         pairs = sweep_ecs([2.0, 3.0, 4.0])

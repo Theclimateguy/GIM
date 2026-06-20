@@ -118,6 +118,10 @@ def _build_climate_world(params_override: Optional[dict]):
     gs.carbon_pools = []  # empty -> initialised to zero excess on the first step
     gs.temp_history = []
     gs._calendar_year_base = int(SPINUP_START_YEAR)
+    # Forced-response backtest: internal (AR(1)) variability is noise here and would
+    # conflate with calibration error, so switch it off.
+    gs._temperature_variability_sigma = 0.0
+    gs._enable_temperature_variability = False
     return world
 
 

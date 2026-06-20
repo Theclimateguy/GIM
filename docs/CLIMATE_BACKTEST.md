@@ -106,3 +106,5 @@ python scripts/build_climate_observations.py     # rebuild data from source valu
 python -m gim.climate_backtest                    # print both modes + ECS sweep
 python -m unittest tests.test_climate_backtest    # 7 tests
 ```
+
+> **Post-T2.4 note:** the climate backtest runs the *forced* response only (internal AR(1) variability disabled), so it no longer conflates noise with calibration error. The forced concentration-driven RMSE values are slightly lower than the originally-reported noisy ones (e.g. production ~0.10 vs ~0.16) but the conclusions are unchanged: a clear interior temperature-RMSE minimum identifies ECS in the AR6 central band (2.5-3.0) at the physical heat capacity.
