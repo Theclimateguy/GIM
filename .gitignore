@@ -27,3 +27,6 @@ ui/
 
 # stray sandbox lock files
 .lock
+
+# scratch experiment scripts (sandbox FUSE cannot unlink from worktree)
+_*.py
