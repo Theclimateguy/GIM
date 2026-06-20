@@ -574,3 +574,27 @@ determinism suites green (55 tests).
 
 **Deferred (P4-B2).** Adopt the full AR6 net (~+0.11 W/m2 higher) with annual per-component
 series - shifts the trajectory, so it must ride with a climate recalibration.
+
+## T1.4 — Damage-function cross-validation (closes THE-19 remaining)
+
+**Decision.** The damage coefficient is the dominant driver of the SCC spread across IAMs.
+Pin GIM's choice to the world empirical literature explicitly and guard it with a test,
+rather than leave it an unexamined number. Represent the deep uncertainty honestly instead
+of point-picking.
+
+**Evidence (validated from primary sources).** Level-effect quadratic loss = a*T^2 at 3C:
+DICE-2016R2 0.00236 (2.1%); DICE-2013R 0.00267 (2.4%); GIM 0.006 (5.4%); Howard-Sterner
+2017 preferred 0.0078-0.0089 (7-8%), +catastrophic 0.010-0.011 (9-10%); prior meta-analysis
+span 0.0021-0.0192 (1.9-17.3%). Growth-effect studies (Burke 2015 ~23%/2100; Kotz 2024
+RETRACTED) imply a fatter upper tail not captured by a level multiplier.
+
+**Finding.** GIM (0.006) sits inside the empirical envelope at +2/+3/+4C, above DICE
+(answering the "IAMs lowball damages" critique) and below the Howard-Sterner preferred
+central. Defensible as-is; coefficient unchanged. Because GIM is a level-effect multiplier,
+its damages are likely a lower bound on the growth-effect estimates - documented, and
+reflected in the right-skewed lognormal prior.
+
+**Changed.** New `gim/damage_validation.py` (evidence table, GIM-vs-literature comparison,
+empirical envelope + `gim_within_envelope` guard); `tests/test_damage_validation.py`
+(7 tests, incl. retraction flag + envelope bracketing); enriched `DAMAGE_QUAD_COEFF` prior
+rationale; `docs/DAMAGE_FUNCTION.md`. SCC / golden backtest unchanged (coefficient unchanged).
