@@ -626,3 +626,14 @@ hybrid_simulator now call `seed_world(world, seed)` instead of `random.seed(...)
 game_theory/equilibrium_runner `_hedge_select` draws from `get_rng(world)` instead of the
 global `random` module. Dropped the now-dead `import random`. Determinism preserved
 (same seed -> identical trajectory); equilibrium/state_projection/determinism suites green.
+
+### T2.1 + benchmark — SSP/RCP alignment & FAIR/MAGICC emulator check
+New gim/scenario_alignment.py. (1) Emulator benchmark: GIM ECS=3.0 (AR6 best) and TCR=1.79
+(AR6 1.8, likely 1.4-2.2) - measured by the idealised 1%/yr-to-doubling ramp, forced response
+only. Matching both ECS and TCR is the FAIR/MAGICC bar; GIM passes. (2) AR6 SSP 2100 warming
+envelopes (SPM.1) + classify_warming/closest_ssp. Finding: GIM's strongly-decarbonising
+"simple" baseline (~2.0C at 2100, CO2 28->2 GtCO2) is closest to SSP1-2.6; producing a
+no-policy SSP2-4.5/3-7.0 reference needs a scenario-driver preset (Phase-5).
+Caught during build: an apparent EBM non-monotonicity in the TCR ramp was internal AR(1)
+variability noise, not instability - the forced response is monotonic (variability disabled
+for TCR). tests/test_scenario_alignment.py (6 tests); docs/SCENARIO_ALIGNMENT.md.
