@@ -134,6 +134,14 @@ INFLATION_COSTPUSH_COEFF = 0.05  # [PRIOR] energy-price pass-through: +20% energ
 INFLATION_MIN = -0.02
 INFLATION_MAX = 0.30
 
+# Monetary policy reaction (Taylor rule) - P4-C. The central bank sets the policy base
+# rate above/below its neutral level in response to the inflation gap and the output gap
+# (proxied by the unemployment gap, NAIRU - u). Zero deviation at inflation==target and
+# u==NAIRU, so the calibration steady state is preserved.
+TAYLOR_PHI_PI = 0.5  # [TAYLOR1993] response to the inflation gap.
+TAYLOR_PHI_Y = 0.5   # [TAYLOR1993] response to the output gap (via the unemployment gap).
+TAYLOR_DEVIATION_CAP = 0.06  # cap on the |policy deviation| from the neutral base rate.
+
 # Climate damage and resilience block.
 DAMAGE_QUAD_COEFF = 0.006  # [PRIOR]
 DAMAGE_BENEFIT_PEAK = 0.30  # [PRIOR]

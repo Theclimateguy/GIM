@@ -610,3 +610,12 @@ physical (ENSO-like). Unsigned state carried on global_state; antithetic `sign` 
 output so mirror ensemble members stay exact negatives. Verified: lag-1 autocorr ~0.70,
 std ~0.088, antithetic mirror exact, deterministic; golden backtest unchanged
 (1.026/1.606/0.134). `tests/test_temperature_variability.py` (5 tests).
+
+### P4-C — Taylor-rule monetary policy
+compute_effective_interest_rate's neutral base rate now follows a Taylor rule:
+base = BASE_INTEREST_RATE + PHI_PI*(inflation - target) + PHI_Y*(NAIRU - unemployment),
+capped at +-TAYLOR_DEVIATION_CAP and floored at 0. Zero deviation at inflation==target and
+u==NAIRU, so the calibration steady state (and the golden backtest) are preserved; closes the
+central-bank loop on P4-A (inflation up / economy hot -> CB hikes -> higher debt service).
+Disable-able via the `monetary_policy_feedback` channel. tests/test_monetary_policy.py
+(5 tests); golden backtest unchanged.

@@ -207,7 +207,17 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
     economy = agent.economy
     risk = agent.risk
 
+    # Taylor-rule policy base rate (P4-C): the central bank moves the rate above/below its
+    # neutral level in response to the inflation gap and the output gap (proxied by the
+    # unemployment gap). Zero deviation at inflation==target and u==NAIRU, so the calibration
+    # steady state is preserved. Disable-able via the `monetary_policy_feedback` channel.
     base_rate = cal.BASE_INTEREST_RATE
+    if not _channel_disabled(world, "monetary_policy_feedback"):
+        infl_gap = economy.inflation - cal.INFLATION_TARGET
+        slack_gap = cal.NAIRU - economy.unemployment  # >0 when the economy runs hot
+        taylor_dev = cal.TAYLOR_PHI_PI * infl_gap + cal.TAYLOR_PHI_Y * slack_gap
+        taylor_dev = max(-cal.TAYLOR_DEVIATION_CAP, min(cal.TAYLOR_DEVIATION_CAP, taylor_dev))
+        base_rate = max(0.0, cal.BASE_INTEREST_RATE + taylor_dev)
 
     gdp = max(economy.gdp, 1e-6)
     debt_gdp = economy.public_debt / gdp
