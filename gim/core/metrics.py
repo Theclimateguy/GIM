@@ -3,7 +3,7 @@ from typing import Dict
 
 from . import calibration_params as cal
 from .params import default_params, resolve_params
-from .core import AgentState, WorldState, effective_trade_intensity
+from .core import AgentState, TGLOBAL_2023_C, WorldState, effective_trade_intensity
 
 
 def compute_reserve_years(agent: AgentState) -> Dict[str, float]:
@@ -215,7 +215,16 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     avg_gap = tech_gap_weighted / tech_weight if tech_weight > 0 else 0.0
     diffusion = cal.TFP_DIFFUSION_SENS * avg_gap
 
-    tfp_growth = cal.TFP_DRIFT + tfp_growth + diffusion
+    # Growth-effect climate damage (F4): warming above the 2023 baseline persistently lowers
+    # TFP growth (Burke 2015 / Kotz 2024), separate from the level-effect output multiplier.
+    # Switchable via GROWTH_DAMAGE_TFP_COEFF (default 0.0 -> off, golden backtest preserved).
+    growth_drag_coeff = getattr(cal, "GROWTH_DAMAGE_TFP_COEFF", 0.0)
+    growth_drag = 0.0
+    if growth_drag_coeff > 0.0:
+        warming = world.global_state.temperature_global - TGLOBAL_2023_C
+        growth_drag = growth_drag_coeff * max(0.0, warming)
+
+    tfp_growth = cal.TFP_DRIFT + tfp_growth + diffusion - growth_drag
     tfp_growth = max(cal.TFP_GROWTH_MIN, min(tfp_growth, cal.TFP_GROWTH_MAX))
 
     economy.tfp *= 1.0 + tfp_growth

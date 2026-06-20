@@ -648,3 +648,12 @@ The low headline SCC was the Nordhaus discount convention, not a deficiency. (2)
 persistence on the 2015-2023 backtest: temperature +0.15, world GDP +0.09 (both beat naive),
 global CO2 -0.17 (worse than naive -> over-decarbonisation flag). tests/test_benchmark_alignment.py
 (4 tests); docs/BENCHMARK_ALIGNMENT.md.
+
+### F4 (partial) — Growth-effect climate damage channel
+Added a switchable growth-effect damage term: warming above the 2023 baseline persistently
+lowers TFP growth (Burke 2015 / Kotz 2024), distinct from the level multiplier. Switchable via
+GROWTH_DAMAGE_TFP_COEFF (default 0.0 -> OFF, golden backtest unchanged 1.026/1.606/0.134). With
+coeff=0.001/degC (illustrative-upper): 2100 world GDP -4%, SCC 200y @ modern 2% ~ $647 (vs $191
+level-only) -> spans the Burke/Kotz upper tail a level multiplier cannot reach. Coefficient
+calibration + default stance is the next F4 step. gim/core/metrics.py; tests/test_growth_damage.py
+(4 tests); docs/GROWTH_DAMAGE.md. Remaining F4: land-use CO2, full AR6 net, coeff calibration.

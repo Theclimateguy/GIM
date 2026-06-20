@@ -57,6 +57,11 @@ TFP_DRIFT = 0.01  # [PRIOR]
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
 TFP_GROWTH_MIN = -0.05
 TFP_GROWTH_MAX = 0.05
+# Growth-effect climate damage (F4): warming above the 2023 baseline persistently lowers TFP
+# growth (Burke et al. 2015 / Kotz et al. 2024), distinct from the level-effect output
+# multiplier. DEFAULT 0.0 => OFF (golden backtest preserved). Reference "on" value ~0.001/degC
+# gives a bounded persistent growth drag spanning toward the empirical growth-effect range.
+GROWTH_DAMAGE_TFP_COEFF = 0.0  # [F4] per-degC TFP-growth drag above the 2023 baseline; 0 => off.
 
 # Fiscal and sovereign block.
 BASE_INTEREST_RATE = 0.02  # [WEO25]
