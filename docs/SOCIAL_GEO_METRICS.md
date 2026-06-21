@@ -65,6 +65,27 @@ This is the researched mapping; all datasets verified June 2026.
    analogue of the climate backtest).
 4. **`sanction_propensity` → GSDB**; **`social_tension` → Mass Mobilization / ACLED.**
 
+## Implemented: `military_power` → CINC (F3, step)
+
+`gim/capability.py` computes a **CINC-style capability share** (Correlates of War methodology) from
+the components GIM tracks — total population, energy consumption, GDP (industrial proxy), and
+military spending when nonzero. Validated against the published CINC ranking (`tests/test_capability.py`):
+
+| | GIM CINC-style | Published CINC ~2016 |
+|---|---|---|
+| China | 0.205 | ~0.22 |
+| United States | 0.147 | ~0.14 |
+| India | 0.096 | ~0.08 |
+| Russia | 0.030 | ~0.04 |
+| Japan | 0.027 | ~0.03 |
+
+The index reproduces the real ranking (China > US > India) using only 3 components.
+`ground_military_power(world)` sets `technology.military_power` to the capability share (rescaled to
+mean ~1 to preserve the scalar's units). Provided as a **callable grounding tool** (not auto-wired
+into the factory, since it overrides hand-set CSV values and shifts conflict dynamics — a
+calibration decision); golden backtest is unaffected (military_power is conflict-gated). Recommended
+to enable after a conflict-scenario regression check.
+
 ## Honest caveat
 
 These layers will **never** reach AR6/PWT-grade identifiability — conflict and unrest are

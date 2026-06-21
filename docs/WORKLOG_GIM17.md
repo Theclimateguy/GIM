@@ -708,3 +708,12 @@ Applied the same switchable power-law severity multiplier (CRISIS_SEVERITY_POWER
 to the FX-crisis and regime-collapse onset shocks (depth-scaled; sev=1.0 when disabled -> golden
 unchanged 1.026/1.606/0.134). Debt/FX/regime crises now all fat-tailed when enabled. Conflict/war
 severity (Richardson war-size) deferred as a separate design (cumulative, not single-shock).
+
+### F3 (step 4) — CINC grounding for military_power
+New gim/capability.py: CINC-style national-capability share (Correlates of War methodology) from
+GIM's components (population, energy, GDP, mil-spending). Validated vs published CINC: China 0.205
+(~0.22), US 0.147 (~0.14), India 0.096 (~0.08) - reproduces the real ranking with 3 components.
+ground_military_power(world) sets military_power to the capability share (mean-1 scaled). Shipped
+as a callable grounding tool (NOT auto-wired - overrides hand-set CSV values + shifts conflict
+dynamics, a calibration decision; golden unaffected as military_power is conflict-gated).
+tests/test_capability.py (4); docs/SOCIAL_GEO_METRICS.md.
