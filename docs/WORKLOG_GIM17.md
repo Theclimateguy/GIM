@@ -684,3 +684,13 @@ protest -> Mass Mobilization/ACLED; trust_gov/regime_type -> WGI V&A / V-Dem / P
 -> Global Sanctions Database; water_stress -> WRI Aqueduct. Priority: military_power -> CINC
 (replace the ungrounded scalar with an observable 0-1 capability share). Honest bar: skill vs
 base-rate, not AR6-grade precision.
+
+### F5 (step 1) — Criticality / SOC risk layer (early-warning diagnostic)
+Real systemic risk is fat-tailed (power-law/SOC: Richardson/Clauset war sizes) and preceded by
+critical slowing down (Scheffer 2009). GIM's threshold+fixed-shock+Gaussian crises are thin-tailed
+-> understate the catastrophic tail. New gim/criticality.py: Scheffer-style early-warning
+diagnostic (rolling lag-1 autocorrelation + variance, Kendall-tau trend -> critical-slowing-down
+warning), post-hoc on any trajectory, zero golden risk. tests/test_criticality.py (4);
+docs/CRITICALITY_RISK.md. Next (proposed): switchable power-law event magnitudes (Richardson
+alpha~1.5-1.6) for fat-tailed crisis severity; cascade/contagion; live EWS. Full SOC sandpile
+noted as a research branch (hard to validate as a forecaster).
