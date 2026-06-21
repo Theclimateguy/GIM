@@ -38,6 +38,15 @@ trajectory (ensemble member, backtest, projection), so it adds a criticality ris
 Validated (`tests/test_criticality.py`) on a synthetic system driven across a bifurcation
 (flagged) vs a stationary one (not flagged).
 
+## Methodology note: early-warning needs stochastic input
+
+Critical-slowing-down indicators are valid only on *stochastic* series (they measure slowing
+recovery from noise). GIM's baseline projection is smooth/near-deterministic unless the stochastic
+ensemble is on, so scanning a single trajectory yields spurious trend-driven warnings. The validated
+primitives (`early_warning_score`/`scan`/`rolling_indicators`/`to_stationary`) should be applied to
+ensemble members' de-trended residuals or to the rising cross-member spread; a packaged live monitor
+is a follow-up on the ensemble harness.
+
 ## Delivered (F5, step 2): fat-tailed crisis severity
 
 `powerlaw_severity(rng, alpha, a, b)` draws a **mean-1, fat-tailed** severity multiplier from a

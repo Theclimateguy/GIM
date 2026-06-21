@@ -723,3 +723,11 @@ criticality.run_and_scan: forward-projects GIM and scans system-level aggregates
 social tension/trust/regime stability/unemployment, max debt/GDP) for critical slowing down (rising
 autocorrelation+variance). No simulation-core change. On a calm 40-yr baseline it correctly raises
 no warning (scores low/negative). tests/test_criticality.py.
+
+### F5 (step 3, corrected) — EWS primitives; live monitor deferred (honest)
+The single-projection live monitor (run_and_scan) was methodologically flawed: critical-slowing-down
+EWS is valid only on STOCHASTIC series, but GIM's baseline projection is smooth/near-deterministic,
+so it produced spurious trend-driven warnings. Removed it; kept the validated EWS primitives plus a
+to_stationary transform (for trending vars). A correct live monitor must run on the stochastic
+ensemble (noisy member residuals or rising cross-member spread) - deferred to the ensemble harness.
+Honest methodology note added to docs/CRITICALITY_RISK.md.

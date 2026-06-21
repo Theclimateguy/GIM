@@ -44,17 +44,14 @@ class EarlyWarningTests(unittest.TestCase):
         self.assertTrue(out["tipping"]["warning"])
 
 
-class LiveEWSTests(unittest.TestCase):
-    def test_run_and_scan_structure_and_calm_baseline(self):
-        from gim.criticality import run_and_scan
+class StationarityTests(unittest.TestCase):
+    def test_to_stationary_removes_growth_trend(self):
+        from gim.criticality import early_warning_score, to_stationary
 
-        rep = run_and_scan(years=25, max_agents=10, window=8)
-        for key in ("world_gdp", "mean_social_tension", "mean_regime_stability", "max_debt_gdp"):
-            self.assertIn(key, rep)
-            self.assertIn("combined", rep[key])
-            self.assertIn("warning", rep[key])
-        # A stable baseline projection should not raise a critical-slowing-down warning.
-        self.assertFalse(rep["world_gdp"]["warning"])
+        # A smoothly growing series spuriously warns on its raw level but not on its growth rate.
+        growing = [1.02 ** t for t in range(60)]
+        self.assertTrue(early_warning_score(growing)["combined"] > 0.25)
+        self.assertFalse(early_warning_score(to_stationary(growing))["warning"])
 
 
 class PowerLawSeverityTests(unittest.TestCase):
