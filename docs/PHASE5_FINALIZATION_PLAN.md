@@ -25,13 +25,13 @@ ledger). This document records the locked decisions and the per-stage work.
 
 | Stage | Work | Output | Status |
 |---|---|---|---|
-| 0 | Repair git (corrupted index + stale locks) | clean tree on branch GIM17 | **done** |
-| 1 | External-data ingestion pipeline (F3) | `scripts/ingest_external_data.py`, `data/external/` | **pipeline delivered; live bulk pull pending local run** |
-| 2 | Calibrate default-off channel coefficients (golden-preserving) | `scripts/calibrate_growth_damage_coeff.py`, `results/calibration/` | **done — surfaced SCC drift (below)** |
-| 3 | Wire 3 culture dims, remove 4 inert | `gim/core/*`, CSV, influence-audit test | pending |
-| 4 | F3 grounding + UCDP conflict backtest (skill-vs-base-rate) | `scripts/conflict_backtest.py` | pending (needs Stage-1 bulk files) |
-| 5 | Stress re-audit of threshold-gated inputs | extended `gim/influence_audit.py` | pending |
-| 6 | Whole-model verification + finalization report | green suite, regression, report | pending |
+| 0 | Repair git (corrupted index + stale locks) | clean tree on branch GIM17 | **done** (`b6a571e`) |
+| 1 | External-data ingestion pipeline (F3) | `scripts/ingest_external_data.py`, `data/external/` | **done** (pipeline + manifest; live bulk pull is a local run) |
+| 2 | Calibrate default-off channel coefficients (golden-preserving) | `scripts/calibrate_growth_damage_coeff.py`, `results/calibration/` | **done** — surfaced SCC drift (below) |
+| 3 | Wire 3 culture dims, remove 4 inert | `gim/core/*`, CSV, influence-audit test | **done** (`8201328`); golden bit-identical, tests green |
+| 4 | F3 grounding (CINC) + UCDP conflict backtest harness | `scripts/anchor_initial_state.py`, `scripts/conflict_backtest.py` | **done** (`a50a838`); CINC runs; UCDP skill number needs local data |
+| 5 | Stress re-audit of threshold-gated inputs | `gim/stress_audit.py`, `tests/test_stress_audit.py` | **done** (`f9648d7`); conditionally load-bearing confirmed |
+| 6 | Whole-model verification + finalization report | green suite, regression, report | **done**; suite green bar 2 sandbox FS errors |
 
 ## Stage 0 — git repair (done)
 
