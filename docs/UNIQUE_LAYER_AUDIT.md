@@ -25,6 +25,29 @@ load-bearing *categorical* cultural variable is `regime_type` (Democracy/Autocra
 substantially in geopolitics (conflict targeting) and decision-making (`actions.py`) — that one
 is real. The continuous Hofstede vector is almost entirely decorative.
 
+## Fuller picture: risk / geo / tech inputs (baseline scenario)
+
+Extending the audit to the risk/geopolitical/technology inputs (12-yr calm baseline):
+
+| input | influence | reading |
+|---|---|---|
+| `risk.regime_stability` | 1.1e-01 | load-bearing |
+| `society.inequality_gini` | 6.7e-02 | load-bearing |
+| `risk.water_stress` | 3.3e-02 | load-bearing |
+| `culture.idv` | 2.9e-02 | load-bearing |
+| `risk.conflict_proneness` | 5.3e-04 | weak in baseline |
+| `risk.debt_crisis_prone`, `technology.security_index`, `technology.military_power` | 0.0 | **threshold-gated** (see caveat) |
+
+**Critical caveat — baseline vs stressed.** The audit measures influence in the *default calm
+scenario*. Inputs that gate **threshold/crisis dynamics** — `military_power`, `security_index`,
+`debt_crisis_prone`, and largely `conflict_proneness` — are inert here only because no
+war/debt-crisis fires in a 12-year calm run. They are **conditionally load-bearing** and must be
+re-audited under a *stressed* scenario (forced conflict / debt stress) before any conclusion.
+This is categorically different from the 7 Hofstede dimensions, which are inert because they are
+**not effectively wired into any dynamics at all** (the grep confirms 0 effective reads for
+lto/ind/traditional_secular; the pdi/mas/uai/survival reads feed dead paths). Only the Hofstede
+vector is *decorative*; the threshold-gated inputs are real but scenario-dependent.
+
 ## Recommendation (for F3)
 
 Two honest options, not silently leaving decorative inputs:

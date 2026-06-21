@@ -76,6 +76,24 @@ def culture_perturbations(delta: float = 20.0) -> List[Perturbation]:
     return [Perturbation(f"culture.{d}", make(d)) for d in dims]
 
 
+def risk_geo_perturbations(delta: float = 0.2) -> List[Perturbation]:
+    """Shift key risk / geopolitical / technology inputs (0-1 or level scales) per agent."""
+    specs = [
+        ("risk.conflict_proneness", lambda a, v: setattr(a.risk, "conflict_proneness", _clamp01(a.risk.conflict_proneness + v))),
+        ("risk.debt_crisis_prone", lambda a, v: setattr(a.risk, "debt_crisis_prone", _clamp01(a.risk.debt_crisis_prone + v))),
+        ("risk.water_stress", lambda a, v: setattr(a.risk, "water_stress", _clamp01(a.risk.water_stress + v))),
+        ("risk.regime_stability", lambda a, v: setattr(a.risk, "regime_stability", _clamp01(a.risk.regime_stability + v))),
+        ("technology.security_index", lambda a, v: setattr(a.technology, "security_index", _clamp01(a.technology.security_index + v))),
+        ("technology.military_power", lambda a, v: setattr(a.technology, "military_power", max(0.0, a.technology.military_power * (1.0 + v)))),
+        ("society.inequality_gini", lambda a, v: setattr(a.society, "inequality_gini", max(0.0, min(100.0, a.society.inequality_gini + 100.0 * v)))),
+    ]
+    return [Perturbation(name, (lambda s=setter: (lambda agent: s(agent, delta)))()) for name, setter in specs]
+
+
+def _clamp01(x: float) -> float:
+    return max(0.0, min(1.0, float(x)))
+
+
 def run_influence_audit(
     perturbations: List[Perturbation] | None = None,
     *,
