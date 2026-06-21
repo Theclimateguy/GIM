@@ -91,10 +91,9 @@ def _apply_sanction_social_reaction(
 ) -> None:
     culture = target.culture
     pdi = culture.pdi / 100.0
-    self_expression = culture.survival_self_expression / 10.0
-
+    # F3: survival_self_expression removed (inert); former neutral default (5->0.5) => (0.5+0.5)=1.0.
     rally = scale * pdi
-    blame = scale * (1.0 - pdi) * (0.5 + self_expression)
+    blame = scale * (1.0 - pdi) * 1.0
 
     if culture.regime_type == "Autocracy":
         trust_delta = rally - autocracy_bias

@@ -234,6 +234,21 @@ SOCIAL_STRESS_UNEMPLOYMENT_SENS = 0.01  # [PRIOR]
 SOCIAL_STRESS_INFLATION_SENS = 0.005  # [PRIOR]
 SOCIAL_TRUST_ANCHOR_SENS = 0.06  # [PRIOR]
 SOCIAL_TRUST_ANCHOR_REF = 0.50  # [PRIOR]
+
+# [F3] Culture -> social-block links (switchable; default OFF => golden bit-identical).
+# Wires the three theory-supported Hofstede dimensions into the always-on trust/tension
+# update (the same block where `idv` is load-bearing), centred on CULTURE_DIM_REF so the
+# calibration baseline is minimally perturbed. Signs validated against cross-country evidence:
+#   pdi (power distance)        -> weaker accountability institutions -> lower trust        (-)
+#   uai (uncertainty avoidance) -> stronger anxiety/reaction to econ stress -> more tension  (+)
+#   lto (long-term orientation) -> patience/deferred gratification -> damped short-run unrest (-)
+# The 4 dropped dims (mas, ind, traditional_secular, survival_self_expression) had no
+# defensible, testable economic/social linkage (F3 audit) and were removed.
+CULTURE_SOCIAL_LINKS = False  # [F3] master switch for the culture->social channel.
+CULTURE_DIM_REF = 50.0        # Hofstede mid-scale reference (0-100) for centring.
+CULTURE_PDI_TRUST_SENS = 0.02     # power distance -> institutional trust (Hofstede; PDI~corruption/ineq).
+CULTURE_UAI_STRESS_SENS = 0.50    # uncertainty avoidance -> econ-stress reaction amplification.
+CULTURE_LTO_PATIENCE_SENS = 0.30  # long-term orientation -> tension damping (savings/patience).
 GINI_GROWTH_SENS = 6.0  # [PRIOR]
 GINI_RECESSION_SENS = 4.0  # [PRIOR]
 GINI_RECESSION_TENSION_OFFSET = 0.50  # [PRIOR]

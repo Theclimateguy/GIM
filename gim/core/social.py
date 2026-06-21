@@ -235,6 +235,10 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
         + inequality_trust_penalty
         + tension_trust_penalty
     )
+    # [F3] Culture link: power distance -> weaker accountability institutions -> lower trust.
+    if getattr(cal, "CULTURE_SOCIAL_LINKS", False):
+        _ref = cal.CULTURE_DIM_REF
+        trust_change -= cal.CULTURE_PDI_TRUST_SENS * (agent.culture.pdi - _ref) / 100.0
     current_trust = _effective_critical(agent, world, "trust_gov")
     trust_next = clamp01(current_trust + trust_change)
     _set_critical_effective(world, agent, "trust_gov", trust_next)
@@ -245,9 +249,17 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
         cal.SOCIAL_STRESS_UNEMPLOYMENT_SENS * agent.economy.unemployment
         + cal.SOCIAL_STRESS_INFLATION_SENS * agent.economy.inflation
     )
+    # [F3] Culture link: uncertainty avoidance amplifies the reaction to economic stress.
+    if getattr(cal, "CULTURE_SOCIAL_LINKS", False):
+        _ref = cal.CULTURE_DIM_REF
+        stress_effect *= 1.0 + cal.CULTURE_UAI_STRESS_SENS * (agent.culture.uai - _ref) / 100.0
     trust_anchor = cal.SOCIAL_TRUST_ANCHOR_SENS * (cal.SOCIAL_TRUST_ANCHOR_REF - trust_next)
 
     tension_change = inequality_effect + stress_effect + trust_anchor
+    # [F3] Culture link: long-term orientation (patience) damps short-run unrest swings.
+    if getattr(cal, "CULTURE_SOCIAL_LINKS", False):
+        _ref = cal.CULTURE_DIM_REF
+        tension_change *= 1.0 - cal.CULTURE_LTO_PATIENCE_SENS * (agent.culture.lto - _ref) / 100.0
     tension_next = clamp01(current_tension + tension_change)
     _set_critical_effective(world, agent, "social_tension", tension_next)
 

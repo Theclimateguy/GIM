@@ -71,14 +71,14 @@ class ResourceSubState:
 
 @dataclass
 class CulturalState:
+    # F3: only the load-bearing / theory-wired Hofstede dims are retained.
+    # idv is load-bearing (inequality sensitivity); pdi/uai/lto are wired into the social
+    # block via the switchable CULTURE_SOCIAL_LINKS channel. The 4 dropped dims
+    # (mas, ind, traditional_secular, survival_self_expression) were empirically inert.
     pdi: float = 50.0
     idv: float = 50.0
-    mas: float = 50.0
     uai: float = 50.0
     lto: float = 50.0
-    ind: float = 50.0
-    survival_self_expression: float = 5.0
-    traditional_secular: float = 5.0
     regime_type: str = "Democracy"
 
 

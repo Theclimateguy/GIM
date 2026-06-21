@@ -35,8 +35,12 @@ def _aggregate_outputs(world) -> Dict[str, float]:
     }
 
 
-def _run(setter: Callable[[object], None] | None, years: int, max_agents: int, seed: int) -> Dict[str, float]:
+def _run(setter: Callable[[object], None] | None, years: int, max_agents: int, seed: int,
+         culture_links: bool = False) -> Dict[str, float]:
     world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2026)
+    if culture_links:
+        from gim.core.params import default_params
+        world.params = default_params().with_overrides({"CULTURE_SOCIAL_LINKS": True})
     world.global_state._temperature_variability_sigma = 0.0  # deterministic forced run
     if setter is not None:
         for agent in world.agents.values():
@@ -63,8 +67,14 @@ class Perturbation:
 
 
 def culture_perturbations(delta: float = 20.0) -> List[Perturbation]:
-    """Shift each Hofstede dimension by +delta points (0-100 scale) for every agent."""
-    dims = ["pdi", "idv", "mas", "uai", "lto", "ind", "traditional_secular", "survival_self_expression"]
+    """Shift each retained Hofstede dimension by +delta points (0-100 scale) for every agent.
+
+    F3: only the 4 retained dims remain. `idv` is load-bearing in the always-on social block;
+    `pdi/uai/lto` are wired via the switchable CULTURE_SOCIAL_LINKS channel (run the audit with
+    ``culture_links=True`` to measure them). The 4 inert dims (mas/ind/traditional_secular/
+    survival_self_expression) were removed from the model entirely.
+    """
+    dims = ["pdi", "idv", "uai", "lto"]
 
     def make(dim):
         def setter(agent):
@@ -100,13 +110,18 @@ def run_influence_audit(
     years: int = 12,
     max_agents: int = 12,
     seed: int = 2026,
+    culture_links: bool = False,
 ) -> Dict[str, float]:
-    """Influence score per perturbation (normalised aggregate-output change vs baseline)."""
+    """Influence score per perturbation (normalised aggregate-output change vs baseline).
+
+    ``culture_links=True`` enables the switchable CULTURE_SOCIAL_LINKS channel so the wired
+    pdi/uai/lto links are exercised (otherwise only `idv` moves outputs).
+    """
     perturbations = perturbations or culture_perturbations()
-    base = _run(None, years, max_agents, seed)
+    base = _run(None, years, max_agents, seed, culture_links=culture_links)
     out: Dict[str, float] = {}
     for p in perturbations:
-        pert = _run(p.setter, years, max_agents, seed)
+        pert = _run(p.setter, years, max_agents, seed, culture_links=culture_links)
         out[p.name] = _rel_change(base, pert)
     return out
 

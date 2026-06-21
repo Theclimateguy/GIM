@@ -68,3 +68,32 @@ wired in, the test flips and forces the docs/validation to be updated.
 Same influence audit applied to the institutional and geopolitical inputs; then external-data
 validation (UCDP/ACLED conflicts, V-Dem / regime-transition, Global Sanctions Database) with
 skill-vs-base-rate scoring, mirroring the climate/economics benchmarks.
+
+## Resolution (F3 finalization, June 2026)
+
+Decision taken (option-1+2 hybrid): **wire the 3 theory-supported dimensions, remove the 4 with
+no defensible linkage.**
+
+**Removed entirely** (`mas`, `ind`, `traditional_secular`, `survival_self_expression`): dropped
+from `CulturalState`, the CSV loader + `REQUIRED/PERCENTILE/WVS` column sets, `state_projection`,
+the operational CSVs (4 cols; manifest hash refreshed, `emissions_scale`/`decarb` unchanged), and
+their former action-gated reads in `actions.py`/`geopolitics.py`/`compiled_policy.py` (replaced by
+the neutral mid-scale default so default-culture behaviour is unchanged).
+
+**Wired** (`pdi`, `uai`, `lto`) into the always-on social block (`update_social_state`), the same
+place `idv` is load-bearing, via the switchable `CULTURE_SOCIAL_LINKS` channel (default OFF →
+golden bit-identical at 1.026/1.606/0.134). Validated signs:
+
+| dim | link | sign | evidence |
+|---|---|---|---|
+| `pdi` | power distance → institutional trust | − | PDI ~ corruption / weaker accountability |
+| `uai` | uncertainty avoidance → econ-stress reaction | + | UAI ~ anxiety / intolerance of ambiguity |
+| `lto` | long-term orientation → unrest damping (patience) | − | LTO ~ deferred gratification / savings |
+
+Influence audit after wiring (channel ON): all 4 retained dims load-bearing —
+`idv` 6.7e-2, `pdi` 2.7e-2, `lto` 2.6e-2, `uai` 2.5e-2 (channel OFF: only `idv`, 2.9e-2).
+`tests/test_influence_audit.py` updated to guard both states (inert-off / load-bearing-on) and to
+assert the 4 removed dims are gone from `CulturalState`.
+
+Activating `CULTURE_SOCIAL_LINKS` for headline runs is part of the joint re-anchor decision
+(it shifts trust/tension paths), consistent with the staged-finalization stance.

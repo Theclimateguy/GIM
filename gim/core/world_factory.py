@@ -33,12 +33,8 @@ REQUIRED_COLUMNS = {
     "climate_risk",
     "pdi",
     "idv",
-    "mas",
     "uai",
     "lto",
-    "ind",
-    "survival_self_expression",
-    "traditional_secular",
 }
 
 REQUIRED_NUMERIC_COLUMNS = {
@@ -51,12 +47,8 @@ REQUIRED_NUMERIC_COLUMNS = {
     "climate_risk",
     "pdi",
     "idv",
-    "mas",
     "uai",
     "lto",
-    "ind",
-    "survival_self_expression",
-    "traditional_secular",
 }
 
 OPTIONAL_NUMERIC_COLUMNS = {
@@ -123,16 +115,12 @@ PERCENTILE_COLUMNS = {
     "inequality_gini",
     "pdi",
     "idv",
-    "mas",
     "uai",
     "lto",
-    "ind",
 }
 
-WVS_SCALE_COLUMNS = {
-    "traditional_secular",
-    "survival_self_expression",
-}
+# F3: WVS dimensions (traditional_secular, survival_self_expression) removed as inert.
+WVS_SCALE_COLUMNS: set = set()
 
 
 def _raw_value(row: dict[str, str], key: str) -> str:
@@ -343,12 +331,8 @@ def make_world_from_csv(
             culture = CulturalState(
                 pdi=float(row["pdi"]),
                 idv=float(row["idv"]),
-                mas=float(row["mas"]),
                 uai=float(row["uai"]),
                 lto=float(row["lto"]),
-                ind=float(row["ind"]),
-                survival_self_expression=float(row["survival_self_expression"]),
-                traditional_secular=float(row["traditional_secular"]),
                 regime_type=row["regime_type"],
             )
 

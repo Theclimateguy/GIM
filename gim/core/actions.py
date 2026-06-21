@@ -242,8 +242,6 @@ def apply_action(world: WorldState, action: Action, *, defer_critical_writes: bo
         technology.military_power = max(0.0, technology.military_power * (1.0 + base_gain))
 
         threat_high = technology.security_index < 0.4
-        mas_factor = culture.mas / 100.0
-        self_expression = culture.survival_self_expression / 10.0
 
         regime_mult = 1.0
         if culture.regime_type == "Democracy":
@@ -251,14 +249,17 @@ def apply_action(world: WorldState, action: Action, *, defer_critical_writes: bo
         elif culture.regime_type == "Autocracy":
             regime_mult = 0.8
 
+        # F3: mas / survival_self_expression removed (inert); use their former neutral
+        # mid-scale defaults (mas=50->0.5, survival=5->0.5) so behaviour is unchanged
+        # for the prior default culture and no longer carries decorative inputs.
         if threat_high:
-            trust_delta = 0.02 * military_spending_delta * (0.8 + 0.6 * mas_factor)
+            trust_delta = 0.02 * military_spending_delta * 1.1
         else:
             trust_delta = (
                 -0.03
                 * military_spending_delta
-                * (0.5 + self_expression)
-                * (1.0 - mas_factor)
+                * 1.0
+                * 0.5
                 * regime_mult
             )
 
@@ -300,14 +301,12 @@ def apply_action(world: WorldState, action: Action, *, defer_critical_writes: bo
             0.0,
         )
 
-        self_expression = culture.survival_self_expression / 10.0
         risk_level = climate.climate_risk
         base = intensity * (risk_level - 0.5)
 
-        if base >= 0:
-            trust_delta = base * (0.5 + self_expression)
-        else:
-            trust_delta = base * (1.5 - self_expression)
+        # F3: survival_self_expression removed (inert); former neutral default (5->0.5)
+        # makes both branches base*1.0.
+        trust_delta = base
 
         if culture.regime_type == "Democracy":
             trust_delta *= 1.2
@@ -318,17 +317,8 @@ def apply_action(world: WorldState, action: Action, *, defer_critical_writes: bo
             "trust_gov",
             clamp01(_effective_critical(world, action.agent_id, "trust_gov") + trust_delta),
         )
-        if risk_level > 0.5 and self_expression > 0.5:
-            _set_critical_effective(
-                world,
-                action.agent_id,
-                "social_tension",
-                max(
-                    0.0,
-                    _effective_critical(world, action.agent_id, "social_tension")
-                    - 0.01 * intensity * self_expression,
-                ),
-            )
+        # F3: the survival_self_expression-gated tension relief was removed with that inert dim
+        # (it only fired for survival>5.0, i.e. never at the neutral default).
 
     update_emissions_from_economy(
         agent,

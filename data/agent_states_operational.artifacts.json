@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "state_csv": "agent_states_operational.csv",
-  "state_csv_sha256": "4dfcf57357d51f2d742ff7128d474c278d4fca59b2a6439c329fb5a0c1f53534",
+  "state_csv_sha256": "52fe32fd20cadbee728f993af075e908aea49ca7584064bb696336184527e5f5",
   "state_row_count": 57,
   "compiled_target_year": 2023,
   "artifact_parameters": {
@@ -22,5 +22,8 @@
     "rate": 0.016025082589816386,
     "start_year": 2000,
     "end_year": 2023
-  }
+  },
+  "refresh_notes": [
+    "F3 culture trim (removed inert mas/ind/traditional_secular/survival_self_expression); emissions_scale/decarb unchanged (derived from separate 2015 fixture/observed prior)."
+  ]
 }

@@ -318,7 +318,6 @@ class CompiledLLMPolicyManager:
         protest_risk = _clamp01(competitive.get("protest_risk", 0.4))
         debt_stress = _clamp01(competitive.get("debt_stress", 0.4))
         security_margin = float(competitive.get("security_margin", 1.0))
-        mas = _clamp01(float(culture.get("mas", 50.0)) / 100.0)
         climate_risk = _clamp01(climate.get("climate_risk", 0.5))
         wealth_signal = _clamp01(
             float(obs.self_state.get("economy", {}).get("gdp_per_capita", 15000.0)) / 50000.0
@@ -335,7 +334,7 @@ class CompiledLLMPolicyManager:
                 0.35 * hawkish
                 + 0.25 * rival_conflict
                 + 0.20 * max(0.0, 1.0 - security_margin)
-                + 0.20 * mas
+                + 0.10  # F3: former 0.20*mas (masculinity removed as inert); neutral baseline (mas=50->0.5)
             ),
             "sanctions_tolerance": _clamp01(
                 0.45 * sanction_propensity
