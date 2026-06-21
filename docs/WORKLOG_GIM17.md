@@ -702,3 +702,9 @@ switchable via CRISIS_SEVERITY_POWERLAW (default False -> sev=1.0, golden unchan
 0.134). On (alpha=1.5 Richardson): mean 0.997, median 0.60, p99 ~4.2x, ~14% of crises >=2x ->
 average crisis unchanged but a rare minority catastrophic (empirical power law vs fixed shock).
 tests/test_criticality.py; docs/CRITICALITY_RISK.md. Next: same severity on FX/regime/conflict.
+
+### F5 (step 2b) — Fat-tailed severity extended to FX + regime crises
+Applied the same switchable power-law severity multiplier (CRISIS_SEVERITY_POWERLAW, default off)
+to the FX-crisis and regime-collapse onset shocks (depth-scaled; sev=1.0 when disabled -> golden
+unchanged 1.026/1.606/0.134). Debt/FX/regime crises now all fat-tailed when enabled. Conflict/war
+severity (Richardson war-size) deferred as a separate design (cumulative, not single-shock).
