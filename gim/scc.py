@@ -133,6 +133,7 @@ SCC_PRIOR_PARAMS = [
     "PURE_TIME_PREFERENCE",
     "HEAT_CAP_SURFACE",
     "EMISSIONS_SCALE",
+    "GROWTH_DAMAGE_TFP_COEFF",  # F4: growth-effect damage uncertainty (level-vs-growth spread)
 ]
 
 

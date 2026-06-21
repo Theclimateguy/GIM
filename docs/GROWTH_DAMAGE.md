@@ -29,14 +29,23 @@ backtest unchanged: 1.026 / 1.606 / 0.134).
 The growth-effect channel lets GIM **span the Burke/Kotz upper tail** that a level multiplier
 structurally cannot reach — exactly the region driving the divergence across IAMs.
 
-## Calibration status (honest)
+## Calibration: a literature-anchored prior (done)
 
-`coeff = 0.001/°C` is **illustrative-upper**, not a calibrated central value: combined with 2%
-discounting over 200 yr it yields ~$647, above the EPA/RFF central (~$190) and into the
-high-tail. The channel's purpose is to **represent the deep growth-effect uncertainty as an
-explicit, switchable, uncertainty-bearing term**, not to pick a point. Proper calibration —
-fitting `GROWTH_DAMAGE_TFP_COEFF` to the Burke 2015 / Kotz 2024 estimates with a wide prior, and
-deciding the default on/off stance for headline runs — is the next F4 step.
+The coefficient now has a prior in `data/parameter_priors.csv` and is sampled by the SCC
+distribution (`SCC_PRIOR_PARAMS`), so the level-vs-growth "catastrophic spread" is an **explicit
+sampled uncertainty**, not a hidden modelling choice. The map (modern 2% discounting, 200 yr):
+
+| `GROWTH_DAMAGE_TFP_COEFF` | SCC 200 yr | interpretation |
+|---|---|---|
+| 0.0 | ~$184 | level-effect-only (DICE / RFF-GIVE view) ≈ EPA/RFF central |
+| 0.0003 | ~$314 | moderate growth-effect |
+| 0.0007 | ~$490 | strong growth-effect (Burke/Kotz) |
+
+Prior: triangular, mode 0.0002, range [0, 0.001] (Burke 2015 / Kotz 2024 / Moore & Diaz 2015).
+The mode sits near the low end because the level-vs-growth question is unresolved.
+**Production default stays 0.0** (conservative, level-only, golden-preserving); the ensemble and
+SCC distribution explore the growth-effect upside via the prior. Whether to move the headline
+default off 0.0 is a deliberate stance left to the user.
 
 ## Validation
 

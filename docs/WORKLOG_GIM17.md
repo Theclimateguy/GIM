@@ -667,3 +667,10 @@ cultural variable (geopolitics + decisions). Recommendation: wire in theory-supp
 (uai->risk aversion, lto->savings/R&D, pdi->institutions) with validated links, or remove the
 inert ones. tests/test_influence_audit.py (4); docs/UNIQUE_LAYER_AUDIT.md. Next: same audit for
 institutional/geopolitical inputs + external-data validation.
+
+### F4 (cont.) — Growth-effect damage prior (level-vs-growth uncertainty)
+Added GROWTH_DAMAGE_TFP_COEFF to parameter_priors.csv (triangular, mode 0.0002, [0,0.001];
+Burke/Kotz/Moore-Diaz) and to SCC_PRIOR_PARAMS, so the level-vs-growth "catastrophic spread" is
+an explicit SAMPLED uncertainty. Map (modern 2% disc, 200y): coeff 0->$184 (level-only),
+0.0003->$314, 0.0007->$490. Production default stays 0.0 (golden preserved); ensemble/SCC
+distribution explore the growth-effect upside. docs/GROWTH_DAMAGE.md.
