@@ -674,3 +674,13 @@ Burke/Kotz/Moore-Diaz) and to SCC_PRIOR_PARAMS, so the level-vs-growth "catastro
 an explicit SAMPLED uncertainty. Map (modern 2% disc, 200y): coeff 0->$184 (level-only),
 0.0003->$314, 0.0007->$490. Production default stays 0.0 (golden preserved); ensemble/SCC
 distribution explore the growth-effect upside. docs/GROWTH_DAMAGE.md.
+
+### F3 (step 3) — External metric map for social/geo/military
+Researched the established external indices to ground GIM's unique-layer inputs (the social-
+science analogue of AR6/PWT). docs/SOCIAL_GEO_METRICS.md maps each variable: regime_stability ->
+WGI Political Stability; conflict_proneness/at_war -> UCDP/PRIO + ACLED; military_power -> CINC
+(Correlates of War National Material Capabilities); inequality_gini -> SWIID; social_tension/
+protest -> Mass Mobilization/ACLED; trust_gov/regime_type -> WGI V&A / V-Dem / Polity; sanctions
+-> Global Sanctions Database; water_stress -> WRI Aqueduct. Priority: military_power -> CINC
+(replace the ungrounded scalar with an observable 0-1 capability share). Honest bar: skill vs
+base-rate, not AR6-grade precision.
