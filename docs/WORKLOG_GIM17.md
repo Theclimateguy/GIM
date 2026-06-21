@@ -657,3 +657,13 @@ coeff=0.001/degC (illustrative-upper): 2100 world GDP -4%, SCC 200y @ modern 2% 
 level-only) -> spans the Burke/Kotz upper tail a level multiplier cannot reach. Coefficient
 calibration + default stance is the next F4 step. gim/core/metrics.py; tests/test_growth_damage.py
 (4 tests); docs/GROWTH_DAMAGE.md. Remaining F4: land-use CO2, full AR6 net, coeff calibration.
+
+### F3 (step 1) — Unique-layer influence audit
+New gim/influence_audit.py: perturbs each input and measures normalised downstream output
+change. FINDING: GIM carries 8 Hofstede dimensions but only idv (individualism) is load-bearing
+(2.9e-2); the other 7 (pdi/mas/uai/lto/ind/traditional_secular/survival) are empirically INERT
+(0.0) - decorative complexity. regime_type (Democracy/Autocracy) is the load-bearing categorical
+cultural variable (geopolitics + decisions). Recommendation: wire in theory-supported dims
+(uai->risk aversion, lto->savings/R&D, pdi->institutions) with validated links, or remove the
+inert ones. tests/test_influence_audit.py (4); docs/UNIQUE_LAYER_AUDIT.md. Next: same audit for
+institutional/geopolitical inputs + external-data validation.
