@@ -126,3 +126,46 @@ def early_warning_score(series: Sequence[float], window: int = 8) -> Dict[str, f
 def early_warning_scan(series_by_name: Dict[str, Sequence[float]], window: int = 8) -> Dict[str, Dict[str, float]]:
     """Early-warning scores for several state series (e.g. trust, tension, debt, conflict)."""
     return {name: early_warning_score(s, window) for name, s in series_by_name.items()}
+
+
+def aggregate_series_from_world(world) -> Dict[str, float]:
+    """System-level risk aggregates for a single world snapshot (one time point)."""
+    agents = list(world.agents.values())
+    n = max(1, len(agents))
+    return {
+        "world_gdp": sum(a.economy.gdp for a in agents),
+        "mean_social_tension": sum(a.society.social_tension for a in agents) / n,
+        "mean_trust_gov": sum(a.society.trust_gov for a in agents) / n,
+        "mean_regime_stability": sum(a.risk.regime_stability for a in agents) / n,
+        "mean_unemployment": sum(a.economy.unemployment for a in agents) / n,
+        "max_debt_gdp": max((a.economy.public_debt / max(a.economy.gdp, 1e-9)) for a in agents),
+    }
+
+
+def run_and_scan(
+    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    *,
+    years: int = 40,
+    max_agents: int = 20,
+    base_year: int = 2026,
+    window: int = 10,
+    policy_mode: str = "simple",
+) -> Dict[str, Dict[str, float]]:
+    """Forward-project GIM and scan the system-level aggregates for critical slowing down.
+
+    Returns an early-warning score per aggregate (rising autocorrelation+variance => the system is
+    approaching a tipping point). A live systemic-risk monitor built on the validated EWS layer,
+    with no change to the simulation core.
+    """
+    from gim.core.policy import make_policy_map
+    from gim.core.simulation import step_world
+    from gim.core.world_factory import make_world_from_csv
+
+    world = make_world_from_csv(state_csv, max_agents=max_agents, base_year=base_year)
+    history: Dict[str, List[float]] = {}
+    policies = make_policy_map(world.agents.keys(), mode=policy_mode)
+    for _ in range(years):
+        step_world(world, policies)
+        for k, v in aggregate_series_from_world(world).items():
+            history.setdefault(k, []).append(v)
+    return early_warning_scan(history, window)

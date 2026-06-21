@@ -717,3 +717,9 @@ ground_military_power(world) sets military_power to the capability share (mean-1
 as a callable grounding tool (NOT auto-wired - overrides hand-set CSV values + shifts conflict
 dynamics, a calibration decision; golden unaffected as military_power is conflict-gated).
 tests/test_capability.py (4); docs/SOCIAL_GEO_METRICS.md.
+
+### F5 (step 3) — Live early-warning monitor on GIM trajectories
+criticality.run_and_scan: forward-projects GIM and scans system-level aggregates (world GDP, mean
+social tension/trust/regime stability/unemployment, max debt/GDP) for critical slowing down (rising
+autocorrelation+variance). No simulation-core change. On a calm 40-yr baseline it correctly raises
+no warning (scores low/negative). tests/test_criticality.py.
