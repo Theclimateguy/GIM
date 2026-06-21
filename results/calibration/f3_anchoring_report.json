@@ -1,0 +1,86 @@
+{
+  "cinc_grounding": {
+    "method": "Correlates of War CINC (computed in-repo from pop/energy/GDP/milex)",
+    "top10_capability_share": [
+      {
+        "country": "China",
+        "cinc": 0.2054
+      },
+      {
+        "country": "United States",
+        "cinc": 0.1468
+      },
+      {
+        "country": "India",
+        "cinc": 0.0957
+      },
+      {
+        "country": "Rest of Global South",
+        "cinc": 0.0798
+      },
+      {
+        "country": "Russia",
+        "cinc": 0.0305
+      },
+      {
+        "country": "Japan",
+        "cinc": 0.0268
+      },
+      {
+        "country": "Germany",
+        "cinc": 0.0232
+      },
+      {
+        "country": "Brazil",
+        "cinc": 0.0225
+      },
+      {
+        "country": "Indonesia",
+        "cinc": 0.0221
+      },
+      {
+        "country": "Rest of Middle East",
+        "cinc": 0.018
+      }
+    ],
+    "military_power_before_after_sample": {
+      "USA": {
+        "before": 1.7,
+        "after": 8.369
+      },
+      "CHN": {
+        "before": 1.51,
+        "after": 11.708
+      },
+      "DEU": {
+        "before": 1.46,
+        "after": 1.321
+      },
+      "JPN": {
+        "before": 1.382,
+        "after": 1.528
+      },
+      "IND": {
+        "before": 1.405,
+        "after": 5.457
+      },
+      "GBR": {
+        "before": 1.488,
+        "after": 0.953
+      },
+      "AG_GLOBAL_S": {
+        "before": 1.215,
+        "after": 4.548
+      },
+      "FRA": {
+        "before": 1.414,
+        "after": 0.979
+      }
+    }
+  },
+  "external_anchors": {
+    "gini_wb_anchored_countries": 0,
+    "wgi_stability_anchored_countries": 0,
+    "note": "0 anchored => run scripts/ingest_external_data.py first to populate data/external/ (World Bank API; not reachable from a restricted sandbox)."
+  }
+}
