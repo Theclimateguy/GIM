@@ -63,6 +63,13 @@ TFP_GROWTH_MAX = 0.05
 # gives a bounded persistent growth drag spanning toward the empirical growth-effect range.
 GROWTH_DAMAGE_TFP_COEFF = 0.0  # [F4] per-degC TFP-growth drag above the 2023 baseline; 0 => off.
 
+# Self-organized-criticality crisis severity (F5): make crisis shock DEPTH fat-tailed (power-law /
+# Richardson) instead of fixed. The severity multiplier is mean-1, so the AVERAGE shock equals the
+# existing fixed magnitude; only the tail changes. DEFAULT OFF (golden backtest preserved).
+CRISIS_SEVERITY_POWERLAW = False  # [F5] enable fat-tailed crisis severity.
+CRISIS_SEVERITY_ALPHA = 1.5       # [RICHARDSON] power-law exponent for event severity (~1.5-1.6).
+CRISIS_SEVERITY_MAX = 20.0        # truncation of the severity power law.
+
 # Fiscal and sovereign block.
 BASE_INTEREST_RATE = 0.02  # [WEO25]
 DEBT_SPREAD_THRESHOLD = 0.60  # [PRIOR]

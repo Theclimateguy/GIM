@@ -44,5 +44,26 @@ class EarlyWarningTests(unittest.TestCase):
         self.assertTrue(out["tipping"]["warning"])
 
 
+class PowerLawSeverityTests(unittest.TestCase):
+    def test_severity_is_mean_one_and_fat_tailed(self):
+        from gim.criticality import powerlaw_severity
+
+        rng = random.Random(7)
+        s = [powerlaw_severity(rng, alpha=1.5, a=1.0, b=20.0) for _ in range(40000)]
+        mean = sum(s) / len(s)
+        self.assertAlmostEqual(mean, 1.0, delta=0.06)          # golden-neutral on average
+        p99 = sorted(s)[int(0.99 * len(s))]
+        self.assertGreater(p99, 3.0)                            # heavy upper tail
+        self.assertGreater(sum(1 for v in s if v < 0.5) / len(s), 0.2)  # most events milder
+
+    def test_crisis_severity_toggle(self):
+        from types import SimpleNamespace
+        from gim.core.social import _crisis_severity
+
+        world = SimpleNamespace()  # not used when disabled
+        off = SimpleNamespace(CRISIS_SEVERITY_POWERLAW=False)
+        self.assertEqual(_crisis_severity(world, off), 1.0)
+
+
 if __name__ == "__main__":
     unittest.main()

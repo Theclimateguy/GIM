@@ -38,13 +38,19 @@ trajectory (ensemble member, backtest, projection), so it adds a criticality ris
 Validated (`tests/test_criticality.py`) on a synthetic system driven across a bifurcation
 (flagged) vs a stationary one (not flagged).
 
+## Delivered (F5, step 2): fat-tailed crisis severity
+
+`powerlaw_severity(rng, alpha, a, b)` draws a **mean-1, fat-tailed** severity multiplier from a
+truncated power law (inverse-CDF, normalised by the analytic mean). Wired into the debt-crisis
+onset (`gim/core/social.py`) to scale shock **depth**: `CRISIS_SEVERITY_POWERLAW` (default
+**False** → severity ≡ 1.0, golden backtest unchanged). With it on (`α=1.5`, Richardson), crisis
+severity is fat-tailed — verified mean 0.997, median 0.60, p99 ≈ 4.2×, ~14% of crises ≥2×
+baseline. So the *average* crisis is unchanged but a rare minority are catastrophic, matching the
+empirical power law instead of a fixed shock. (`tests/test_criticality.py`.)
+
 ## The fuller plan (next F5 steps)
 
-- **Power-law event magnitudes (switchable, calibrated to Richardson α≈1.5–1.6).** Replace the
-  fixed crisis/conflict shock magnitude with a draw from a power-law (truncated Pareto), so crisis
-  *severity* is fat-tailed and a few events are system-spanning. Default-off to preserve the golden
-  backtest; on = realistic tail risk. This is the highest-value structural change (directly fixes
-  the understated catastrophic tail).
+- Apply the same fat-tailed severity to **FX / regime crises and conflict escalation** (debt done).
 - **Cascade / contagion dynamics** on the trade/alliance/debt network: a local crisis can trigger
   an avalanche (GIM already has partial debt-spread contagion — generalise it toward an SOC
   sandpile on the network).

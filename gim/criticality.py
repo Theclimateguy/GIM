@@ -60,6 +60,34 @@ def _kendall_tau(y: Sequence[float]) -> float:
     return (concord - discord) / total if total else 0.0
 
 
+def truncated_pareto_mean(alpha: float, a: float, b: float) -> float:
+    """Mean of a truncated power law (pdf proportional to x^-alpha on [a, b])."""
+    if abs(alpha - 1.0) < 1e-9 or abs(alpha - 2.0) < 1e-9:
+        alpha += 1e-6  # avoid the degenerate exponents
+    num = (b ** (2.0 - alpha) - a ** (2.0 - alpha)) / (2.0 - alpha)
+    den = (b ** (1.0 - alpha) - a ** (1.0 - alpha)) / (1.0 - alpha)
+    return num / den if den != 0 else a
+
+
+def powerlaw_severity(rng, alpha: float = 1.5, a: float = 1.0, b: float = 20.0) -> float:
+    """A fat-tailed, **mean-1** event-severity multiplier (self-organized-criticality / Richardson).
+
+    Draws from a truncated power law `Pr(x) ~ x^-alpha` on `[a, b]` (Richardson war-size exponent
+    ~1.5-1.6) via inverse-CDF, then divides by the distribution's mean so E[severity] == 1. The
+    result is a multiplier whose *average* equals the model's existing fixed shock size, but whose
+    upper tail is heavy: most events are near-baseline, a few are catastrophic. Used to make crisis
+    / conflict severity fat-tailed instead of fixed.
+    """
+    if abs(alpha - 1.0) < 1e-9:
+        alpha += 1e-6
+    u = rng.random()
+    a1 = a ** (1.0 - alpha)
+    b1 = b ** (1.0 - alpha)
+    x = (a1 + u * (b1 - a1)) ** (1.0 / (1.0 - alpha))
+    mean = truncated_pareto_mean(alpha, a, b)
+    return x / mean if mean > 0 else 1.0
+
+
 def rolling_indicators(series: Sequence[float], window: int = 8) -> Dict[str, List[float]]:
     """Rolling lag-1 autocorrelation and variance over a sliding window."""
     x = [float(v) for v in series]

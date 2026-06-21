@@ -694,3 +694,11 @@ warning), post-hoc on any trajectory, zero golden risk. tests/test_criticality.p
 docs/CRITICALITY_RISK.md. Next (proposed): switchable power-law event magnitudes (Richardson
 alpha~1.5-1.6) for fat-tailed crisis severity; cascade/contagion; live EWS. Full SOC sandpile
 noted as a research branch (hard to validate as a forecaster).
+
+### F5 (step 2) — Fat-tailed (power-law) crisis severity
+criticality.powerlaw_severity: mean-1 truncated-Pareto severity multiplier (inverse-CDF,
+normalised by analytic mean). Wired into the debt-crisis onset (social.py) to scale shock depth,
+switchable via CRISIS_SEVERITY_POWERLAW (default False -> sev=1.0, golden unchanged 1.026/1.606/
+0.134). On (alpha=1.5 Richardson): mean 0.997, median 0.60, p99 ~4.2x, ~14% of crises >=2x ->
+average crisis unchanged but a rare minority catastrophic (empirical power law vs fixed shock).
+tests/test_criticality.py; docs/CRITICALITY_RISK.md. Next: same severity on FX/regime/conflict.

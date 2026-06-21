@@ -6,6 +6,20 @@ from .params import resolve_params
 from .critical_pending import get_transition_pending, record_debt_flow
 from .core import Action, AgentState, WorldState, clamp01, effective_trade_intensity
 from .economy import compute_effective_interest_rate
+from .rng import get_rng
+from ..criticality import powerlaw_severity
+
+
+def _crisis_severity(world: WorldState, cal_ns) -> float:
+    """Fat-tailed (power-law) crisis-severity multiplier (F5); 1.0 when disabled (default)."""
+    if not getattr(cal_ns, "CRISIS_SEVERITY_POWERLAW", False):
+        return 1.0
+    return powerlaw_severity(
+        get_rng(world),
+        alpha=getattr(cal_ns, "CRISIS_SEVERITY_ALPHA", 1.5),
+        a=1.0,
+        b=getattr(cal_ns, "CRISIS_SEVERITY_MAX", 20.0),
+    )
 
 _SOCIAL_CRITICAL_PENDING_ATTR = "_social_critical_pending"
 
@@ -439,35 +453,37 @@ def check_debt_crisis(agent: AgentState, world: WorldState, *, defer_critical_wr
         )
         crisis_year = risk.debt_crisis_active_years
         if crisis_year == 1:
+            # F5: fat-tailed crisis severity scales the shock DEPTH (sev=1.0 when disabled).
+            sev = _crisis_severity(world, cal)
             _set_critical_effective(
                 world,
                 agent,
                 "public_debt",
-                _effective_critical(agent, world, "public_debt") * cal.DEBT_CRISIS_DEBT_MULT,
+                _effective_critical(agent, world, "public_debt") * (1.0 + sev * (cal.DEBT_CRISIS_DEBT_MULT - 1.0)),
             )
             _set_critical_effective(
                 world,
                 agent,
                 "gdp",
-                _effective_critical(agent, world, "gdp") * cal.DEBT_CRISIS_GDP_MULT,
+                _effective_critical(agent, world, "gdp") * (1.0 + sev * (cal.DEBT_CRISIS_GDP_MULT - 1.0)),
             )
             economy.unemployment = min(
                 cal.DEBT_CRISIS_UNEMPLOYMENT_MAX,
-                economy.unemployment + cal.DEBT_CRISIS_UNEMPLOYMENT_HIT,
+                economy.unemployment + sev * cal.DEBT_CRISIS_UNEMPLOYMENT_HIT,
             )
             _set_critical_effective(
                 world,
                 agent,
                 "trust_gov",
-                max(0.0, _effective_critical(agent, world, "trust_gov") - cal.DEBT_CRISIS_TRUST_HIT),
+                max(0.0, _effective_critical(agent, world, "trust_gov") - sev * cal.DEBT_CRISIS_TRUST_HIT),
             )
             _set_critical_effective(
                 world,
                 agent,
                 "social_tension",
-                min(1.0, _effective_critical(agent, world, "social_tension") + cal.DEBT_CRISIS_TENSION_HIT),
+                min(1.0, _effective_critical(agent, world, "social_tension") + sev * cal.DEBT_CRISIS_TENSION_HIT),
             )
-            risk.regime_stability = max(0.0, risk.regime_stability - cal.DEBT_CRISIS_STABILITY_HIT)
+            risk.regime_stability = max(0.0, risk.regime_stability - sev * cal.DEBT_CRISIS_STABILITY_HIT)
         elif not recovered:
             _set_critical_effective(
                 world,
