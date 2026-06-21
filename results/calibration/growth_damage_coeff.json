@@ -1,0 +1,46 @@
+{
+  "experiment": "Stage-2 / F4 growth-effect damage coefficient calibration",
+  "discounting": {
+    "scheme": "modern RFF-SP/EPA-2023 2% Ramsey",
+    "rho": 0.002,
+    "eta": 1.24
+  },
+  "horizon_years": 200,
+  "golden_backtest_at_default": {
+    "gdp_rmse": 1.0256,
+    "co2_rmse": 1.6059,
+    "temp_rmse": 0.1343
+  },
+  "golden_target": {
+    "gdp_rmse": 1.026,
+    "co2_rmse": 1.606,
+    "temp_rmse": 0.134
+  },
+  "golden_intact": true,
+  "scc_map_current_vs_doc": [
+    {
+      "coeff": 0.0,
+      "scc_200y_current": 273.0,
+      "scc_200y_doc_pre_phase4": 184,
+      "drift_pct": 48.0
+    },
+    {
+      "coeff": 0.0003,
+      "scc_200y_current": 472.8,
+      "scc_200y_doc_pre_phase4": 314,
+      "drift_pct": 51.0
+    },
+    {
+      "coeff": 0.0007,
+      "scc_200y_current": 720.2,
+      "scc_200y_doc_pre_phase4": 490,
+      "drift_pct": 47.0
+    }
+  ],
+  "finding": "Level-only baseline SCC(2%,200y) is now ~$273, ~45-50% above the pre-Phase-4 documented $184 and above the EPA-2023/RFF-SP central (~$190). The Phase-4 channels (endogenous inflation/labour, Taylor rule, multi-GHG forcing, AR(1) variability) shifted the SCC curve up uniformly. The whole growth-damage spread rode up with it.",
+  "implication": "The production default GROWTH_DAMAGE_TFP_COEFF=0.0 no longer sits at the EPA/RFF central; the F1 objectivity anchor needs re-checking. This is the re-anchor signal the staged plan was designed to surface BEFORE activation.",
+  "production_stance": {
+    "GROWTH_DAMAGE_TFP_COEFF_default": 0.0,
+    "golden_preserving": true
+  }
+}
