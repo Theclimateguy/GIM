@@ -14,14 +14,21 @@ every layer, what it can do, and its limits. For where the model stands and what
 
 - Economy reproduces 2015–2023 national-income history; climate matches the mainstream scientific
   assessment (temperature sensitivity and the 1990–2023 warming/carbon record).
-- Headline regression ("golden") backtest: GDP error ≈ 1.03, global CO₂ error ≈ 1.61, temperature
-  error ≈ 0.13 — held stable throughout finalization.
-- Cost of carbon in the modern consensus range; conflict-risk validated against the standard
-  armed-conflict record (clearly beats a naive base rate).
+- Headline regression ("golden") backtest: GDP error ≈ 0.59, global CO₂ error ≈ 1.15, temperature
+  error ≈ 0.135 — improved by the objective economic core and held stable since.
+- The headline economic core is **objective and fully closed**: a calibrated capital–energy
+  substitution (nested-CES) production function, cost-minimising energy demand, energy/resource and
+  capital markets that clear by price, a closed stock-flow-consistent bank balance sheet
+  (money = deposits = loans), and SSP2-anchored forward growth.
+- Cost of carbon in the modern consensus range (~$140/tCO₂ at modern 2% discounting, with a
+  documented growth/discounting sensitivity); conflict-risk validated against the standard
+  armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
 - Strict, accounting-consistent government finance (including through debt crises).
-- Speculative/uncertain mechanisms (carbon-cycle feedbacks, fat-tailed crisis severity, growth-effect
-  damages, richer production, market clearing) are **switches, off by default**, so the headline run
-  stays anchored and they are explored separately as uncertainty.
+- A dedicated **weak-signal detection** module (Mahalanobis joint-state anomaly + structural-break
+  change-point + critical-slowing-down) for what-if / early-warning analysis (`gim/weak_signal.py`).
+- Deep-uncertainty mechanisms (carbon-cycle feedbacks, fat-tailed crisis severity, growth-effect
+  damages) remain **switches, off by default**, so the headline run stays anchored and they are
+  explored separately as uncertainty.
 
 ## Install
 
@@ -63,7 +70,10 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
-`17.0.0.dev0`. Highlights vs. the frozen version 16: Python 3.10+ and lean repo; enforceable
+`17.0.0`. Highlights vs. the frozen version 16: Python 3.10+ and lean repo; enforceable
 accounting/integrity invariants; deterministic reproducible runs; full uncertainty machinery
 (evidence-based priors, Monte-Carlo ensembles, sensitivity analysis, history matching, skill
-scoring); and the version-17 finalization across all layers (see `docs/FINALIZATION_REPORT.md`).
+scoring); an objective, fully-closed economic core (nested-CES production + market clearing + closed
+SFC bank balance sheet + SSP2 forward growth); a weak-signal detection module; and the version-17
+finalization across all layers. See [`CHANGELOG.md`](CHANGELOG.md) and
+`docs/FINALIZATION_REPORT.md`.

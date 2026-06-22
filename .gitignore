@@ -36,3 +36,11 @@ _archive_local/
 
 # bulk external source data (re-fetch via scripts/ingest_external_data.py + download_ucdp.py)
 data/external/raw/
+
+# LaTeX build artifacts (keep .tex/.bib/.pdf)
+paper/*.aux
+paper/*.log
+paper/*.blg
+paper/*.bbl
+paper/*.out
+paper/*.toc

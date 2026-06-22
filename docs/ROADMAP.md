@@ -7,15 +7,19 @@ limitations are, whether they block using the model, and the priority order for 
 
 **Solid and validated.**
 - Economy reproduces 2015–2023 national-income history; the headline now uses the objective
-  capital–energy-substitution (nested-CES) production core, which improved the fit (GDP error
-  1.03→0.63, CO₂ 1.61→1.11).
+  capital–energy-substitution (nested-CES) production core with full price/balance closure, which
+  improved the fit (GDP error 1.03→0.59, CO₂ 1.61→1.15, temperature 0.135).
 - Climate matches the mainstream scientific assessment (temperature sensitivity, the 1990–2023
   warming and carbon record).
-- Cost of carbon is in the modern consensus range, with uncertainty carried explicitly.
-- Government finance is strictly accounting-consistent, including through debt crises.
+- Cost of carbon is in the modern consensus range (~$140/tCO₂ at modern 2% discounting), with the
+  growth/discounting sensitivity carried and documented explicitly.
+- Government finance is strictly accounting-consistent, including through debt crises; the private
+  side now carries a closed stock-flow-consistent bank balance sheet (money = deposits = loans).
 - The distinctive social / political / geopolitical / cultural layers are validated to the honest
   bar for low-signal domains: the conflict-risk measure clearly beats a naive base rate
-  (skill score positive, good discrimination) against the standard armed-conflict record.
+  (AUC ≈ 0.74, Brier skill ≈ +0.14) against the standard armed-conflict record.
+- A dedicated weak-signal detection module (Mahalanobis joint-state anomaly + structural break +
+  critical slowing-down) supports what-if / early-warning analysis (`gim/weak_signal.py`).
 - Everything rides on real uncertainty machinery: ensembles, sensitivity analysis, history
   matching, skill scoring.
 
@@ -24,9 +28,11 @@ limitations are, whether they block using the model, and the priority order for 
    capital markets through prices, with a full closed bank balance sheet (money = deposits = loans).
    Full general-equilibrium clearing of *all* markets is still not attempted (a deliberate
    non-equilibrium stance), but the price/balance closure the model lacked is now in the base.
-2. **Climate benchmarks matched at the headline but not exhaustively.** The strongest carbon-cycle
-   feedbacks and the fullest greenhouse-gas accounting are switchable extras, kept out of the
-   default run; the cost-of-carbon sits a little above the most-cited official central estimate.
+2. **Climate benchmarks settled by evidence-based decisions (not exhaustively forced).** The
+   non-CO₂ forcing keeps the calibrated net as the headline (the AR6 central over-warms the validated
+   record), the strongest carbon-cycle feedbacks stay ensemble-only (deterministic feedback explodes
+   the cost-of-carbon), and the cost-of-carbon is reported with its growth/discounting sensitivity
+   rather than tuned to a target. See `docs/CLIMATE_BENCHMARKS.md`.
 3. ~~**The economy's production core is simple.**~~ **[Resolved.]** The headline now uses a
    calibrated capital–energy-substitution (nested-CES) core with cost-minimising energy demand; the
    remaining economic gap is market clearing (item 1 above), not the production recipe.
@@ -91,14 +97,19 @@ to be brought fully up to the level of the rest of the model, the production sid
    every loan creates a matching deposit, broad money = deposits = loans (enforceable identity), on
    top of the strict government-debt accounting. Behavioural money→price transmission is a small
    remaining calibratable extension.
-4. **Close the remaining climate-benchmark gaps**: adopt the fullest greenhouse-gas accounting as
-   the default and decide the standing of the carbon-cycle feedbacks; reconcile the cost-of-carbon
-   headline with the official central estimate or document the (evidence-based) reason it sits higher.
+4. **[DONE] Close the climate-benchmark gaps by evidence-based decisions.** Non-CO₂ forcing keeps the
+   calibrated net as the headline (AR6 central over-warms the validated record); carbon-cycle
+   feedbacks stay ensemble-only (deterministic feedback explodes the cost-of-carbon); the
+   cost-of-carbon is reported with its growth/discounting sensitivity rather than tuned to a target.
+   See `docs/CLIMATE_BENCHMARKS.md`.
 5. **Forward-looking expectations** for investment and saving (or a documented defence of the current
-   backward-looking choice).
+   backward-looking choice). *Partially addressed* by SSP2-anchored forward growth; the behavioural
+   expectations channel remains future work.
 6. **Stronger growth foundations**: identify the long-run productivity drivers and anchor baseline
    growth to the standard scenario pathways, reporting growth skill against naive baselines.
+   *Partially done* — forward growth is now SSP2-anchored with GDP skill-vs-naive reported.
 
-Items 1–3 (the objective production core + full price/balance closure) are **done and now the base
-model**. Item 4 (climate-benchmark gaps) is the next planned step; 5–6 are refinements. None is a
+Items 1–4 (the objective production core + full price/balance closure + climate-benchmark decisions)
+are **done and now the base model**. Items 5–6 are partially addressed refinements (forward-looking
+behavioural expectations and a fuller growth foundation), documented as future work. None is a
 prerequisite for using the model today for its intended scenario-and-uncertainty purpose.
