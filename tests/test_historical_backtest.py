@@ -17,9 +17,12 @@ class HistoricalBacktestTests(unittest.TestCase):
     # production (capital-energy substitution) + cost-minimizing energy demand, with EMISSIONS_SCALE
     # re-derived to 1.03. The objective core IMPROVES the historical fit: GDP RMSE 1.026 -> 0.630 and
     # CO2 RMSE 1.606 -> 1.106 (temperature ~unchanged). Prior Cobb-Douglas golden was 1.026/1.606/0.134.
+    # [E3 full-closure base] headline = objective economic core (nested-CES + cost-min energy) PLUS
+    # full price closure (resource + capital-market clearing). GDP RMSE 0.630->0.590 (further
+    # improvement), CO2 1.106->1.146, temperature ~0.135. Prior Cobb-Douglas golden was 1.026/1.606/0.134.
     GOLDEN = {
-        "gdp_rmse_trillions": 0.630,
-        "global_co2_rmse_gtco2": 1.106,
+        "gdp_rmse_trillions": 0.590,
+        "global_co2_rmse_gtco2": 1.146,
         "temperature_rmse_c": 0.135,
     }
     TOLERANCE = 0.01

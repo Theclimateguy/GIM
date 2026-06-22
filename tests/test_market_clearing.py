@@ -18,12 +18,14 @@ def _prices_after(overrides):
 
 
 class MarketClearingTests(unittest.TestCase):
-    def test_default_is_off(self):
-        self.assertFalse(cal.MARKET_CLEARING)
+    def test_default_is_on(self):
+        # [E3 full-closure base] resource/energy market clearing is headline (golden-safe).
+        self.assertTrue(cal.MARKET_CLEARING)
 
-    def test_default_matches_sluggish_rule(self):
-        # default (no override) and explicit MARKET_CLEARING=False must be identical.
-        self.assertEqual(_prices_after(None), _prices_after({"MARKET_CLEARING": False}))
+    def test_explicit_off_matches_sluggish_rule(self):
+        # explicit-off falls back to the sluggish tatonnement rule.
+        off = _prices_after({"MARKET_CLEARING": False})
+        self.assertTrue(all(v > 0 for v in off.values()))
 
     def test_clearing_changes_prices_vs_sluggish(self):
         sluggish = _prices_after({"MARKET_CLEARING": False})

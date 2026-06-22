@@ -23,14 +23,15 @@ def _capital_after_transient_rate(bump):
 
 
 class CapitalClearingTests(unittest.TestCase):
-    def test_default_is_off(self):
-        self.assertFalse(cal.CAPITAL_MARKET_CLEARING)
+    def test_default_is_on(self):
+        # [E3 full-closure base] capital-market clearing is headline.
+        self.assertTrue(cal.CAPITAL_MARKET_CLEARING)
 
-    def test_default_golden_preserved(self):
+    def test_default_golden(self):
         with contextlib.redirect_stdout(io.StringIO()):
             g = run_historical_backtest()
-        self.assertAlmostEqual(g.gdp_rmse_trillions, 0.630, places=2)
-        self.assertAlmostEqual(g.global_co2_rmse_gtco2, 1.106, places=2)
+        self.assertAlmostEqual(g.gdp_rmse_trillions, 0.590, places=2)
+        self.assertAlmostEqual(g.global_co2_rmse_gtco2, 1.146, places=2)
 
     def test_transient_cost_of_capital_shock_lowers_capital(self):
         # baseline-anchored: a transient rise in the cost of capital (rate) cuts investment -> capital.

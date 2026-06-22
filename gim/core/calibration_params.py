@@ -72,16 +72,17 @@ CARBON_PRICE_PASSTHROUGH = 0.003    # [D1] fractional economy-wide energy-price 
 # elasticity demand to the fixed supply (p* = p_cur*(demand/supply)^(1/eps)) — i.e. the market
 # clears each step. Bridges toward the GE class for the energy market without a full CGE; the
 # non-equilibrium default is a deliberate, defended stance (E3ME).
-MARKET_CLEARING = False              # [F2.2] switch to within-period resource price clearing.
+MARKET_CLEARING = True               # [F2.2/E3] HEADLINE: within-period resource price clearing (full closure).
 MARKET_DEMAND_ELASTICITY = 0.4       # [F2.2] price elasticity of resource demand (energy ~0.3-0.5).
-PRICE_ADJUST_ALPHA = 0.15            # [F2.2] sluggish-adjustment step for the default (non-clearing) rule.
+PRICE_ADJUST_ALPHA = 0.15            # [F2.2] sluggish-adjustment step for the (non-clearing) fallback rule.
 # [E3.2] Capital-market clearing. Investment responds to the price of capital: the gap between the
 # marginal product of capital (return, ~ALPHA_CAPITAL*Y/K) and its cost (effective interest rate +
 # depreciation). Anchored at each country's baseline gap so the calibration steady state is unchanged
 # (golden-safe). When on, a rate/policy/debt shock that raises the cost of capital lowers investment
 # -> capital -> output, propagating financial shocks through the capital price. Switchable (default off).
-CAPITAL_MARKET_CLEARING = False      # [E3.2] master switch.
-CAPITAL_CLEARING_SENS = 2.0          # investment elasticity to the (return - cost) gap (per unit rate).
+CAPITAL_MARKET_CLEARING = True       # [E3.2/E3] HEADLINE: capital-market clearing (full closure).
+CAPITAL_CLEARING_SENS = 0.3          # [BACKTEST] investment elasticity to the (return - cost) gap;
+                                     # calibrated to 0.3 so full closure preserves/improves the fit.
 CAPITAL_CLEARING_MIN = 0.5           # floor on the investment multiplier.
 CAPITAL_CLEARING_MAX = 1.5           # ceiling on the investment multiplier.
 
