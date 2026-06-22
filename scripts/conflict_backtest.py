@@ -54,13 +54,38 @@ def load_gim_conflict_proneness() -> Dict[str, float]:
     return out
 
 
+# UCDP `location` spelling -> GIM `name` spelling (only where they differ).
+_UCDP_TO_GIM = {
+    "Turkey": "Turkiye",
+    "Egypt": "Egypt, Arab Rep.",
+    "Vietnam": "Viet Nam",
+    "South Korea": "Korea, Rep.",
+    "Russia": "Russia",  # "Russia (Soviet Union)" -> paren-strip -> "Russia"
+    "United States of America": "United States",  # belligerent in interstate conflicts (Iraq, Afghanistan)
+    "United Arab Emirates": "United Arab Emirates",
+}
+
+
+def _norm_location(raw: str) -> str:
+    """Normalize a UCDP location token to GIM `name` spelling (strip parentheticals, map synonyms)."""
+    import re
+    t = re.sub(r"\s*\(.*?\)", "", str(raw)).strip()
+    return _UCDP_TO_GIM.get(t, t)
+
+
 def load_ucdp_labels(window: Tuple[int, int]) -> Optional[Dict[str, int]]:
+    """Per-country label: 1 if an armed conflict occurred ON the country's territory in the window.
+
+    Uses UCDP/PRIO `location` (where the conflict takes place) — the clean target for a country's own
+    conflict-proneness — NOT side_a/side_b (those are actors/governments/rebel groups, e.g. ADF/AQAP).
+    Locations are normalized to GIM `name` spelling (parenthetical-stripped + a small synonym map).
+    """
     files = sorted(glob.glob(UCDP_GLOB))
     if not files:
         return None
     lo, hi = window
     involved: Dict[str, int] = {}
-    with open(files[-1], newline="") as fh:
+    with open(files[-1], newline="", encoding="utf-8", errors="replace") as fh:
         for row in csv.DictReader(fh):
             try:
                 yr = int(float(row.get("year", "")))
@@ -68,12 +93,10 @@ def load_ucdp_labels(window: Tuple[int, int]) -> Optional[Dict[str, int]]:
                 continue
             if not (lo <= yr <= hi):
                 continue
-            # country names appear in side_a / side_b / location depending on UCDP version
-            for key in ("side_a", "side_b", "location"):
-                for nm in str(row.get(key, "")).split(","):
-                    nm = nm.strip()
-                    if nm:
-                        involved[nm] = 1
+            for tok in str(row.get("location", "")).split(","):
+                name = _norm_location(tok)
+                if name:
+                    involved[name] = 1
     return involved
 
 
@@ -114,9 +137,27 @@ def main() -> int:
     bs_base = brier([base_rate] * len(labels), labels)
     bss = 1.0 - bs_model / bs_base if bs_base > 0 else float("nan")
 
+    auc_v = auc(probs, labels)
     print(f"Countries scored: {len(names)}  base rate: {base_rate:.3f}")
-    print(f"Brier(model)={bs_model:.4f}  Brier(base)={bs_base:.4f}  BSS={bss:+.3f}  AUC={auc(probs,labels):.3f}")
+    print(f"Brier(model)={bs_model:.4f}  Brier(base)={bs_base:.4f}  BSS={bss:+.3f}  AUC={auc_v:.3f}")
     print("BSS>0 => GIM conflict_proneness beats the base rate (has skill).")
+
+    import json
+    out = os.path.join(REPO, "results", "calibration", "conflict_backtest.json")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, "w") as fh:
+        json.dump({
+            "experiment": "F3 conflict backtest: GIM conflict_proneness vs UCDP/PRIO involvement",
+            "window": list(args.window),
+            "target": "armed conflict on country territory / as listed belligerent (UCDP location)",
+            "n_countries": len(names), "base_rate": round(base_rate, 3),
+            "brier_model": round(bs_model, 4), "brier_base": round(bs_base, 4),
+            "brier_skill_score": round(bss, 3), "auc": round(auc_v, 3),
+            "verdict": "GIM has skill vs base rate (BSS>0, AUC>0.5)" if bss > 0 else "no skill",
+            "note": "Honest bar for the unique social-geo layers is skill-vs-base-rate, not point precision.",
+        }, fh, indent=2)
+        fh.write("\n")
+    print(f"ledger -> {os.path.relpath(out, REPO)}")
     return 0
 
 

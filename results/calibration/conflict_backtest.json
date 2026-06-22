@@ -1,0 +1,16 @@
+{
+  "experiment": "F3 conflict backtest: GIM conflict_proneness vs UCDP/PRIO involvement",
+  "window": [
+    1990,
+    2023
+  ],
+  "target": "armed conflict on country territory / as listed belligerent (UCDP location)",
+  "n_countries": 57,
+  "base_rate": 0.368,
+  "brier_model": 0.1994,
+  "brier_base": 0.2327,
+  "brier_skill_score": 0.143,
+  "auc": 0.736,
+  "verdict": "GIM has skill vs base rate (BSS>0, AUC>0.5)",
+  "note": "Honest bar for the unique social-geo layers is skill-vs-base-rate, not point precision."
+}
