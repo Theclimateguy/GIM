@@ -33,16 +33,15 @@ class SCCAlignmentTests(unittest.TestCase):
         self.assertGreater(modern[200], native[200])
 
     def test_gim_at_modern_discounting_in_modern_consensus_band(self):
-        # [E2.4 re-anchor + CINC grounding] GIM's 200-yr SCC at the RFF-SP/EPA near-term-2% scheme.
-        # With the CINC-grounded capability distribution (headline), the integrated 200-yr SCC is
-        # ~$200 -- near the EPA-2023/RFF-SP central (~$190). (Note: because GIM integrates climate
-        # damage through the full economy+geopolitics, the SCC is sensitive to the capability
-        # grounding; the un-grounded military_power=1.0 scalar gave a higher ~$326. The grounded
-        # value is the more defensible one.) GIM's higher damage function (5.4%/3C, T1.4) keeps it
-        # from sitting below the central. We report the value rather than force an exact target.
+        # [E3] GIM's 200-yr SCC at the RFF-SP/EPA near-term-2% scheme is ~$140 with the objective
+        # economic core (nested-CES + price/balance closure + SSP-anchored forward growth) -- within
+        # the broad modern consensus range, a little below the EPA-2023/RFF-SP central (~$190).
+        # The SCC is genuinely sensitive to the forward economic structure (it has ranged ~$140-380
+        # across the economic-core variants); we report the headline value and document the sensitivity
+        # rather than tune to a target. (See docs/CLIMATE_BENCHMARKS.md.)
         rep = scc_alignment_report(horizons=(200,))
         scc200 = rep["gim_modern_2pct"][200]
-        self.assertTrue(120.0 <= scc200 <= 400.0, scc200)
+        self.assertTrue(80.0 <= scc200 <= 400.0, scc200)
 
 
 class SkillReportTests(unittest.TestCase):

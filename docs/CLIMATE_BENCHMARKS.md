@@ -34,22 +34,24 @@ deterministic headline. (See `docs/CARBON_CYCLE_FEEDBACK.md`.)
 
 ## C. Social cost of carbon — reported honestly, above the EPA/RFF central by design
 
-Headline SCC (post the objective production core + price/balance closure, with CINC-grounded
-capabilities):
+Headline SCC (objective economic core: nested-CES production + price/balance closure + SSP-anchored
+forward growth + CINC-grounded capabilities):
 
 | discounting | 200-yr SCC |
 |---|---|
-| modern RFF-SP/EPA 2% Ramsey (ρ≈0.2%, η≈1.24) | **~$245 / tCO₂** |
-| Nordhaus-native (ρ=1.5%, η=1.45) | ~$92 / tCO₂ |
+| modern RFF-SP/EPA 2% Ramsey (ρ≈0.2%, η≈1.24) | **~$140 / tCO₂** |
+| Nordhaus-native (ρ=1.5%, η=1.45) | ~$43 / tCO₂ |
 
-**Decision: report the value; do not detune validated damages to force $190.** GIM's modern-2% SCC
-(~$245) sits ~30% above the EPA-2023 ($190) / RFF-SP ($185) central. The reason is honest and
-documented: GIM's damage function is higher (5.4% of output at 3 °C, cross-validated against
-Burke/Hsiang/Howard-Sterner in T1.4 — about 2.5× DICE), and the headline includes a land-use CO₂
-source. Forcing the SCC to $190 would mean lowering damages below their cross-validated value, which
-is not defensible. The Nordhaus-native headline is lower (~$92) purely from the discount convention.
-The growth-effect damage channel and carbon-cycle feedbacks add further upside in the ensemble/SCC
-distribution. (See `docs/WELFARE_SCC.md`, `docs/BENCHMARK_ALIGNMENT.md`.)
+**Decision: report the value; document the sensitivity; do not tune to a target.** GIM's modern-2%
+SCC (~$140) lands within the broad modern consensus range, a little below the EPA-2023 ($190) /
+RFF-SP ($185) central. Crucially, the SCC is **genuinely sensitive to the forward economic
+structure** — it ranged ~$140–380 across the objective-core variants (production form, price
+closure, SSP-anchored growth), which is the well-known growth/discounting sensitivity of the SCC
+amplified by GIM's integrated structure. Rather than tune any single variant to hit $190 (which
+would mean detuning the cross-validated damages, 5.4%/3 °C in T1.4), we report the headline value and
+state the sensitivity band. The growth-effect damage channel and carbon-cycle feedbacks add further
+upside in the ensemble/SCC distribution. This sensitivity is itself a result worth reporting in the
+paper. (See `docs/WELFARE_SCC.md`, `docs/BENCHMARK_ALIGNMENT.md`.)
 
 ## Summary
 

@@ -224,7 +224,18 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
         warming = world.global_state.temperature_global - TGLOBAL_2023_C
         growth_drag = growth_drag_coeff * max(0.0, warming)
 
-    tfp_growth = cal.TFP_DRIFT + tfp_growth + diffusion - growth_drag
+    # [E3.4/SSP] Time-varying baseline TFP drift: the historical window (year <= SSP_FORWARD_FROM_YEAR)
+    # keeps the backtest-calibrated drift so the 2015-2023 golden is untouched; forward years use the
+    # SSP2 "middle-of-the-road" baseline (~0.018) so long-horizon projections (SCC, 2100) are anchored
+    # to a recognised scenario rather than the lower emergent rate. Endogenous R&D/diffusion unchanged.
+    drift = cal.TFP_DRIFT
+    if getattr(cal, "SSP_FORWARD_GROWTH", False):
+        base_year = getattr(world.global_state, "_calendar_year_base", 2026)
+        year = base_year + int(getattr(world, "time", 0))
+        if year > getattr(cal, "SSP_FORWARD_FROM_YEAR", 2024):
+            drift = getattr(cal, "SSP_FORWARD_TFP_DRIFT", 0.018)
+
+    tfp_growth = drift + tfp_growth + diffusion - growth_drag
     tfp_growth = max(cal.TFP_GROWTH_MIN, min(tfp_growth, cal.TFP_GROWTH_MAX))
 
     economy.tfp *= 1.0 + tfp_growth

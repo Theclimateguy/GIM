@@ -59,16 +59,21 @@ def update_resource_stocks(
 
     total_primary_production: Dict[str, float] = {name: 0.0 for name in RESOURCE_NAMES}
 
-    # [E3.1] Cost-minimizing energy demand. Mirrors the existing metals price substitution: a higher
-    # energy price lowers cost-minimizing energy demand per the capital-energy substitution elasticity
-    # (E ∝ p_E^(-sigma_KE)). Switchable (default off) and anchored at ENERGY_PRICE_REF so the
-    # calibration baseline is unchanged -> golden-safe; activated with the nested-CES core (E3.1c),
-    # where capital substitutes for the foregone energy so output is preserved (true substitution).
+    # [E3.1] Cost-minimizing energy demand: energy use responds to the energy *price level* with the
+    # capital-energy substitution elasticity (E ∝ p_E^(-sigma_KE)). Implemented as a year-over-year
+    # price-change response (adjust = (p_t/p_{t-1})^(-sigma)) so a CONSTANT price leaves demand
+    # unchanged -- equivalent to a level response anchored at the initial price, and (critically)
+    # non-compounding: a permanent price level gives a one-time demand shift, not an exponential
+    # ratchet. (Using a fixed reference here compounds a constant price into runaway decay.)
+    # Switchable; golden-safe (the 2015-2023 energy price barely moves from its initial level).
     cal = resolve_params(world)
     energy_demand_response = bool(getattr(cal, "ENERGY_DEMAND_PRICE_RESPONSE", False))
     energy_sigma = max(0.0, getattr(cal, "CES_SIGMA_KE", 0.4))
-    energy_price_ref = max(1e-6, getattr(cal, "ENERGY_PRICE_REF", 1.0))
     energy_price_now = max(1e-6, float(world.global_state.prices.get("energy", 1.0)))
+    energy_price_prev = max(1e-6, float(getattr(world.global_state, "_energy_demand_price_prev", energy_price_now)))
+    energy_demand_adjust = (energy_price_now / energy_price_prev) ** (-energy_sigma)
+    if energy_demand_response:
+        world.global_state._energy_demand_price_prev = energy_price_now
 
     for agent_id, agent in world.agents.items():
         for resource_name in RESOURCE_NAMES:
@@ -77,8 +82,7 @@ def update_resource_stocks(
                 continue
 
             if resource_name == "energy" and energy_demand_response:
-                adjust = (energy_price_now / energy_price_ref) ** (-energy_sigma)
-                resource.consumption = max(0.0, resource.consumption * adjust)
+                resource.consumption = max(0.0, resource.consumption * energy_demand_adjust)
 
             if resource_name == "metals":
                 price = world.global_state.prices.get("metals", metals_price_ref)

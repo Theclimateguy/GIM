@@ -123,7 +123,14 @@ POLICY_LOG_DEPTH = 3  # [PRIOR] Visible action/outcome memory horizon for agent 
 # TFP block.
 TFP_RD_SHARE_SENS = 0.30  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
 TFP_TRADE_SPILLOVER_SENS = 0.30  # [PRIOR]
-TFP_DRIFT = 0.01  # [PRIOR]
+TFP_DRIFT = 0.01  # [PRIOR] historical baseline TFP drift (calibrated to the 2015-2023 backtest).
+# [E3.4/SSP] Forward (post-2024) baseline TFP drift anchored to SSP2 "middle of the road" (~0.018),
+# so long-horizon projections (SCC, 2100) sit on a recognised scenario instead of the lower emergent
+# rate. HEADLINE-ON; golden-safe because the 2015-2023 backtest is entirely in the historical window
+# (year <= SSP_FORWARD_FROM_YEAR) and keeps TFP_DRIFT. See docs/SCENARIO_ALIGNMENT.md (SSP_TFP_DRIFT).
+SSP_FORWARD_GROWTH = True       # use the SSP2 forward baseline drift after SSP_FORWARD_FROM_YEAR.
+SSP_FORWARD_FROM_YEAR = 2024    # last historical year (forward = strictly after this).
+SSP_FORWARD_TFP_DRIFT = 0.018   # SSP2 baseline TFP drift (Dellink et al. 2017 / Riahi et al. 2017).
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
 TFP_GROWTH_MIN = -0.05
 TFP_GROWTH_MAX = 0.05

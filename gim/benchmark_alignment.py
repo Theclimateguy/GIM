@@ -83,12 +83,13 @@ def scc_alignment_report(**kw) -> Dict[str, object]:
         "gim_modern_discount": {"rho": MODERN_RHO, "eta": MODERN_ETA},
         "benchmarks": {b.name: b.value for b in MODERN_SCC_BENCHMARKS},
         "note": (
-            "[E3.4] At modern 2% discounting GIM's 200-yr SCC (~$245) sits ABOVE the EPA-2023/RFF-SP "
-            "central (~$190). This is honest, not a deficiency: GIM's damage function is higher "
-            "(5.4%/3C, cross-validated T1.4, ~2.5x DICE) and the headline includes a land-use CO2 "
-            "source and the objective production core. We report the true value rather than detune "
-            "validated damages to force $190. The Nordhaus-native headline is lower (~$92, the "
-            "discount convention). Growth-effect damages + carbon feedback add further ensemble upside."
+            "[E3] At modern 2% discounting GIM's 200-yr SCC is ~$140 -- within the broad modern "
+            "consensus range, a little below the EPA-2023/RFF-SP central (~$190). The SCC is genuinely "
+            "sensitive to the forward economic structure (it ranged ~$140-380 across the objective-core "
+            "variants -- production, price closure, SSP-anchored growth), which is the well-known "
+            "growth/discounting sensitivity of the SCC. We report the headline value and document the "
+            "sensitivity rather than tune to a target. Nordhaus-native is lower (~$43, discount "
+            "convention); growth-effect damages + carbon feedback add ensemble upside."
         ),
     }
 
