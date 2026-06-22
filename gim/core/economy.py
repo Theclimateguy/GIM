@@ -152,13 +152,20 @@ def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
     )
 
 
-def _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma, sigma_ke):
-    """KLE nested production core (F2.1): inner CES on (capital, energy), outer Cobb-Douglas vs labour.
+def _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma, sigma_ke,
+                     base_capital=None, base_energy=None):
+    """KLE nested production core (E3.1): inner CES on (capital, energy), outer Cobb-Douglas vs labour.
 
-    Inner KE bundle uses capital/energy income shares within (alpha, gamma) and elasticity
-    `sigma_ke`; the outer nest keeps the Cobb-Douglas exponents (alpha+gamma) on the KE bundle and
-    beta on labour, preserving the model's mildly-decreasing returns. At sigma_ke == 1 this equals
-    capital**alpha * energy**gamma * labour**beta exactly (the validated Cobb-Douglas core).
+    Inner capital-energy bundle uses the capital/energy income shares within (alpha, gamma) and the
+    substitution elasticity `sigma_ke`; the outer nest keeps the Cobb-Douglas exponents (alpha+gamma)
+    on the bundle and beta on labour, preserving the model's mildly-decreasing returns.
+
+    **Calibrated (normalized) CES.** When base values are given, the bundle is referenced to each
+    country's base-year capital/energy so that AT THE BASE POINT it equals the Cobb-Douglas core
+    exactly (level and first derivatives) for ANY sigma_ke. This makes turning the nested core on
+    golden-preserving by construction: at the calibration year it reproduces Cobb-Douglas, and it
+    diverges only as the capital-energy mix moves away from base -- i.e. genuine substitution.
+    At sigma_ke == 1 it is identical to capital**alpha * energy**gamma * labour**beta everywhere.
     """
     ag = alpha + gamma
     if ag <= 0:
@@ -168,7 +175,13 @@ def _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma, sigma_ke)
         ke = (capital ** a_k) * (energy_input ** a_e)
     else:
         rho = (sigma_ke - 1.0) / sigma_ke
-        ke = (a_k * capital ** rho + a_e * energy_input ** rho) ** (1.0 / rho)
+        if base_capital and base_energy and base_capital > 0 and base_energy > 0:
+            # normalized form: equals the Cobb-Douglas bundle at (base_capital, base_energy)
+            ke0 = (base_capital ** a_k) * (base_energy ** a_e)
+            bracket = a_k * (capital / base_capital) ** rho + a_e * (energy_input / base_energy) ** rho
+            ke = ke0 * bracket ** (1.0 / rho)
+        else:
+            ke = (a_k * capital ** rho + a_e * energy_input ** rho) ** (1.0 / rho)
     return (ke ** ag) * (labor ** beta)
 
 
@@ -200,10 +213,18 @@ def update_economy_output(
     tech_level = max(0.5, agent.technology.tech_level)
     tech_factor = 1.0 + cal.TECH_OUTPUT_SENS * max(0.0, tech_level - 1.0)
 
-    # [F2.1] Production function: Cobb-Douglas (default, golden) or nested CES (KLE).
+    # [F2.1/E3.1] Production function: Cobb-Douglas (default) or calibrated nested CES (KLE).
     if getattr(cal, "NESTED_CES", False):
-        core = _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma,
-                                getattr(cal, "CES_SIGMA_KE", 1.0))
+        # Capture each country's base-year capital/energy once, so the calibrated CES equals
+        # Cobb-Douglas at the base point (golden-preserving on activation) and substitutes off-base.
+        if getattr(economy, "_ces_base_capital", None) is None:
+            economy._ces_base_capital = capital
+            economy._ces_base_energy = energy_input
+        core = _nested_ces_core(
+            capital, labor, energy_input, alpha, beta, gamma,
+            getattr(cal, "CES_SIGMA_KE", 1.0),
+            base_capital=economy._ces_base_capital, base_energy=economy._ces_base_energy,
+        )
     else:
         core = (capital**alpha) * (labor**beta) * (energy_input**gamma)
     gdp_potential = tfp * tech_factor * core

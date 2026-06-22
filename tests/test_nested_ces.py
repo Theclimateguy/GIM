@@ -20,6 +20,20 @@ class NestedCesTests(unittest.TestCase):
             ces = _nested_ces_core(K, L, E, a, b, g, 1.0)
             self.assertAlmostEqual(cd, ces, places=9)
 
+    def test_calibrated_ces_equals_cobb_douglas_at_base_point(self):
+        # [E3.1] With base normalization, the CES equals Cobb-Douglas at the base point for ANY sigma
+        # (this is what makes activation golden-preserving). Off-base it diverges (substitution).
+        a, b, g = 0.30, 0.60, 0.042
+        K0, L, E0 = 7.0, 1.0, 1.5
+        for sigma in (0.3, 0.4, 0.7):
+            cd_base = (K0 ** a) * (L ** b) * (E0 ** g)
+            ces_base = _nested_ces_core(K0, L, E0, a, b, g, sigma, base_capital=K0, base_energy=E0)
+            self.assertAlmostEqual(cd_base, ces_base, places=9)
+            # off the base point the calibrated CES differs (genuine substitution)
+            ces_off = _nested_ces_core(K0 * 1.5, L, E0 * 0.7, a, b, g, sigma, base_capital=K0, base_energy=E0)
+            cd_off = (K0 * 1.5) ** a * (L ** b) * (E0 * 0.7) ** g
+            self.assertNotAlmostEqual(ces_off, cd_off, places=6)
+
     def test_sigma_below_one_makes_K_E_complements(self):
         # With gross complements (sigma<1), raising energy alone while capital is scarce yields
         # less extra output than the unit-elastic (Cobb-Douglas) case.
