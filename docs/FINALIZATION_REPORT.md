@@ -1,7 +1,8 @@
 # GIM17 Phase 5 — Finalization Report (June 2026)
 
-Capstone for the staged finalization run. What was done, what was found, what remains. Companion
-to `docs/PHASE5_FINALIZATION_PLAN.md` (plan + locked decisions) and the per-area docs.
+Capstone for the staged finalization run. What was done, what was found, what remains. See
+`docs/ROADMAP.md` for current standing + next steps, `docs/RE_ANCHOR.md` for the headline-activation
+decision, and the per-area docs.
 
 ## Decisions executed
 

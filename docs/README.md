@@ -1,52 +1,57 @@
 # GIM17 Documentation Index
 
-This directory is split into:
+Source-of-truth documentation for version 17. (Engineering change-history and superseded planning
+notes have been moved out of the repository to keep it clean.)
 
-- active runtime documentation (`docs/*.md`, `docs/*.csv`)
-- archived planning and release-history notes (`docs/legacy/`)
+## Start here
 
-## Active Core Docs
+- [`MODEL_LAYERS.md`](MODEL_LAYERS.md) — plain-language tour of every layer: what it does + limits.
+- [`ROADMAP.md`](ROADMAP.md) — current standing, real limitations, and the priority order for next work.
+- [`FINALIZATION_REPORT.md`](FINALIZATION_REPORT.md) — version-17 finalization summary across all layers.
 
-- `MODEL_METHODOLOGY.md` - runtime behavior and module-level methodology.
-- `GIM17_UNIFIED_MODEL_SPEC.md` - unified model equations and state/evolution specification.
-- `CORE_TRANSITION_CONTRACT.md` - phase contract and canonical finalize rules.
-- `SIMULATION_STEP_ORDER.md` - effective yearly order and runtime writer contract.
-- `MODEL_STATE_MAP.md` - state vector map and transition links.
-- `critical_field_registry.csv` - canonical critical-field contract table.
-- `state_registry.csv` - full state inventory.
-- `state_registry_coverage.md` - state registry coverage status.
+## Specification & methodology
 
-## Active Calibration and Validation Docs
+- [`GIM17_UNIFIED_MODEL_SPEC.md`](GIM17_UNIFIED_MODEL_SPEC.md) — state vector, yearly equations, events, reconciliation.
+- [`MODEL_METHODOLOGY.md`](MODEL_METHODOLOGY.md) — runtime behaviour and module-level methodology.
+- [`CORE_TRANSITION_CONTRACT.md`](CORE_TRANSITION_CONTRACT.md) / [`SIMULATION_STEP_ORDER.md`](SIMULATION_STEP_ORDER.md) — phase contract and yearly order.
+- [`MODEL_STATE_MAP.md`](MODEL_STATE_MAP.md), [`state_registry.csv`](state_registry.csv), [`critical_field_registry.csv`](critical_field_registry.csv) — state inventory.
+- [`agent_state_data_contract.md`](agent_state_data_contract.md) — CSV/state-artifact contract for loaders.
 
-- `CALIBRATION_REFERENCE.md` - active baseline values and interpretation.
-- `CALIBRATION_LAYER.md` - calibration workflow and guardrails.
-- `CRISIS_VALIDATION_PROTOCOL.md` - operational scenario validation protocol.
-- `PARAMETER_CHANGE_POLICY.md` - rules for changing calibrated parameters.
+## Calibration & validation
 
-## GIM17 Modernization (Tier-1 + Phases 1–4)
+- [`CALIBRATION_REFERENCE.md`](CALIBRATION_REFERENCE.md) — authoritative baseline values (ledger).
+- [`CALIBRATION_LAYER.md`](CALIBRATION_LAYER.md), [`PARAMETER_CHANGE_POLICY.md`](PARAMETER_CHANGE_POLICY.md) — workflow + guardrails.
+- [`INVARIANTS.md`](INVARIANTS.md) — enforceable accounting/integrity invariants (debt & resource identities).
+- [`DETERMINISM.md`](DETERMINISM.md) — world-scoped randomness and reproducibility.
+- [`PRIORS.md`](PRIORS.md) / [`UNCERTAINTY.md`](UNCERTAINTY.md) / [`VALIDATION.md`](VALIDATION.md) — priors, ensembles, sensitivity, history matching, skill scoring.
+- [`CRISIS_VALIDATION_PROTOCOL.md`](CRISIS_VALIDATION_PROTOCOL.md) — operational crisis-scenario validation.
 
-Engineering spine and per-area docs for the GIM16 → GIM17 work (see `WORKLOG_GIM17.md` first).
+## Climate & damages
 
-- `WORKLOG_GIM17.md` - lean per-stage engineering log (read first when resuming).
-- `STATUS.md` - current state snapshot + roadmap.
-- `INVARIANTS.md` - enforceable accounting/integrity invariants (incl. debt & resource identities).
-- `DETERMINISM.md` - world-scoped RNG and reproducibility.
-- `PRIORS.md` / `UNCERTAINTY.md` - literature priors, ensembles, Morris/Sobol sensitivity.
-- `VALIDATION.md` - skill scoring, history-matching/NROY.
-- `CLIMATE_BACKTEST.md` - 1990–2023 climate calibration window (+ T1.3b recalibration).
-- `WELFARE_SCC.md` - CRRA welfare + Social Cost of Carbon (multi-horizon).
-- `DAMAGE_FUNCTION.md` - damage-function empirical cross-validation (T1.4).
-- `LABOR_MARKET.md` - endogenous inflation/unemployment (Phillips + Okun + Taylor rule).
-- `MULTI_GHG_FORCING.md` - AR6-anchored non-CO2 forcing components + scenario levers.
-- `SCENARIO_ALIGNMENT.md` - SSP/RCP alignment + FAIR/MAGICC emulator benchmark (ECS/TCR).
-- `ECONOMICS_BENCHMARK.md` - honest economics review vs industry IAM/macro models.
+- [`CLIMATE_BACKTEST.md`](CLIMATE_BACKTEST.md) — 1990–2023 climate calibration.
+- [`SCENARIO_ALIGNMENT.md`](SCENARIO_ALIGNMENT.md) / [`BENCHMARK_ALIGNMENT.md`](BENCHMARK_ALIGNMENT.md) — scenario warming envelopes + emulator/SCC benchmark.
+- [`MULTI_GHG_FORCING.md`](MULTI_GHG_FORCING.md) — non-carbon-dioxide greenhouse-gas forcing.
+- [`CARBON_CYCLE_FEEDBACK.md`](CARBON_CYCLE_FEEDBACK.md) — land-use emissions + permafrost/peat + abrupt-release feedbacks.
+- [`CARBON_PRICE_CHANNEL.md`](CARBON_PRICE_CHANNEL.md) — carbon price → energy substitution → emissions (validated vs empirical).
+- [`DAMAGE_FUNCTION.md`](DAMAGE_FUNCTION.md) / [`GROWTH_DAMAGE.md`](GROWTH_DAMAGE.md) / [`WELFARE_SCC.md`](WELFARE_SCC.md) — damages + social cost of carbon.
 
-## Active Interface and Objective Docs
+## Economy
 
-- `agent_state_data_contract.md` - CSV/state artifact contract for loaders.
-- `OBJECTIVE_RELATIONSHIPS.md` - objective definitions and linkage map.
-- `UI_WORKSPACE.md` - production local dashboard layout, bindings, and API surface.
+- [`ECONOMICS_BENCHMARK.md`](ECONOMICS_BENCHMARK.md) — honest economics review vs industry models + the depth roadmap (D1–D5).
+- [`LABOR_MARKET.md`](LABOR_MARKET.md) — endogenous inflation, unemployment, central-bank rate.
 
-## Legacy Docs
+## Unique social / geopolitical / cultural layers
 
-`docs/legacy/` contains superseded planning, migration, and release-readiness notes that are preserved for traceability but are not source-of-truth for current runtime behavior.
+- [`SOCIAL_GEO_METRICS.md`](SOCIAL_GEO_METRICS.md) — mapping each unique-layer variable to an external index.
+- [`UNIQUE_LAYER_AUDIT.md`](UNIQUE_LAYER_AUDIT.md) — which inputs actually move outputs (culture wire/remove decision).
+- [`STRESS_AUDIT.md`](STRESS_AUDIT.md) — threshold-gated inputs re-audited under stress.
+
+## Risk
+
+- [`CRITICALITY_RISK.md`](CRITICALITY_RISK.md) — fat-tailed crisis severity + early-warning indicators.
+
+## Finalization record
+
+- [`RE_ANCHOR.md`](RE_ANCHOR.md) — the headline activation decision + the new golden.
+- [`OBJECTIVE_RELATIONSHIPS.md`](OBJECTIVE_RELATIONSHIPS.md) — objective definitions and linkage map.
+- [`UI_WORKSPACE.md`](UI_WORKSPACE.md) — local analytical dashboard layout and API surface.
