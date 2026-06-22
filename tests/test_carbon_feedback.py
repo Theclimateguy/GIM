@@ -55,6 +55,25 @@ class CarbonFeedbackTests(unittest.TestCase):
         off = _run({"CARBON_CYCLE_FEEDBACK": False, "LAND_USE_CO2_GTCO2_YR": 0.0})
         self.assertEqual(base, off)
 
+    def test_abrupt_tipping_default_off_and_active_when_enabled(self):
+        self.assertFalse(cal.CARBON_TIPPING)
+        co2_off, _ = _run(None)
+        # high onset hazard + low threshold so events reliably fire in a warm run
+        co2_on, _ = _run({
+            "CARBON_TIPPING": True,
+            "CARBON_TIPPING_T_THRESHOLD": 0.0,
+            "CARBON_TIPPING_BASE_PROB": 0.8,
+            "CARBON_TIPPING_SCALE_GTCO2": 10.0,
+        })
+        self.assertGreater(co2_on, co2_off)
+
+    def test_abrupt_release_helper_zero_when_no_hazard(self):
+        import random
+        from gim.criticality import abrupt_carbon_release
+        rng = random.Random(1)
+        # below threshold and zero base prob -> never fires
+        self.assertEqual(abrupt_carbon_release(rng, 0.5, t_threshold=1.5, base_prob=0.0), 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

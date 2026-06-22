@@ -35,11 +35,22 @@ not dilute the anchored ECS; it effectively inflates TCRE and the long-horizon t
 CH₄ is modelled as a simplified steady-state forcing term (not a dynamic CH₄ pool); a dynamic pool
 and the abrupt (fat-tailed) releases are E2.3, wired into the F5 criticality layer.
 
-## E2.3 — Abrupt releases (next)
+## E2.3 — Abrupt carbon-release tipping (delivered)
 
-Peat-fire / abrupt permafrost-CH₄ / clathrate / forest-dieback as temperature-gated, power-law
-(Richardson-α) events in `gim/criticality.py`. **Not** the smooth term, and explicitly excluding the
-regrowing boreal-wildfire fraction (cyclical, ~net-neutral on decadal scale) to avoid over-counting.
+`CARBON_TIPPING` (default False). `gim.criticality.abrupt_carbon_release(rng, T, …)` draws a
+temperature-gated, fat-tailed (Richardson-α, mean-1 power-law) annual pulse:
+
+```
+p     = clamp(CARBON_TIPPING_BASE_PROB + CARBON_TIPPING_TEMP_SENS·max(0, T − T_threshold), 0, 1)
+pulse = CARBON_TIPPING_SCALE_GTCO2 · powerlaw_severity(α)   if rng < p else 0   # GtCO2-eq → pools
+```
+
+Peat-fire / abrupt permafrost-CH₄ / clathrate / forest-dieback. **Not** the smooth term, and it
+explicitly **excludes the regrowing boreal-wildfire fraction** (cyclical, ~net-neutral on a decadal
+scale). Stochastic → rides the ensemble as carbon-cycle tail risk; default-off keeps the
+deterministic golden identical. The CH₄-vs-CO₂ distinction (short-lived high-GWP spike) is
+approximated by the fast carbon pool (τ≈4.3 yr) pending a dynamic CH₄ box.
+`tests/test_carbon_feedback.py` covers default-off + active-when-enabled + zero-hazard.
 
 ## E2.4 — Re-anchor (next)
 

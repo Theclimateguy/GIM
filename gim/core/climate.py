@@ -5,6 +5,7 @@ from typing import Dict
 from . import calibration_params as cal
 from .params import default_params, resolve_params
 from .forcing import nonco2_forcing
+from ..criticality import abrupt_carbon_release
 from .critical_pending import get_transition_pending
 from .rng import get_rng
 from .core import (
@@ -239,6 +240,19 @@ def update_global_climate(
         dT_fb = max(0.0, world.global_state.temperature_global - getattr(cal, "CARBON_FEEDBACK_T_REF", 0.0))
         total_emissions += getattr(cal, "CARBON_FEEDBACK_CO2_GTCO2_PER_C", 0.0) * dT_fb
         f_ch4_feedback = getattr(cal, "CARBON_FEEDBACK_CH4_WM2_PER_C", 0.0) * dT_fb
+
+    # [E2.3] Abrupt carbon-release tipping (episodic, fat-tailed), temperature-gated (switchable; off).
+    if getattr(cal, "CARBON_TIPPING", False):
+        pulse = abrupt_carbon_release(
+            get_rng(world),
+            world.global_state.temperature_global,
+            t_threshold=getattr(cal, "CARBON_TIPPING_T_THRESHOLD", 1.5),
+            base_prob=getattr(cal, "CARBON_TIPPING_BASE_PROB", 0.0),
+            temp_sens=getattr(cal, "CARBON_TIPPING_TEMP_SENS", 0.02),
+            scale_gtco2=getattr(cal, "CARBON_TIPPING_SCALE_GTCO2", 5.0),
+            alpha=getattr(cal, "CARBON_TIPPING_ALPHA", 1.5),
+        )
+        total_emissions += pulse  # CO2-equivalent mass into the pools this step
 
     fractions = _normalize_fractions(carbon_pool_fractions)
     timescales = list(carbon_pool_timescales)

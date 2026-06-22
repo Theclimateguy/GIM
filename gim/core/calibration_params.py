@@ -123,6 +123,17 @@ CARBON_CYCLE_FEEDBACK = False               # master switch.
 CARBON_FEEDBACK_T_REF = 0.0                 # warming reference (model temp is anomaly above PI).
 CARBON_FEEDBACK_CO2_GTCO2_PER_C = 0.0       # GtCO2/yr per degC warming (permafrost/peat CO2).
 CARBON_FEEDBACK_CH4_WM2_PER_C = 0.0         # extra CH4 forcing (W/m2) per degC (simplified).
+
+# [E2.3] Abrupt carbon-release tipping (episodic, fat-tailed), temperature-gated (switchable; default OFF).
+# Peat-fire / abrupt permafrost-CH4 / clathrate / forest dieback as a Richardson power-law pulse via
+# gim.criticality.abrupt_carbon_release. Excludes regrowing boreal wildfire (cyclical). Stochastic ->
+# rides the ensemble as carbon-cycle tail risk; default off keeps the deterministic golden identical.
+CARBON_TIPPING = False                      # master switch.
+CARBON_TIPPING_T_THRESHOLD = 1.5            # warming (degC above PI) where tipping hazard begins.
+CARBON_TIPPING_BASE_PROB = 0.0              # annual onset probability at the threshold.
+CARBON_TIPPING_TEMP_SENS = 0.02             # extra annual onset probability per degC above threshold.
+CARBON_TIPPING_SCALE_GTCO2 = 5.0            # mean pulse size (GtCO2-eq) when an event fires.
+CARBON_TIPPING_ALPHA = 1.5                  # Richardson power-law exponent (fat tail).
 EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived during manifest refresh and bound to the active state manifest.
 TECH_DECARB_K = 0.12  # [PRIOR]
 DECARB_RATE_OBSERVED_REFERENCE = (

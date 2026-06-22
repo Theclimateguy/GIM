@@ -88,6 +88,36 @@ def powerlaw_severity(rng, alpha: float = 1.5, a: float = 1.0, b: float = 20.0) 
     return x / mean if mean > 0 else 1.0
 
 
+def abrupt_carbon_release(
+    rng,
+    temperature: float,
+    *,
+    t_threshold: float = 1.5,
+    base_prob: float = 0.0,
+    temp_sens: float = 0.02,
+    scale_gtco2: float = 5.0,
+    alpha: float = 1.5,
+) -> float:
+    """Temperature-gated, fat-tailed abrupt carbon-release pulse (GtCO2-eq); 0.0 if no event (E2.3).
+
+    Models the *episodic* carbon-cycle tipping channel — peat-fire, abrupt permafrost-CH4,
+    clathrate, forest dieback — as opposed to the smooth permafrost feedback (E2.2). The annual
+    onset hazard rises linearly with warming above `t_threshold`; when an event fires its size is a
+    Richardson power-law (mean-1 multiplier) times `scale_gtco2`, so most events are near-baseline
+    and a rare minority are catastrophic (heavy upper tail). Returns a CO2-equivalent mass that the
+    caller injects into the carbon pools.
+
+    Deliberately excludes the regrowing boreal-wildfire fraction (cyclical, ~net-neutral on a
+    decadal scale); only the net-deforestation / peat / permafrost component is a positive feedback.
+    A dynamic CH4 box (short-lived, high-GWP) is deferred; the fast carbon pool approximates it.
+    """
+    excess = max(0.0, temperature - t_threshold)
+    p = max(0.0, min(1.0, base_prob + temp_sens * excess))
+    if p <= 0.0 or rng.random() >= p:
+        return 0.0
+    return scale_gtco2 * powerlaw_severity(rng, alpha=alpha)
+
+
 def to_stationary(series: Sequence[float]) -> List[float]:
     """Relative first-difference transform for trending series (e.g. GDP).
 
