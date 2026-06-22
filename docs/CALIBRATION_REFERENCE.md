@@ -95,16 +95,19 @@ Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`):
 - temperature std (predicted/observed): `0.09308561945984438 / 0.1030600790014023`
 - ensemble size: `8`
 
-Current golden regression target (`tests/test_historical_backtest.py`), **post E3.1 objective-core
-re-anchor** (headline = calibrated nested-CES production + cost-minimizing energy demand):
+Current golden regression target (`tests/test_historical_backtest.py`), **post E3 full price/balance
+closure** (headline = calibrated nested-CES production + cost-minimizing energy demand + resource &
+capital-market clearing + full SFC bank balance sheet):
 
-- GDP RMSE `0.630 ± 0.01`
-- global CO2 RMSE `1.106 ± 0.01`
+- GDP RMSE `0.590 ± 0.01`
+- global CO2 RMSE `1.146 ± 0.01`
 - temperature RMSE `0.135 ± 0.01`
 
-The objective production core improved the fit vs the prior Cobb-Douglas golden (`1.026 / 1.606 /
-0.134`). Emissions were re-anchored via `NESTED_CES_EMISSIONS_NORM` (1.056), leaving the data-derived
-`EMISSIONS_SCALE` (0.9755) artifact-bound and unchanged.
+The objective + fully-closed economic core improved the fit vs the prior Cobb-Douglas golden
+(`1.026 / 1.606 / 0.134`): GDP 1.026→0.590, CO2 1.606→1.146. Emissions were re-anchored via
+`NESTED_CES_EMISSIONS_NORM` (1.056), leaving the data-derived `EMISSIONS_SCALE` (0.9755) artifact-bound
+and unchanged. Capital-clearing sensitivity calibrated to 0.3. Deep-uncertainty climate/risk channels
+remain ensemble-only (off in the headline).
 
 ### 3.2 Operational suites
 

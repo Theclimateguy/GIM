@@ -30,11 +30,12 @@ grounded, not invented.
 is to swap one factor for another — in particular, when energy gets expensive the economy shifts
 toward capital and uses less energy (a calibrated capital–energy substitution), which is what lets a
 carbon price realistically reshuffle the economy. (This replaced the earlier bare textbook formula
-and actually improved the fit to history.) What remains: markets do not yet fully "clear" — prices
-adjust gradually rather than instantly balancing supply and demand (the next development step);
-households and firms look at the recent past rather than truly anticipating the future; and long-run
-growth is only loosely pinned down by the short history available. These are honest simplifications,
-not errors.
+and actually improved the fit to history.) The energy and capital markets now **clear through
+prices** — energy demand and investment respond to the price of energy and the cost of capital — so a
+policy or shock propagates through relative prices and balances rather than a fixed rule. What
+remains as honest simplifications: households and firms look at the recent past rather than truly
+anticipating the future; and long-run growth is only loosely pinned down by the short history
+available.
 
 ## 2. Climate and the carbon cycle
 
@@ -72,9 +73,9 @@ because the model's damages are on the higher (but still evidence-supported) sid
 and there are world prices for each that rise when demand outstrips supply. Resource scarcity feeds
 into prices, which feed into inflation and into the economy.
 
-**Limits.** Prices adjust gradually by a rule rather than by fully balancing the market each year
-(an optional mode makes the energy/resource market clear properly). Resources are represented at a
-broad level, not as detailed sector-by-sector energy systems.
+**Limits.** The energy/resource market now clears by price (demand responds with a calibrated
+elasticity), which is the headline behaviour; a sluggish-adjustment fallback rule remains available.
+Resources are represented at a broad level, not as detailed sector-by-sector energy systems.
 
 ## 5. Society and politics
 
@@ -133,14 +134,14 @@ capture the right qualitative behaviour but are not derived from a single fitted
 
 **What it does.** Government budgets, deficits, interest payments and debt are tracked with strict
 accounting (every change in debt is matched by a corresponding flow, with no money appearing or
-disappearing). Debt crises are resolved consistently with that accounting. There is also an optional
-private-credit layer in which over-borrowing raises the cost of credit and damps the economy (a
-"financial accelerator").
+disappearing). Debt crises are resolved consistently with that accounting. The private side now has
+a **full bank balance sheet**: every loan creates a matching deposit, so broad money equals deposits
+equals loans (a closed, enforceable identity), and over-borrowing raises the cost of credit and damps
+the economy (a "financial accelerator").
 
-**Limits.** The government side is solid and accounting-consistent. The private-credit layer is a
-first version: it tracks borrowing and its feedback on interest rates, but does not yet model the
-full banking balance sheet (the matching deposits and money supply). That fuller version is a
-planned next step.
+**Limits.** Both the government and private balance sheets are accounting-consistent and closed. The
+remaining refinement is behavioural: letting the money supply feed price pressure more explicitly
+(the accounting is in place; the transmission is a calibratable extension).
 
 ## 10. Uncertainty and validation (how we keep it honest)
 
@@ -160,7 +161,7 @@ because no credible global model reliably predicts the world years ahead. The mo
 
 | Layer | Strength | Main limit |
 |---|---|---|
-| Economy | grounded to 2015–2023 history; capital–energy substitution | no full market clearing yet |
+| Economy | grounded to history; capital–energy substitution + energy/capital market clearing | backward-looking expectations |
 | Climate & carbon | matches mainstream science | feedbacks uncertain; not a full Earth-system model |
 | Damage & cost of carbon | evidence-based, uncertainty carried | damages wide across the field |
 | Resources | feeds prices→inflation | broad, rule-based prices |
@@ -168,5 +169,5 @@ because no credible global model reliably predicts the world years ahead. The mo
 | Geopolitics | military power grounded in data; conflict risk has real skill | cannot predict specific wars |
 | Culture | only load-bearing traits kept | links validated in sign only |
 | Risk & crises | fat tails + early warning available | threshold/rule-based |
-| Finance & debt | strict, consistent accounting | private banking not yet full |
+| Finance & debt | strict closed accounting; full bank balance sheet + money | money→price transmission is a calibratable extension |
 | Uncertainty & validation | ensembles, sensitivity, backtests | beats naive baselines, not a crystal ball |

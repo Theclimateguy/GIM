@@ -20,9 +20,10 @@ limitations are, whether they block using the model, and the priority order for 
   matching, skill scoring.
 
 **Known limitations (all documented, none hidden).**
-1. **No full price/balance closure.** Prices adjust gradually rather than instantly balancing
-   supply and demand; only a partial, optional market-clearing mode exists (energy/resources).
-   There is no general-equilibrium clearing of all markets.
+1. ~~**No full price/balance closure.**~~ **[Resolved.]** The headline now closes the energy and
+   capital markets through prices, with a full closed bank balance sheet (money = deposits = loans).
+   Full general-equilibrium clearing of *all* markets is still not attempted (a deliberate
+   non-equilibrium stance), but the price/balance closure the model lacked is now in the base.
 2. **Climate benchmarks matched at the headline but not exhaustively.** The strongest carbon-cycle
    feedbacks and the fullest greenhouse-gas accounting are switchable extras, kept out of the
    default run; the cost-of-carbon sits a little above the most-cited official central estimate.
@@ -82,11 +83,14 @@ to be brought fully up to the level of the rest of the model, the production sid
    derived from cost minimisation. It reduces exactly to the old core at the base point, so
    activation preserved the calibration — and it *improved* the historical fit (GDP RMSE 1.03→0.63,
    CO₂ 1.61→1.11). The "too simple production core" critique is closed at the structural level.
-2. **Partial market clearing for the energy and capital markets** (price balances supply and demand
-   each period), bridging toward the general-equilibrium class without a full rebuild. The
-   resource-price clearing mode is already in place; capital-market clearing is the next piece.
-3. **Full private banking / money** on top of the existing strict government-debt accounting (the
-   matching deposits and money supply behind the current first-version private-credit layer).
+2. **[DONE] Market clearing for the energy and capital markets.** Both now clear by price in the
+   headline (energy demand and investment respond to the energy price and the cost of capital);
+   activated as base with the capital-clearing sensitivity calibrated so the fit is preserved/improved
+   (GDP 0.63→0.59). This is the price/balance closure the model had been missing.
+3. **[DONE] Full private banking / money.** The private side now has a closed bank balance sheet —
+   every loan creates a matching deposit, broad money = deposits = loans (enforceable identity), on
+   top of the strict government-debt accounting. Behavioural money→price transmission is a small
+   remaining calibratable extension.
 4. **Close the remaining climate-benchmark gaps**: adopt the fullest greenhouse-gas accounting as
    the default and decide the standing of the carbon-cycle feedbacks; reconcile the cost-of-carbon
    headline with the official central estimate or document the (evidence-based) reason it sits higher.
@@ -95,5 +99,6 @@ to be brought fully up to the level of the rest of the model, the production sid
 6. **Stronger growth foundations**: identify the long-run productivity drivers and anchor baseline
    growth to the standard scenario pathways, reporting growth skill against naive baselines.
 
-Items 1–2 are the substantive "missing closure" the model still lacks; 3–6 are refinements. None is
-a prerequisite for using the model today for its intended scenario-and-uncertainty purpose.
+Items 1–3 (the objective production core + full price/balance closure) are **done and now the base
+model**. Item 4 (climate-benchmark gaps) is the next planned step; 5–6 are refinements. None is a
+prerequisite for using the model today for its intended scenario-and-uncertainty purpose.
