@@ -94,19 +94,31 @@ def main() -> int:
         "external_anchors": {
             "gini_wb_anchored_countries": len(gini_deltas),
             "wgi_stability_anchored_countries": len(stab_deltas),
-            "note": ("0 anchored => run scripts/ingest_external_data.py first to populate "
-                     "data/external/ (World Bank API; not reachable from a restricted sandbox)."),
+            "gini_sample": {k: gini_deltas[k] for k in list(gini_deltas)[:5]},
+            "stability_sample": {k: stab_deltas[k] for k in list(stab_deltas)[:5]},
+            "note": ("inequality_gini <- World Bank Gini (SI.POV.GINI, SWIID proxy); "
+                     "regime_stability <- WGI Political Stability (PV.EST) rescaled [-2.5,2.5]->[0,1]. "
+                     "0 here would mean data/external/*.csv is missing -> run scripts/ingest_external_data.py."),
         },
     }
     with open(REPORT, "w") as fh:
         json.dump(report, fh, indent=2); fh.write("\n")
 
+    # Write a loadable anchored state CSV (CINC military_power + WGI/Gini anchors applied).
+    anchored = "(skipped)"
+    try:
+        from gim.state_projection import write_compiled_state_csv
+        write_compiled_state_csv(world, OUT_CSV)
+        anchored = os.path.relpath(OUT_CSV, REPO)
+    except Exception as e:  # noqa: BLE001
+        anchored = f"(could not write: {e})"
+
     print("CINC capability ranking (top 10):")
     for c, v in ranking:
         print(f"  {c:20s} {v:.4f}")
     print(f"\nGini anchored: {len(gini_deltas)} countries; WGI-stability anchored: {len(stab_deltas)}")
+    print(f"Anchored state CSV -> {anchored}")
     print(f"Report -> {os.path.relpath(REPORT, REPO)}")
-    print("(External anchors are 0 until scripts/ingest_external_data.py is run locally.)")
     return 0
 
 
