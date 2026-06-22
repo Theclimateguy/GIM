@@ -87,9 +87,13 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
 
 ## 5. Recommended directions (parallel tracks for Phase 5+)
 
-- **D1 — Production: nested CES (KLEM).** Replace Cobb-Douglas with a nested K-L-E CES carrying
-  calibrated substitution elasticities (energy-capital ~0.3–0.5). Highest-leverage for climate
-  policy realism; makes carbon-price responses meaningful. *(Biggest single upgrade.)*
+- **D1 — Production: nested CES (KLEM). [scaffold delivered — F2.1/THE-36]** Switchable nested KLE
+  core in `gim/core/economy.py` (`NESTED_CES`, `CES_SIGMA_KE`): inner CES on (capital, energy) with
+  σ_KE≈0.4, outer Cobb-Douglas vs labour; reduces **exactly** to Cobb-Douglas at σ_KE=1 (verified:
+  golden bit-identical at σ=1). Default off (Cobb-Douglas) → golden preserved; σ=0.4 shifts the path
+  materially (energy-capital complements) and is activated at the economics re-anchor. Prior
+  `CES_SIGMA_KE` ~ triangular 0.4 [0.2,0.6] (van der Werf 2008; Koetse 2008). Highest-leverage for
+  climate-policy realism; makes carbon-price responses meaningful.
 - **D2 — Partial market clearing.** Clear at least the energy and capital markets via prices
   (supply=demand), even if the rest stays recursive. Bridges toward the GE class without a full CGE.
 - **D3 — Stock-flow-consistent private finance.** Add bank/credit/money on top of the existing debt

@@ -140,6 +140,26 @@ def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
     )
 
 
+def _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma, sigma_ke):
+    """KLE nested production core (F2.1): inner CES on (capital, energy), outer Cobb-Douglas vs labour.
+
+    Inner KE bundle uses capital/energy income shares within (alpha, gamma) and elasticity
+    `sigma_ke`; the outer nest keeps the Cobb-Douglas exponents (alpha+gamma) on the KE bundle and
+    beta on labour, preserving the model's mildly-decreasing returns. At sigma_ke == 1 this equals
+    capital**alpha * energy**gamma * labour**beta exactly (the validated Cobb-Douglas core).
+    """
+    ag = alpha + gamma
+    if ag <= 0:
+        return (capital ** alpha) * (labor ** beta) * (energy_input ** gamma)
+    a_k, a_e = alpha / ag, gamma / ag
+    if abs(sigma_ke - 1.0) < 1e-9:
+        ke = (capital ** a_k) * (energy_input ** a_e)
+    else:
+        rho = (sigma_ke - 1.0) / sigma_ke
+        ke = (a_k * capital ** rho + a_e * energy_input ** rho) ** (1.0 / rho)
+    return (ke ** ag) * (labor ** beta)
+
+
 def update_economy_output(
     agent: AgentState,
     world: WorldState,
@@ -167,7 +187,14 @@ def update_economy_output(
     tfp = getattr(economy, "tfp", getattr(economy, "_tfp", 1.0))
     tech_level = max(0.5, agent.technology.tech_level)
     tech_factor = 1.0 + cal.TECH_OUTPUT_SENS * max(0.0, tech_level - 1.0)
-    gdp_potential = tfp * tech_factor * (capital**alpha) * (labor**beta) * (energy_input**gamma)
+
+    # [F2.1] Production function: Cobb-Douglas (default, golden) or nested CES (KLE).
+    if getattr(cal, "NESTED_CES", False):
+        core = _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma,
+                                getattr(cal, "CES_SIGMA_KE", 1.0))
+    else:
+        core = (capital**alpha) * (labor**beta) * (energy_input**gamma)
+    gdp_potential = tfp * tech_factor * core
 
     if (not hasattr(economy, "_scale_factor")) or getattr(economy, "_scale_factor", None) is None:
         economy._scale_factor = economy.gdp / gdp_potential if gdp_potential > 0 else 1.0

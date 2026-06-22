@@ -33,6 +33,13 @@ SOURCE_TAG_NOTES = {
 ALPHA_CAPITAL = 0.30  # [PWT10]
 BETA_LABOR = 0.60  # [PWT10]
 GAMMA_ENERGY = 0.042  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
+# [F2.1] Production function. Default (NESTED_CES=False) is the validated Cobb-Douglas K^a L^b E^g
+# core -> golden bit-identical. NESTED_CES=True uses a KLE nest (inner CES on capital-energy with
+# substitution CES_SIGMA_KE, outer Cobb-Douglas vs labour) that reduces EXACTLY to Cobb-Douglas at
+# SIGMA_KE=1; below 1, capital and energy are gross complements so carbon-price/energy-cost
+# responses are meaningful. Activated at the economics re-anchor (level still anchored by _scale_factor).
+NESTED_CES = False  # [F2.1] switch to the nested-CES (KLE) production core.
+CES_SIGMA_KE = 0.4  # [F2.1] capital-energy substitution elasticity (KLEM ~0.3-0.5).
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]
