@@ -144,6 +144,22 @@ def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
         economy._gdp_prev_foresight = gdp
 
     investment = savings_rate * gdp
+
+    # [E3.2] Capital-market clearing: investment responds to the price of capital -- the gap between
+    # the marginal product of capital (return) and its cost (interest rate + depreciation), anchored
+    # at the baseline gap so the steady state is unchanged (golden-safe). Switchable (default off).
+    if getattr(cal, "CAPITAL_MARKET_CLEARING", False):
+        mpk = cal.ALPHA_CAPITAL * gdp / capital
+        cost_of_capital = compute_effective_interest_rate(agent, world) + depreciation
+        gap = mpk - cost_of_capital
+        gap0 = getattr(economy, "_capital_gap0", None)
+        if gap0 is None:
+            economy._capital_gap0 = gap
+            gap0 = gap
+        mult = 1.0 + cal.CAPITAL_CLEARING_SENS * (gap - gap0)
+        mult = max(cal.CAPITAL_CLEARING_MIN, min(cal.CAPITAL_CLEARING_MAX, mult))
+        investment = investment * mult
+
     _set_critical_effective(
         world,
         agent,
