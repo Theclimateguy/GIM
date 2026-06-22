@@ -32,6 +32,19 @@ class PrivateFinanceTests(unittest.TestCase):
         self.assertGreater(a.economy._private_debt, 0.0)
         self.assertGreater(a.economy._credit_premium, 0.0)  # leverage 2.0 > ref 1.5
 
+    def test_closed_banking_identity_loans_equal_deposits(self):
+        # [E3.3] full balance sheet: every loan is a matching deposit -> money = deposits = loans.
+        from gim.core.policy import make_policy_map
+        from gim.core.simulation import step_world
+        from gim.core.private_finance import sfc_balance_residual
+        world = make_world_from_csv(STATE, max_agents=8, base_year=2026)  # SFC_FINANCE base (on)
+        pol = make_policy_map(world.agents.keys(), mode="simple")
+        for _ in range(6):
+            step_world(world, pol)
+        for a in world.agents.values():
+            self.assertLess(sfc_balance_residual(a), 1e-9)
+            self.assertAlmostEqual(a.economy._money_supply, a.economy._bank_deposits, places=9)
+
     def test_stock_flow_update_is_consistent(self):
         # private_debt_{t+1} = private_debt_t + new_credit - repayment, both >= 0
         world = make_world_from_csv(STATE, max_agents=4, base_year=2026)
