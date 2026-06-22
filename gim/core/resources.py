@@ -6,6 +6,7 @@ from .core import (
     WORLD_PROVEN_RESERVES_ZJ,
     WorldState,
 )
+from .params import resolve_params
 
 
 def allocate_energy_reserves_and_caps(world: WorldState) -> Dict[str, Dict[str, float]]:
@@ -146,12 +147,23 @@ def update_global_resource_prices(
             supply[resource_name] += max(0.0, resource.production)
             demand[resource_name] += max(0.0, resource.consumption)
 
+    cal = resolve_params(world)
+    clearing = getattr(cal, "MARKET_CLEARING", False)
+    alpha = getattr(cal, "PRICE_ADJUST_ALPHA", alpha)
+    eps = max(0.05, getattr(cal, "MARKET_DEMAND_ELASTICITY", 0.4))
+
     for resource_name in RESOURCE_NAMES:
         current_price = world.global_state.prices.get(resource_name, 1.0)
-        imbalance = (demand[resource_name] - supply[resource_name]) / (
-            supply[resource_name] + epsilon
-        )
-        next_price = current_price * (1.0 + alpha * imbalance)
+        if clearing:
+            # [F2.2] within-period clearing: set price so constant-elasticity demand == supply.
+            # demand(p) = D0*(p/p_cur)^(-eps) == supply  ->  p* = p_cur*(D0/supply)^(1/eps).
+            ratio = (demand[resource_name] + epsilon) / (supply[resource_name] + epsilon)
+            next_price = current_price * (ratio ** (1.0 / eps))
+        else:
+            imbalance = (demand[resource_name] - supply[resource_name]) / (
+                supply[resource_name] + epsilon
+            )
+            next_price = current_price * (1.0 + alpha * imbalance)
         world.global_state.prices[resource_name] = max(
             min_price,
             min(max_price, next_price),

@@ -40,6 +40,15 @@ GAMMA_ENERGY = 0.042  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023)
 # responses are meaningful. Activated at the economics re-anchor (level still anchored by _scale_factor).
 NESTED_CES = False  # [F2.1] switch to the nested-CES (KLE) production core.
 CES_SIGMA_KE = 0.4  # [F2.1] capital-energy substitution elasticity (KLEM ~0.3-0.5).
+# [F2.2] Partial market clearing for resource (energy/food/metals) prices. Default OFF keeps the
+# validated sluggish tatonnement (partial price adjustment, step PRICE_ADJUST_ALPHA) -> golden
+# bit-identical. When ON, the price jumps within-period to the level that equates a constant-
+# elasticity demand to the fixed supply (p* = p_cur*(demand/supply)^(1/eps)) — i.e. the market
+# clears each step. Bridges toward the GE class for the energy market without a full CGE; the
+# non-equilibrium default is a deliberate, defended stance (E3ME).
+MARKET_CLEARING = False              # [F2.2] switch to within-period price clearing.
+MARKET_DEMAND_ELASTICITY = 0.4       # [F2.2] price elasticity of resource demand (energy ~0.3-0.5).
+PRICE_ADJUST_ALPHA = 0.15            # [F2.2] sluggish-adjustment step for the default (non-clearing) rule.
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]

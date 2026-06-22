@@ -94,8 +94,13 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   materially (energy-capital complements) and is activated at the economics re-anchor. Prior
   `CES_SIGMA_KE` ~ triangular 0.4 [0.2,0.6] (van der Werf 2008; Koetse 2008). Highest-leverage for
   climate-policy realism; makes carbon-price responses meaningful.
-- **D2 — Partial market clearing.** Clear at least the energy and capital markets via prices
-  (supply=demand), even if the rest stays recursive. Bridges toward the GE class without a full CGE.
+- **D2 — Partial market clearing. [energy/resource delivered — F2.2/THE-37]** Switchable
+  `MARKET_CLEARING` in `gim/core/resources.py`: within-period clearing price for the resource
+  (energy/food/metals) markets via a constant-elasticity demand (`p* = p·(demand/supply)^(1/ε)`,
+  `MARKET_DEMAND_ELASTICITY≈0.4`), replacing the default sluggish tâtonnement (default off →
+  golden bit-identical). Capital-market clearing (investment=savings via the rate) is the remaining
+  piece. Bridges toward the GE class for energy without a full CGE; the non-equilibrium default is
+  the deliberate, defended (E3ME) stance.
 - **D3 — Stock-flow-consistent private finance.** Add bank/credit/money on top of the existing debt
   identity (T1.1 is the foundation): private credit, balance sheets, a financial accelerator.
 - **D4 — Growth foundations + SSP anchoring. [scaffold delivered — F2.4/THE-39]** SSP TFP-drift
