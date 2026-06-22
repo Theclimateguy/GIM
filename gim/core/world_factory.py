@@ -426,4 +426,11 @@ def make_world_from_csv(
     update_political_states(world)
     world.institutions = build_default_institutions(world)
     update_credit_ratings(world, memory={})
+
+    # [F3 / E2.4 re-anchor] Ground military_power in the CINC capability share (headline default).
+    # Conflict-gated -> golden-safe; replaces the curated CSV scalar with the observable share.
+    if getattr(world.params, "GROUND_MILITARY_POWER", False):
+        from ..capability import ground_military_power
+        ground_military_power(world)
+
     return world

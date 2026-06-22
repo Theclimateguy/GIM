@@ -18,7 +18,15 @@ BASELINE_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "baseline_evaluation.json"
 class GeoCalibrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.world = load_world()
+        # Isolate from the CINC headline default (E2.4): this suite validates the geo *calibration
+        # weights* against a fixed baseline, independent of how military_power is grounded.
+        from gim.core import calibration_params as _cp
+        _prev = getattr(_cp, "GROUND_MILITARY_POWER", False)
+        _cp.GROUND_MILITARY_POWER = False
+        try:
+            cls.world = load_world()
+        finally:
+            _cp.GROUND_MILITARY_POWER = _prev
         cls.runner = GameRunner(cls.world)
 
     def test_all_geo_weights_within_ci(self) -> None:

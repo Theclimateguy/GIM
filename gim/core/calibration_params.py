@@ -312,6 +312,13 @@ CULTURE_DIM_REF = 50.0        # Hofstede mid-scale reference (0-100) for centrin
 CULTURE_PDI_TRUST_SENS = 0.02     # power distance -> institutional trust (Hofstede; PDI~corruption/ineq).
 CULTURE_UAI_STRESS_SENS = 0.50    # uncertainty avoidance -> econ-stress reaction amplification.
 CULTURE_LTO_PATIENCE_SENS = 0.30  # long-term orientation -> tension damping (savings/patience).
+
+# [F3 / E2.4 re-anchor] Ground `technology.military_power` in the CINC (Composite Index of National
+# Capability, Correlates of War) at world build, replacing the curated CSV scalar with an observable
+# 0-1 capability share (mean-rescaled to ~1). Default True in the headline. Conflict-gated, so the
+# (calm) golden backtest is unaffected; it shifts conflict/geo scenario dynamics. Validated vs
+# published CINC (China 0.205 / US 0.147 / India 0.096) in gim/capability.py.
+GROUND_MILITARY_POWER = True  # [F3] CINC grounding at build (headline).
 GINI_GROWTH_SENS = 6.0  # [PRIOR]
 GINI_RECESSION_SENS = 4.0  # [PRIOR]
 GINI_RECESSION_TENSION_OFFSET = 0.50  # [PRIOR]

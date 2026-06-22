@@ -94,6 +94,13 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   materially (energy-capital complements) and is activated at the economics re-anchor. Prior
   `CES_SIGMA_KE` ~ triangular 0.4 [0.2,0.6] (van der Werf 2008; Koetse 2008). Highest-leverage for
   climate-policy realism; makes carbon-price responses meaningful.
+  **Phase-2a finding (THE-36, why it stays OFF):** the F2.1 scaffold swaps only the *output
+  aggregator*; it does not yet derive cost-minimizing **energy demand** from the CES, so emissions
+  (∝ output) are disrupted at meaningful σ without delivering the carbon-price→energy-substitution
+  channel. Re-fit grid: σ≈0.9 reproduces the golden (GDP 0.89 / CO₂ 1.64) but gives weak
+  substitution; σ≈0.4 holds GDP-ish but breaks CO₂ (~6.9), and `EMISSIONS_SCALE` does not fix it
+  (lowering it worsens CO₂). The real D1 = couple CES factor demands (energy) to the emissions/
+  resource system, then recalibrate — a focused rework, not a parameter re-fit. Nested-CES stays off.
 - **D2 — Partial market clearing. [energy/resource delivered — F2.2/THE-37]** Switchable
   `MARKET_CLEARING` in `gim/core/resources.py`: within-period clearing price for the resource
   (energy/food/metals) markets via a constant-elasticity demand (`p* = p·(demand/supply)^(1/ε)`,

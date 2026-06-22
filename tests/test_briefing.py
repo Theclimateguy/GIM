@@ -75,7 +75,7 @@ class BriefingTests(unittest.TestCase):
             self.assertIn("## Global Trajectory", text)
             self.assertIn("## Analyst Highlights", text)
             self.assertIn("## Model Terms", text)
-            self.assertIn("Policy space", text)
+            self.assertIn("## Main Drivers", text)  # driver labels vary with CINC grounding; header is stable
             self.assertIn("Interpretation source: Deterministic fallback.", text)
 
     def test_game_brief_from_json_writes_markdown(self) -> None:

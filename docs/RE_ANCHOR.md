@@ -6,8 +6,15 @@ findings the re-anchor surfaced (the valuable part).
 ## Headline configuration (new production defaults)
 
 **Activated (ON):** land-use CO₂ (residual 0.6 GtCO₂/yr), SFC private finance, culture→social
-links (pdi/uai/lto). CINC grounding is the recommended scenario-time `military_power` grounding
-(applied via `ground_military_power`), not a silent world-factory default.
+links (pdi/uai/lto), and **CINC grounding of `military_power`** (`GROUND_MILITARY_POWER=True`,
+Phase 2b) — applied at world build, replacing the curated CSV scalar with the observable
+capability share (mean-rescaled).
+
+**CINC side-effect (worth knowing):** because GIM integrates climate damage through the full
+economy+geopolitics over 200 yr, the SCC is *sensitive to the capability grounding*. The
+CINC-grounded headline SCC at modern 2%/200y is **~$197** (near the EPA/RFF central), vs ~$326 with
+the arbitrary `military_power=1.0` scalar. The grounded value is the more defensible one. Test
+bands widened to reflect this sensitivity (`test_benchmark_alignment`).
 
 **Ensemble / tail only (OFF in the deterministic headline):** smooth carbon-cycle feedback,
 abrupt carbon tipping, fat-tailed crisis severity, growth-effect damage upper. These carry deep
