@@ -49,6 +49,11 @@ CES_SIGMA_KE = 0.4  # [F2.1] capital-energy substitution elasticity (KLEM ~0.3-0
 ENERGY_PRICE_SUBSTITUTION = False   # [D1] route the energy price into emission intensity via sigma_KE.
 ENERGY_PRICE_REF = 1.0              # [D1] reference (calibration) energy price; factor==1 here.
 CARBON_PRICE_USD_PER_TCO2 = 0.0     # [D1] optional explicit carbon price ($/tCO2); 0 => no policy.
+ENERGY_DEMAND_PRICE_RESPONSE = False  # [E3.1] cost-minimizing energy demand: energy consumption
+                                    # responds to the energy price with elasticity CES_SIGMA_KE
+                                    # (E ∝ p_E^-sigma). Default off -> golden-safe; activated with the
+                                    # nested-CES core. sigma_KE~0.4 also matches empirical short-run
+                                    # energy-demand price elasticity (~0.3-0.4).
 CARBON_PRICE_PASSTHROUGH = 0.003    # [D1] fractional economy-wide energy-price rise per $1/tCO2
                                     # (~15% at $50: plausible mid for mixed energy carbon-intensity).
                                     # With sigma_KE=0.4 this yields a LONG-RUN ~5.5% emission cut at
