@@ -14,6 +14,7 @@ from .credit_rating import update_credit_ratings
 from .core import Action, AgentMemory, Observation, PolicyRecord, RESOURCE_NAMES, TGLOBAL_2023_C, WorldState
 from .critical_pending import get_debt_flows, reset_debt_flows
 from .economy import compute_effective_interest_rate, update_economy_output, update_public_finances
+from .private_finance import update_private_finance
 from .labor_market import update_inflation_unemployment
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
@@ -926,6 +927,9 @@ def _run_phase_propagation(
     for agent in world.agents.values():
         update_economy_output(agent, world, defer_critical_writes=True)
         apply_economy_pending_deltas(world, agent_ids=[agent.id])
+
+    for agent in world.agents.values():
+        update_private_finance(agent, world)  # [F2.3] sets _credit_premium before the rate is computed (no-op when off)
 
     for agent in world.agents.values():
         update_public_finances(agent, world, defer_critical_writes=True)

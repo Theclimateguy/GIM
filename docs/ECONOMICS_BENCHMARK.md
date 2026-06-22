@@ -101,8 +101,13 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   golden bit-identical). Capital-market clearing (investment=savings via the rate) is the remaining
   piece. Bridges toward the GE class for energy without a full CGE; the non-equilibrium default is
   the deliberate, defended (E3ME) stance.
-- **D3 — Stock-flow-consistent private finance.** Add bank/credit/money on top of the existing debt
-  identity (T1.1 is the foundation): private credit, balance sheets, a financial accelerator.
+- **D3 — Stock-flow-consistent private finance. [SFC-lite delivered — F2.3/THE-38]**
+  `gim/core/private_finance.py` (`SFC_FINANCE`, default off): a private-credit stock with an SFC
+  flow (ΔDebt = new credit − repayment) and a Bernanke-Gertler **financial accelerator** —
+  over-leverage damps credit appetite and adds a borrowing-rate premium read by
+  `compute_effective_interest_rate`. Runtime-attribute state (no CSV/hash change); golden
+  bit-identical at default. Remaining: explicit bank balance sheets + money stock (deposits as the
+  mirror liability) for full SFC closure.
 - **D4 — Growth foundations + SSP anchoring. [scaffold delivered — F2.4/THE-39]** SSP TFP-drift
   anchors in `gim/scenario_alignment.py` (`SSP_TFP_DRIFT`, `ssp_growth_preset`, switchable override,
   default unchanged → golden preserved); `scripts/report_gdp_skill.py` surfaces the headline GDP

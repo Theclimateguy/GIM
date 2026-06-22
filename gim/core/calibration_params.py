@@ -49,6 +49,18 @@ CES_SIGMA_KE = 0.4  # [F2.1] capital-energy substitution elasticity (KLEM ~0.3-0
 MARKET_CLEARING = False              # [F2.2] switch to within-period price clearing.
 MARKET_DEMAND_ELASTICITY = 0.4       # [F2.2] price elasticity of resource demand (energy ~0.3-0.5).
 PRICE_ADJUST_ALPHA = 0.15            # [F2.2] sluggish-adjustment step for the default (non-clearing) rule.
+
+# [F2.3] Stock-flow-consistent private finance + financial accelerator (switchable; default OFF ->
+# golden bit-identical). Private credit stock on top of the T1.1 sovereign identity; over-leverage
+# damps credit appetite and raises a borrowing-rate premium (Bernanke-Gertler accelerator).
+SFC_FINANCE = False                  # master switch.
+SFC_INIT_LEVERAGE = 1.0              # initial private_debt / GDP (world private credit ~1x GDP).
+SFC_CREDIT_APPETITE = 0.10           # gross new credit as a share of GDP / yr (pre-accelerator).
+SFC_REPAY_RATE = 0.08               # annual repayment as a share of outstanding private debt.
+SFC_LEVERAGE_REF = 1.5              # leverage above which the accelerator bites.
+SFC_ACCEL_SENS = 0.50               # credit-appetite damping per unit excess leverage.
+SFC_PREMIUM_SENS = 0.04             # interest-rate premium per unit excess leverage.
+SFC_PREMIUM_CAP = 0.10              # cap on the credit premium.
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]

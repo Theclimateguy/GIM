@@ -290,7 +290,9 @@ def compute_effective_interest_rate(agent: AgentState, world: WorldState | None 
         zone_premium = 0.0
     else:
         zone_premium = _credit_zone_premium(zone)
-    rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread + zone_premium
+    # [F2.3] SFC financial accelerator: a leverage-driven private-credit premium (0 unless enabled).
+    credit_premium = getattr(economy, "_credit_premium", 0.0)
+    rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread + zone_premium + credit_premium
     return float(max(0.0, min(rate, cal.RATE_MAX)))
 
 
