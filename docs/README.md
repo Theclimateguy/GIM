@@ -31,6 +31,7 @@ notes have been moved out of the repository to keep it clean.)
 - [`CLIMATE_BACKTEST.md`](CLIMATE_BACKTEST.md) — 1990–2023 climate calibration.
 - [`SCENARIO_ALIGNMENT.md`](SCENARIO_ALIGNMENT.md) / [`BENCHMARK_ALIGNMENT.md`](BENCHMARK_ALIGNMENT.md) — scenario warming envelopes + emulator/SCC benchmark.
 - [`MULTI_GHG_FORCING.md`](MULTI_GHG_FORCING.md) — non-carbon-dioxide greenhouse-gas forcing.
+- [`CLIMATE_BENCHMARKS.md`](CLIMATE_BENCHMARKS.md) — non-CO₂/feedback/SCC benchmark standing & decisions (E3.4).
 - [`CARBON_CYCLE_FEEDBACK.md`](CARBON_CYCLE_FEEDBACK.md) — land-use emissions + permafrost/peat + abrupt-release feedbacks.
 - [`CARBON_PRICE_CHANNEL.md`](CARBON_PRICE_CHANNEL.md) — carbon price → energy substitution → emissions (validated vs empirical).
 - [`DAMAGE_FUNCTION.md`](DAMAGE_FUNCTION.md) / [`GROWTH_DAMAGE.md`](GROWTH_DAMAGE.md) / [`WELFARE_SCC.md`](WELFARE_SCC.md) — damages + social cost of carbon.
