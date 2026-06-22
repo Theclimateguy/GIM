@@ -6,7 +6,9 @@ limitations are, whether they block using the model, and the priority order for 
 ## Current standing
 
 **Solid and validated.**
-- Economy reproduces 2015–2023 national-income history (the "golden" backtest holds throughout).
+- Economy reproduces 2015–2023 national-income history; the headline now uses the objective
+  capital–energy-substitution (nested-CES) production core, which improved the fit (GDP error
+  1.03→0.63, CO₂ 1.61→1.11).
 - Climate matches the mainstream scientific assessment (temperature sensitivity, the 1990–2023
   warming and carbon record).
 - Cost of carbon is in the modern consensus range, with uncertainty carried explicitly.
@@ -24,8 +26,9 @@ limitations are, whether they block using the model, and the priority order for 
 2. **Climate benchmarks matched at the headline but not exhaustively.** The strongest carbon-cycle
    feedbacks and the fullest greenhouse-gas accounting are switchable extras, kept out of the
    default run; the cost-of-carbon sits a little above the most-cited official central estimate.
-3. **The economy's production core is simple** (a textbook capital–labour–energy formula). This is
-   the question worth taking seriously — addressed below.
+3. ~~**The economy's production core is simple.**~~ **[Resolved.]** The headline now uses a
+   calibrated capital–energy-substitution (nested-CES) core with cost-minimising energy demand; the
+   remaining economic gap is market clearing (item 1 above), not the production recipe.
 
 ## Are these limitations blockers for using the model?
 
@@ -74,11 +77,11 @@ to be brought fully up to the level of the rest of the model, the production sid
 
 ## Priority order for further development
 
-1. **Activate the richer production structure (capital–energy substitution) in the supply core, not
-   just in emissions.** The scaffold exists and reduces exactly to the current core in the
-   no-substitution case; the remaining work is to derive energy *demand* from cost minimisation and
-   recalibrate the energy parameters so the historical fit is preserved. This is the highest-leverage
-   economic upgrade and removes the "too simple" critique at the structural level.
+1. **[DONE] Activate the richer production structure (capital–energy substitution) in the supply
+   core.** The calibrated (base-normalized) nested-CES core is now the headline, with energy demand
+   derived from cost minimisation. It reduces exactly to the old core at the base point, so
+   activation preserved the calibration — and it *improved* the historical fit (GDP RMSE 1.03→0.63,
+   CO₂ 1.61→1.11). The "too simple production core" critique is closed at the structural level.
 2. **Partial market clearing for the energy and capital markets** (price balances supply and demand
    each period), bridging toward the general-equilibrium class without a full rebuild. The
    resource-price clearing mode is already in place; capital-market clearing is the next piece.

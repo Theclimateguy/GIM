@@ -26,13 +26,15 @@ debt, the interest rate set by the central bank, and trade flows between countri
 the last decade of real history (2015–2023) for national income, so the economic engine is
 grounded, not invented.
 
-**Limits.** The recipe that turns capital, labour and energy into output is deliberately simple (a
-classic textbook production formula). It treats the factors as easy to swap for one another, which
-is fine for broad trends but too coarse to model, say, exactly how a high carbon price reshuffles an
-economy. Markets do not fully "clear": prices adjust gradually rather than instantly balancing
-supply and demand. Households and firms look at the recent past rather than truly anticipating the
-future. Long-run growth is only loosely pinned down by the short history available. These are
-honest simplifications, not errors — but they are the main place the economy could be deepened.
+**Limits.** The recipe that turns capital, labour and energy into output now represents how hard it
+is to swap one factor for another — in particular, when energy gets expensive the economy shifts
+toward capital and uses less energy (a calibrated capital–energy substitution), which is what lets a
+carbon price realistically reshuffle the economy. (This replaced the earlier bare textbook formula
+and actually improved the fit to history.) What remains: markets do not yet fully "clear" — prices
+adjust gradually rather than instantly balancing supply and demand (the next development step);
+households and firms look at the recent past rather than truly anticipating the future; and long-run
+growth is only loosely pinned down by the short history available. These are honest simplifications,
+not errors.
 
 ## 2. Climate and the carbon cycle
 
@@ -158,7 +160,7 @@ because no credible global model reliably predicts the world years ahead. The mo
 
 | Layer | Strength | Main limit |
 |---|---|---|
-| Economy | grounded to 2015–2023 history | simple production recipe; no full market clearing |
+| Economy | grounded to 2015–2023 history; capital–energy substitution | no full market clearing yet |
 | Climate & carbon | matches mainstream science | feedbacks uncertain; not a full Earth-system model |
 | Damage & cost of carbon | evidence-based, uncertainty carried | damages wide across the field |
 | Resources | feeds prices→inflation | broad, rule-based prices |

@@ -95,11 +95,16 @@ Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`):
 - temperature std (predicted/observed): `0.09308561945984438 / 0.1030600790014023`
 - ensemble size: `8`
 
-Current golden regression target (`tests/test_historical_backtest.py`):
+Current golden regression target (`tests/test_historical_backtest.py`), **post E3.1 objective-core
+re-anchor** (headline = calibrated nested-CES production + cost-minimizing energy demand):
 
-- GDP RMSE `1.025 ± 0.005`
-- global CO2 RMSE `1.605 ± 0.005`
-- temperature RMSE `0.138 ± 0.005`
+- GDP RMSE `0.630 ± 0.01`
+- global CO2 RMSE `1.106 ± 0.01`
+- temperature RMSE `0.135 ± 0.01`
+
+The objective production core improved the fit vs the prior Cobb-Douglas golden (`1.026 / 1.606 /
+0.134`). Emissions were re-anchored via `NESTED_CES_EMISSIONS_NORM` (1.056), leaving the data-derived
+`EMISSIONS_SCALE` (0.9755) artifact-bound and unchanged.
 
 ### 3.2 Operational suites
 
