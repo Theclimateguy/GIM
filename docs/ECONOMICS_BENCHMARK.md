@@ -98,9 +98,12 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   (supply=demand), even if the rest stays recursive. Bridges toward the GE class without a full CGE.
 - **D3 — Stock-flow-consistent private finance.** Add bank/credit/money on top of the existing debt
   identity (T1.1 is the foundation): private credit, balance sheets, a financial accelerator.
-- **D4 — Growth foundations + SSP anchoring.** Either anchor baseline GDP/TFP to SSP pathways
-  (calibration target) or strengthen and identify the endogenous-growth microfoundation; report
-  GDP **skill vs naïve baselines** as the headline accuracy metric.
+- **D4 — Growth foundations + SSP anchoring. [scaffold delivered — F2.4/THE-39]** SSP TFP-drift
+  anchors in `gim/scenario_alignment.py` (`SSP_TFP_DRIFT`, `ssp_growth_preset`, switchable override,
+  default unchanged → golden preserved); `scripts/report_gdp_skill.py` surfaces the headline GDP
+  skill-vs-naive (**+0.09**, beats naive) + the baseline-growth gap (GIM drift 0.010 ≈ SSP3, below
+  SSP2 0.018 — the "low growth" flag, now quantified). Raising the drift to an SSP anchor rides with
+  the re-anchor.
 - **D5 — Expectations.** Add forward-looking investment/savings (limited foresight), or formally
   document and defend the behavioural/recursive choice with ABM-macro literature.
 - **D6 — DICE reproduction (Phase-5 THE-16, the keystone check).** Reproduce Nordhaus ~\$31/tCO₂ in

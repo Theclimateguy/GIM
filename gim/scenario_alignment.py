@@ -95,3 +95,46 @@ def ar6_consistency_report(params=None) -> Dict[str, object]:
         "tcr_ar6": AR6_TCR,
         "tcr_within_ar6_likely": AR6_TCR[1] <= tcr <= AR6_TCR[2],
     }
+
+
+# --- F2.4 (D4): SSP socioeconomic growth anchoring -----------------------------------------
+# Approximate long-run global TFP-growth assumptions implied by the SSP narratives (illustrative,
+# from the SSP database / Dellink et al. 2017 OECD GDP projections; Riahi et al. 2017). These are
+# the *baseline drift* component; GIM's realized growth = TFP_DRIFT + endogenous (R&D/spillover/
+# diffusion) terms. GIM's default TFP_DRIFT=0.01 sits below SSP2 (~0.018) — the "low growth" flag in
+# docs/ECONOMICS_BENCHMARK.md. Anchoring is a switchable calibration override (default: unchanged).
+SSP_TFP_DRIFT: Dict[str, float] = {
+    "SSP1": 0.016,  # sustainability
+    "SSP2": 0.018,  # middle of the road (the conventional baseline anchor)
+    "SSP3": 0.009,  # regional rivalry / fragmentation (low)
+    "SSP4": 0.013,  # inequality
+    "SSP5": 0.022,  # fossil-fuelled development (high)
+}
+
+
+def ssp_growth_preset(ssp: str) -> Dict[str, float]:
+    """Parameter override anchoring baseline TFP drift to an SSP narrative (use at the re-anchor).
+
+    Returns e.g. {"TFP_DRIFT": 0.018}; apply via params.with_overrides or set on calibration_params.
+    Default GIM (no preset) keeps the validated TFP_DRIFT=0.01, so the golden is preserved.
+    """
+    key = ssp.upper().split("-")[0]
+    if key not in SSP_TFP_DRIFT:
+        raise KeyError(f"Unknown SSP '{ssp}'; expected one of {sorted(SSP_TFP_DRIFT)}")
+    return {"TFP_DRIFT": SSP_TFP_DRIFT[key]}
+
+
+def gdp_growth_alignment_report(params=None) -> Dict[str, object]:
+    """GIM baseline TFP drift vs the SSP anchors (where does GIM's emergent growth sit?)."""
+    from .core.params import default_params
+    p = params or default_params()
+    gim_drift = float(getattr(p, "TFP_DRIFT", 0.01))
+    nearest = min(SSP_TFP_DRIFT, key=lambda s: abs(SSP_TFP_DRIFT[s] - gim_drift))
+    return {
+        "gim_tfp_drift": gim_drift,
+        "ssp_tfp_drift": dict(SSP_TFP_DRIFT),
+        "nearest_ssp": nearest,
+        "below_ssp2": gim_drift < SSP_TFP_DRIFT["SSP2"],
+        "note": ("GIM baseline drift is the emergent-growth floor; realized growth adds endogenous "
+                 "R&D/spillover/diffusion. Anchoring to an SSP is a re-anchor-time calibration choice."),
+    }
