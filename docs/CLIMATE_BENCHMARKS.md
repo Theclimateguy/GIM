@@ -59,4 +59,4 @@ paper. (See `docs/WELFARE_SCC.md`, `docs/BENCHMARK_ALIGNMENT.md`.)
 |---|---|---|
 | AR6 net non-CO₂ | retain calibrated net (headline); AR6 components as scenario levers | AR6 central over-warms the validated 1990–2023 record; gap within AR6 uncertainty |
 | Carbon-cycle feedbacks | ensemble-only | deterministic feedback explodes the SCC; deep uncertainty belongs in the tail |
-| Social cost of carbon | report ~$245 (modern 2%), above EPA/RFF central | GIM damages are higher and cross-validated; do not detune to hit a target |
+| Social cost of carbon | report ~$140 (modern 2%), within the broad modern range; document the ~$140–380 sensitivity | report the value and its growth/discounting sensitivity rather than detune to hit a target |

@@ -46,6 +46,7 @@ notes have been moved out of the repository to keep it clean.)
 - [`SOCIAL_GEO_METRICS.md`](SOCIAL_GEO_METRICS.md) — mapping each unique-layer variable to an external index.
 - [`UNIQUE_LAYER_AUDIT.md`](UNIQUE_LAYER_AUDIT.md) — which inputs actually move outputs (culture wire/remove decision).
 - [`STRESS_AUDIT.md`](STRESS_AUDIT.md) — threshold-gated inputs re-audited under stress.
+- [`WEAK_SIGNAL.md`](WEAK_SIGNAL.md) — analyst-tier weak-signal detection (Mahalanobis anomaly + structural break + critical slowing-down) for what-if / early-warning.
 
 ## Risk
 
