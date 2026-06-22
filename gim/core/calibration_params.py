@@ -108,6 +108,21 @@ TEMP_NATURAL_VARIABILITY_SIGMA = 0.08  # [BACKTEST]
 TEMP_NATURAL_VARIABILITY_AR1_RHO = 0.65  # [T2.4] AR(1) "red-noise" persistence of internal variability (ENSO-like ~0.6-0.7); 0 == iid.
 TEMP_BACKTEST_ENSEMBLE_SIZE = 8  # [BACKTEST]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
+
+# [E2.1] Land-use-change (LUC) CO2 source (switchable; default 0 -> golden bit-identical).
+# Global Carbon Project LUC ~4-5 GtCO2/yr historical (declining). Turning this on requires
+# re-deriving EMISSIONS_SCALE, which today implicitly absorbs LUC -> rides with the E2.4 re-anchor
+# (enabling it standalone would double-count). Prior in data/parameter_priors.csv.
+LAND_USE_CO2_GTCO2_YR = 0.0  # [GCB2023]
+
+# [E2.2] Smooth carbon-cycle feedback (permafrost/peat), temperature-gated (switchable; default OFF).
+# An ADDED term on top of the AR6-anchored forced response (ECS 3.0 / TCR 1.79) -> does NOT dilute
+# ECS; effectively inflates TCRE/tail. AR6 WG1 Ch.5: permafrost CO2+CH4 feedback is positive but
+# very uncertain. Split: a CO2-pool flux + a simplified steady-state CH4-equivalent forcing term.
+CARBON_CYCLE_FEEDBACK = False               # master switch.
+CARBON_FEEDBACK_T_REF = 0.0                 # warming reference (model temp is anomaly above PI).
+CARBON_FEEDBACK_CO2_GTCO2_PER_C = 0.0       # GtCO2/yr per degC warming (permafrost/peat CO2).
+CARBON_FEEDBACK_CH4_WM2_PER_C = 0.0         # extra CH4 forcing (W/m2) per degC (simplified).
 EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived during manifest refresh and bound to the active state manifest.
 TECH_DECARB_K = 0.12  # [PRIOR]
 DECARB_RATE_OBSERVED_REFERENCE = (

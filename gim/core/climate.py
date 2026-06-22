@@ -229,6 +229,17 @@ def update_global_climate(
 
     total_emissions = sum(agent.climate.co2_annual_emissions for agent in world.agents.values())
 
+    # [E2.1] Land-use-change CO2 source (switchable; default 0 -> no change).
+    total_emissions += getattr(cal, "LAND_USE_CO2_GTCO2_YR", 0.0)
+
+    # [E2.2] Smooth carbon-cycle feedback (permafrost/peat), temperature-gated (switchable;
+    # default off). CO2 share enters the pools this step; CH4 share is a simplified extra forcing.
+    f_ch4_feedback = 0.0
+    if getattr(cal, "CARBON_CYCLE_FEEDBACK", False):
+        dT_fb = max(0.0, world.global_state.temperature_global - getattr(cal, "CARBON_FEEDBACK_T_REF", 0.0))
+        total_emissions += getattr(cal, "CARBON_FEEDBACK_CO2_GTCO2_PER_C", 0.0) * dT_fb
+        f_ch4_feedback = getattr(cal, "CARBON_FEEDBACK_CH4_WM2_PER_C", 0.0) * dT_fb
+
     fractions = _normalize_fractions(carbon_pool_fractions)
     timescales = list(carbon_pool_timescales)
     if len(timescales) < len(fractions):
@@ -265,7 +276,7 @@ def update_global_climate(
     c0_ppm = CO2_PREINDUSTRIAL_GT / GTCO2_PER_PPM
     f_co2 = cal.FORCING_LOG_COEFF * math.log(c_ppm / c0_ppm)
     f_nonco2 = _resolve_nonco2_forcing(world, f_nonco2)
-    f_total = f_co2 + f_nonco2
+    f_total = f_co2 + f_nonco2 + f_ch4_feedback  # f_ch4_feedback = 0 unless E2.2 enabled
     world.global_state.forcing_total = f_total
 
     ecs = min(max(cal.ECS_MIN, ecs), cal.ECS_MAX)
