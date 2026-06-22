@@ -32,12 +32,16 @@ class SCCAlignmentTests(unittest.TestCase):
         modern = gim_scc_at_discounting(MODERN_RHO, MODERN_ETA, horizons=(200,))
         self.assertGreater(modern[200], native[200])
 
-    def test_gim_at_modern_discounting_reproduces_epa_rff_central(self):
-        # The headline objectivity result: at the RFF-SP/EPA near-term-2% scheme, GIM's
-        # 200-yr SCC lands in the modern-consensus band (~$150-230), i.e. ~$185-190.
+    def test_gim_at_modern_discounting_sits_above_epa_rff_central(self):
+        # [E2.4 re-anchor] Post-Phase-4 + headline land-use, GIM's 200-yr SCC at the RFF-SP/EPA
+        # near-term-2% scheme is ~$300-350 -- ABOVE the EPA-2023/RFF-SP central (~$190), and this is
+        # honest: GIM's damage function is higher (5.4%/3C, cross-validated T1.4, ~2.5x DICE) and
+        # land-use adds long-horizon CO2. The earlier "$191 ~= EPA" (F1) was a pre-Phase-4 coincidence;
+        # we report the true value rather than detune validated damages to force $190.
         rep = scc_alignment_report(horizons=(200,))
         scc200 = rep["gim_modern_2pct"][200]
-        self.assertTrue(150.0 <= scc200 <= 230.0, scc200)
+        self.assertTrue(250.0 <= scc200 <= 450.0, scc200)
+        self.assertGreater(scc200, 190.0)  # above the EPA/RFF central, by design
 
 
 class SkillReportTests(unittest.TestCase):

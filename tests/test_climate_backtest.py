@@ -41,12 +41,12 @@ class ObservationsDataTests(unittest.TestCase):
 
 
 class BacktestRunTests(unittest.TestCase):
-    def test_emission_mode_tracks_co2_with_known_landuse_gap(self):
-        # Fossil+cement-only forcing under-predicts atmospheric CO2 (no land-use
-        # source); the gap is a stable ~10 ppm, not a blow-up.
+    def test_emission_mode_tracks_co2_with_landuse_source(self):
+        # [E2.4 re-anchor] With the headline residual land-use source ON (~0.6 GtCO2/yr), the
+        # emission-driven backtest closes most of the former ~10 ppm gap (ppm_rmse ~2-3, not ~10).
         res = run_climate_backtest(mode="emission")
         self.assertEqual(set(res.predicted_temperature), set(range(1990, 2024)))
-        self.assertLess(res.scores["ppm_rmse"], 12.0)
+        self.assertLess(res.scores["ppm_rmse"], 6.0)  # was <12 with the open gap; land-use closes it
         self.assertLess(res.scores["temperature_rmse"], 0.4)
 
     def test_concentration_mode_is_deterministic(self):

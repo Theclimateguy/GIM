@@ -29,9 +29,12 @@ def _run(overrides, years=30, emit=35.0):
 
 
 class CarbonFeedbackTests(unittest.TestCase):
-    def test_defaults_are_off(self):
-        self.assertEqual(cal.LAND_USE_CO2_GTCO2_YR, 0.0)
+    def test_headline_defaults(self):
+        # [E2.4 re-anchor] land-use is ON in the headline; the smooth feedback + tipping stay
+        # ensemble-only (off) because they blow up the deterministic long-horizon SCC.
+        self.assertEqual(cal.LAND_USE_CO2_GTCO2_YR, 0.6)
         self.assertFalse(cal.CARBON_CYCLE_FEEDBACK)
+        self.assertFalse(cal.CARBON_TIPPING)
 
     def test_land_use_raises_co2_and_warming(self):
         co2_off, t_off = _run(None)
@@ -49,10 +52,10 @@ class CarbonFeedbackTests(unittest.TestCase):
         self.assertGreater(t_on, t_off)
         self.assertGreater(co2_on, co2_off)  # permafrost CO2 flux adds to pools
 
-    def test_feedback_off_matches_baseline_exactly(self):
-        # Explicitly-off overrides must reproduce the untouched default run bit-for-bit.
+    def test_feedback_explicit_off_matches_default(self):
+        # The smooth feedback is off in the headline; setting it explicitly off changes nothing.
         base = _run(None)
-        off = _run({"CARBON_CYCLE_FEEDBACK": False, "LAND_USE_CO2_GTCO2_YR": 0.0})
+        off = _run({"CARBON_CYCLE_FEEDBACK": False})
         self.assertEqual(base, off)
 
     def test_abrupt_tipping_default_off_and_active_when_enabled(self):

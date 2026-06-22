@@ -53,7 +53,7 @@ PRICE_ADJUST_ALPHA = 0.15            # [F2.2] sluggish-adjustment step for the d
 # [F2.3] Stock-flow-consistent private finance + financial accelerator (switchable; default OFF ->
 # golden bit-identical). Private credit stock on top of the T1.1 sovereign identity; over-leverage
 # damps credit appetite and raises a borrowing-rate premium (Bernanke-Gertler accelerator).
-SFC_FINANCE = False                  # master switch.
+SFC_FINANCE = True                   # master switch. [E2.4 re-anchor] ACTIVATED in headline (golden-safe).
 SFC_INIT_LEVERAGE = 1.0              # initial private_debt / GDP (world private credit ~1x GDP).
 SFC_CREDIT_APPETITE = 0.10           # gross new credit as a share of GDP / yr (pre-accelerator).
 SFC_REPAY_RATE = 0.08               # annual repayment as a share of outstanding private debt.
@@ -147,7 +147,10 @@ FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
 # Global Carbon Project LUC ~4-5 GtCO2/yr historical (declining). Turning this on requires
 # re-deriving EMISSIONS_SCALE, which today implicitly absorbs LUC -> rides with the E2.4 re-anchor
 # (enabling it standalone would double-count). Prior in data/parameter_priors.csv.
-LAND_USE_CO2_GTCO2_YR = 0.0  # [GCB2023]
+LAND_USE_CO2_GTCO2_YR = 0.6  # [GCB2023] [E2.4 re-anchor] ACTIVATED in headline. Data-derived RESIDUAL
+# (not the GCB gross ~4.5): EMISSIONS_SCALE=0.9755 already implicitly absorbs most historical LUC, so
+# the residual that closes the 1990-2023 CO2 gap is ~0.6 (ppm_rmse 9.76->2.30). Calibrated on the
+# emission-driven climate backtest; the gross GCB value would double-count and overshoot (ppm_rmse 54).
 
 # [E2.2] Smooth carbon-cycle feedback (permafrost/peat), temperature-gated (switchable; default OFF).
 # An ADDED term on top of the AR6-anchored forced response (ECS 3.0 / TCR 1.79) -> does NOT dilute
@@ -304,7 +307,7 @@ SOCIAL_TRUST_ANCHOR_REF = 0.50  # [PRIOR]
 #   lto (long-term orientation) -> patience/deferred gratification -> damped short-run unrest (-)
 # The 4 dropped dims (mas, ind, traditional_secular, survival_self_expression) had no
 # defensible, testable economic/social linkage (F3 audit) and were removed.
-CULTURE_SOCIAL_LINKS = False  # [F3] master switch for the culture->social channel.
+CULTURE_SOCIAL_LINKS = True  # [F3] [E2.4 re-anchor] ACTIVATED in headline (golden-safe; pdi/uai/lto load-bearing).
 CULTURE_DIM_REF = 50.0        # Hofstede mid-scale reference (0-100) for centring.
 CULTURE_PDI_TRUST_SENS = 0.02     # power distance -> institutional trust (Hofstede; PDI~corruption/ineq).
 CULTURE_UAI_STRESS_SENS = 0.50    # uncertainty avoidance -> econ-stress reaction amplification.

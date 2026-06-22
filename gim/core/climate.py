@@ -230,15 +230,15 @@ def update_global_climate(
 
     total_emissions = sum(agent.climate.co2_annual_emissions for agent in world.agents.values())
 
-    # [E2.1] Land-use-change CO2 source (switchable; default 0 -> no change).
-    total_emissions += getattr(cal, "LAND_USE_CO2_GTCO2_YR", 0.0)
+    # [E2.1] Land-use-change CO2 source (annual flux GtCO2/yr -> scale by dt; default residual 0.6).
+    total_emissions += getattr(cal, "LAND_USE_CO2_GTCO2_YR", 0.0) * dt
 
     # [E2.2] Smooth carbon-cycle feedback (permafrost/peat), temperature-gated (switchable;
-    # default off). CO2 share enters the pools this step; CH4 share is a simplified extra forcing.
+    # default off). CO2 flux (per yr) enters the pools scaled by dt; CH4 share is a simplified forcing.
     f_ch4_feedback = 0.0
     if getattr(cal, "CARBON_CYCLE_FEEDBACK", False):
         dT_fb = max(0.0, world.global_state.temperature_global - getattr(cal, "CARBON_FEEDBACK_T_REF", 0.0))
-        total_emissions += getattr(cal, "CARBON_FEEDBACK_CO2_GTCO2_PER_C", 0.0) * dT_fb
+        total_emissions += getattr(cal, "CARBON_FEEDBACK_CO2_GTCO2_PER_C", 0.0) * dT_fb * dt
         f_ch4_feedback = getattr(cal, "CARBON_FEEDBACK_CH4_WM2_PER_C", 0.0) * dT_fb
 
     # [E2.3] Abrupt carbon-release tipping (episodic, fat-tailed), temperature-gated (switchable; off).

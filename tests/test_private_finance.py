@@ -10,13 +10,15 @@ STATE = "data/agent_states_operational_2026_calibrated.csv"
 
 
 class PrivateFinanceTests(unittest.TestCase):
-    def test_default_is_off(self):
-        self.assertFalse(cal.SFC_FINANCE)
+    def test_default_is_on(self):
+        # [E2.4 re-anchor] SFC private finance is ON in the headline (golden-safe).
+        self.assertTrue(cal.SFC_FINANCE)
 
-    def test_off_sets_no_state(self):
+    def test_explicit_off_sets_no_state(self):
         world = make_world_from_csv(STATE, max_agents=4, base_year=2026)
+        world.params = default_params().with_overrides({"SFC_FINANCE": False})
         a = next(iter(world.agents.values()))
-        update_private_finance(a, world)  # SFC_FINANCE off -> no-op
+        update_private_finance(a, world)  # explicitly off -> no-op
         self.assertFalse(hasattr(a.economy, "_private_debt"))
         self.assertFalse(hasattr(a.economy, "_credit_premium"))
 

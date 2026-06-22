@@ -38,9 +38,10 @@ def _aggregate_outputs(world) -> Dict[str, float]:
 def _run(setter: Callable[[object], None] | None, years: int, max_agents: int, seed: int,
          culture_links: bool = False) -> Dict[str, float]:
     world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2026)
-    if culture_links:
-        from gim.core.params import default_params
-        world.params = default_params().with_overrides({"CULTURE_SOCIAL_LINKS": True})
+    # Force the culture channel explicitly (the headline default is now ON, so an off-audit must
+    # override it to False rather than rely on the default).
+    from gim.core.params import default_params
+    world.params = default_params().with_overrides({"CULTURE_SOCIAL_LINKS": bool(culture_links)})
     world.global_state._temperature_variability_sigma = 0.0  # deterministic forced run
     if setter is not None:
         for agent in world.agents.values():
