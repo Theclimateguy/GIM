@@ -100,6 +100,7 @@ def update_emissions_from_economy(
     policy_reduction: float = 0.0,
     fuel_tax_change: float = 0.0,
     params=None,
+    energy_price: float | None = None,
 ) -> None:
     cal = params if params is not None else default_params()
     gdp = max(agent.economy.gdp, 1e-6)
@@ -126,7 +127,24 @@ def update_emissions_from_economy(
     structural_transition = math.exp(-cal.DECARB_RATE_STRUCTURAL * structural_progress)
     tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
     tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
-    intensity = base_intensity * tech_factor * efficiency_factor * structural_transition * tax_effect
+
+    # [D1-real] CES cost-min carbon-price substitution. A carbon price raises the effective energy
+    # price by a fractional markup (CARBON_PRICE_PASSTHROUGH * $/tCO2); cost-minimizing energy demand
+    # per output then falls with elasticity sigma_KE (inner KE CES), and fossil emission intensity
+    # inherits it: factor = (1 + markup)^(-sigma_KE). The markup (not the absolute market price) drives
+    # it, so at carbon=0 the factor is 1 -> golden bit-identical by construction, independent of the
+    # endogenous energy-price path. (energy_price is reserved for a future scarcity-substitution term.)
+    price_substitution = 1.0
+    if getattr(cal, "ENERGY_PRICE_SUBSTITUTION", False):
+        sigma = max(0.0, getattr(cal, "CES_SIGMA_KE", 0.4))
+        carbon = max(0.0, getattr(cal, "CARBON_PRICE_USD_PER_TCO2", 0.0))
+        markup = getattr(cal, "CARBON_PRICE_PASSTHROUGH", 0.0) * carbon
+        price_substitution = (1.0 + markup) ** (-sigma)
+
+    intensity = (
+        base_intensity * tech_factor * efficiency_factor
+        * structural_transition * tax_effect * price_substitution
+    )
     reduction = max(0.0, min(cal.POLICY_REDUCTION_MAX, policy_reduction))
     agent.climate.co2_annual_emissions = max(
         0.0,

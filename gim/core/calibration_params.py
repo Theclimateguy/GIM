@@ -40,6 +40,21 @@ GAMMA_ENERGY = 0.042  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023)
 # responses are meaningful. Activated at the economics re-anchor (level still anchored by _scale_factor).
 NESTED_CES = False  # [F2.1] switch to the nested-CES (KLE) production core.
 CES_SIGMA_KE = 0.4  # [F2.1] capital-energy substitution elasticity (KLEM ~0.3-0.5).
+# [D1-real] CES cost-min energy-demand -> emissions coupling. The inner KE CES implies a
+# cost-minimizing energy demand per unit output that falls with the (carbon-inclusive) energy price
+# with elasticity sigma_KE: (E/Y) ∝ p_E^(-sigma_KE). Since fossil emissions track energy use,
+# emission intensity inherits the same elasticity. This is the channel that makes carbon/energy
+# prices reduce emissions via substitution (the point of D1) -- derived from producer theory, not
+# imposed. Switchable; at the reference price (p_E = ENERGY_PRICE_REF) the factor is 1 -> golden-safe.
+ENERGY_PRICE_SUBSTITUTION = False   # [D1] route the energy price into emission intensity via sigma_KE.
+ENERGY_PRICE_REF = 1.0              # [D1] reference (calibration) energy price; factor==1 here.
+CARBON_PRICE_USD_PER_TCO2 = 0.0     # [D1] optional explicit carbon price ($/tCO2); 0 => no policy.
+CARBON_PRICE_PASSTHROUGH = 0.003    # [D1] fractional economy-wide energy-price rise per $1/tCO2
+                                    # (~15% at $50: plausible mid for mixed energy carbon-intensity).
+                                    # With sigma_KE=0.4 this yields a LONG-RUN ~5.5% emission cut at
+                                    # $50/tCO2 -- above the observed SHORT-RUN ETS effect (~1-2.5%);
+                                    # the gap is the adjustment-friction wedge (GIM = frictionless
+                                    # equilibrium substitution). See docs/CARBON_PRICE_CHANNEL.md.
 # [F2.2] Partial market clearing for resource (energy/food/metals) prices. Default OFF keeps the
 # validated sluggish tatonnement (partial price adjustment, step PRICE_ADJUST_ALPHA) -> golden
 # bit-identical. When ON, the price jumps within-period to the level that equates a constant-
