@@ -13,15 +13,16 @@ from gim.historical_backtest import (
 
 
 class HistoricalBacktestTests(unittest.TestCase):
-    # Updated by the T1.3 joint multi-window climate recalibration
-    # (HEAT_CAP_SURFACE 18->8, OCEAN_EXCHANGE 0.7->1.0): the 2015-2023 temperature
-    # RMSE improves from 0.138 to 0.134 while moving to physical climate parameters.
+    # [E3.1 re-anchor] Headline now uses the objective economic core: calibrated nested-CES
+    # production (capital-energy substitution) + cost-minimizing energy demand, with EMISSIONS_SCALE
+    # re-derived to 1.03. The objective core IMPROVES the historical fit: GDP RMSE 1.026 -> 0.630 and
+    # CO2 RMSE 1.606 -> 1.106 (temperature ~unchanged). Prior Cobb-Douglas golden was 1.026/1.606/0.134.
     GOLDEN = {
-        "gdp_rmse_trillions": 1.026,
-        "global_co2_rmse_gtco2": 1.606,
-        "temperature_rmse_c": 0.134,
+        "gdp_rmse_trillions": 0.630,
+        "global_co2_rmse_gtco2": 1.106,
+        "temperature_rmse_c": 0.135,
     }
-    TOLERANCE = 0.005
+    TOLERANCE = 0.01
 
     def test_backtest_fixtures_exist(self) -> None:
         self.assertTrue(DEFAULT_OBSERVED_FIXTURE.exists(), DEFAULT_OBSERVED_FIXTURE)

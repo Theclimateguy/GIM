@@ -11,8 +11,7 @@ STATE = "data/agent_states_operational_2026_calibrated.csv"
 
 def _energy_consumption_after(price, on):
     world = make_world_from_csv(STATE, max_agents=6, base_year=2026)
-    if on:
-        world.params = default_params().with_overrides({"ENERGY_DEMAND_PRICE_RESPONSE": True})
+    world.params = default_params().with_overrides({"ENERGY_DEMAND_PRICE_RESPONSE": bool(on)})
     world.global_state.prices["energy"] = price
     a = next(iter(world.agents.values()))
     before = a.resources["energy"].consumption
@@ -21,8 +20,9 @@ def _energy_consumption_after(price, on):
 
 
 class EnergyDemandTests(unittest.TestCase):
-    def test_default_is_off(self):
-        self.assertFalse(cal.ENERGY_DEMAND_PRICE_RESPONSE)
+    def test_default_is_on(self):
+        # [E3.1 re-anchor] cost-minimizing energy demand is part of the objective headline core.
+        self.assertTrue(cal.ENERGY_DEMAND_PRICE_RESPONSE)
 
     def test_no_response_at_reference_price(self):
         # at the reference price (1.0) demand is unchanged whether the channel is on or off.

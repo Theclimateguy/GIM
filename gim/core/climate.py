@@ -146,9 +146,12 @@ def update_emissions_from_economy(
         * structural_transition * tax_effect * price_substitution
     )
     reduction = max(0.0, min(cal.POLICY_REDUCTION_MAX, policy_reduction))
+    # [E3.1] Nested-CES emissions normalization (re-anchors aggregate emissions for the substitution
+    # core without touching the data-derived, artifact-bound EMISSIONS_SCALE). 1.0 unless nested-CES.
+    nested_norm = getattr(cal, "NESTED_CES_EMISSIONS_NORM", 1.0) if getattr(cal, "NESTED_CES", False) else 1.0
     agent.climate.co2_annual_emissions = max(
         0.0,
-        gdp * intensity * (1.0 - reduction) * cal.EMISSIONS_SCALE,
+        gdp * intensity * (1.0 - reduction) * cal.EMISSIONS_SCALE * nested_norm,
     )
     # Structural transition is cumulative and path-dependent: policy tools should
     # accelerate future decarbonization rather than retroactively rewrite past years.

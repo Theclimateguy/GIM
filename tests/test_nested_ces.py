@@ -10,8 +10,9 @@ from gim.core.economy import _nested_ces_core
 
 
 class NestedCesTests(unittest.TestCase):
-    def test_default_is_cobb_douglas(self):
-        self.assertFalse(cal.NESTED_CES)
+    def test_default_is_nested_ces(self):
+        # [E3.1 re-anchor] the calibrated nested-CES core is the objective headline default.
+        self.assertTrue(cal.NESTED_CES)
 
     def test_ces_reduces_to_cobb_douglas_at_sigma_one(self):
         a, b, g = 0.30, 0.60, 0.042
