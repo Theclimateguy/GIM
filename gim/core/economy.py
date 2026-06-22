@@ -131,6 +131,18 @@ def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
     )
     savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
 
+    # [F2.5] Limited-foresight investment: blend a one-step expected-return signal (recent GDP
+    # growth) into the (otherwise adaptive) savings rate. Default EXPECTATIONS_FORESIGHT=0 ->
+    # pure adaptive expectations -> golden bit-identical. >0 tilts investment pro-cyclically toward
+    # expected returns (bounded), a tractable step toward forward-looking behaviour.
+    foresight = getattr(cal, "EXPECTATIONS_FORESIGHT", 0.0)
+    if foresight > 0.0:
+        g_prev = getattr(economy, "_gdp_prev_foresight", None)
+        exp_growth = (gdp - g_prev) / g_prev if (g_prev and g_prev > 0) else 0.0
+        savings_rate *= 1.0 + foresight * max(-0.5, min(0.5, exp_growth))
+        savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
+        economy._gdp_prev_foresight = gdp
+
     investment = savings_rate * gdp
     _set_critical_effective(
         world,

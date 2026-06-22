@@ -114,8 +114,13 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   skill-vs-naive (**+0.09**, beats naive) + the baseline-growth gap (GIM drift 0.010 ≈ SSP3, below
   SSP2 0.018 — the "low growth" flag, now quantified). Raising the drift to an SSP anchor rides with
   the re-anchor.
-- **D5 — Expectations.** Add forward-looking investment/savings (limited foresight), or formally
-  document and defend the behavioural/recursive choice with ABM-macro literature.
+- **D5 — Expectations. [delivered — F2.5/THE-40]** `EXPECTATIONS_FORESIGHT` (default 0 → pure
+  adaptive, golden-preserving) blends a one-step expected-return (recent GDP growth) signal into the
+  savings/investment rate — a switchable, bounded forward-looking tilt. The recursive/adaptive
+  default is the **defended** stance: there is no unified theory of second best (Pollitt-Mercure
+  2021) and demand-led non-equilibrium models (E3ME) argue full foresight is unrealistic; GIM's
+  behavioural-recursive choice is a legitimate ABM-macro position, and the switch lets us test
+  sensitivity to it rather than assume it away.
 - **D6 — DICE reproduction (Phase-5 THE-16, the keystone check).** Reproduce Nordhaus ~\$31/tCO₂ in
   GIM's welfare/SCC frame — the minimum cross-model validation that the economic core is sound.
 

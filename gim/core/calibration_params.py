@@ -61,6 +61,12 @@ SFC_LEVERAGE_REF = 1.5              # leverage above which the accelerator bites
 SFC_ACCEL_SENS = 0.50               # credit-appetite damping per unit excess leverage.
 SFC_PREMIUM_SENS = 0.04             # interest-rate premium per unit excess leverage.
 SFC_PREMIUM_CAP = 0.10              # cap on the credit premium.
+
+# [F2.5] Limited-foresight investment weight. 0.0 (default) = pure adaptive expectations -> golden
+# bit-identical; >0 blends a one-step expected-return (recent GDP growth) signal into the savings
+# rate. GIM's recursive/adaptive default is a defended ABM-macro stance (see docs/ECONOMICS_BENCHMARK
+# D5); this provides a switchable forward-looking tilt for sensitivity analysis.
+EXPECTATIONS_FORESIGHT = 0.0  # [F2.5] limited-foresight blend weight (0 = adaptive).
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]
