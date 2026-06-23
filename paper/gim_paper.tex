@@ -1,33 +1,33 @@
-% Компилировать движком XeLaTeX (на Overleaf: Menu -> Compiler -> XeLaTeX).
+% Compile with the XeLaTeX engine (on Overleaf: Menu -> Compiler -> XeLaTeX).
 \documentclass[11pt,a4paper]{article}
 
 \usepackage{fontspec}
 \setmainfont{DejaVu Serif}[Scale=0.92]
-\setmonofont{DejaVu Sans Mono}[Scale=0.82]  % моноширинный шрифт с кириллицей (для \texttt и \url)
+\setmonofont{DejaVu Sans Mono}[Scale=0.82]
 \usepackage{polyglossia}
-\setmainlanguage{russian}
-\setotherlanguage{english}
+\setmainlanguage{english}
+\setotherlanguage{russian}
 \usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
-\usepackage[font=footnotesize,labelfont=bf]{caption}  % уменьшенный шрифт подписей к рисункам и таблицам
+\usepackage[font=footnotesize,labelfont=bf]{caption}  % smaller font for figure/table captions
 \usepackage{tabularx}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \usepackage{graphicx}
 \usepackage{microtype}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[hidelinks]{hyperref}
-\usepackage{xurl}  % переносы длинных URL по строкам
+\usepackage{xurl}  % break long URLs across lines
 
-% Параметры вёрстки: устраняют вылетающие за поле строки без «рыхлой» юстировки.
+% Layout settings: suppress overfull lines without loose justification.
 \graphicspath{{figures/}}
 \tolerance=1400
 \emergencystretch=2.5em
 \hbadness=2200
 \frenchspacing
 
-\title{\textbf{Интегрированная модель мира для стратегического\\планирования и сценарного анализа}}
-\author{Н.~Сотириади}
+\title{\textbf{An Integrated World Model for Strategic\\Planning and Scenario Analysis}}
+\author{N.~Sotiriadi}
 \date{\today}
 
 \begin{document}
@@ -35,718 +35,681 @@
 
 \begin{abstract}
 \noindent
-В работе описана интегрированная имитационная модель мира, в которой в едином
-вычислительном контуре связаны экономика, климат и углеродный цикл, ущерб от
-потепления, природные ресурсы, общество и политика, межгосударственные отношения,
-культура, а также механизмы кризисов и финансов. Модель построена по принципу
-системы взаимодействующих стран (57 страновых агентов и ряд
-региональных агрегатов) и продвигается по годам: ежегодно каждый блок обновляет
-своё состояние, и результаты передаются в следующий год и в смежные блоки. Цель
-работы --- не предъявить точечный прогноз будущего, а представить инструмент
-стратегического планирования и сценарного анализа: проигрывания согласованных сценариев
-развития, сопоставления альтернативных решений политики, ансамблевой оценки
-неопределённости и обнаружения слабых сигналов приближающихся структурных сдвигов, в том
-числе для управления системными рисками. Изложены проблематика и место модели
-среди существующих подходов, её архитектура и лежащая в основе каждого блока
-математика и эмпирическая база, процедура калибровки и проверки адекватности с
-полученными метриками, анализ чувствительности и ансамблевая оценка неопределённости, явный
-перечень ограничений, а также типовые сценарии применения. Экономический и климатический блоки откалиброваны по историческим данным
-за 1990--2023~годы и проходят ретроспективную проверку; блоки общества, политики и
-геополитики проверяются по более скромному критерию --- превосходству над наивными
-эталонными прогнозами.
+This paper describes an integrated simulation model of the world in which the economy, climate
+and the carbon cycle, warming damages, natural resources, society and politics, interstate
+relations, culture, and crisis and finance mechanisms are coupled within a single computational
+loop. The model is organized as a system of interacting countries (57 country agents plus several
+regional aggregates) and advances year by year: each block updates its state annually, and the
+results are passed to the next year and to adjacent blocks. Its aim is not to deliver a point
+forecast of the future but to provide a tool for strategic planning and scenario analysis:
+playing out coherent development scenarios, comparing alternative policy decisions, quantifying
+uncertainty through ensembles, and detecting weak signals of approaching structural shifts ---
+including for the management of systemic risks. We set out the problem and the model's place among
+existing approaches, its architecture and the mathematics and empirical basis underlying each
+block, the calibration and validation procedure with the resulting metrics, sensitivity analysis
+and ensemble uncertainty quantification, an explicit list of limitations, and typical use cases.
+The economic and climate blocks are calibrated on 1990--2023 historical data and pass
+retrospective validation; the society, politics, and geopolitics blocks are assessed against a
+more modest criterion --- improvement over naive benchmark forecasts.
 
 \medskip
-\noindent\textbf{Ключевые слова:} интегрированная модель, стратегическое планирование,
-сценарный анализ, оценка неопределённости, управление риском, слабые сигналы.
+\noindent\textbf{Keywords:} integrated model, strategic planning, scenario analysis, uncertainty
+quantification, risk management, weak signals.
 \end{abstract}
 
-\section{Проблематика}
+\section{Introduction}
 
-Стратегическое планирование и сценарный анализ на длинных горизонтах --- от государственной
-политики до корпоративной стратегии --- требуют инструмента, в котором климатические,
-экономические и социально-политические процессы рассматривались бы совместно, а не порознь;
-тот же запрос возникает и в управлении системными рисками. На практике аналитик вынужден
-опираться на набор разнородных моделей: климатические модели описывают физику атмосферы, но почти не
-содержат финансов и политики; интегрированные модели оценки (например, семейства DICE,
-RICE, FUND) соединяют экономику и климат, но, как правило, лишены суверенных финансов,
-межгосударственных отношений и социальной динамики \citep{nordhaus2017}; макроэкономические
-модели подробно описывают денежно-кредитную сферу, но не учитывают природный капитал.
-В результате взаимное влияние сфер --- например, путь от потепления к падению урожаев,
-росту цен, социальному напряжению и далее к политической нестабильности и конфликту ---
-оказывается за пределами любой отдельной модели.
+Strategic planning and scenario analysis over long horizons --- from government policy to
+corporate strategy --- require a tool in which climatic, economic, and socio-political processes
+are considered jointly rather than in isolation; the same need arises in the management of
+systemic risks. In practice, an analyst must rely on a patchwork of disparate models: climate
+models describe atmospheric physics but contain almost no finance or politics; integrated
+assessment models (for example, the DICE, RICE, and FUND families) couple the economy and climate
+but typically lack sovereign finance, interstate relations, and social dynamics \citep{nordhaus2017};
+macroeconomic models describe the monetary sphere in detail but ignore natural capital. As a
+result, the mutual influence of these domains --- for example, the path from warming to falling
+crop yields, rising prices, social tension, and on to political instability and conflict --- falls
+outside the scope of any single model.
 
-Между тем именно сопряжение этих каналов определяет, как разворачиваются долгосрочные
-сценарии развития и где накапливаются системные риски. Отсутствие связной модели, охватывающей
-одновременно климат, экономику, общество и геополитику, --- это содержательный пробел,
-ощутимый в стратегическом планировании и риск-менеджменте, где требуется не оценить отдельный
-шок, а проследить его распространение по взаимосвязанным подсистемам и сопоставить
-альтернативные траектории развития. Настоящая работа описывает модель, построенную для
-заполнения этого пробела.
-Подчеркнём с самого начала принципиальную установку: модель не претендует на роль
-безошибочного предсказателя. Оценки многолетних прогнозов показывают, что даже
-профессиональные прогнозы роста на горизонте от двух до пяти лет нередко уступают наивной
-экстраполяции среднего \citep{celasun2021}. Поэтому реалистичная цель состоит не в точечном
-предсказании, а в \emph{корректной согласованности модели с её собственной мерой
-неопределённости} и в способности связно проигрывать сценарии.
+Yet it is precisely the coupling of these channels that determines how long-run development
+scenarios unfold and where systemic risks accumulate. The absence of a coherent model spanning
+climate, the economy, society, and geopolitics at once is a substantive gap, felt in strategic
+planning and risk management alike, where the task is not to assess an isolated shock but to trace
+its propagation across interconnected subsystems and to compare alternative development
+trajectories. This paper describes a model built to fill that gap. We emphasize a principled stance
+from the outset: the model does not claim to be an infallible predictor. Assessments of multi-year
+forecasts show that even professional growth forecasts at horizons of two to five years often fail
+to beat a naive extrapolation of the mean \citep{celasun2021}. A realistic goal therefore lies not
+in point prediction but in \emph{the correct consistency of the model with its own measure of
+uncertainty} and in the ability to play out scenarios coherently.
 
-Новизна работы --- не в отдельном блоке, а в охвате связей. Интегрированные модели оценки
-(DICE, FUND) и крупные модельные комплексы (GCAM, MESSAGEix, REMIND) детально соединяют
-экономику и климат, но не содержат суверенных финансов, межгосударственных отношений и
-социально-политической динамики; классические системные модели мира (World3) лишены явной
-экономики цен и климата современного уровня. Отличительная черта предлагаемой модели ---
-доведение контура до общества, геополитики и дискретных кризисов и встраивание агентов на
-основе языковых моделей, играющих за страны (таблица~\ref{tab:compare}, раздел~\ref{sec:repo}).
+The novelty of this work lies not in any single block but in the breadth of coupling. Integrated
+assessment models (DICE, FUND) and large modeling frameworks (GCAM, MESSAGEix, REMIND) couple the
+economy and climate in detail but contain no sovereign finance, interstate relations, or
+socio-political dynamics; the classic world-system models (World3) lack an explicit price economy
+and a modern-grade climate. The distinguishing feature of the proposed model --- the Global
+Integrated Model (GIM) --- is that it carries the loop through to society, geopolitics, and discrete
+crises, and embeds large-language-model agents that play as countries
+(Table~\ref{tab:compare}, Section~\ref{sec:repo}).
 
 \begin{table}[t]
 \centering
-\caption{Сопоставление охвата с типовыми интегрированными и системными моделями (схематично;
-$\sim$ --- ограниченная поддержка).}
+\caption{Coverage comparison with representative integrated and world-system models (schematic;
+$\sim$ --- limited support).}
 \label{tab:compare}
 \small
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-Возможность & DICE & GCAM & MESSAGEix & World3 & GIM \\
+Capability & DICE & GCAM & MESSAGEix & World3 & GIM \\
 \midrule
-Климат и углеродный цикл & да & да & да & нет & да \\
-Экономика и цены & да & да & да & $\sim$ & да \\
-Природные ресурсы & нет & да & да & да & да \\
-Общество и политика & нет & нет & нет & $\sim$ & да \\
-Геополитика и конфликты & нет & нет & нет & нет & да \\
-Дискретные кризисы и финансы & нет & нет & $\sim$ & нет & да \\
-Агенты на основе языковых моделей & нет & нет & нет & нет & да \\
+Climate and carbon cycle & yes & yes & yes & no & yes \\
+Economy and prices & yes & yes & yes & $\sim$ & yes \\
+Natural resources & no & yes & yes & yes & yes \\
+Society and politics & no & no & no & $\sim$ & yes \\
+Geopolitics and conflict & no & no & no & no & yes \\
+Discrete crises and finance & no & no & $\sim$ & no & yes \\
+Large-language-model agents & no & no & no & no & yes \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Сопоставление охвата (таблица~\ref{tab:compare}) полезно дополнить сравнением по
-\emph{методологическим осям}: перечисленные модели решают разные задачи, поэтому прямое
-ранжирование «лучше--хуже» неуместно, а различие удобнее проводить по парадигме, трактовке
-неопределённости и предмету проверки. По \emph{парадигме решения} семейство DICE\,/\,RICE\,/\,FUND
-и REMIND строятся на оптимизации общественного благосостояния (поиск оптимальной траектории
-политики), GCAM и MESSAGEix --- на детальном равновесии энергетических и землепользовательных
-систем, World3 --- на системной динамике мировых агрегатов, тогда как предлагаемая модель ---
-рекурсивная имитация взаимодействующих стран с адаптивными ожиданиями. Отсюда и разделение
-сильных сторон: модели оценки и энергетические комплексы \emph{глубже} в своей области
-(оптимальная политика, отраслевая детализация энергетики), и предлагаемая модель их не заменяет.
-Её отличие проявляется в трёх измерениях одновременно: \emph{(i)}~широта сопряжения, доводящая
-единый контур до общества, геополитики и дискретных кризисов; \emph{(ii)}~неопределённость как
-первоклассный объект --- ансамбли и сопоставление с историей встроены в рабочий процесс, а не
-добавлены постфактум; \emph{(iii)}~проверяемость нетипичных блоков (ранжирование риска конфликта
-по AUC, идентифицированный запаздывающий канал между экономикой и обществом), которых в
-сопоставимых моделях попросту нет. Тем самым модель занимает нишу инструмента широкого
-сценарного охвата и анализа распространения шоков, дополняя, а не вытесняя специализированные
-модели в их областях.
+The coverage comparison (Table~\ref{tab:compare}) is usefully complemented by a comparison along
+\emph{methodological axes}: the listed models address different problems, so a direct
+``better--worse'' ranking is inappropriate, and the distinction is better drawn by solution
+paradigm, treatment of uncertainty, and object of validation. In terms of \emph{solution paradigm},
+the DICE\,/\,RICE\,/\,FUND family and REMIND rest on welfare optimization (finding an optimal policy
+trajectory), GCAM and MESSAGEix on a detailed equilibrium of energy and land-use systems, and World3
+on the system dynamics of global aggregates, whereas the proposed model is a recursive simulation of
+interacting countries with adaptive expectations. This implies a division of strengths: the
+assessment models and energy frameworks are \emph{deeper} within their domains (optimal policy,
+sectoral energy detail), and the proposed model does not replace them. Its distinction appears along
+three dimensions at once: \emph{(i)}~breadth of coupling, carrying the single loop through to
+society, geopolitics, and discrete crises; \emph{(ii)}~uncertainty as a first-class object ---
+ensembles and history matching are built into the workflow rather than added post hoc; and
+\emph{(iii)}~the testability of non-standard blocks (conflict-risk ranking by AUC, an identified
+lagged channel between the economy and society), which comparable models simply do not contain. The
+model thus occupies the niche of a tool for broad scenario coverage and shock-propagation analysis,
+complementing rather than supplanting specialized models within their domains.
 
-\section{Модель и её архитектура}
+\section{The model and its architecture}
 
-\subsection{Общее устройство}
+\subsection{General design}
 
-Модель представляет мир как совокупность стран, эволюционирующих по годам. Состояние
-каждой страны включает экономические, ресурсные, социальные, политические и военные
-переменные, а также двусторонние отношения с другими странами; над странами надстроены
-глобальные переменные климата и углеродного цикла и мировые цены на ресурсы. Один шаг
-модели --- это один год: блоки обновляются в фиксированном порядке, при котором выход
-одного блока служит входом следующего, после чего результаты года передаются в
-следующий год. Расчётное ядро детерминировано; неопределённость вводится через
-ансамблевые прогоны со случайным выбором параметров из обоснованных диапазонов
-(раздел~\ref{sec:calib}).
+The model represents the world as a collection of countries evolving year by year. The state of
+each country comprises economic, resource, social, political, and military variables, as well as
+bilateral relations with other countries; above the countries sit global variables of climate and
+the carbon cycle and world resource prices. One model step is one year: blocks update in a fixed
+order in which the output of one block serves as the input to the next, after which the year's
+results are passed forward to the following year. The computational core is deterministic;
+uncertainty is introduced through ensemble runs with random parameter draws from justified ranges
+(Section~\ref{sec:calib}).
 
-Ниже описаны блоки модели, объединённые в содержательные группы. Для каждого указано,
-что он вычисляет, на какой математике и каких данных основан и что он даёт остальной
-модели.
+Below we describe the model's blocks, grouped thematically. For each we indicate what it computes,
+on what mathematics and data it rests, and what it provides to the rest of the model.
 
-\subsection{Экономика}
+\subsection{Economy}
 
-Выпуск каждой страны определяется тремя факторами: накопленным капиталом, занятым
-населением и потребляемой энергией. Производственная функция задана в форме вложенной
-функции с постоянной эластичностью замещения (тип \emph{капитал--труд--энергия}),
-нормированной так, что в базовой точке калибровки она совпадает с производственной
-функцией Кобба--Дугласа \citep{arrow1961}:
+Each country's output is determined by three factors: accumulated capital, employed population,
+and consumed energy. The production function is specified as a nested constant-elasticity-of-sub\-sti\-tu\-tion
+function (a \emph{capital--labor--energy} form), normalized so that at the calibration base point
+it coincides with a Cobb--Douglas production function \citep{arrow1961}:
 \begin{equation}
 Y = A \, \Theta \, K^{\alpha} L^{\beta} E^{\gamma},
-\qquad \alpha = 0{,}30,\; \beta = 0{,}60,\; \gamma = 0{,}042,
+\qquad \alpha = 0.30,\; \beta = 0.60,\; \gamma = 0.042,
 \label{eq:prod}
 \end{equation}
-где $A$ --- совокупная производительность факторов, $\Theta$ --- технологический
-уровень. Вложенная форма с эластичностью замещения капитала и энергии $\sigma_{KE}=0{,}4$
-описывает, насколько трудно заместить один фактор другим: при удорожании энергии хозяйство
-сдвигается к капиталу и снижает энергопотребление. Именно этот механизм позволяет цене на
-углерод реалистично перестраивать экономику. Капитал накапливается по стандартному
-правилу
+where $A$ is total factor productivity and $\Theta$ is the technology level. The nested form, with a
+capital--energy elasticity of substitution $\sigma_{KE}=0.4$, captures how hard it is to substitute
+one factor for another: as energy becomes more expensive, the economy shifts toward capital and
+reduces energy use. This very mechanism allows a carbon price to restructure the economy
+realistically. Capital accumulates by the standard rule
 \begin{equation}
-K_{t+1} = (1-\delta)\,K_t + s\,Y_t, \qquad \delta = 0{,}05,
+K_{t+1} = (1-\delta)\,K_t + s\,Y_t, \qquad \delta = 0.05,
 \label{eq:capital}
 \end{equation}
-где норма сбережения $s\approx0{,}24$ модулируется устойчивостью и напряжённостью в
-обществе. Производительность $A$ растёт с базовым темпом около одного процента в год,
-дополнительно реагируя на расходы на исследования, переток технологий через торговлю и
-сближение с технологической границей; для прогнозов вперёд её дрейф привязан к
-сценарию социально-экономического развития SSP2 \citep{riahi2017}. Рынки энергии,
-ресурсов и капитала замыкаются через цены: спрос на энергию и инвестиции реагируют на
-цену энергии и стоимость капитала с откалиброванными эластичностями. Отдельно
-отслеживаются инфляция (кривая Филлипса с энергетическим переносом издержек),
-безработица (закон Оукена), ставка центрального банка (правило Тейлора, \citep{taylor1993}),
-бюджет и долг государства, а также торговые потоки. Экономический блок воспроизводит
-последнее десятилетие реальной истории и потому является не умозрительным, а
-эмпирически закреплённым.\footnote{Источники калибровки экономического блока: Penn World
-Table (доли факторов производства и совокупная производительность); база World Development
-Indicators Всемирного банка (валовой продукт, население, энергопотребление, военные расходы);
-прогнозный дрейф производительности привязан к сценариям социально-экономического развития
-SSP2 (база IIASA). Полный перечень переменных с версиями наборов и ссылками приведён в файле
-\texttt{data/external/SOURCES.md} репозитория (раздел~\ref{sec:repo}).}
+where the savings rate $s\approx0.24$ is modulated by social stability and tension. Productivity $A$
+grows at a baseline rate of about one percent per year, responding additionally to research
+spending, technology diffusion through trade, and convergence toward the technological frontier; for
+forward projections its drift is anchored to the SSP2 socio-economic development scenario
+\citep{riahi2017}. The energy, resource, and capital markets clear through prices: energy demand and
+investment respond to the price of energy and the cost of capital with calibrated elasticities.
+Inflation (a Phillips curve with energy cost pass-through), unemployment (Okun's law), the
+central-bank rate (a Taylor rule, \citep{taylor1993}), the government budget and debt, and trade
+flows are tracked separately. The economic block reproduces the last decade of actual history and is
+therefore not speculative but empirically anchored.\footnote{Calibration sources for the economic
+block: the Penn World Table (factor shares and total factor productivity); the World Bank's World
+Development Indicators (gross product, population, energy use, military spending); the forward
+productivity drift is anchored to the SSP2 socio-economic development scenarios (IIASA database). A
+full list of variables with dataset versions and references is given in the repository file
+\texttt{data/external/SOURCES.md} (Section~\ref{sec:repo}).}
 
-\subsection{Климат и углеродный цикл}
+\subsection{Climate and the carbon cycle}
 
-Выпуск сопровождается выбросами углекислого газа; к ним добавляется источник, связанный
-с землепользованием. Выбросы накапливаются в атмосфере и распадаются на нескольких
-характерных временах, учитываются прочие парниковые газы, а результирующее потепление
-рассчитывается стандартной двухрезервуарной моделью теплового баланса поверхности и
-океана. Блок откалиброван по общепринятой научной оценке: он воспроизводит принятую
-чувствительность климата к удвоению концентрации углекислого газа (равновесная
-чувствительность~$3{,}0$\,$^\circ$C) и отслеживает наблюдаемый ход температуры и
-углерода с 1990 по 2023~год \citep{ipcc_ar6_wg1,friedlingstein2023}.\footnote{Источники
-климатического блока: оценка равновесной чувствительности --- Шестой оценочный доклад МГЭИК
-(рабочая группа~I); ряд глобальных выбросов --- Global Carbon Project (Global Carbon Budget) и
-свод Our World in Data; ряд приземной температуры за 1990--2023~годы --- NOAA\,/\,HadCRUT5.}
-Наиболее сильные
-самоусиливающиеся обратные связи (таяние вечной мерзлоты, резкий выброс углерода) глубоко
-неопределённы и поэтому по умолчанию исключены из основного прогона и исследуются лишь как
-хвостовые риски. Это быстрая откалиброванная аппроксимация, уместная в модели экономики и
-общества, но не заменяющая полноценную модель земной системы.
+Output is accompanied by carbon-dioxide emissions, to which a land-use source is added. Emissions
+accumulate in the atmosphere and decay over several characteristic timescales; other greenhouse
+gases are accounted for, and the resulting warming is computed by a standard two-reservoir
+surface--ocean heat-balance model. The block is calibrated to mainstream scientific assessment: it
+reproduces the accepted equilibrium climate sensitivity to a doubling of carbon-dioxide
+concentration ($3.0\,^\circ$C) and tracks the observed temperature and carbon record from 1990 to
+2023 \citep{ipcc_ar6_wg1,friedlingstein2023}.\footnote{Sources for the climate block: the
+equilibrium-sensitivity estimate --- the IPCC Sixth Assessment Report (Working Group~I); the global
+emissions series --- the Global Carbon Project (Global Carbon Budget) and the Our World in Data
+compilation; the surface-temperature series for 1990--2023 --- NOAA\,/\,HadCRUT5.} The strongest
+self-amplifying feedbacks (permafrost thaw, abrupt carbon release) are deeply uncertain and are
+therefore excluded from the headline run by default and explored only as tail risks. This is a fast
+calibrated approximation, appropriate within a model of the economy and society but not a substitute
+for a full Earth-system model.
 
-\subsection{Ущерб от потепления и стоимость углерода}
+\subsection{Warming damages and the cost of carbon}
 
-Потепление возвращается в экономику как ущерб: повышение температуры снижает выпуск.
-Принята квадратичная функция ущерба, снижающая уровень выпуска,
+Warming returns to the economy as damage: higher temperature reduces output. A quadratic damage
+function reducing the level of output is adopted,
 \begin{equation}
-\Omega(T) = 1 - 0{,}006\,T^{2},
+\Omega(T) = 1 - 0.006\,T^{2},
 \label{eq:damage}
 \end{equation}
-что соответствует потерям $2{,}4\,\%$, $5{,}4\,\%$ и $9{,}6\,\%$ валового продукта при
-потеплении на $+2$, $+3$ и $+4\,^\circ$C. Эта оценка лежит в середине эмпирического
-интервала: примерно в два с половиной раза выше, чем в DICE-2016R2, и ниже центральной
-оценки мета-анализа Говарда и Стернера \citep{howard2017,burke2015}. На основе функции
-ущерба вычисляется социальная стоимость углерода --- экономический ущерб от выброса
-дополнительной тонны углекислого газа, стандартный ориентир климатической политики, ---
-методом предельного импульса. Эта величина существенно зависит от схемы дисконтирования
-и структуры будущего роста; результаты приведены в разделе~\ref{sec:calib}.\footnote{Калибровка
-функции ущерба опирается на мета-анализ Говарда и Стернера и панельные оценки Бёрка с
-соавторами; ориентиры социальной стоимости углерода --- оценки Агентства по охране окружающей
-среды США (EPA, 2023) и проекта RFF-SP.}
+corresponding to losses of $2.4\,\%$, $5.4\,\%$, and $9.6\,\%$ of gross product at warming of $+2$,
+$+3$, and $+4\,^\circ$C. This estimate lies in the middle of the empirical range: about two and a
+half times higher than in DICE-2016R2 and below the central estimate of the Howard--Sterner
+meta-analysis \citep{howard2017,burke2015}. From the damage function, the social cost of carbon ---
+the economic damage from emitting one additional ton of carbon dioxide, a standard reference point
+for climate policy --- is computed by the marginal-pulse method. This quantity depends substantially
+on the discounting scheme and on the structure of future growth; results are reported in
+Section~\ref{sec:calib}.\footnote{Calibration of the damage function draws on the Howard--Sterner
+meta-analysis and the panel estimates of Burke and coauthors; the social-cost-of-carbon reference
+points are the estimates of the U.S. Environmental Protection Agency (EPA, 2023) and the RFF-SP
+project.}
 
-\subsection{Ресурсы}
+\subsection{Resources}
 
-Для каждой страны отслеживаются запасы, добыча и потребление энергии, продовольствия и
-металлов; мировые цены растут, когда спрос превышает предложение, и эта цена передаётся
-в инфляцию и далее в экономику. Ресурсный рынок замыкается по цене с откалиброванной
-эластичностью спроса; в качестве запасного предусмотрено правило медленной подстройки.
-Ресурсы представлены укрупнённо, а не как детальные отраслевые энергосистемы.\footnote{Ресурсный
-блок задан укрупнённо: энергетические показатели опираются на базу World Development Indicators;
-ценовые эластичности заданы обобщёнными рыночными оценками, а не отдельным отраслевым набором
-данных.}
+For each country, stocks, production, and consumption of energy, food, and metals are tracked; world
+prices rise when demand exceeds supply, and this price is passed into inflation and on into the
+economy. The resource market clears by price with a calibrated demand elasticity; a slow-adjustment
+rule is provided as a fallback. Resources are represented in aggregate rather than as detailed
+sectoral energy systems.\footnote{The resource block is specified in aggregate: energy indicators
+draw on the World Development Indicators; price elasticities are set from generalized market
+estimates rather than a dedicated sectoral dataset.}
 
-\subsection{Общество, политика, геополитика и культура}
+\subsection{Society, politics, geopolitics, and culture}
 
-Для каждой страны модель отслеживает доверие к власти, социальное напряжение, неравенство
-доходов, легитимность институтов и протестное давление. Эти переменные реагируют на
-экономику --- рост инфляции и безработицы повышает напряжение и подрывает доверие, а
-высокое неравенство усиливает этот эффект --- и, в свою очередь, влияют на устойчивость и
-риск кризисов. Каждая пара стран связана отношением: объёмом торговли, наличием союза,
-уровнем конфликта или напряжённости, состоянием войны и санкциями. Военный потенциал
-каждой страны привязан к наблюдаемым показателям национальной мощи, а не к произвольно
-назначенным значениям \citep{singer1972}. Небольшой набор культурных признаков (прежде всего степень
-индивидуализма, избегание неопределённости, долгосрочность ориентации и иерархичность),
-а также характер политического режима влияют на экономическое и социальное поведение
-\citep{hofstede2010}. В отличие от экономики и климата, для этих связей не существует
-единого авторитетного набора данных, поэтому они построены на экспертном суждении и общей
-доказательной базе и проверяются по более скромному критерию (раздел~\ref{sec:calib}).\footnote{Социально-политические
-и геополитические переменные привязаны к признанным индексам: неравенство доходов --- база SWIID
-и индекс Джини Всемирного банка; легитимность, качество управления и политическая стабильность ---
-Worldwide Governance Indicators; вооружённые конфликты --- UCDP/PRIO Armed Conflict Dataset
-(вер.~24.1); военный потенциал --- National Material Capabilities (Correlates of War, индекс CINC) и
-база военных расходов SIPRI; санкции --- Global Sanctions Database (вер.~3); культурные признаки ---
-индексы Хофстеде. Сопоставление каждой переменной с источником описано в \texttt{data/external/SOURCES.md}.}
-Признаки, которые на деле не влияли на исходы, из модели удалены, чтобы она не
-имитировала культурную детализацию, которую не использует.
+For each country the model tracks trust in government, social tension, income inequality,
+institutional legitimacy, and protest pressure. These variables respond to the economy --- rising
+inflation and unemployment raise tension and erode trust, and high inequality amplifies this effect
+--- and, in turn, affect stability and crisis risk. Each pair of countries is linked by a relation:
+trade volume, the presence of an alliance, the level of conflict or tension, a state of war, and
+sanctions. Each country's military capability is anchored to observed measures of national power
+rather than to arbitrarily assigned values \citep{singer1972}. A small set of cultural traits
+(chiefly individualism, uncertainty avoidance, long-term orientation, and hierarchy), together with
+the character of the political regime, influence economic and social behavior \citep{hofstede2010}.
+Unlike the economy and climate, no single authoritative dataset exists for these links, so they are
+built on expert judgment and the general evidence base and are assessed against a more modest
+criterion (Section~\ref{sec:calib}).\footnote{The socio-political and geopolitical variables are
+anchored to recognized indices: income inequality --- the SWIID database and the World Bank Gini
+index; legitimacy, governance quality, and political stability --- the Worldwide Governance
+Indicators; armed conflicts --- the UCDP/PRIO Armed Conflict Dataset (v.~24.1); military capability
+--- National Material Capabilities (Correlates of War, the CINC index) and the SIPRI
+military-expenditure database; sanctions --- the Global Sanctions Database (v.~3); cultural traits
+--- the Hofstede indices. The mapping of each variable to its source is described in
+\texttt{data/external/SOURCES.md}.} Traits that did not in fact affect outcomes have been removed
+from the model, so that it does not mimic cultural detail it does not use.
 
-\subsection{Риск, кризисы и финансы}
+\subsection{Risk, crises, and finance}
 
-Поверх плавной годовой динамики модель распознаёт и применяет дискретные кризисы:
-долговые, валютные, крах политического режима и климатические экстремальные события, ---
-каждый из которых запускается при пересечении соответствующего порога. Тяжесть кризисов
-может задаваться распределением с тяжёлым хвостом (большинство событий умеренны, редкие ---
-катастрофичны), что отвечает наблюдаемому распределению реальных кризисов и войн
-\citep{taleb2007,weitzman2009}; этот режим необязателен и исследуется как
-неопределённость. Финансовая сторона ведётся со строгим учётом: всякое изменение долга
-уравновешено встречным потоком. Государственные финансы замкнуты, а частный сектор
-описан полным банковским балансом, в котором каждый кредит порождает встречный депозит,
-так что денежная масса тождественно равна депозитам и кредитам; избыточное заимствование
-повышает стоимость кредита и сдерживает экономику --- финансовый акселератор
-\citep{bernanke1999,godley2007}.\footnote{Для блока риска и финансов отдельного калибровочного
-набора данных нет: распределения тяжести кризисов с тяжёлым хвостом и балансовый (stock-flow
-consistent) учёт опираются на методологическую литературу, указанную по тексту, а не на единый
-внешний источник.}
+On top of the smooth annual dynamics, the model recognizes and applies discrete crises --- debt,
+currency, political-regime collapse, and extreme climate events --- each triggered when the
+corresponding threshold is crossed. Crisis severity may be drawn from a heavy-tailed distribution
+(most events are moderate, rare ones catastrophic), matching the observed distribution of real
+crises and wars \citep{taleb2007,weitzman2009}; this mode is optional and is explored as uncertainty.
+The financial side is kept with strict accounting: every change in debt is balanced by a
+counter-flow. Government finances are closed, and the private sector is described by a full bank
+balance sheet in which every loan creates a matching deposit, so that the money stock is identically
+equal to deposits and loans; excessive borrowing raises the cost of credit and restrains the economy
+--- a financial accelerator \citep{bernanke1999,godley2007}.\footnote{There is no dedicated
+calibration dataset for the risk-and-finance block: the heavy-tailed crisis-severity distributions
+and the stock-flow-consistent accounting rest on the methodological literature cited in the text
+rather than on a single external source.}
 
-\subsection{Взаимодействие блоков}
+\subsection{Block interactions}
 
-Связность --- определяющее свойство модели. Экономика порождает выбросы; выбросы
-определяют потепление; потепление через функцию ущерба~\eqref{eq:damage} снижает выпуск;
-цена на углерод удорожает энергию и через замещение в~\eqref{eq:prod} снижает выбросы.
-Экономические трудности повышают социальное напряжение и снижают доверие, что меняет
-норму сбережения в~\eqref{eq:capital} и повышает риск кризиса; кризис бьёт по выпуску и
-капиталу и передаётся партнёрам по торговле. Ресурсный дефицит поднимает цены и инфляцию;
-конфликты и санкции нарушают торговлю. Тем самым шок в одной подсистеме распространяется
-по остальным --- именно это сопряжение и составляет содержательную ценность модели для
-анализа риска.
+Connectivity is the model's defining property. The economy generates emissions; emissions determine
+warming; warming, through the damage function~\eqref{eq:damage}, reduces output; the carbon price
+raises the cost of energy and, through substitution in~\eqref{eq:prod}, lowers emissions. Economic
+hardship raises social tension and lowers trust, which changes the savings rate
+in~\eqref{eq:capital} and raises crisis risk; a crisis hits output and capital and is transmitted to
+trading partners. Resource scarcity raises prices and inflation; conflicts and sanctions disrupt
+trade. A shock in one subsystem thus propagates through the others --- and this coupling is exactly
+what gives the model its substantive value for risk analysis.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig1_architecture.pdf}
-\caption{Архитектура модели и связи между блоками. Экономика выступает центральным
-узлом; чёрные стрелки показывают прямые воздействия, красные --- обратные связи,
-снижающие выпуск или сбережения. Замкнутый климатический контур (от выбросов к потеплению,
-далее к ущербу и снижению выпуска) дополнен ценовым каналом углерода, ресурсным, социально-политическим
-и геополитическим блоками, а также блоком дискретных кризисов. Нижний слой реализует
-непрерывный мониторинг совместного состояния для выявления слабых сигналов.}
+\caption{Model architecture and the links between blocks. The economy is the central hub; black
+arrows show direct effects, red arrows show feedbacks that reduce output or savings. The closed
+climate loop (from emissions to warming, then to damage and reduced output) is complemented by the
+carbon-price channel, the resource, socio-political, and geopolitical blocks, and the
+discrete-crisis block. The bottom layer implements continuous monitoring of the joint state to
+detect weak signals.}
 \label{fig:arch}
 \end{figure}
 
-\section{Калибровка и проверка адекватности}
+\section{Calibration and validation}
 \label{sec:calib}
 
-\subsection{Источники данных}
+\subsection{Data sources}
 
-Каждый блок привязан к внешним данным (таблица~\ref{tab:data}). Экономический и
-климатический блоки откалиброваны и проверены наиболее строго; социально-политические и
-геополитические переменные привязаны к признанным индексам, но проверяются по более
-мягкому критерию.
+Each block is anchored to external data (Table~\ref{tab:data}). The economic and climate blocks are
+calibrated and validated most rigorously; the socio-political and geopolitical variables are
+anchored to recognized indices but assessed against a softer criterion.
 
 \begin{table}[t]
 \centering
-\caption{Эмпирическая база блоков модели.}
+\caption{Empirical basis of the model's blocks.}
 \label{tab:data}
 \small
 \begin{tabularx}{\linewidth}{@{}l L L@{}}
 \toprule
-Блок & Источник данных & Назначение \\
+Block & Data source & Purpose \\
 \midrule
-Экономика & Penn World Table, World Development Indicators & доли факторов, рост, долг \\
-Климат и углерод & оценка МГЭИК AR6, Global Carbon Budget & чувствительность, ход $T$ и $\mathrm{CO_2}$ \\
-Стоимость углерода & EPA-2023, RFF-SP & ориентир для сверки \\
-Прогнозный рост & сценарии SSP2 & дрейф производительности вперёд \\
-Конфликты & UCDP Georeferenced Event Dataset & проверка риска конфликта \\
-Неравенство & SWIID & неравенство доходов \\
-Институты & Worldwide Governance Indicators & легитимность, качество управления \\
-Военная мощь & составной индекс национальной мощи & потенциал стран \\
-Культура & индексы Хофстеде & культурные признаки \\
+Economy & Penn World Table, World Development Indicators & factor shares, growth, debt \\
+Climate and carbon & IPCC AR6 assessment, Global Carbon Budget & sensitivity, $T$ and $\mathrm{CO_2}$ paths \\
+Cost of carbon & EPA-2023, RFF-SP & reference for cross-checking \\
+Forward growth & SSP2 scenarios & forward productivity drift \\
+Conflict & UCDP Georeferenced Event Dataset & conflict-risk validation \\
+Inequality & SWIID & income inequality \\
+Institutions & Worldwide Governance Indicators & legitimacy, governance quality \\
+Military power & composite national-power index & country capability \\
+Culture & Hofstede indices & cultural traits \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Принципы калибровки и контроль целостности}
+\subsection{Calibration principles and integrity control}
 
-Калибровка следует нескольким правилам. Во-первых, каждый необязательный механизм
-выполнен как переключатель, по умолчанию выключенный, если он не закреплён исторической
-привязкой; так основное («штатное») поведение модели остаётся привязанным к данным, а
-спекулятивные механизмы исследуются отдельно как неопределённость. Во-вторых, для оценки
-параметров применяется не точечная подгонка, а \emph{сопоставление с историей}: вместо
-поиска единственного «наилучшего» набора параметров отбрасываются области параметрического
-пространства, несовместимые с наблюдениями, и остаётся апостериорная область «пока не
-отвергнутых» значений --- стандартный подход для ресурсоёмких имитационных моделей
-\citep{williamson2013}.
-В-третьих, климатические коэффициенты, выводимые из исходного состояния, жёстко связаны с
-контрольной суммой исходных данных и не могут быть изменены вручную; целостность этой связи
-проверяется автоматически. Наконец, действует регрессионный контроль: значимые величины
-ретроспективной проверки зафиксированы, и любое изменение ядра должно либо сохранять их с
-точностью до допуска, либо сопровождаться явной перекалибровкой.
+Calibration follows several rules. First, every optional mechanism is implemented as a switch, off
+by default unless anchored by historical evidence; thus the model's headline (``base'') behavior
+remains tied to data, while speculative mechanisms are explored separately as uncertainty. Second,
+parameter estimation uses not point fitting but \emph{history matching}: instead of seeking a single
+``best'' parameter set, regions of parameter space incompatible with observations are discarded,
+leaving a posterior region of ``not-yet-ruled-out'' values --- a standard approach for
+computationally expensive simulation models \citep{williamson2013}. Third, the climate coefficients
+derived from the initial state are tightly bound to a checksum of the input data and cannot be
+changed by hand; the integrity of this link is checked automatically. Finally, regression control is
+in force: the significant retrospective-validation quantities are pinned, and any change to the core
+must either preserve them within tolerance or be accompanied by an explicit recalibration.
 
-\subsection{Полученные метрики}
+\subsection{Resulting metrics}
 
-Сводка валидации по всем блокам модели приведена в таблице~\ref{tab:backtest}, а ключевые
-результаты разобраны ниже. Ретроспективная проверка за 2015--2023~годы даёт средне\-квадратичные
-ошибки по валовому продукту, мировым выбросам и температуре. Переход от прежней производственной
-функции Кобба--Дугласа к замкнутому ядру с вложенной функцией замещения и рыночным замыканием
-улучшил соответствие истории (рис.~\ref{fig:valid}a): ошибка по продукту снизилась с $1{,}03$ до
-$0{,}59$ триллиона долларов, по выбросам --- с $1{,}61$ до $1{,}15$ гигатонны.
+A validation summary across all blocks is given in Table~\ref{tab:backtest}, with the key results
+discussed below. Retrospective validation over 2015--2023 yields root-mean-square errors for gross
+product, world emissions, and temperature. The move from the former Cobb--Douglas production
+function to the closed core with a nested substitution function and market clearing improved the fit
+to history (Fig.~\ref{fig:valid}a): the product error fell from $1.03$ to $0.59$ trillion USD, and
+the emissions error from $1.61$ to $1.15$ gigatons.
 
 \begin{table}[t]
 \centering
-\caption{Сводка валидации по блокам модели: источник данных, критерий проверки и достигнутый
-результат. Экономический и климатический блоки проверяются строгой ретроспективной проверкой;
-для остальных критерий мягче --- сверка с опубликованными оценками, превосходство над наивным
-эталоном или идентификация канала. Сравнение текущего ядра с прежним (Кобб--Дуглас) показано на
-рис.~\ref{fig:valid}a.}
+\caption{Validation summary by model block: data source, validation criterion, and the achieved
+result. The economic and climate blocks are checked by strict retrospective validation; for the
+others the criterion is softer --- cross-checking against published estimates, improvement over a
+naive benchmark, or channel identification. The comparison of the current core with the former one
+(Cobb--Douglas) is shown in Fig.~\ref{fig:valid}a.}
 \label{tab:backtest}
 \small
 \begin{tabularx}{\linewidth}{@{}l l L L@{}}
 \toprule
-Блок & Источник & Критерий & Результат \\
+Block & Source & Criterion & Result \\
 \midrule
-Экономика & PWT, WDI & ретро-RMSE 2015--2023 & ВВП $0{,}59$ трлн долл.\ (Кобб--Дуглас $1{,}03$) \\
-Климат и углерод & МГЭИК AR6, GCB & ретро-RMSE 2015--2023 & $\mathrm{CO_2}$ $1{,}15$ Гт; $T$ $0{,}135\,^\circ$C \\
-Стоимость углерода & EPA-2023, RFF-SP & сверка с публикуемыми & ${\approx}\$140$/т$\mathrm{CO_2}$; диапазон $140$--$380$ \\
-Конфликты & UCDP/PRIO & ранжирование vs реестр & AUC $0{,}736$ $[0{,}59;\,0{,}86]$; BSS $+0{,}143$; $p{\approx}0{,}001$ \\
-Социальный блок & SWIID, WGI & идентификация канала (разд.~\ref{sec:uq}) & значимый запаздывающий канал; регрессия $p<10^{-12}$ \\
+Economy & PWT, WDI & retrospective RMSE, 2015--2023 & GDP $0.59$ trillion USD (Cobb--Douglas $1.03$) \\
+Climate and carbon & IPCC AR6, GCB & retrospective RMSE, 2015--2023 & $\mathrm{CO_2}$ $1.15$ Gt; $T$ $0.135\,^\circ$C \\
+Cost of carbon & EPA-2023, RFF-SP & cross-check vs.\ published & ${\approx}\$140$/t$\,\mathrm{CO_2}$; range $140$--$380$ \\
+Conflict & UCDP/PRIO & ranking vs.\ registry & AUC $0.736$ $[0.59;\,0.86]$; BSS $+0.143$; $p{\approx}0.001$ \\
+Social block & SWIID, WGI & channel identification (Sec.~\ref{sec:uq}) & significant lagged channel; regression $p<10^{-12}$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Сопоставление с эталонными прогнозами раскрывает структуру этой точности. Модель
-\emph{превосходит} инерционный прогноз по температуре (оценка успешности около $+0{,}14$)
-и незначительно --- по продукту, но \emph{уступает} наивной линейной экстраполяции по
-продукту и выбросам на этом коротком и гладком интервале. Это закономерно и согласуется с
-оценками профессиональных прогнозов \citep{celasun2021}: структурная модель повышает
-успешность там, где работает динамика (климат), и проигрывает тривиальной экстраполяции
-там, где краткосрочный гладкий агрегат трудно превзойти.
+Comparison with benchmark forecasts reveals the structure of this accuracy. The model \emph{beats}
+the persistence forecast for temperature (a skill score of about $+0.14$) and marginally for
+product, but \emph{loses} to a naive linear extrapolation for product and emissions over this short,
+smooth interval. This is to be expected and is consistent with assessments of professional forecasts
+\citep{celasun2021}: a structural model raises skill where dynamics matter (climate) and loses to
+trivial extrapolation where a short-run smooth aggregate is hard to beat.
 
-Для блока конфликта применён иной критерий. Показатель конфликтной предрасположенности
-стран сопоставлен с историческим реестром вооружённых конфликтов за 1990--2023~годы по
-57~странам \citep{sundberg2013}. Существенна сама постановка проверки: оценивается не
-подогнанный к этим же данным выход, а \emph{входной} показатель риска, который вычисляется из
-наблюдаемых характеристик страны и не настраивался по реестру конфликтов. Поэтому здесь нет
-ни обучаемых на целевой переменной параметров, ни связанной с ними утечки информации, а
-скользящее разбиение на обучение и контроль излишне; оценивается всё множество из 57~стран
-целиком. Модель уверенно ставит реально затронутые конфликтом страны выше спокойных: площадь
-под характеристической кривой составляет $0{,}736$ (бутстреп-интервал $95\,\%$: $[0{,}59;\,0{,}86]$,
-$20\,000$ ресэмплов выборкой пар с возвращением \citep{efron1993}), а перестановочная проверка
-значимости (случайная перестановка меток, $50\,000$ повторений) даёт $p\approx0{,}001$, то есть
-ранжирование заведомо лучше случайного.
-Коэффициент успешности по Брайеру относительно прогноза базовой частоты равен $+0{,}143$
-(положительная величина означает наличие прогностической ценности). Это разумная планка
-для блока такого рода: модель пригодна для оценки относительного риска, но не для
-предсказания конкретных войн в конкретные даты.
+A different criterion is applied to the conflict block. The countries' conflict-proneness score is
+compared with the historical registry of armed conflicts over 1990--2023 across 57 countries
+\citep{sundberg2013}. The framing of the test is essential: what is evaluated is not an output
+fitted to these same data but an \emph{input} risk indicator computed from observed country
+characteristics and not tuned to the conflict registry. Hence there are no parameters trained on the
+target variable and no associated information leakage, and a rolling train/test split is
+unnecessary; the full set of 57 countries is evaluated as a whole. The model confidently ranks
+conflict-affected countries above calm ones: the area under the characteristic curve is $0.736$
+(bootstrap $95\,\%$ interval $[0.59;\,0.86]$, $20\,000$ pair resamples with replacement
+\citep{efron1993}), and a permutation significance test (random label shuffling, $50\,000$
+repetitions) gives $p\approx0.001$, so the ranking is decisively better than chance. The Brier skill
+score relative to the base-rate forecast is $+0.143$ (a positive value indicates predictive value).
+This is a reasonable bar for a block of this kind: the model is suitable for assessing relative risk
+but not for predicting specific wars on specific dates.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig2_validation.pdf}
-\caption{Результаты ретроспективной проверки. \emph{(a)}~Среднеквадратичная ошибка
-ретропроверки 2015--2023 для замкнутого ядра (вложенная CES) в сравнении с прежним ядром
-Кобба--Дугласа по мировому продукту, выбросам $\mathrm{CO_2}$ и температуре (меньше --- лучше).
-\emph{(b)}~ROC-кривая конфликтного блока: ранжирование 57~стран по предрасположенности к конфликту
-против реестра вооружённых конфликтов 1990--2023~годов даёт площадь под кривой $0{,}736$ (бутстреп
-$90\,\%$ полоса показана заливкой; $95\,\%$ ДИ $[0{,}59;\,0{,}86]$; перестановочный тест
-$p\approx0{,}001$) против $0{,}5$ у случайного угадывания.}
+\caption{Retrospective-validation results. \emph{(a)}~Root-mean-square error of the 2015--2023
+retrospective check for the closed core (nested CES) compared with the former Cobb--Douglas core,
+for world product, $\mathrm{CO_2}$ emissions, and temperature (lower is better). \emph{(b)}~ROC
+curve of the conflict block: ranking 57 countries by conflict-proneness against the registry of
+armed conflicts of 1990--2023 yields an area under the curve of $0.736$ (the bootstrap $90\,\%$ band
+is shaded; $95\,\%$ CI $[0.59;\,0.86]$; permutation test $p\approx0.001$) versus $0.5$ for random
+guessing.}
 \label{fig:valid}
 \end{figure}
 
-Социальная стоимость углерода чувствительна к схеме дисконтирования. При современной
-схеме Рамсея с почти двухпроцентной околонулевой нормой времени она составляет около
-$140$ долларов за тонну --- в пределах широкого современного диапазона, чуть ниже
-центральных оценок EPA-2023 и RFF-SP (около $190$) \citep{rennert2022,epa2023}; при
-дисконтировании по Нордхаусу --- около $43$ долларов. Существенно, что эта величина
-\emph{действительно} чувствительна к структуре будущего роста: при разных вариантах
-калибровки экономического ядра она менялась в диапазоне примерно $140$--$380$
-долларов. Мы приводим это значение вместе с его чувствительностью, а не подгоняем под
-целевой ориентир; сама эта чувствительность представляет самостоятельный результат.
+The social cost of carbon is sensitive to the discounting scheme. Under a modern Ramsey scheme with
+a near-zero pure rate of time preference of about two percent it is roughly \$140 per ton --- within
+the broad modern range, slightly below the central EPA-2023 and RFF-SP estimates (about \$190)
+\citep{rennert2022,epa2023}; under Nordhaus-style discounting it is about \$43. Importantly, this
+quantity is \emph{genuinely} sensitive to the structure of future growth: across different
+calibrations of the economic core it varied over a range of roughly \$140--380. We report this value
+together with its sensitivity rather than tuning it to a target; that sensitivity is itself a
+standalone result.
 
-\section{Неопределённость, чувствительность и иденти\-фикация параметров}
+\section{Uncertainty, sensitivity, and parameter identification}
 \label{sec:uq}
 
-Важный вопрос --- идентифицированы ли многочисленные параметры модели данными, а не заданы
-вручную. Каждый ключевой параметр снабжён априорным распределением ---
-центральным значением, диапазоном правдоподобия и литературным источником
-(приложение~\ref{app:params}); оценка ведётся не точечной подгонкой, а сопоставлением с
-историей (раздел~\ref{sec:calib}), при котором отбрасываются области параметрического
-пространства, несовместимые с наблюдениями. Так, эластичность замещения капитала и энергии
-$\sigma_{KE}=0{,}4$ опирается на эмпирические оценки в диапазоне $0{,}3$--$0{,}5$, норма
-амортизации $\delta=0{,}05$ --- на данные Penn World Table ($3$--$8\,\%$), а коэффициент
-ущерба $0{,}006$ лежит в середине эмпирического интервала $0{,}0015$--$0{,}025$, между оценкой
-DICE-2016R2 и центральной оценкой Говарда и Стернера. Неустранимая неопределённость этих
-величин не скрывается, а переносится в расчёт через ансамбли.
+A key question is whether the model's many parameters are identified by data rather than set by
+hand. Each key parameter is equipped with a prior distribution --- a central value, a plausibility
+range, and a literature source (Appendix~\ref{app:params}); estimation proceeds not by point fitting
+but by history matching (Section~\ref{sec:calib}), discarding regions of parameter space
+incompatible with observations. Thus the capital--energy elasticity of substitution
+$\sigma_{KE}=0.4$ rests on empirical estimates in the $0.3$--$0.5$ range, the depreciation rate
+$\delta=0.05$ on Penn World Table data ($3$--$8\,\%$), and the damage coefficient $0.006$ lies in the
+middle of the empirical range $0.0015$--$0.025$, between the DICE-2016R2 estimate and the central
+Howard--Sterner estimate. The irreducible uncertainty of these quantities is not hidden but carried
+into the computation through ensembles.
 
-\textbf{Анализ чувствительности.} Чтобы установить, какие параметры действительно определяют
-исходы, проведён глобальный скрининг методом элементарных эффектов Морриса
-\citep{morris1991,campolongo2007} по 26~ключевым параметрам для четырёх выходных
-величин (рис.~\ref{fig:sens}; $8$~траекторий, горизонт 10~лет). Картина согласуется с
-устройством модели и физикой: температуру определяют почти исключительно климатические
-параметры --- равновесная чувствительность, обмен теплом с океаном и теплоёмкость
-поверхности; мировой продукт --- амортизация капитала, коэффициент ущерба и энергоёмкость
-выпуска; мировые выбросы --- масштаб эмиссий и темп структурной декарбонизации. Эти выводы
-устойчивы к бюджету скрининга: при увеличении числа траекторий с $8$ до $32$ ранговая корреляция
-Спирмена полного вектора $\mu^*$ с эталонным прогоном составляет $\rho\geq0{,}99$ для всех четырёх
-величин, а ведущие параметры воспроизводятся в первой пятёрке при всех проверенных стартовых
-значениях генератора случайных чисел (полное совпадение для температуры и выбросов; для продукта
-устойчива первая четвёрка, тогда как пятая позиция обменивается между двумя экономическими
-параметрами). Социальное напряжение, напротив, к этим физико-экономическим параметрам почти
-нечувствительно: его элементарные эффекты лежат у шумового порога скрининга (абсолютная мера
-$\mu^*$ примерно на три порядка ниже, чем у физических величин), а само их
-ранжирование, в отличие от устойчивого ранжирования физических величин, неустойчиво к выбору
-стартового значения. Важно, однако, что это \emph{не} означает отвязанности общества от
-экономики: данный скрининг варьирует лишь физико-экономические приоры, тогда как напряжение
-управляется собственными (социальными) параметрами и реагирует на экономические условия с
-многолетним лагом. Этот канал влияния экономических условий на социальное напряжение мы
-выделяем отдельно ниже (рис.~\ref{fig:social}). Тем самым
-скрининг подтверждает, что значимые величины управляются содержательно уместными и эмпирически
-закреплёнными параметрами, и этот вывод не является артефактом ограниченного бюджета расчётов.
+\textbf{Sensitivity analysis.} To establish which parameters actually determine outcomes, a global
+screening by the Morris elementary-effects method \citep{morris1991,campolongo2007} was carried out
+over 26 key parameters for four output quantities (Fig.~\ref{fig:sens}; $8$ trajectories, 10-year
+horizon). The picture is consistent with the model's structure and with physics: temperature is
+determined almost exclusively by climate parameters --- equilibrium sensitivity, ocean heat
+exchange, and surface heat capacity; world product by capital depreciation, the damage coefficient,
+and the energy intensity of output; world emissions by the emissions scale and the rate of
+structural decarbonization. These conclusions are robust to the screening budget: increasing the
+number of trajectories from $8$ to $32$, the Spearman rank correlation of the full $\mu^*$ vector
+with the reference run is $\rho\geq0.99$ for all four quantities, and the leading parameters reappear
+in the top five across all tested random-number seeds (a complete match for temperature and
+emissions; for product the top four are stable, while the fifth position is exchanged between two
+economic parameters). Social tension, by contrast, is almost insensitive to these physico-economic
+parameters: its elementary effects lie at the screening noise floor (the absolute $\mu^*$ is about
+three orders of magnitude smaller than for the physical quantities), and their ranking --- unlike the
+stable ranking of the physical quantities --- is itself unstable to the choice of seed. Importantly,
+however, this does \emph{not} mean that society is decoupled from the economy: this screening varies
+only the physico-economic priors, whereas tension is governed by its own (social) parameters and
+responds to economic conditions with a multi-year lag. We isolate this channel from economic
+conditions to social tension separately below (Fig.~\ref{fig:social}). The screening thus confirms
+that the significant quantities are governed by substantively appropriate and empirically anchored
+parameters, and this conclusion is not an artifact of the limited computational budget.
 
-\textbf{Ансамблевая оценка неопределённости.} Поскольку ядро детерминировано, неопределённость
-вводится прогоном Монте-Карло ансамбля ($500$~членов) со случайным выбором параметров из их
-априорных диапазонов. Результат --- не одна траектория, а распределение исходов
-(рис.~\ref{fig:ens}). Здесь и далее «мировой продукт» означает \emph{совокупный валовой продукт
-$57$~моделируемых стран} (крупнейшие экономики мира, на которые приходится основная часть мирового
-выпуска), а не валовой продукт всех экономик планеты; в базовом $2026$~году он составляет около
-$109$~трлн долларов. На горизонте десяти лет его медиана составляет около
-$116$~трлн долларов при межквартильном размахе примерно $114$--$118$ и интервале $5$--$95$-го
-перцентиля около $110$--$121$; интервал $5$--$95$-го перцентиля аномалии температуры составляет
-примерно $1{,}0$--$2{,}0\,^\circ$C и отражает прежде всего разброс равновесной чувствительности.
-Приведённые перцентили сошлись по объёму ансамбля: при росте числа членов с $80$ до $500$ медиана
-и верхние перцентили продукта и температуры устойчивы, а Монте-Карло погрешность каждого
-перцентиля (бутстреп по членам ансамбля) не превышает $\pm0{,}3$~трлн долларов для продукта и
-$\pm0{,}03\,^\circ$C для температуры; единственная заметно зависящая от объёма выборки величина ---
-нижний хвост температуры, уточняющийся с $\approx0{,}9$ до $\approx1{,}0\,^\circ$C. Именно
-такие интервалы, а не точечные значения, и составляют содержательный результат модели.
+\textbf{Ensemble uncertainty quantification.} Because the core is deterministic, uncertainty is
+introduced by running a Monte Carlo ensemble ($500$ members) with random parameter draws from their
+prior ranges. The result is not a single trajectory but a distribution of outcomes
+(Fig.~\ref{fig:ens}). Throughout, ``world product'' denotes the \emph{aggregate gross product of the
+$57$ modeled countries} (the world's largest economies, accounting for the bulk of global output),
+not the gross product of all economies on the planet; in the 2026 base year it is about $109$
+trillion USD. At the ten-year horizon its median is about $116$ trillion USD, with an interquartile
+range of roughly $114$--$118$ and a $5$--$95$th-percentile interval of roughly $110$--$121$; the
+$5$--$95$th-percentile interval of the temperature anomaly is roughly $1.0$--$2.0\,^\circ$C and
+reflects chiefly the spread in equilibrium sensitivity. The reported percentiles have converged in
+ensemble size: as the number of members grows from $80$ to $500$, the median and upper percentiles
+of product and temperature are stable, and the Monte Carlo error of each percentile (a bootstrap over
+ensemble members) does not exceed $\pm0.3$ trillion USD for product and $\pm0.03\,^\circ$C for
+temperature; the only quantity noticeably dependent on sample size is the lower temperature tail,
+which tightens from $\approx0.9$ to $\approx1.0\,^\circ$C. It is precisely such intervals, rather
+than point values, that constitute the model's substantive result.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig3_sensitivity.pdf}
-\caption{Глобальный скрининг чувствительности (метод Морриса) по 26~ключевым параметрам для
-четырёх выходных величин ($57$~стран); показаны семь наиболее влиятельных параметров, мера $\mu^*$
-нормирована на максимум в каждой панели, а абсолютный максимум $\mu^*$ указан в рамке. Температура
-управляется климатическими параметрами, продукт и выбросы --- экономическими и эмиссионными. У
-социального напряжения абсолютный $\mu^*$ примерно на три порядка ниже (у шумового порога): к
-физико-экономическим приорам оно почти нечувствительно, а его собственный канал разобран на
-рис.~\ref{fig:social}.}
+\caption{Global sensitivity screening (Morris method) over 26 key parameters for four output
+quantities (57 countries); the seven most influential parameters are shown, with $\mu^*$ normalized
+to the maximum within each panel and the absolute maximum $\mu^*$ indicated in the box. Temperature
+is governed by climate parameters, product and emissions by economic and emission parameters. For
+social tension the absolute $\mu^*$ is about three orders of magnitude lower (at the noise floor): it
+is almost insensitive to the physico-economic priors, and its own channel is examined in
+Fig.~\ref{fig:social}.}
 \label{fig:sens}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig4_ensemble.pdf}
-\caption{Ансамблевая оценка неопределённости ($500$~членов): распределение исходов по Монте-Карло
-прогону со случайным выбором параметров из априорных диапазонов. Показаны медиана и полосы
-$25$--$75$-го и $5$--$95$-го перцентилей для \emph{(a)}~совокупного продукта $57$~моделируемых
-стран и \emph{(b)}~аномалии температуры.}
+\caption{Ensemble uncertainty quantification ($500$ members): the distribution of outcomes from a
+Monte Carlo run with random parameter draws from the prior ranges. The median and the
+$25$--$75$th- and $5$--$95$th-percentile bands are shown for \emph{(a)}~the aggregate product of the
+57 modeled countries and \emph{(b)}~the temperature anomaly.}
 \label{fig:ens}
 \end{figure}
 
-\textbf{Канал влияния экономики на социальное напряжение.} Малая чувствительность напряжения к
-физико-экономическим \emph{приорам} (выше) не означает, что общество отвязано от экономики:
-напряжение --- накапливающаяся переменная (приращение определяется безработицей, инфляцией и
-неравенством), поэтому связь с экономикой проявляется не мгновенно, а с лагом, и недоступна
-скринингу фиксированного горизонта. Мы выделяем этот канал тремя взаимодополняющими проверками
-(рис.~\ref{fig:social}; воспроизводимый расчёт описан в разделе~\ref{sec:repo}). Во-первых,
-\emph{локализация}: в ансамбле, дополнительно варьирующем приоры самого социального блока, итоговое
-напряжение значимо управляется именно ими --- чувствительностью к неравенству (ранговая корреляция
-Спирмена $\rho\approx+0{,}43$, $p<10^{-6}$) и силой якоря доверия ($\rho\approx-0{,}50$,
-$p<10^{-8}$), --- тогда как физико-экономические приоры остаются слабыми; то есть в рассмотренном
-выше скрининге просто не варьировались прямые драйверы блока. Во-вторых, \emph{накопление}: вызванный приорами
-разброс напряжения растёт с горизонтом (межчленное стандартное отклонение увеличивается примерно
-в полтора раза от $5$ к $25$~годам), что и есть подпись лага. В-третьих, \emph{импульсный отклик}:
-экзогенный стагфляционный шок (рост безработицы и инфляции на три года) повышает напряжение, причём
-отклик нарастает в течение первых $\approx4$~лет (положителен у $93$--$100\,\%$ прогонов ансамбля
-приоров) и сохраняется более десятилетия; на дальних горизонтах разброс растёт, так как у части
-прогонов шок запускает дискретные кризисы. Распределённо-лаговая регрессия приращения напряжения на
-экономический стресс (внутригрупповые фиксированные эффекты, кластерные ошибки) подтверждает
-значимую передачу на лагах $0$--$1$~год ($p<10^{-12}$). Таким образом, канал влияния экономики на
-напряжение статистически значим, но мультиплицирован и запаздывает; именно это запаздывание, а не
-отсутствие связи, объясняет нулевой результат скрининга на коротком горизонте.
+\textbf{The channel from the economy to social tension.} The low sensitivity of tension to the
+physico-economic \emph{priors} (above) does not mean that society is decoupled from the economy:
+tension is an accumulating variable (its increment is determined by unemployment, inflation, and
+inequality), so its link to the economy manifests not instantaneously but with a lag, and is
+invisible to a fixed-horizon screening. We isolate this channel through three complementary checks
+(Fig.~\ref{fig:social}; the reproducible computation is described in Section~\ref{sec:repo}). First,
+\emph{localization}: in an ensemble that additionally varies the priors of the social block itself,
+final tension is significantly governed by them --- by the sensitivity to inequality (Spearman rank
+correlation $\rho\approx+0.43$, $p<10^{-6}$) and the strength of the trust anchor
+($\rho\approx-0.50$, $p<10^{-8}$) --- whereas the physico-economic priors remain weak; that is, the
+screening above simply did not vary the block's direct drivers. Second, \emph{accumulation}: the
+prior-induced spread of tension grows with the horizon (the across-member standard deviation
+increases by roughly half from $5$ to $25$ years), which is the signature of a lag. Third,
+\emph{impulse response}: an exogenous stagflation shock (a three-year rise in unemployment and
+inflation) raises tension, with the response building over the first $\approx4$ years (positive for
+$93$--$100\,\%$ of the prior-ensemble runs) and persisting for more than a decade; at longer horizons
+the spread grows because in some runs the shock triggers discrete crises. A distributed-lag
+regression of the change in tension on economic stress (within-member fixed effects, clustered
+errors) confirms significant transmission at lags of $0$--$1$ years ($p<10^{-12}$). The channel from
+the economy to tension is thus statistically significant but mediated and lagged; it is precisely
+this lag, not an absence of any link, that explains the null result of the short-horizon screening.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig5_social_channel.pdf}
-\caption{Влияние экономических условий на социальное напряжение. \emph{(a)}~Импульсный отклик среднего
-напряжения на экзогенный стагфляционный шок (безработица и инфляция, три года): средняя кривая и
-полоса $5$--$95$-го перцентиля по приорам; отклик нарастает за $\approx4$~года и сохраняется.
-\emph{(b)}~Локализация: ранговая корреляция приоров с итоговым напряжением; доминируют параметры
-социального блока (помечены $*$), а не физико-экономические.}
+\caption{The influence of economic conditions on social tension. \emph{(a)}~Impulse response of mean
+tension to an exogenous stagflation shock (unemployment and inflation, three years): the mean curve
+and the $5$--$95$th-percentile band over priors; the response builds over $\approx4$ years and
+persists. \emph{(b)}~Localization: the rank correlation of priors with final tension; the parameters
+of the social block (marked $*$) dominate, not the physico-economic ones.}
 \label{fig:social}
 \end{figure}
 
-\section{Ограничения}
+\section{Limitations}
 \label{sec:limits}
 
-Откровенный перечень того, чего модель пока \emph{не} может, не менее важен, чем перечень
-её возможностей.
+An honest list of what the model \emph{cannot} yet do is no less important than a list of its
+capabilities.
 
-\textbf{Ожидания носят адаптивный характер.} Домохозяйства и фирмы ориентируются на
-недавнее прошлое, а не на рационально ожидаемое будущее. Поэтому модель не воспроизводит
-эффекты опережающего поведения (например, реакцию на заранее объявленную политику до её
-вступления в силу).
+\textbf{Expectations are adaptive.} Households and firms look to the recent past rather than to a
+rationally anticipated future. The model therefore does not reproduce anticipatory effects (for
+example, a response to a pre-announced policy before it takes effect).
 
-\textbf{Долгосрочный рост слабо идентифицирован.} Темп долгосрочного роста производительности
-лишь слабо определяется имеющейся короткой историей и для прогнозов вперёд привязан к
-внешнему сценарию, а не выводится изнутри модели.
+\textbf{Long-run growth is weakly identified.} The long-run rate of productivity growth is only
+weakly pinned down by the available short history and, for forward projections, is anchored to an
+external scenario rather than derived endogenously.
 
-\textbf{Климат описан быстрой аппроксимацией.} Климатический блок воспроизводит общепринятые
-показатели, но не является полной моделью земной системы; сильнейшие углеродные обратные
-связи глубоко неопределённы и вынесены в хвостовые сценарии.
+\textbf{The climate is described by a fast approximation.} The climate block reproduces the standard
+indicators but is not a full Earth-system model; the strongest carbon feedbacks are deeply uncertain
+and are relegated to tail scenarios.
 
-\textbf{Оценки ущерба неопределённы во всей дисциплине.} Оценки климатического ущерба
-неопределённы во всём поле исследований; модель несёт эту неопределённость как интервал, а
-не как единое число.
+\textbf{Damage estimates are uncertain across the discipline.} Estimates of climate damage are
+uncertain across the entire field; the model carries this uncertainty as an interval rather than as
+a single number.
 
-\textbf{Социально-политические связи опираются на структурные допущения.} Для перехода от условий
-к социальному недовольству нет единого калибровочного набора данных, поэтому формы и величины
-коэффициентов социального блока заданы экспертно. Сам канал влияния экономики на напряжение при этом
-не произволен: он статистически значим, направленно верен и запаздывает (раздел~\ref{sec:uq},
-рис.~\ref{fig:social}); неустановленными остаются именно точные функциональные формы и лаги, а не
-наличие связи. Конфликт по своей природе плохо предсказуем, и геополитический блок пригоден лишь
-для относительного риска.
+\textbf{The socio-political links rest on structural assumptions.} There is no single calibration
+dataset for the transition from conditions to social discontent, so the forms and magnitudes of the
+social-block coefficients are set by expert judgment. The channel from the economy to tension is
+nonetheless not arbitrary: it is statistically significant, directionally correct, and lagged
+(Section~\ref{sec:uq}, Fig.~\ref{fig:social}); what remains unestablished is the precise functional
+forms and lags, not the existence of the link. Conflict is intrinsically hard to predict, and the
+geopolitical block is suitable only for relative risk.
 
-\textbf{Кризисы основаны на порогах.} Дискретные кризисы задаются пороговыми правилами и
-схватывают верное качественное поведение, но не выведены из единого подогнанного набора
-данных о кризисах.
+\textbf{Crises are threshold-based.} Discrete crises are specified by threshold rules and capture the
+correct qualitative behavior but are not derived from a single fitted crisis dataset.
 
-\textbf{Передача от денежной массы к ценам требует доработки.} Балансы государства и
-частного сектора замкнуты и учётно состоятельны, однако более явная передача от денежной
-массы к ценовому давлению остаётся предметом дальнейшей калибровки.
+\textbf{The money-to-prices transmission needs further work.} The government and private-sector
+balance sheets are closed and accounting-consistent, but a more explicit transmission from the money
+stock to price pressure remains a subject for further calibration.
 
-Общая установка остаётся неизменной: реалистичная цель --- быть откалиброванным
-относительно собственной неопределённости, а не служить инструментом безошибочного
-предвидения. Реалистичной планкой точности многолетних прогнозов служит превосходство над
-наивным эталоном.
+The overall stance is unchanged: the realistic goal is to be calibrated against one's own
+uncertainty rather than to serve as an instrument of infallible foresight. A realistic accuracy bar
+for multi-year forecasts is improvement over a naive benchmark.
 
-\section{Типовые сценарии применения}
+\section{Typical use cases}
 \label{sec:scenarios}
 
-Модель предназначена для трёх взаимосвязанных режимов работы, в которых её сопряжённость и
-корректная оценка неопределённости дают наибольшую отдачу.
+The model is intended for three interrelated modes of use, in which its connectivity and proper
+uncertainty quantification pay off most.
 
-\textbf{Сценарный анализ и стратегическое планирование.} Основной режим --- сравнение базовой
-траектории со сценарием возмущения или решения политики: вводится шок или мера (например, цена
-на углерод, ресурсный дефицит, обострение отношений между странами), и прослеживается её
-распространение по экономике, климату, обществу и геополитике. Это позволяет сопоставлять
-альтернативные стратегии и оценивать сопутствующие риски. Содержательно значимы здесь
-\emph{относительные} величины --- разности между сценарием и базой, --- а не абсолютные
-точечные значения на дальнем горизонте.
+\textbf{Scenario analysis and strategic planning.} The principal mode is comparison of a baseline
+trajectory with a perturbation or policy scenario: a shock or measure is introduced (for example, a
+carbon price, resource scarcity, or an escalation of relations between countries), and its
+propagation through the economy, climate, society, and geopolitics is traced. This makes it possible
+to compare alternative strategies and assess the attendant risks. What matter here are
+\emph{relative} quantities --- differences between scenario and baseline --- rather than absolute
+point values at a distant horizon.
 
-\textbf{Ансамблевые расчёты.} Поскольку расчётное ядро детерминировано, неопределённость
-вводится прогоном больших ансамблей со случайным выбором параметров из обоснованных
-диапазонов. Это даёт не одну траекторию, а распределение исходов, по которому измеряется
-чувствительность к каждому параметру и строятся вероятностные оценки. Сценарии
-рекомендуется сравнивать именно как ансамбли, а не как одиночные прогоны.
+\textbf{Ensemble computations.} Because the computational core is deterministic, uncertainty is
+introduced by running large ensembles with random parameter draws from justified ranges. This yields
+not a single trajectory but a distribution of outcomes, against which sensitivity to each parameter
+is measured and probabilistic estimates are constructed. Scenarios are best compared as ensembles
+rather than as single runs.
 
-\textbf{Обнаружение слабых сигналов.} Встроенная логика кризисов порогова: кризис
-срабатывает при пересечении границы. Обнаружение слабых сигналов --- дополнение к ней:
-выявление малозаметного многомерного накопления напряжения, \emph{предшествующего}
-структурному сдвигу, до того как сработает любой порог. Для этого применяются три
-взаимодополняющих средства. Первое --- расстояние Махаланобиса: для каждого момента
-времени оценивается, насколько \emph{совместное} состояние (одновременно продукт,
-температура, долг, напряжение и т.\,д.) удалено от его недавнего базового распределения с
-учётом корреляций между измерениями; превышение порога $\chi^2$ указывает на переход
-системы в необычную область пространства состояний \citep{mahalanobis1936,wilson1931}.
-Второе --- обнаружение структурного сдвига: на отдельном ряду ищется смена режима методом
-обнаружения разладки со штрафом по информационному критерию, что даёт вероятность сдвига и
-его наиболее вероятное положение \citep{schwarz1978}. Третье --- индикаторы критического
-замедления (рост автокорреляции и дисперсии), нарастающие при приближении к точке
-бифуркации \citep{scheffer2009}. Чтобы эти средства выявляли отклонения от \emph{динамики},
-а не вторично детектировали плавный тренд, ряды предварительно приводятся к стационарному
-приращению. На синтетических данных и на траекториях самой модели средства ведут себя
-ожидаемо: внесённый спад продукта на $15\,\%$ распознаётся точно на нужном шаге, тогда как
-спокойный прогон остаётся вблизи теоретической частоты ложных срабатываний. Рабочий приём
-здесь, как и в сценарном анализе, --- \emph{относительный}: сопоставление профиля слабых
-сигналов сценария с базовым (более ранние и более частые отклонения, более высокая
-вероятность сдвига) указывает, что сценарий смещает систему к структурному переходу.
+\textbf{Weak-signal detection.} The built-in crisis logic is threshold-based: a crisis fires when a
+boundary is crossed. Weak-signal detection complements it: the identification of a subtle,
+multivariate accumulation of tension \emph{preceding} a structural shift, before any threshold is
+crossed. Three complementary tools are used. The first is the Mahalanobis distance: at each point in
+time it is assessed how far the \emph{joint} state (product, temperature, debt, tension, and so on,
+together) lies from its recent baseline distribution, accounting for correlations between
+dimensions; exceeding a $\chi^2$ threshold indicates the system's transition into an unusual region
+of state space \citep{mahalanobis1936,wilson1931}. The second is structural-break detection: a
+single series is searched for a regime change by change-point detection with an information-criterion
+penalty, yielding a probability of a shift and its most likely location \citep{schwarz1978}. The
+third is critical-slowing-down indicators (rising autocorrelation and variance) that grow as a
+bifurcation point is approached \citep{scheffer2009}. So that these tools detect deviations from the
+\emph{dynamics} rather than secondarily detecting a smooth trend, the series are first reduced to
+stationary increments. On synthetic data and on the model's own trajectories the tools behave as
+expected: an injected $15\,\%$ drop in product is detected exactly at the right step, whereas a calm
+run stays near the theoretical false-alarm rate. The working device here, as in scenario analysis,
+is \emph{relative}: comparing a scenario's weak-signal profile with the baseline's (earlier and more
+frequent deviations, a higher shift probability) indicates that the scenario is moving the system
+toward a structural transition.
 
-\section{Программная реализация и сценарная среда}
+\section{Software implementation and the scenario environment}
 \label{sec:repo}
 
-Модель реализована как открытая кодовая база и доступна в репозитории
-\url{https://github.com/Theclimateguy/GIM}. Расчётное ядро детерминировано и
-воспроизводимо: каждый прогон записывается в отдельную датированную папку с манифестом
-параметров и версий входных данных, а набор модульных тестов и протокол валидации фиксируют
-ключевые величины ретроспективной проверки (раздел~\ref{sec:calib}). Калибровочные наборы
-данных подключаются как неизменяемые входы, привязанные к контрольной сумме, что исключает
-незаметное расхождение результатов между запусками. Базовый мировой прогон, сценарные
-вопросы, многоагентные партии и калибровка запускаются единым интерфейсом командной строки.
+The model is implemented as an open codebase and is available in the repository
+\url{https://github.com/Theclimateguy/GIM}. The computational core is deterministic and
+reproducible: each run is written to a separate dated folder with a manifest of parameters and
+input-data versions, and a suite of unit tests and a validation protocol pin the key
+retrospective-validation quantities (Section~\ref{sec:calib}). Calibration datasets are attached as
+immutable, checksum-bound inputs, which precludes silent divergence of results between runs. The
+baseline world run, scenario questions, multi-agent games, and calibration are launched through a
+single command-line interface.
 
-\textbf{Большие языковые модели в роли стран.} Помимо штатных правил поведения, политику
-отдельной страны может задавать агент на основе большой языковой модели. Агент получает
-наблюдаемое состояние своей страны и её окружения и возвращает связную стратегию ---
-внутреннюю, внешнюю, финансовую, военную и торговую политику, --- которая компилируется в
-формализованные действия модели. Поддерживаются режимы фоновой политики: правило, целевой
-рост, языковая модель и предварительно скомпилированная доктрина; глубину обновления
-стратегии (по событию, периодически или однократно) задаёт пользователь. Здесь важно
-методологическое разграничение: генеративная модель порождает только намерения и стратегию
-акторов, тогда как их последствия рассчитывает детерминированное, эмпирически закреплённое
-ядро. Языковая модель отвечает за правдоподобие поведения, имитационное ядро --- за
-правдоподобие механики и числовых исходов; такое разделение сохраняет воспроизводимость и
-ограждает количественные результаты от произвольных суждений языковой модели.
+\textbf{Large language models as countries.} Beyond the built-in behavioral rules, an individual
+country's policy may be set by a large-language-model agent. The agent receives the observed state of
+its country and its environment and returns a coherent strategy --- domestic, foreign, financial,
+military, and trade policy --- that is compiled into the model's formalized actions. Several
+background-policy modes are supported: rule, growth target, language model, and a precompiled
+doctrine; the user sets the depth of strategy updating (per event, periodically, or once). A
+methodological distinction is important here: the generative model produces only the actors'
+intentions and strategy, whereas their consequences are computed by the deterministic, empirically
+anchored core. The language model is responsible for the plausibility of behavior, the simulation
+core for the plausibility of the mechanics and numerical outcomes; this separation preserves
+reproducibility and shields the quantitative results from arbitrary judgments of the language model.
 
-\textbf{Гибридные партии и гипотезы «что, если».} Среда допускает совместную игру человека и
-агентов: часть стран ведут пользователи, часть --- языковые агенты или штатные правила, а
-намерения задаются на естественном языке и переводятся в действия модели. Предусмотрены два
-режима хода. В режиме \emph{действия} ход фиксируется и переносится в дальнейшую траекторию;
-в режиме \emph{«что, если»} гипотеза проигрывается обособленно, без необратимых последствий
-для основной линии, что удобно для проверки контрфактических предположений (например, «как
-изменится обстановка, если страна~X ужесточит санкции против страны~Y»). Каждый ход
-разворачивается не в одну траекторию, а в ансамбль, так что отклик измеряется вместе с его
-неопределённостью --- как и в сценарном анализе раздела~\ref{sec:scenarios}.
+\textbf{Hybrid games and ``what-if'' hypotheses.} The environment allows joint play by humans and
+agents: some countries are led by users, some by language agents or built-in rules, and intentions
+are stated in natural language and translated into model actions. Two move modes are provided. In
+\emph{action} mode a move is committed and carried into the subsequent trajectory; in
+\emph{``what-if''} mode a hypothesis is played out in isolation, without irreversible consequences
+for the main line, which is convenient for testing counterfactual assumptions (for example, ``how
+would the situation change if country~X tightened sanctions against country~Y''). Each move unfolds
+not into a single trajectory but into an ensemble, so that the response is measured together with
+its uncertainty --- as in the scenario analysis of Section~\ref{sec:scenarios}.
 
-\textbf{Интерактивная аналитическая среда.} Отдельная команда поднимает локальную
-аналитическую панель, в которой собраны сценарные вопросы, многоагентные партии и метрики
-стран; вкладка партий использует описанный гибридный механизм. Результаты каждого прогона
-выгружаются в наглядном виде --- сводная панель, аналитическая записка для лиц, принимающих
-решения, и журналы политик и базовых траекторий, --- что делает многоагентный эпизод
-прослеживаемым и пригодным для последующего разбора.
+\textbf{Interactive analytical environment.} A separate command launches a local analytical
+dashboard that gathers scenario questions, multi-agent games, and country metrics; the games tab uses
+the hybrid mechanism described above. The results of each run are exported in a readable form --- a
+summary dashboard, an analytical brief for decision-makers, and logs of policies and baseline
+trajectories --- which makes a multi-agent episode traceable and amenable to subsequent review.
 
-Тем самым сценарная среда операционализирует заявленное назначение модели. Сопряжённое ядро
-превращается из расчётного механизма в площадку для отработки многоагентного взаимодействия:
-коллектив языковых агентов или смешанный состав «человек--агент» проигрывает конкретные
-сценарии и контрфактические гипотезы, а пользователь наблюдает распространение шоков по
-экономике, климату, обществу и геополитике и ранние слабые сигналы приближающихся
-структурных сдвигов --- в едином, воспроизводимом и поддающемся аудиту контуре. Роль
-генеративного ИИ здесь вспомогательная, но содержательная: он расширяет пространство
-правдоподобных стратегий акторов, не подменяя собой эмпирически закреплённую механику
-последствий.
+The scenario environment thus operationalizes the model's stated purpose. The coupled core turns
+from a computational mechanism into a platform for exercising multi-agent interaction: a collective
+of language agents or a mixed human--agent composition plays out specific scenarios and
+counterfactual hypotheses, while the user observes the propagation of shocks through the economy,
+climate, society, and geopolitics and the early weak signals of approaching structural shifts ---
+within a single, reproducible, auditable loop. The role of generative AI here is auxiliary but
+substantive: it expands the space of plausible actor strategies without supplanting the empirically
+anchored mechanics of consequences.
 
-\section{Заключение}
+\section{Conclusion}
 
-Представленная модель связывает в едином контуре экономику, климат, природный капитал,
-общество, политику, геополитику и культуру и тем самым заполняет содержательный пробел
-между специализированными моделями отдельных областей. Её ценность для стратегического
-планирования, сценарного анализа и управления рисками состоит не в точечном прогнозе, а в
-способности связно проигрывать сценарии, сопоставлять альтернативные решения, корректно
-выражать неопределённость через ансамбли и выявлять слабые сигналы приближающихся
-структурных сдвигов. Экономический и климатический блоки эмпирически закреплены и проходят
-ретроспективную проверку; социально-политические и геополитические блоки, составляющие
-отличительную черту модели, проверены по более скромному, но содержательному критерию ---
-превосходству над наивными эталонами. Дальнейшее развитие связано с введением опережающих
-(рациональных) ожиданий, более глубоким обоснованием долгосрочного роста и явной передачей
-от денежной массы к ценам; эти направления оформлены как ограничения и предмет будущей работы, а не как
-препятствие к применению модели в очерченных режимах.
+The model presented here links the economy, climate, natural capital, society, politics, geopolitics,
+and culture within a single loop and thereby fills a substantive gap between specialized
+single-domain models. Its value for strategic planning, scenario analysis, and risk management lies
+not in point forecasting but in the ability to play out scenarios coherently, compare alternative
+decisions, express uncertainty correctly through ensembles, and detect weak signals of approaching
+structural shifts. The economic and climate blocks are empirically anchored and pass retrospective
+validation; the socio-political and geopolitical blocks, which constitute the model's distinguishing
+feature, are validated against a more modest but substantive criterion --- improvement over naive
+benchmarks. Further development concerns the introduction of forward-looking (rational) expectations,
+a deeper grounding of long-run growth, and an explicit money-to-prices transmission; these
+directions are framed as limitations and subjects for future work rather than as obstacles to
+applying the model in the modes outlined.
 
+\clearpage
 \appendix
-\section{Ключевые параметры и их идентификация}
+\section{Key parameters and their identification}
 \label{app:params}
 
-Каждый параметр задан априорным распределением; ниже приведены центральное значение,
-диапазон правдоподобия (примерно $5$--$95$-й перцентиль приора) и основной источник. Полный
-набор из $26$~ключевых и $294$~всех параметров с распределениями и обоснованием доступен в
-репозитории (раздел~\ref{sec:repo}).
+Each parameter is specified by a prior distribution; below are the central value, the plausibility
+range (roughly the $5$--$95$th percentile of the prior), and the main source. The full set of $26$
+key and $294$ total parameters with distributions and justifications is available in the repository
+(Section~\ref{sec:repo}).
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabularx}{\linewidth}{@{}lccL@{}}
 \toprule
-Параметр & Центр. & Диапазон & Источник \\
+Parameter & Central & Range & Source \\
 \midrule
-Равновесная чувствительность климата, $^\circ$C & $3{,}0$ & $1{,}5$--$6{,}0$ & МГЭИК AR6 WG1 (2021); Otto и др.\ 2013 \\
-Теплоёмкость поверхности & $8{,}0$ & $6{,}0$--$18{,}0$ & Geoffroy и др.\ 2013 (двухслойная EBM) \\
-Обмен теплом с океаном & $1{,}0$ & $0{,}4$--$1{,}3$ & Geoffroy и др.\ 2013 \\
-Масштаб эмиссий & $0{,}98$ & $0{,}90$--$1{,}05$ & Global Carbon Project 2023 \\
-Темп структурной декарбонизации & $0{,}052$ & $0{,}040$--$0{,}066$ & Калибровка по бэктесту 2015--2023 \\
-Доля капитала $\alpha$ & $0{,}30$ & $0{,}22$--$0{,}40$ & Penn World Table 10; Gollin 2002 \\
-Доля труда $\beta$ & $0{,}60$ & $0{,}50$--$0{,}72$ & Penn World Table 10; Gollin 2002 \\
-Эластичность по энергии $\gamma$ & $0{,}042$ & $0{,}015$--$0{,}080$ & Бэктест 2015--2023; лит-ра по энергии \\
-Замещение капитал--энергия $\sigma_{KE}$ & $0{,}40$ & $0{,}20$--$0{,}60$ & van der Werf 2008; Koetse и др.\ 2008 \\
-Норма амортизации $\delta$ & $0{,}05$ & $0{,}03$--$0{,}08$ & Penn World Table 8/9 \\
-Чувствительность ПФП к НИОКР & $0{,}30$ & $0{,}10$--$0{,}60$ & Калибровка по бэктесту \\
-Коэффициент ущерба & $0{,}006$ & $0{,}0015$--$0{,}025$ & DICE-2016R2; Говард и Стернер 2017; Бёрк и др.\ 2015 \\
-Норма временного предпочтения $\rho$ & $0{,}015$ & $0{,}001$--$0{,}030$ & DICE-2016R2; Stern 2007 \\
-Эластичность предельной полезности $\eta$ & $1{,}45$ & $1{,}0$--$2{,}0$ & DICE-2016R2; Stern 2007 \\
-Эластичность рыночного спроса & $0{,}40$ & $0{,}20$--$0{,}70$ & Labandeira и др.\ 2017 (мета-анализ) \\
+Equilibrium climate sensitivity, $^\circ$C & $3.0$ & $1.5$--$6.0$ & IPCC AR6 WG1 (2021); Otto et al.\ 2013 \\
+Surface heat capacity & $8.0$ & $6.0$--$18.0$ & Geoffroy et al.\ 2013 (two-layer EBM) \\
+Ocean heat exchange & $1.0$ & $0.4$--$1.3$ & Geoffroy et al.\ 2013 \\
+Emissions scale & $0.98$ & $0.90$--$1.05$ & Global Carbon Project 2023 \\
+Structural decarbonization rate & $0.052$ & $0.040$--$0.066$ & Calibration to 2015--2023 backtest \\
+Capital share $\alpha$ & $0.30$ & $0.22$--$0.40$ & Penn World Table 10; Gollin 2002 \\
+Labor share $\beta$ & $0.60$ & $0.50$--$0.72$ & Penn World Table 10; Gollin 2002 \\
+Energy elasticity $\gamma$ & $0.042$ & $0.015$--$0.080$ & 2015--2023 backtest; energy literature \\
+Capital--energy substitution $\sigma_{KE}$ & $0.40$ & $0.20$--$0.60$ & van der Werf 2008; Koetse et al.\ 2008 \\
+Depreciation rate $\delta$ & $0.05$ & $0.03$--$0.08$ & Penn World Table 8/9 \\
+TFP sensitivity to R\&D & $0.30$ & $0.10$--$0.60$ & Calibration to backtest \\
+Damage coefficient & $0.006$ & $0.0015$--$0.025$ & DICE-2016R2; Howard \& Sterner 2017; Burke et al.\ 2015 \\
+Pure rate of time preference $\rho$ & $0.015$ & $0.001$--$0.030$ & DICE-2016R2; Stern 2007 \\
+Elasticity of marginal utility $\eta$ & $1.45$ & $1.0$--$2.0$ & DICE-2016R2; Stern 2007 \\
+Market demand elasticity & $0.40$ & $0.20$--$0.70$ & Labandeira et al.\ 2017 (meta-analysis) \\
 \midrule
-\multicolumn{4}{@{}l}{\emph{Социальный блок (структурные допущения; проверяются по знаку и каналу, раздел~\ref{sec:uq})}}\\
-Стресс напряжения от безработицы & $0{,}010$ & $0{,}007$--$0{,}014$ & Структурное допущение (рост безработицы повышает недовольство) \\
-Стресс напряжения от инфляции & $0{,}005$ & $0{,}003$--$0{,}007$ & Структурное допущение \\
-Эффект неравенства на напряжение & $0{,}0005$ & $0{,}0003$--$0{,}0007$ & Структурное допущение \\
-Сила якоря доверия & $0{,}060$ & $0{,}039$--$0{,}081$ & Структурное допущение (возврат к равновесию) \\
+\multicolumn{4}{@{}l}{\emph{Social block (structural assumptions; validated by sign and channel, Section~\ref{sec:uq})}}\\
+Tension stress from unemployment & $0.010$ & $0.007$--$0.014$ & Structural assumption (higher unemployment raises discontent) \\
+Tension stress from inflation & $0.005$ & $0.003$--$0.007$ & Structural assumption \\
+Inequality effect on tension & $0.0005$ & $0.0003$--$0.0007$ & Structural assumption \\
+Trust-anchor strength & $0.060$ & $0.039$--$0.081$ & Structural assumption (reversion to equilibrium) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+\clearpage
 \bibliographystyle{plainnat}
 \bibliography{references}
 

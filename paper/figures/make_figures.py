@@ -99,7 +99,7 @@ def fig2():
     inf = json.load(open(os.path.join(REPO, "results", "calibration", "conflict_auc_inference.json")))
 
     # verified headline backtest RMSE (paper Table 3)
-    labels = ["Мировой\nпродукт", "Выбросы\nCO$_2$", "Температура"]
+    labels = ["World\nproduct", "CO$_2$\nemissions", "Temperature"]
     current = [0.59, 1.15, 0.135]
     baseline = [1.03, 1.61, 0.134]
 
@@ -136,49 +136,49 @@ def fig2():
     fig, (axA, axB) = plt.subplots(1, 2, figsize=(9.2, 3.7))
 
     x = np.arange(len(labels)); w = 0.38
-    axA.bar(x - w / 2, current, w, label="Замкнутое ядро (CES)", color=ACCENT)
-    axA.bar(x + w / 2, baseline, w, label="Эталон: Кобб—Дуглас", color=MUTED)
+    axA.bar(x - w / 2, current, w, label="Closed core (CES)", color=ACCENT)
+    axA.bar(x + w / 2, baseline, w, label="Baseline: Cobb–Douglas", color=MUTED)
     for xi, (c, b) in enumerate(zip(current, baseline)):
         axA.text(xi - w / 2, c, f"{c:g}", ha="center", va="bottom", fontsize=8)
         axA.text(xi + w / 2, b, f"{b:g}", ha="center", va="bottom", fontsize=8)
     axA.set_xticks(x); axA.set_xticklabels(labels)
-    axA.set_ylabel("RMSE ретропроверки 2015—2023")
-    axA.set_title("(a) Точность ядра: меньше — лучше", pad=10)
+    axA.set_ylabel("Retrospective RMSE, 2015–2023")
+    axA.set_title("(a) Core accuracy: lower is better", pad=10)
     axA.legend(loc="upper left")
     axA.set_ylim(0, 2.0)
 
     axB.fill_between(grid, band_lo, band_hi, color=ACCENT, alpha=0.18,
-                     label="бутстреп 90% полоса")
+                     label="bootstrap 90% band")
     axB.plot(fpr, tpr, color=ACCENT, lw=2,
              label=f"GIM: AUC={auc_obs:.3f} [{inf['bootstrap']['ci95'][0]:.2f}; {inf['bootstrap']['ci95'][1]:.2f}]")
-    axB.plot([0, 1], [0, 1], "--", color=MUTED, lw=1, label="случайное (0.5)")
-    axB.set_xlabel("Доля ложных тревог (FPR)"); axB.set_ylabel("Доля попаданий (TPR)")
-    axB.set_title("(b) Ранжирование риска конфликта (57 стран)", pad=10)
+    axB.plot([0, 1], [0, 1], "--", color=MUTED, lw=1, label="random (0.5)")
+    axB.set_xlabel("False-positive rate (FPR)"); axB.set_ylabel("True-positive rate (TPR)")
+    axB.set_title("(b) Conflict-risk ranking (57 countries)", pad=10)
     axB.legend(loc="lower right")
     axB.set_xlim(0, 1); axB.set_ylim(0, 1)
-    axB.text(0.045, 0.93, f"перестановочный тест: $p\\approx${inf['permutation']['p_value']:.3f}",
+    axB.text(0.045, 0.93, f"permutation test: $p\\approx${inf['permutation']['p_value']:.3f}",
              fontsize=8.5, color=ACCENT2)
     _save(fig, "fig2_validation")
 
 
 # ---- fig3: Morris screening, top-7 per metric (4 panels), at 57 countries ----------
 def fig3():
-    specs = [("temperature", "Температура, $^\\circ$C", ACCENT2),
-             ("world_gdp", "Мировой продукт (57 стран)", ACCENT),
-             ("co2", "Выбросы CO$_2$", "#5aae61"),
-             ("mean_social_tension", "Социальное напряжение", SOCIAL)]
+    specs = [("temperature", "Temperature, $^\\circ$C", ACCENT2),
+             ("world_gdp", "World product (57 countries)", ACCENT),
+             ("co2", "CO$_2$ emissions", "#5aae61"),
+             ("mean_social_tension", "Social tension", SOCIAL)]
     pretty = {
-        "ECS_DEFAULT": "чувствит. климата", "OCEAN_EXCHANGE": "обмен с океаном",
-        "HEAT_CAP_SURFACE": "теплоёмк. поверхн.", "HEAT_CAP_DEEP": "теплоёмк. глубин",
-        "EMISSIONS_SCALE": "масштаб эмиссий", "DECARB_RATE_STRUCTURAL": "темп декарбониз.",
-        "LAND_USE_CO2_GTCO2_YR": "землепользование", "GAMMA_ENERGY": "энергоёмкость",
-        "CAPITAL_DEPRECIATION": "аморт. капитала", "DAMAGE_QUAD_COEFF": "коэф. ущерба",
-        "CES_SIGMA_KE": "замещение K–E", "TFP_RD_SHARE_SENS": "ПФП от НИОКР",
-        "ALPHA_CAPITAL": "доля капитала", "BETA_LABOR": "доля труда",
-        "BASE_DEATH_RATE": "смертность", "BASE_BIRTH_RATE": "рождаемость",
-        "BASE_INTEREST_RATE": "ставка", "DAMAGE_BENEFIT_MAX": "выгода ущерба",
-        "DAMAGE_RISK_ADJ": "риск-корр. ущерба", "PURE_TIME_PREFERENCE": "врем. предпочт.",
-        "MARKET_DEMAND_ELASTICITY": "эласт. спроса",
+        "ECS_DEFAULT": "climate sensitivity", "OCEAN_EXCHANGE": "ocean exchange",
+        "HEAT_CAP_SURFACE": "surface heat cap.", "HEAT_CAP_DEEP": "deep heat cap.",
+        "EMISSIONS_SCALE": "emissions scale", "DECARB_RATE_STRUCTURAL": "decarb. rate",
+        "LAND_USE_CO2_GTCO2_YR": "land use", "GAMMA_ENERGY": "energy intensity",
+        "CAPITAL_DEPRECIATION": "capital deprec.", "DAMAGE_QUAD_COEFF": "damage coeff.",
+        "CES_SIGMA_KE": "K–E substitution", "TFP_RD_SHARE_SENS": "TFP from R&D",
+        "ALPHA_CAPITAL": "capital share", "BETA_LABOR": "labor share",
+        "BASE_DEATH_RATE": "death rate", "BASE_BIRTH_RATE": "birth rate",
+        "BASE_INTEREST_RATE": "interest rate", "DAMAGE_BENEFIT_MAX": "damage benefit",
+        "DAMAGE_RISK_ADJ": "damage risk adj.", "PURE_TIME_PREFERENCE": "time preference",
+        "MARKET_DEMAND_ELASTICITY": "demand elast.",
     }
     fig, axes = plt.subplots(2, 2, figsize=(9.2, 6.0))
     for ax, (metric, title, col) in zip(axes.flat, specs):
@@ -191,18 +191,18 @@ def fig3():
         ax.barh(range(len(names)), norm, color=col, alpha=0.85)
         ax.set_yticks(range(len(names))); ax.set_yticklabels(names, fontsize=8)
         ax.set_xlim(0, 1.08); ax.set_title(title, fontsize=10)
-        ax.set_xlabel("$\\mu^*$ (норм. на макс. в панели)", fontsize=8.5)
+        ax.set_xlabel("$\\mu^*$ (norm. to panel max)", fontsize=8.5)
         ax.grid(axis="y", visible=False)
         for i, v in enumerate(norm):
             ax.text(v + 0.02, i, f"{v:.2f}", va="center", fontsize=7, color=INK)
         # absolute scale -- so the cross-metric magnitude is not hidden by per-panel normalisation
-        note = f"абс. макс. $\\mu^*$ = {vmax:.3g}"
+        note = f"abs. max $\\mu^*$ = {vmax:.3g}"
         if metric == "mean_social_tension":
-            note += "\n(≈ шумовой порог; см. рис. 5)"
+            note += "\n(≈ noise floor; see Fig. 5)"
         ax.text(0.97, 0.06, note, transform=ax.transAxes, ha="right", va="bottom",
                 fontsize=7.5, color=INK,
                 bbox=dict(boxstyle="round,pad=0.25", fc="#f5f5f5", ec="#cccccc", lw=0.5))
-    fig.suptitle("Скрининг чувствительности (Моррис, 26 приоров): семь ведущих параметров",
+    fig.suptitle("Sensitivity screening (Morris, 26 priors): seven leading parameters",
                  fontsize=11, y=1.0)
     _save(fig, "fig3_sensitivity")
 
@@ -213,15 +213,15 @@ def fig4():
     yrs = np.array(j["years"])
     def band(ax, m, ylab, title, col):
         b = j["metrics"][m]
-        ax.fill_between(yrs, b["p5"], b["p95"], color=col, alpha=0.15, label="5—95 перцентиль")
-        ax.fill_between(yrs, b["p25"], b["p75"], color=col, alpha=0.30, label="25—75 перцентиль")
-        ax.plot(yrs, b["p50"], color=col, lw=2, label="медиана")
-        ax.set_xlabel("год прогноза"); ax.set_ylabel(ylab); ax.set_title(title)
+        ax.fill_between(yrs, b["p5"], b["p95"], color=col, alpha=0.15, label="5–95th percentile")
+        ax.fill_between(yrs, b["p25"], b["p75"], color=col, alpha=0.30, label="25–75th percentile")
+        ax.plot(yrs, b["p50"], color=col, lw=2, label="median")
+        ax.set_xlabel("projection year"); ax.set_ylabel(ylab); ax.set_title(title)
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.legend(loc="upper left")
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(9.2, 3.7))
-    band(a1, "world_gdp", "трлн долл.", "(a) Мировой продукт (57 стран)", ACCENT)
-    band(a2, "temperature", "$^\\circ$C над доинд.", "(b) Аномалия температуры", ACCENT2)
+    band(a1, "world_gdp", "trillion USD", "(a) World product (57 countries)", ACCENT)
+    band(a2, "temperature", "$^\\circ$C above pre-ind.", "(b) Temperature anomaly", ACCENT2)
     _save(fig, "fig4_ensemble")
 
 
@@ -236,34 +236,34 @@ def fig5():
 
     a1.axhline(0, color=MUTED, lw=0.8)
     a1.fill_between(lags[:H + 1], lo[:H + 1], hi[:H + 1], color=SOCIAL, alpha=0.15,
-                    label="5—95% (приоры)")
-    a1.plot(lags[:H + 1], mean[:H + 1], color=SOCIAL, lw=2, marker="o", ms=3, label="средний отклик")
+                    label="5–95% (priors)")
+    a1.plot(lags[:H + 1], mean[:H + 1], color=SOCIAL, lw=2, marker="o", ms=3, label="mean response")
     sh = j["config"]["shock"]["years"]
     a1.axvspan(0, sh[-1] - sh[0], color=MUTED, alpha=0.12)
-    a1.text((sh[-1] - sh[0]) / 2, hi[:H + 1].max() * 0.93, "шок", ha="center", fontsize=8, color=INK)
-    a1.set_xlabel("лет после шока"); a1.set_ylabel("$\\Delta$ напряжения")
-    a1.set_title("(a) Отклик на стагфляц. шок\n(безработица+инфляция, 3 года)")
+    a1.text((sh[-1] - sh[0]) / 2, hi[:H + 1].max() * 0.93, "shock", ha="center", fontsize=8, color=INK)
+    a1.set_xlabel("years after shock"); a1.set_ylabel("$\\Delta$ tension")
+    a1.set_title("(a) Response to a stagflation shock\n(unemployment + inflation, 3 years)")
     a1.legend(loc="lower right")
 
     loc = j["localization_spearman_top"][:7][::-1]
     social_set = {"SOCIAL_STRESS_UNEMPLOYMENT_SENS", "SOCIAL_STRESS_INFLATION_SENS",
                   "INEQUALITY_EFFECT_SENS", "SOCIAL_TRUST_ANCHOR_SENS"}
-    pretty = {"SOCIAL_TRUST_ANCHOR_SENS": "якорь доверия*", "INEQUALITY_EFFECT_SENS": "эффект неравенства*",
-              "SOCIAL_STRESS_UNEMPLOYMENT_SENS": "стресс: безработица*",
-              "SOCIAL_STRESS_INFLATION_SENS": "стресс: инфляция*",
-              "OCEAN_EXCHANGE": "обмен с океаном", "DAMAGE_BENEFIT_MAX": "выгода ущерба",
-              "CES_SIGMA_KE": "замещение K–E", "MARKET_DEMAND_ELASTICITY": "эласт. спроса",
-              "ECS_DEFAULT": "чувствит. климата", "TFP_RD_SHARE_SENS": "ПФП от НИОКР",
-              "CAPITAL_DEPRECIATION": "аморт. капитала", "GAMMA_ENERGY": "энергоёмкость",
-              "BASE_INTEREST_RATE": "ставка", "DAMAGE_QUAD_COEFF": "коэф. ущерба"}
+    pretty = {"SOCIAL_TRUST_ANCHOR_SENS": "trust anchor*", "INEQUALITY_EFFECT_SENS": "inequality effect*",
+              "SOCIAL_STRESS_UNEMPLOYMENT_SENS": "stress: unemployment*",
+              "SOCIAL_STRESS_INFLATION_SENS": "stress: inflation*",
+              "OCEAN_EXCHANGE": "ocean exchange", "DAMAGE_BENEFIT_MAX": "damage benefit",
+              "CES_SIGMA_KE": "K–E substitution", "MARKET_DEMAND_ELASTICITY": "demand elast.",
+              "ECS_DEFAULT": "climate sensitivity", "TFP_RD_SHARE_SENS": "TFP from R&D",
+              "CAPITAL_DEPRECIATION": "capital deprec.", "GAMMA_ENERGY": "energy intensity",
+              "BASE_INTEREST_RATE": "interest rate", "DAMAGE_QUAD_COEFF": "damage coeff."}
     names = [pretty.get(d["prior"], d["prior"].lower()) for d in loc]
     rhos = [d["rho"] for d in loc]
     cols = [SOCIAL if d["prior"] in social_set else MUTED for d in loc]
     a2.barh(range(len(names)), rhos, color=cols, alpha=0.85)
     a2.axvline(0, color=INK, lw=0.7)
     a2.set_yticks(range(len(names))); a2.set_yticklabels(names, fontsize=8)
-    a2.set_xlabel("ранговая корр. с напряжением (Спирмен)")
-    a2.set_title("(b) Что управляет напряжением\n(* — приоры соц-блока)")
+    a2.set_xlabel("rank corr. with tension (Spearman)")
+    a2.set_title("(b) What governs tension\n(* — social-block priors)")
     a2.grid(axis="y", visible=False)
     _save(fig, "fig5_social_channel")
 
