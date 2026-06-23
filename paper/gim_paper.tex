@@ -124,7 +124,8 @@ interacting countries with adaptive expectations. This implies a division of str
 assessment models and energy frameworks are \emph{deeper} within their domains (optimal policy,
 sectoral energy detail), and the proposed model does not replace them. Its distinction appears along
 three dimensions at once: \emph{(i)}~breadth of coupling, carrying the single loop through to
-society, geopolitics, and discrete crises; \emph{(ii)}~uncertainty as a first-class object ---
+society, geopolitics, and discrete crises --- quantified against sectoral models in a controlled
+benchmark in Appendix~\ref{app:benchmark}; \emph{(ii)}~uncertainty as a first-class object ---
 ensembles and history matching are built into the workflow rather than added post hoc; and
 \emph{(iii)}~the testability of non-standard blocks (conflict-risk ranking by AUC, an identified
 lagged channel between the economy and society), which comparable models simply do not contain. The
@@ -708,6 +709,103 @@ Trust-anchor strength & $0.060$ & $0.039$--$0.081$ & Structural assumption (reve
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\clearpage
+\section{Integration benchmark: where sectoral models stop and GIM continues}
+\label{app:benchmark}
+
+The breadth-of-coupling claim (Table~\ref{tab:compare}) is made \emph{computational} here. The
+design is literature-anchored rather than an internal ablation: for each of three shocks we take a
+published conclusion from a named sectoral model, feed GIM the \emph{same} exogenous shock, and ask
+whether GIM \emph{(a)}~reproduces the sectoral first-order effect and \emph{(b)}~surfaces a
+cross-sector consequence the sectoral model cannot represent by construction. The unit of comparison
+is the \emph{decision-relevant conclusion}, not a headline number: GIM is not claimed to compute
+emissions or welfare ``better'' than DICE, but to see a consequence DICE is structurally blind to.
+Runs are deterministic (the full $57$-country world, a ten-year horizon, extreme events off, so the
+only difference between the baseline and shock arms is the injected shock); each scenario also
+reports a dose--response sweep on which the sectoral model's slope is, by construction, zero. The
+harness and figures are reproducible from the repository (Section~\ref{sec:repo}).
+
+Two methodological points are stated plainly, as they are part of the result. First, GIM's aggregate
+resource-\emph{price} subsystem saturates within one simulated year, so a purely price-mediated shock
+does not propagate forward; each shock is therefore injected at its first cross-sector transmission
+variable --- precisely the channel a sectoral model lacks (a consumer-price wedge for the carbon tax,
+an import-bill and reserve burden for the oil shock, a food-supply gap for the crop shock). Second,
+the three spillovers differ in magnitude and shape, and are reported as such rather than uniformly
+inflated.
+
+\paragraph{A. Carbon tax (anchor: DICE).} DICE-2016R \citep{nordhaus2017} finds a welfare-optimal
+carbon price (about \$31/tCO$_2$ in 2015, rising) whose only first-order effect is lower emissions; it contains no
+labour market and no political economy. Fed the same \$50/tCO$_2$ tax, GIM reproduces the emissions
+decline (about $6\%$ over ten years) and, in addition, raises social tension and lowers government
+trust as the tax's pass-through to energy prices feeds inflation and unemployment --- the
+political-economy channel behind the reversals of the French carbon/fuel tax (2018) and the
+Australian carbon price (2014). On the dose--response (Fig.~\ref{fig:bench-carbon}) the tension
+response rises monotonically with the carbon price, while DICE's response on that axis is zero.
+
+\paragraph{B. Oil price shock (anchor: energy-system models).} An energy-system model such as
+MESSAGEix resolves an oil-supply shock as a price rise and demand adjustment, bounded within the
+energy sector. GIM carries the same shock into sovereign finance: the higher import bill, financed by
+drawing reserves and issuing debt, pushes the most fiscally fragile importers across their
+debt-crisis thresholds (which agents tip is decided by the model's own debt and interest-rate
+triggers, not selected by hand). At a realistic $-20\%$ supply shock (an import burden of about $3\%$
+of GDP) the effect is marginal --- one additional importer in crisis; under a severe shock (about
+$15\%$ of GDP, comparable to the worst historical oil episodes) the mean importer debt-crisis
+duration rises about $2.7\times$ and four additional importers enter sovereign crisis
+(Fig.~\ref{fig:bench-oil}). The response is threshold-stepped, and the energy model produces no
+sovereign crises at any magnitude --- the mechanism behind episodes such as Sri Lanka's 2022 default.
+
+\paragraph{C. Crop yield shock (anchor: AgMIP/AR6).} AgMIP and IPCC~AR6 crop assessments stop at
+yield decline and a food-security (hunger) index. GIM carries the same yield loss into domestic
+instability: cutting the production and reserves of the most income-vulnerable importers opens a
+food-affordability gap that raises protest pressure, with convex (accelerating) escalation as the
+loss deepens --- the nonlinear ``crossing into high impact'' documented for food prices and the Arab
+Spring \citep{lagi2011food} (threshold FAO food-price index $210$). At a severe $50\%$ regional yield
+loss, food-affordability stress rises by about $0.09$ and protest pressure by about $0.014$ on the
+vulnerable subset (Fig.~\ref{fig:bench-crop}); the chain attenuates toward regime fragility, and the
+endpoint is domestic instability, not interstate conflict.
+
+Across the three channels (Fig.~\ref{fig:bench-summary}) GIM exhibits a positive, quantified slope on
+an axis where every sectoral model is, by construction, flat at zero. That gap --- not any single
+number --- is the integration dividend, and it is exactly the dimension the coverage table summarizes
+qualitatively.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig9_integration_summary.pdf}
+\caption{The integration dividend. Each panel is one cross-sector channel, normalized to its own
+peak; the dashed line is every sectoral model's structural zero on that axis. GIM's slope is smooth
+for the carbon$\to$society channel, threshold-stepped for the oil$\to$finance channel, and convex for
+the crop$\to$society channel.}
+\label{fig:bench-summary}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig6_integration_carbon.pdf}
+\caption{Scenario~A (carbon tax). GIM reproduces the emissions decline DICE models \emph{(left)} and
+adds the social-tension response DICE cannot represent \emph{(middle)}; the dose--response
+\emph{(right)} has a non-zero GIM slope against DICE's structural zero.}
+\label{fig:bench-carbon}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig7_integration_oil.pdf}
+\caption{Scenario~B (oil price shock). Importer sovereign-debt-crisis duration under a severe shock
+\emph{(left)}; the dose--response \emph{(right)} is threshold-stepped, marking the marginal realistic
+point and the pronounced severe point, against the energy model's flat zero.}
+\label{fig:bench-oil}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig8_integration_crop.pdf}
+\caption{Scenario~C (crop yield shock). Food-affordability stress and protest pressure on the
+vulnerable subset \emph{(left)}; the dose--response \emph{(right)} is convex against AgMIP's
+structural zero on the protest axis.}
+\label{fig:bench-crop}
+\end{figure}
 
 \clearpage
 \bibliographystyle{plainnat}
