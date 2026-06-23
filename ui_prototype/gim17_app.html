@@ -176,6 +176,7 @@ async function init(){
   document.querySelectorAll('.wfhz').forEach(function(c){c.onclick=function(){document.querySelectorAll('.wfhz').forEach(function(x){x.classList.remove('on')});c.classList.add('on');state.wfHorizon=+c.dataset.y}});
   if(state.personas[0]){state.persona=state.personas[0].id;markPersona();onSetupChange()}
   renderRecent();
+  var h=location.hash.replace('#','');var t=document.getElementById(h);if(t&&t.classList.contains('screen'))show(h);
 }
 
 function renderPersonas(){

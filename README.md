@@ -51,6 +51,34 @@ Subcommands: `world`, `question`, `game`, `hybrid`, `metrics`, `calibrate`, `bri
 Full command reference: [`COMMAND_REFERENCE.md`](COMMAND_REFERENCE.md). Run artifacts are written to
 timestamped folders under `results/` (each with a `run_manifest.json`).
 
+## Decision-maker interface & LLM agents
+
+`python3 -m gim ui` serves a clean, bilingual (RU/EN) interface organized around *what you want to
+explore* rather than CLI flags — built for decision-makers, with the full analyst panel kept one
+click away at `/legacy`.
+
+![GIM17 — four exploration modes](docs/ui_redesign/screenshots/home.png)
+
+- **Play as a country** — pick a country and a behavioral *persona*, set a one-line goal, and let the
+  model play the round against AI-driven actors.
+- **What if…** — a preset shock (Hormuz closure, Taiwan blockade, sanctions spiral, …) or a free-text
+  question; the model selects actors and template itself.
+- **Compare** — two or three runs side by side, with the key tradeoff surfaced.
+- **Expert mode** — the full panel: every lever, state CSVs, runtime flags.
+
+**LLM agents — "play as a country."** A persona is a neutral archetype (protectionist hawk, dove,
+technocrat) that *biases* the country's machine-compiled **doctrine** — a 9-dimensional vector
+(escalation, trade openness, sanctions tolerance, mediation, …) the model otherwise derives from the
+country's own state. The interface shows this honestly as a read-only **base → shift** preview, so you
+see exactly what the persona changes before running:
+
+![Play as a country — persona and live doctrine preview](docs/ui_redesign/screenshots/setup.png)
+
+During a run, each AI actor declares its posture before acting (a CICERO-style "stated intent →
+actions" feed). Doctrine compilation can use a hosted model (DeepSeek) or a local one
+(`GIM_LLM_BACKEND=ollama`); interactive runs default to a fast deterministic approximation. Design
+notes and client journeys: [`docs/ui_redesign/`](docs/ui_redesign/).
+
 ## Documentation
 
 Full index: [`docs/README.md`](docs/README.md). Key entry points:
