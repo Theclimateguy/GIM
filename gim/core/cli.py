@@ -161,7 +161,7 @@ def main() -> None:
     years = int(os.getenv("SIM_YEARS", "5"))
     enable_extreme_events = not _is_truthy(os.getenv("DISABLE_EXTREME_EVENTS"))
     save_csv_logs = _bool_env("SAVE_CSV_LOGS", default=False)
-    generate_credit_map = _bool_env("GENERATE_CREDIT_MAP", default=True)
+    generate_credit_map = _bool_env("GENERATE_CREDIT_MAP", default=False)
     run_artifacts = build_run_artifacts("world")
     print(f"Artifacts directory: {run_artifacts.run_dir}")
     print(f"\nRunning {years}-year simulation...")

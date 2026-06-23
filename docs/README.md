@@ -7,7 +7,6 @@ notes have been moved out of the repository to keep it clean.)
 
 - [`MODEL_LAYERS.md`](MODEL_LAYERS.md) — plain-language tour of every layer: what it does + limits.
 - [`ROADMAP.md`](ROADMAP.md) — current standing, real limitations, and the priority order for next work.
-- [`FINALIZATION_REPORT.md`](FINALIZATION_REPORT.md) — version-17 finalization summary across all layers.
 
 ## Specification & methodology
 

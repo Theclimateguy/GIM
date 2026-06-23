@@ -44,3 +44,22 @@ paper/*.blg
 paper/*.bbl
 paper/*.out
 paper/*.toc
+paper/figures/*.aux
+paper/figures/*.log
+
+# Removed from version control for a cleaner remote, but kept on local disk:
+#   - misc/assets/credit_map: dead duplicate of vendor/leaflet + data/world_countries.geojson
+#   - process/meta docs not part of the published academic artifact
+misc/assets/
+paper/REVISION_PLAN.md
+docs/FINALIZATION_REPORT.md
+
+# Paper scratch screenshots / review markups (not part of the paper; keep fig2-fig5 sources)
+paper/chk-*.png
+paper/vchk-*.png
+paper/nv-*.png
+paper/pg-*.png
+paper/hi-*.png
+paper/sec-*.png
+paper/figures/fig1_test.*
+paper/figures/fig1_prev*.png

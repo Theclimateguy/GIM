@@ -87,7 +87,6 @@ Full index: [`docs/README.md`](docs/README.md). Key entry points:
 - Where it stands / next steps — [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - Model specification & methodology — [`docs/GIM17_UNIFIED_MODEL_SPEC.md`](docs/GIM17_UNIFIED_MODEL_SPEC.md), [`docs/MODEL_METHODOLOGY.md`](docs/MODEL_METHODOLOGY.md)
 - Calibration ledger — [`docs/CALIBRATION_REFERENCE.md`](docs/CALIBRATION_REFERENCE.md)
-- Finalization summary — [`docs/FINALIZATION_REPORT.md`](docs/FINALIZATION_REPORT.md)
 
 ## Tests
 
@@ -109,5 +108,4 @@ accounting/integrity invariants; deterministic reproducible runs; full uncertain
 (evidence-based priors, Monte-Carlo ensembles, sensitivity analysis, history matching, skill
 scoring); an objective, fully-closed economic core (nested-CES production + market clearing + closed
 SFC bank balance sheet + SSP2 forward growth); a weak-signal detection module; and the version-17
-finalization across all layers. See [`CHANGELOG.md`](CHANGELOG.md) and
-`docs/FINALIZATION_REPORT.md`.
+finalization across all layers. See [`CHANGELOG.md`](CHANGELOG.md).
