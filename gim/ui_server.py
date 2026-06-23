@@ -17,8 +17,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
+from .persona import augment_intent, get_persona, list_personas
+
 ROOT = Path(__file__).resolve().parents[1]
 UI_HTML = ROOT / "ui_prototype" / "gim17_dashboard_prototype.html"
+APP_HTML = ROOT / "ui_prototype" / "gim17_app.html"
 RESULTS_DIR = ROOT / "results"
 DATA_DIR = ROOT / "data"
 DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational_2026_calibrated.csv"
@@ -934,6 +937,193 @@ def _build_cli_from_payload(payload: dict[str, Any]) -> list[str]:
     return args
 
 
+_WORLD_CACHE: dict[tuple[str, int, int], Any] = {}
+
+
+def _load_world_cached(state_csv: str | None, state_year: int | None, max_agents: int | None):
+    from .runtime import load_world
+
+    key = (state_csv or "", int(state_year or 0), int(max_agents or 0))
+    world = _WORLD_CACHE.get(key)
+    if world is None:
+        world = load_world(state_csv=state_csv, max_agents=max_agents, state_year=state_year)
+        _WORLD_CACHE[key] = world
+    return world
+
+
+def _personas_payload() -> dict[str, Any]:
+    return {"personas": [persona.to_payload() for persona in list_personas()]}
+
+
+def _doctrine_preview_payload(
+    persona_id: str,
+    country: str,
+    state_csv: str | None,
+    state_year: int | None,
+    max_agents: int = 24,
+) -> tuple[dict[str, Any], int]:
+    from .compiled_policy import CompiledLLMPolicyManager
+    from .core.observation import build_observation
+    from .scenario_compiler import resolve_actor_names
+
+    persona = get_persona(persona_id)
+    if persona is None:
+        return {"error": f"unknown persona: {persona_id}"}, 404
+    world = _load_world_cached(state_csv, state_year, max_agents)
+    actor_ids, actor_names, _unresolved = resolve_actor_names(world, [country])
+    if not actor_ids:
+        return {"error": f"unknown country: {country}"}, 400
+    agent_id = actor_ids[0]
+    obs = build_observation(world, agent_id)
+    preview = CompiledLLMPolicyManager(prefer_llm=False).doctrine_preview(agent_id, obs, persona)
+    preview["country"] = actor_names[0] if actor_names else country
+    preview["persona"] = persona.to_payload()
+    return preview, 200
+
+
+def _apply_personas_to_payload(payload: dict[str, Any]) -> None:
+    """Fold per-actor persona archetypes into the intent text (server-side bias)."""
+    personas = payload.get("persona") or payload.get("personas")
+    if not isinstance(personas, dict):
+        return
+    raw_intents = payload.get("intents", payload.get("intent"))
+    intents: dict[str, str] = {}
+    if isinstance(raw_intents, dict):
+        intents = {str(k): str(v) for k, v in raw_intents.items()}
+    elif isinstance(raw_intents, (list, tuple)):
+        for item in raw_intents:
+            text = str(item)
+            if "=" in text:
+                actor, value = text.split("=", 1)
+                intents[actor.strip()] = value.strip()
+    for actor, archetype in personas.items():
+        persona = get_persona(str(archetype))
+        if persona is None:
+            continue
+        intents[str(actor)] = augment_intent(intents.get(str(actor), ""), persona)
+    if intents:
+        payload["intents"] = [f"{actor}={text}" for actor, text in intents.items()]
+
+
+def _summarize_actions(year_actions: Any) -> list[str]:
+    """Condense an agent's per-year effective actions into short chips."""
+    chips: list[str] = []
+    seen: set[str] = set()
+
+    def add(chip: str) -> None:
+        if chip and chip not in seen:
+            seen.add(chip)
+            chips.append(chip)
+
+    for year in year_actions or []:
+        if not isinstance(year, dict):
+            continue
+        foreign = year.get("foreign_policy", {}) or {}
+        for sanction in foreign.get("sanctions_actions", []) or []:
+            if str(sanction.get("type", "none")) not in ("none", ""):
+                add(f"sanctions→{sanction.get('target') or '?'}")
+        for restriction in foreign.get("trade_restrictions", []) or []:
+            if str(restriction.get("level", "none")) not in ("none", ""):
+                add(f"trade_restrict→{restriction.get('target') or '?'}")
+        security = foreign.get("security_actions", {}) or {}
+        if str(security.get("type", "none")) not in ("none", ""):
+            add(f"{security.get('type')}→{security.get('target') or '?'}")
+        for deal in foreign.get("proposed_trade_deals", []) or []:
+            add(f"trade_deal→{deal.get('partner') or '?'}")
+        domestic = year.get("domestic_policy", {}) or {}
+        try:
+            if float(domestic.get("military_spending_change", 0) or 0) > 0.004:
+                add("military_spend↑")
+            if float(domestic.get("tax_fuel_change", 0) or 0) > 0.05:
+                add("fuel_tax↑")
+            if float(domestic.get("rd_investment_change", 0) or 0) > 0.003:
+                add("rd_investment↑")
+        except (TypeError, ValueError):
+            pass
+    return chips[:6]
+
+
+def _intents_feed_payload(hybrid_result_path: Path) -> dict[str, Any]:
+    """Build a CICERO-style declared-posture → actions feed from a hybrid run."""
+    try:
+        data = json.loads(hybrid_result_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {"feed": []}
+    hybrid = data.get("hybrid_result", data)
+    if not isinstance(hybrid, dict):
+        return {"feed": []}
+    effective = hybrid.get("effective_actions_by_agent", {})
+    feed: list[dict[str, Any]] = []
+    for intent in hybrid.get("intents", []) or []:
+        agent_id = intent.get("agent_id")
+        feed.append(
+            {
+                "agent_id": agent_id,
+                "agent_name": intent.get("agent_name", agent_id),
+                "posture": intent.get("raw_text", ""),
+                "tags": list(intent.get("matched_topics", []) or []),
+                "intensity": intent.get("intensity", ""),
+                "actions": _summarize_actions(effective.get(agent_id, []) if isinstance(effective, dict) else []),
+            }
+        )
+    return {"feed": feed}
+
+
+def _analytics_for_run_id(run_id: str) -> dict[str, Any] | None:
+    """Resolve a run's analytics payload by live run id or by results/ dir name."""
+    with RUNS_LOCK:
+        run = RUNS.get(run_id)
+    if run is not None and run.manifest_path:
+        try:
+            return _analytics_payload_from_manifest_path(_safe_join(ROOT, run.manifest_path))
+        except Exception:
+            pass
+    run_dir = (RESULTS_DIR / run_id).resolve()
+    if run_dir.is_dir() and _is_within_root(run_dir):
+        manifest = run_dir / "run_manifest.json"
+        if manifest.exists():
+            return _analytics_payload_from_manifest_path(manifest)
+        evaluation = run_dir / "evaluation.json"
+        if evaluation.exists():
+            return _analytics_payload_from_evaluation_path(evaluation, run_id=run_id)
+    return None
+
+
+def _compare_payload(run_ids: list[str]) -> dict[str, Any]:
+    """Compare 2-3 runs: per-run summary + criticality/outcome deltas vs the first."""
+    runs: list[dict[str, Any]] = []
+    for run_id in run_ids[:3]:
+        analytics = _analytics_for_run_id(run_id)
+        if analytics is None:
+            continue
+        runs.append(
+            {
+                "run_id": run_id,
+                "criticality": float(analytics.get("criticality", 0.0)),
+                "scenario_distribution": analytics.get("scenario_distribution", []),
+                "brief_drivers": analytics.get("brief_drivers", []),
+                "summary": analytics.get("summary", ""),
+            }
+        )
+
+    diff: dict[str, Any] = {}
+    if len(runs) >= 2:
+        first, second = runs[0], runs[1]
+        base = {o["name"]: float(o.get("value", 0.0)) for o in first["scenario_distribution"]}
+        other = {o["name"]: float(o.get("value", 0.0)) for o in second["scenario_distribution"]}
+        names = set(base) | set(other)
+        outcome_deltas = sorted(
+            ({"name": n, "delta": round(other.get(n, 0.0) - base.get(n, 0.0), 3)} for n in names),
+            key=lambda item: abs(item["delta"]),
+            reverse=True,
+        )[:5]
+        diff = {
+            "criticality_delta": round(second["criticality"] - first["criticality"], 3),
+            "outcome_deltas": outcome_deltas,
+        }
+    return {"runs": runs, "diff": diff}
+
+
 class UIHandler(BaseHTTPRequestHandler):
     server_version = "GIM17UI/1.0"
 
@@ -971,6 +1161,10 @@ class UIHandler(BaseHTTPRequestHandler):
         query = parse_qs(parsed.query)
 
         if path == "/":
+            self._send_file(APP_HTML if APP_HTML.exists() else UI_HTML)
+            return
+
+        if path in ("/legacy", "/expert"):
             self._send_file(UI_HTML)
             return
 
@@ -988,6 +1182,26 @@ class UIHandler(BaseHTTPRequestHandler):
                 self._send_json(_list_actor_options(raw_state_csv or None))
             except ValueError:
                 self._send_json({"error": "invalid state csv"}, status=400)
+            return
+
+        if path == "/api/personas":
+            self._send_json(_personas_payload())
+            return
+
+        if path.startswith("/api/personas/") and path.endswith("/doctrine"):
+            persona_id = path[len("/api/personas/") : -len("/doctrine")]
+            country = query.get("country", [""])[0].strip()
+            state_csv = query.get("state_csv", [""])[0].strip() or None
+            raw_year = query.get("state_year", [""])[0].strip()
+            state_year = int(raw_year) if raw_year.isdigit() else None
+            if not country:
+                self._send_json({"error": "country query param is required"}, status=400)
+                return
+            try:
+                payload, status = _doctrine_preview_payload(persona_id, country, state_csv, state_year)
+                self._send_json(payload, status=status)
+            except Exception as exc:  # noqa: BLE001
+                self._send_json({"error": str(exc)}, status=500)
             return
 
         if path == "/docs/view":
@@ -1013,6 +1227,15 @@ class UIHandler(BaseHTTPRequestHandler):
 
         if path == "/api/analytics/latest":
             self._send_json(_latest_analytics_payload())
+            return
+
+        if path == "/api/compare":
+            raw = query.get("runs", [""])[0]
+            run_ids = [r.strip() for r in raw.split(",") if r.strip()]
+            if len(run_ids) < 2:
+                self._send_json({"error": "provide at least two run ids via ?runs=a,b"}, status=400)
+                return
+            self._send_json(_compare_payload(run_ids))
             return
 
         if path.startswith("/api/run/"):
@@ -1073,6 +1296,14 @@ class UIHandler(BaseHTTPRequestHandler):
                         )
                     )
                 return
+            if action == "intents":
+                rel = run.artifacts.get("hybrid_result.json") if run.artifacts else None
+                target = _safe_join(ROOT, rel) if rel else None
+                if target is not None and target.exists():
+                    self._send_json(_intents_feed_payload(target))
+                else:
+                    self._send_json({"feed": []})
+                return
             self._send_text("Not found", status=404)
             return
 
@@ -1095,6 +1326,7 @@ class UIHandler(BaseHTTPRequestHandler):
             content_len = int(self.headers.get("Content-Length", "0"))
             body = self.rfile.read(content_len) if content_len > 0 else b"{}"
             payload = json.loads(body.decode("utf-8"))
+            _apply_personas_to_payload(payload)
 
             run_id = f"run-{uuid.uuid4().hex[:10]}"
             run = RunState(run_id=run_id)

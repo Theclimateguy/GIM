@@ -237,6 +237,11 @@ Primary UI-backed endpoints:
 - `GET /api/run/<id>/analytics`
 - `GET /api/analytics/latest`
 - `GET /api/download?path=...`
+- `GET /api/personas` (persona archetype catalog)
+- `GET /api/personas/<id>/doctrine?country=...&state_year=...` (base→shift doctrine preview)
+- `GET /api/run/<id>/intents` (declared-posture → actions feed for hybrid runs)
+
+`gim ui` serves the decision-maker app (`ui_prototype/gim17_app.html`) at `/`; the legacy analyst panel stays at `/legacy`. Persona archetypes (`gim/persona.py`) bias compiled doctrine; a local LLM backend is available via `GIM_LLM_BACKEND=ollama` + `OLLAMA_MODEL`.
 
 ## Artifacts and Paths
 

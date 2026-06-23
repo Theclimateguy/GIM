@@ -175,3 +175,35 @@ Regression coverage for the UI layer lives in:
 Baseline smoke coverage still runs through:
 
 - `tests/test_smoke.py`
+
+Persona / decision-maker UI endpoints:
+
+- `tests/test_ui_personas.py`
+
+## Decision-maker app (v1)
+
+`python3 -m gim ui` now serves the redesigned decision-maker interface
+(`ui_prototype/gim17_app.html`) at `/`; the legacy analyst dashboard remains at
+`/legacy` (also `/expert`). The app is organized around journeys, not commands:
+
+- Play as a country — pick a country + a neutral persona archetype (hawk /
+  dove / technocrat), see a read-only `base → shift` doctrine preview, set a
+  goal, run.
+- What if… — preset shocks (`question --template`) or a free-text question
+  (`question --question`).
+- Compare — last two completed runs side by side (client-side v1).
+- Expert mode — the legacy full panel.
+
+New API routes:
+
+- `GET /api/personas` — persona archetype catalog (bilingual labels + nudges).
+- `GET /api/personas/<id>/doctrine?country=...&state_year=...` — base vs
+  persona-shifted doctrine preview for a country (heuristic, instant).
+- `POST /api/run` accepts `persona: {ACTOR: archetype_id}`; the server folds the
+  archetype's keyword leaning into that actor's intent text (persona bias).
+
+Persona model: `gim/persona.py` (archetypes) biases doctrine compilation in
+`gim/compiled_policy.py` (`CompiledLLMPolicyManager.set_persona` /
+`doctrine_preview`). A local LLM backend is available for the doctrine path via
+`GIM_LLM_BACKEND=ollama` + `OLLAMA_MODEL` (see `gim/core/policy.py`); UI runs
+default to the fast heuristic doctrine.

@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass, replace
 from itertools import product
-from typing import Callable
+from typing import Callable, Mapping
 
 from .core.core import (
     Action,
@@ -21,6 +21,7 @@ from .core.policy import make_policy_map
 from .core.simulation import step_world
 
 from .compiled_policy import CompiledLLMPolicyManager
+from .persona import Persona
 from .crisis_metrics import CrisisDashboard, CrisisMetricsEngine
 from .game_runner import ACTION_RISK_SHIFTS, GameRunner
 from .types import GameCombinationResult, GameDefinition, GameResult, ScenarioDefinition, ScenarioEvaluation
@@ -299,20 +300,28 @@ class SimBridge:
         selected_actions: dict[str, str] | None = None,
         llm_refresh: str = "trigger",
         llm_refresh_years: int = 2,
+        personas: Mapping[str, Persona] | None = None,
     ) -> dict[str, Callable[..., Action]]:
         """
         For each agent in world:
         - if agent is a named player in selected_actions: inject a deterministic forced action policy
         - else: assign the requested autonomous mode via the legacy policy map
+
+        When ``default_mode`` is ``compiled-llm``, any persona in ``personas`` biases
+        that agent's compiled doctrine (see ``CompiledLLMPolicyManager.set_persona``).
         """
 
         self.validate_action_mapping()
         if default_mode == "compiled-llm":
+            manager = self._compiled_policy_manager(
+                refresh_mode=llm_refresh,
+                refresh_years=llm_refresh_years,
+            )
+            for agent_id, persona in (personas or {}).items():
+                if agent_id in world.agents:
+                    manager.set_persona(agent_id, persona)
             policy_map = {
-                agent_id: self._compiled_policy_manager(
-                    refresh_mode=llm_refresh,
-                    refresh_years=llm_refresh_years,
-                ).policy_for_agent(agent_id)
+                agent_id: manager.policy_for_agent(agent_id)
                 for agent_id in world.agents
             }
         else:

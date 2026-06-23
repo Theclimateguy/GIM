@@ -26,6 +26,19 @@ except ImportError:
 DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
 DEEPSEEK_MODEL = "deepseek-chat"
 
+OLLAMA_DEFAULT_URL = "http://localhost:11434"
+OLLAMA_DEFAULT_MODEL = "qwen2.5-coder:7b"
+
+
+def _llm_backend() -> str:
+    """Resolve the active LLM backend: 'deepseek' (default) or 'ollama' (local)."""
+    backend = (os.getenv("GIM_LLM_BACKEND") or "").strip().lower()
+    if backend in {"ollama", "deepseek"}:
+        return backend
+    if os.getenv("OLLAMA_MODEL"):
+        return "ollama"
+    return "deepseek"
+
 
 def _is_truthy(value: Optional[str]) -> bool:
     if value is None:
@@ -59,17 +72,16 @@ def llm_enablement_status(mode: str = "auto") -> tuple[bool, str]:
         return False, "POLICY_MODE=simple"
     if normalized == "growth":
         return False, "POLICY_MODE=growth"
-    if normalized == "llm":
-        if not REQUESTS_AVAILABLE:
-            return False, "requests library not available"
-        if not bool(os.getenv("DEEPSEEK_API_KEY")):
-            return False, "DEEPSEEK_API_KEY missing"
-        return True, "POLICY_MODE=llm and prerequisites satisfied"
-
     if not REQUESTS_AVAILABLE:
         return False, "requests library not available"
+
+    if _llm_backend() == "ollama":
+        return True, f"ollama backend ({os.getenv('OLLAMA_MODEL', OLLAMA_DEFAULT_MODEL)})"
+
     if not bool(os.getenv("DEEPSEEK_API_KEY")):
         return False, "DEEPSEEK_API_KEY missing"
+    if normalized == "llm":
+        return True, "POLICY_MODE=llm and prerequisites satisfied"
     return True, "auto mode detected LLM prerequisites"
 
 
@@ -149,9 +161,32 @@ def _normalize_action_for_stability(action: Action) -> Action:
     return action
 
 
+def _call_ollama(prompt: str) -> str:
+    base = (os.getenv("OLLAMA_BASE_URL") or OLLAMA_DEFAULT_URL).rstrip("/")
+    model = os.getenv("OLLAMA_MODEL") or OLLAMA_DEFAULT_MODEL
+    timeout_sec = float(os.getenv("LLM_TIMEOUT_SEC", "120"))
+    temperature = _clamp_float(os.getenv("LLM_TEMPERATURE", "0.4"), 0.0, 1.0, default=0.4)
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "You are a policy decision engine that outputs ONLY JSON."},
+            {"role": "user", "content": prompt},
+        ],
+        "stream": False,
+        "format": "json",
+        "options": {"temperature": temperature},
+    }
+    response = requests.post(f"{base}/api/chat", json=payload, timeout=timeout_sec)
+    response.raise_for_status()
+    data = response.json()
+    return str(data.get("message", {}).get("content", "")).strip()
+
+
 def call_llm(prompt: str) -> str:
     if not REQUESTS_AVAILABLE:
         raise RuntimeError("requests library is required for llm_policy")
+    if _llm_backend() == "ollama":
+        return _call_ollama(prompt)
     deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
     if not deepseek_api_key:
         raise RuntimeError("DEEPSEEK_API_KEY environment variable is not set")

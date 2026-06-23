@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GIM17 — redesign prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--surface:#13171d;--surface2:#0e131a;--line:#2b323b;--text:#edf1f5;
+  --muted:#8b97a4;--dim:#56606c;--accent:#4f8cff;--accent2:#2663d2;--accent-br:#3f82f8;
+  --good:#44c878;--warn:#ffbc52;--bad:#ff6c6c;--r:8px;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1300px 780px at 74% -22%,#191f28 0%,var(--bg) 48%),var(--bg);
+  color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px 60px}
+header.top{position:sticky;top:0;z-index:9;background:#101419;border-bottom:1px solid var(--line)}
+.top-in{max-width:1060px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:11px}
+.brand b{font-family:var(--mono);font-weight:500;font-size:15px;color:#fff}
+.brand span{font-size:13px;color:var(--muted)}
+.top-r{display:flex;align-items:center;gap:14px}
+.homebtn{font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px}
+.homebtn:hover{color:#fff}
+.lang{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;font-size:11px;font-family:var(--mono);cursor:pointer}
+.lang span{padding:4px 9px;color:var(--muted)}
+.lang span.on{background:#16202b;color:#fff}
+.screen{display:none;padding-top:24px}
+.screen.on{display:block}
+h1.title{font-size:20px;font-weight:500;color:#fff;margin:0 0 3px}
+.sub{font-size:13px;color:var(--muted);margin:0 0 20px}
+.lab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin:0 0 12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.tracebar{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding:12px 16px;background:#101419;border:1px solid var(--line);border-radius:10px}
+.trace{font-size:11px;color:var(--dim);font-family:var(--mono)}
+.btn{background:var(--accent2);border:1px solid var(--accent-br);color:#fff;padding:10px 20px;border-radius:var(--r);
+  font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:inherit}
+.btn:hover{background:#2f72e6}
+.btn.ghost{background:transparent;border-color:var(--line);color:#cdd7e3}
+.btn.ghost:hover{background:#16202b}
+.chip{font-size:12px;padding:7px 13px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:#cdd7e3;cursor:pointer}
+.chip.on{border-color:var(--accent);color:#fff;background:#16202b}
+.cc{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;
+  background:#161b22;border:1px solid var(--line);color:#cdd7e3;cursor:pointer}
+.cc.on{border-color:var(--accent);color:#fff;background:#16202b;box-shadow:0 0 0 2px rgba(79,140,255,.25)}
+.cclab{font-size:11px;color:var(--muted);margin-top:5px;text-align:center}
+.cclab.on{color:#cdd7e3}
+.pc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}
+.pc.on{border-color:var(--accent);background:#141c27}
+.pc.feat{border:2px solid var(--accent-br)}
+.pc:hover{border-color:#3e4f63}
+.trk{position:relative;height:8px;border-radius:4px;background:#222a35;overflow:hidden}
+.trk>i{position:absolute;left:0;top:0;height:100%;background:var(--accent);border-radius:4px}
+.trk>b{position:absolute;top:0;width:2px;height:100%;background:var(--muted)}
+.dlt{font-size:11px;font-family:var(--mono);color:var(--muted)}
+.orow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.oname{font-size:12px;color:#cdd7e3}
+.otrk{flex:1;height:9px;border-radius:4px;background:#1a212b;overflow:hidden}
+.otrk>i{display:block;height:100%;border-radius:4px}
+.opct{width:36px;text-align:right;font-size:12px;font-family:var(--mono);color:#aeb9c5}
+.ring{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:500}
+.ph{font-size:11px;padding:5px 10px;border-radius:7px;background:#11161c;border:1px solid #232b35;color:#6f7b88;white-space:nowrap}
+.ph.done{color:var(--good);border-color:#1f3a2a}
+.ph.now{color:#fff;border-color:var(--accent-br);background:#16202b}
+.act{font-size:11px;padding:3px 8px;border-radius:6px;background:#11161c;border:1px solid #232b35;color:#aeb9c5;font-family:var(--mono)}
+.mini{background:var(--surface);border:1px solid #232b35;border-radius:10px;padding:11px 13px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.note{font-size:12px;color:var(--muted)}
+.robot{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.qin{width:100%;background:#0c1117;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:13px;color:#e6edf3;font-family:inherit}
+.qin:focus{outline:none;border-color:var(--accent)}
+.qin::placeholder{color:#5c6773}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Interactive prototype of the redesigned GIM17 decision-maker interface</h2>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><b>GIM17</b><span data-en="Global integrated model">Глобальная интегрированная модель</span></div>
+    <div class="top-r">
+      <span class="homebtn" data-go="home"><i class="ti ti-home"></i><span data-en="Home">Главная</span></span>
+      <div class="lang" id="lang"><span class="on" data-l="ru">RU</span><span data-l="en">EN</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- HOME -->
+<section class="screen on" id="home">
+  <h1 class="title" data-en="What do you want to explore?">Что хотите исследовать?</h1>
+  <p class="sub" data-en="Pick a mode — model settings assemble themselves.">Выберите режим — настройки модели соберутся сами.</p>
+  <div class="grid2">
+    <div class="pc feat" data-go="setup">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-user-shield" style="font-size:21px;color:var(--accent)"></i><span style="font-size:15px;font-weight:500;color:#fff" data-en="Play as a country">Играть за страну</span></div>
+      <div class="note" data-en="Take a country and a persona, set a goal — the model plays the round against AI actors.">Возьмите страну и персону, задайте цель — модель сыграет партию против ИИ-акторов.</div>
+      <div class="trace" style="margin-top:10px">gim hybrid · persona-bias</div>
+    </div>
+    <div class="pc" data-go="whatif">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-bolt" style="font-size:21px;color:var(--warn)"></i><span style="font-size:15px;font-weight:500;color:#fff" data-en="What if…">Что если…</span></div>
+      <div class="note" data-en="Ready-made shocks: Hormuz, Taiwan, sanctions spiral. One knob — and a result.">Готовые шоки: Ормуз, Тайвань, санкционная спираль. Одна ручка — и результат.</div>
+      <div class="trace" style="margin-top:10px">gim question · template</div>
+    </div>
+    <div class="pc" data-go="compare">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-arrows-split" style="font-size:21px;color:var(--good)"></i><span style="font-size:15px;font-weight:500;color:#fff" data-en="Compare">Сравнить</span></div>
+      <div class="note" data-en="Two or three runs side by side: personas or policies of one country — outcomes and risks.">Два-три прогона рядом: персоны или политики одной страны — исходы и риски.</div>
+      <div class="trace" style="margin-top:10px">2–3 runs · diff</div>
+    </div>
+    <div class="pc" id="proCard">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-adjustments" style="font-size:21px;color:var(--muted)"></i><span style="font-size:15px;font-weight:500;color:#cdd7e3" data-en="Expert mode">Экспертный режим</span></div>
+      <div class="note" data-en="Full panel: every lever, state CSVs, runtime flags. For the analyst, not the decision-maker.">Полный пульт: все рычаги, CSV состояний, флаги рантайма. Для аналитика, не для ЛПР.</div>
+      <div class="trace" style="margin-top:10px">gim question|game|hybrid · all flags</div>
+    </div>
+  </div>
+  <div style="margin-top:22px">
+    <p class="lab" data-en="Recent runs">Недавние прогоны</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="chip" data-go="result"><i class="ti ti-history" style="font-size:13px"></i> США·Ястреб·5л — крит 0.62</span>
+      <span class="chip"><i class="ti ti-history" style="font-size:13px"></i> Ормуз закрыт·3л — крит 0.81</span>
+      <span class="chip"><i class="ti ti-history" style="font-size:13px"></i> Иран·Голубь·5л — крит 0.34</span>
+    </div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section class="screen" id="setup">
+  <h1 class="title" data-en="Play as a country">Играть за страну</h1>
+  <p class="sub" data-en="Country → persona → goal. The persona biases the model-compiled doctrine.">Страна → персона → цель. Персона смещает доктрину, которую выводит модель.</p>
+  <div class="grid2" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <p class="lab" data-en="Who you play">За кого играем</p>
+        <div style="display:flex;gap:11px;flex-wrap:wrap">
+          <div><div class="cc on">US</div><div class="cclab on">США</div></div>
+          <div><div class="cc">CN</div><div class="cclab">Китай</div></div>
+          <div><div class="cc">RU</div><div class="cclab">Россия</div></div>
+          <div><div class="cc">IR</div><div class="cclab">Иран</div></div>
+          <div><div class="cc">IL</div><div class="cclab">Израиль</div></div>
+          <div><div class="cc"><i class="ti ti-search"></i></div><div class="cclab" data-en="Search">Поиск</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="lab" data-en="Persona — behavioral archetype">Персона — поведенческий архетип</p>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="pc on"><div style="display:flex;align-items:center;gap:8px"><i class="ti ti-flame" style="font-size:17px;color:var(--warn)"></i><span style="font-size:13px;font-weight:500;color:#fff">Ястреб-протекционист</span><span class="note" style="margin-left:auto" data-en="tariffs, pressure, deals">тарифы, давление, сделки</span></div></div>
+          <div class="pc"><div style="display:flex;align-items:center;gap:8px"><i class="ti ti-feather" style="font-size:17px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Голубь</span><span class="note" style="margin-left:auto" data-en="de-escalation">деэскалация</span></div></div>
+          <div class="pc"><div style="display:flex;align-items:center;gap:8px"><i class="ti ti-cpu" style="font-size:17px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Технократ</span><span class="note" style="margin-left:auto" data-en="calculation, no ideology">расчёт, без идеологии</span></div></div>
+          <div class="pc"><div style="display:flex;align-items:center;gap:8px;color:var(--muted)"><i class="ti ti-plus" style="font-size:16px"></i><span style="font-size:12px" data-en="Custom">Своя</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="lab" data-en="Goal and horizon">Цель на горизонт</p>
+        <div style="background:#0c1117;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:13px;color:#e6edf3;margin-bottom:12px">Дожать Китай по торговле, без прямой военной эскалации</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="note" data-en="Horizon:">Горизонт:</span>
+          <span class="chip">2 года</span><span class="chip on">5 лет</span><span class="chip">10 лет</span>
+          <span class="robot" style="margin-left:auto"><i class="ti ti-robot" style="font-size:15px;color:var(--accent)"></i><span data-en="12 countries — AI autopilot">12 стран — ИИ-автопилот</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--surface2)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <p class="lab" style="margin:0" data-en="Doctrine profile — how the model unfolds the persona for the USA">Профиль доктрины — как модель развернёт персону за США</p>
+      </div>
+      <div style="font-size:11px;color:var(--dim);font-family:var(--mono);margin:6px 0 12px"><i class="ti ti-lock" style="font-size:12px;vertical-align:-1px"></i> read-only · base → shift</div>
+      <div style="font-size:11px;color:#6f7b88;margin-bottom:14px;display:flex;align-items:center;gap:16px">
+        <span><b style="display:inline-block;width:14px;height:2px;background:var(--muted);vertical-align:middle"></b> <span data-en="country base">база страны</span></span>
+        <span><b style="display:inline-block;width:14px;height:8px;background:var(--accent);border-radius:2px;vertical-align:middle"></b> <span data-en="with persona shift">со сдвигом</span></span>
+      </div>
+      <div id="docrows" style="display:flex;flex-direction:column;gap:13px"></div>
+      <div style="margin-top:16px">
+        <p class="lab" data-en="Persona opening declaration (biases the doctrine compilation)">Установочная декларация персоны <span style="text-transform:none;letter-spacing:0;color:var(--dim)">(смещает компиляцию)</span></p>
+        <div style="background:#0c1117;border:1px solid var(--line);border-radius:var(--r);padding:9px 11px;font-size:12px;color:#aeb9c5;line-height:1.5">«America First». Рычаги — тарифы и двусторонние сделки, а не альянсы. Скептичен к многосторонним институтам, предпочитает прямой торг лидеров.</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--dim);display:flex;align-items:center;gap:6px"><i class="ti ti-chevron-right" style="font-size:13px"></i><span data-en="Advanced: raw system prompt, rules, secret goals">Advanced: сырой системный промпт, правила, секретные цели</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tracebar">
+    <span class="trace">hybrid · США=персона (bias) · фон=compiled-llm</span>
+    <button class="btn" data-go="running"><span data-en="Run">Запустить прогон</span><i class="ti ti-player-play" style="font-size:15px"></i></button>
+  </div>
+</section>
+
+<!-- WHAT-IF -->
+<section class="screen" id="whatif">
+  <h1 class="title" data-en="A ready-made shock — and a result right away">Готовый шок — и сразу результат</h1>
+  <p class="sub" data-en="Pick a scenario. Actors and template are chosen automatically.">Выберите сценарий. Акторы и шаблон подберутся сами.</p>
+  <div class="grid3">
+    <div class="pc feat"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><i class="ti ti-anchor" style="font-size:18px;color:var(--warn)"></i><span style="font-size:13px;font-weight:500;color:#fff">Ормуз закрыт</span></div><div class="note" data-en="Iran closes the strait">Иран перекрывает пролив</div><div class="trace" style="margin-top:9px">maritime_deterrence</div></div>
+    <div class="pc"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><i class="ti ti-ship" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Блокада Тайваня</span></div><div class="note" data-en="PRC maritime pressure">Морское давление КНР</div><div class="trace" style="margin-top:9px">regional_pressure</div></div>
+    <div class="pc"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><i class="ti ti-ban" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Санкц. спираль</span></div><div class="note" data-en="Escalating restrictions">Эскалация ограничений</div><div class="trace" style="margin-top:9px">sanctions_spiral</div></div>
+    <div class="pc"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><i class="ti ti-network" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Кибер-сбой</span></div><div class="note" data-en="Infrastructure attack">Атака на инфраструктуру</div><div class="trace" style="margin-top:9px">cyber_disruption</div></div>
+    <div class="pc"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><i class="ti ti-businessplan" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Торговая война</span></div><div class="note" data-en="Tariffs and countermeasures">Тарифы и контрмеры</div><div class="trace" style="margin-top:9px">trade_war</div></div>
+    <div class="pc"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><i class="ti ti-target" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">Рег. давление</span></div><div class="note" data-en="Proxies and escalation">Прокси и эскалация</div><div class="trace" style="margin-top:9px">regional_pressure</div></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <p class="lab" data-en="…or ask your own question">…или задайте свой вопрос</p>
+    <input id="wf-q" class="qin" placeholder="Например: как закрытие Ормуза скажется на ценах на нефть и на США за 3 года?">
+    <div class="note" style="margin-top:8px" data-en="Free-text scenario → the model compiles actors and template itself.">Свободный сценарий → модель сама подберёт акторов и шаблон.</div>
+  </div>
+  <div class="card" style="background:var(--surface2);margin-top:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between"><p class="lab" style="margin:0" data-en="Shock intensity">Интенсивность шока</p><span style="font-size:12px;font-family:var(--mono);color:var(--warn)"><span data-en="hard">жёсткий</span> · 0.7</span></div>
+    <div style="position:relative;height:6px;border-radius:3px;background:#222a35;margin:14px 4px 6px">
+      <div style="position:absolute;left:0;top:0;height:100%;width:68%;background:var(--warn);border-radius:3px"></div>
+      <div style="position:absolute;left:68%;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--warn)"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:14px"><span data-en="Soft">Мягкий</span><span data-en="Hard">Жёсткий</span></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="robot"><i class="ti ti-robot" style="font-size:14px;color:var(--accent)"></i><span data-en="Actors (auto):">Акторы (авто):</span></span>
+      <span class="act">Иран</span><span class="act">США</span><span class="act">Саудовская Аравия</span><span class="act">Израиль</span><span class="act">рынок нефти</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px"><span class="note" data-en="Horizon:">Горизонт:</span><span class="chip on">3 года</span><span class="chip">5 лет</span></div>
+  </div>
+  <div class="tracebar">
+    <span class="trace" id="wf-trace">gim question --template maritime_deterrence --sim</span>
+    <button class="btn" data-go="running"><span data-en="Run">Запустить</span><i class="ti ti-player-play" style="font-size:15px"></i></button>
+  </div>
+</section>
+
+<!-- RUNNING -->
+<section class="screen" id="running">
+  <h1 class="title"><span data-en="Run">Прогон</span> · США «Ястреб» · 5 <span data-en="yr">лет</span></h1>
+  <p class="sub" data-en="Live phases and each actor's declared posture before it acts.">Живые фазы и задекларированная позиция каждого актора перед ходом.</p>
+  <div class="card">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+      <span style="font-size:15px;color:#fff;font-weight:500"><span data-en="Year">Год</span> <span id="ryear">3</span> <span data-en="of">из</span> 5</span>
+      <span style="font-size:12px;font-family:var(--mono);color:var(--muted)" id="rpct">61%</span>
+    </div>
+    <div style="height:7px;border-radius:4px;background:#1a212b;overflow:hidden;margin-bottom:14px"><i id="rbar" style="display:block;height:100%;width:61%;background:var(--accent);border-radius:4px;transition:width .4s"></i></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <span class="ph done">Базовая линия</span><span class="ph done" data-en="Foreign policy">Внешняя политика</span><span class="ph now" data-en="Sanctions">Санкции</span><span class="ph" data-en="Resources">Ресурсы</span><span class="ph" data-en="Economy">Экономика</span><span class="ph" data-en="Migration">Миграция</span><span class="ph" data-en="Reconcile">Сверка</span><span class="ph" data-en="Credit">Кредит</span>
+    </div>
+  </div>
+  <p class="lab" style="margin:20px 0 12px" data-en="Actor turns — posture, then actions">Ходы акторов — позиция, затем действия</p>
+  <div style="display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;gap:12px"><div class="cc on" style="width:32px;height:32px;font-size:10px">US</div>
+      <div><div style="font-size:12px;color:#cdd7e3;margin-bottom:3px">США <span style="color:var(--dim);font-size:11px">· вы · Ястреб</span></div><div style="font-size:12px;color:#9fb0c3;font-style:italic;margin-bottom:6px">«Давлю на Китай тарифами, удерживаюсь от военной эскалации»</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="act">impose_tariffs</span><span class="act">export_controls</span></div></div></div>
+    <div style="display:flex;gap:12px"><div class="cc" style="width:32px;height:32px;font-size:10px">CN</div>
+      <div><div style="font-size:12px;color:#cdd7e3;margin-bottom:3px">Китай <span style="color:var(--dim);font-size:11px">· ИИ</span></div><div style="font-size:12px;color:#9fb0c3;font-style:italic;margin-bottom:6px">«Отвечаю симметрично, ищу обходные рынки и партнёров»</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="act">impose_tariffs</span><span class="act">backchannel_offer → RU</span></div></div></div>
+    <div style="display:flex;gap:12px"><div class="cc" style="width:32px;height:32px;font-size:10px">IR</div>
+      <div><div style="font-size:12px;color:#cdd7e3;margin-bottom:3px">Иран <span style="color:var(--dim);font-size:11px">· ИИ</span></div><div style="font-size:12px;color:#9fb0c3;font-style:italic;margin-bottom:6px">«Сохраняю статус-кво, наращиваю валютные резервы»</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="act">signal_restraint</span><span class="act">currency_intervention</span></div></div></div>
+  </div>
+  <div class="tracebar">
+    <span class="trace">step_world · year t+3 · позиции из hybrid_result.json</span>
+    <button class="btn" data-go="result"><span data-en="To result">К результату</span><i class="ti ti-arrow-right" style="font-size:15px"></i></button>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section class="screen" id="result">
+  <h1 class="title" data-en="Situation room">Ситуационная комната</h1>
+  <p class="sub">США «Ястреб-протекционист» · 5 <span data-en="years">лет</span></p>
+  <div class="card" style="background:#130f0a;display:flex;align-items:center;justify-content:space-between;gap:14px">
+    <div>
+      <div style="font-size:11px;color:#caa15a;font-family:var(--mono);margin-bottom:4px" data-en="VERDICT">ВЕРДИКТ</div>
+      <div style="font-size:17px;color:#fff;font-weight:500;line-height:1.35" data-en="Elevated risk of trade escalation;<br>the model does not expect a direct military clash">Повышенный риск торговой эскалации;<br>прямого военного столкновения модель не ждёт</div>
+    </div>
+    <div style="text-align:center;flex:0 0 auto">
+      <div class="ring" style="width:64px;height:64px;border:3px solid var(--warn);color:var(--warn);font-size:17px">0.62</div>
+      <div style="font-size:11px;color:#caa15a;margin-top:5px" data-en="criticality">критичность</div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:14px;align-items:start">
+    <div class="card">
+      <p class="lab" data-en="Outcome forecast over 5 years">Прогноз исходов на 5 лет</p>
+      <div class="orow"><span class="oname" style="width:174px">Статус-кво</span><div class="otrk"><i style="width:28%;background:var(--good)"></i></div><span class="opct">28%</span></div>
+      <div class="orow"><span class="oname" style="width:174px">Торговая эскалация</span><div class="otrk"><i style="width:24%;background:var(--warn)"></i></div><span class="opct">24%</span></div>
+      <div class="orow"><span class="oname" style="width:174px">Санкционная спираль</span><div class="otrk"><i style="width:18%;background:var(--warn)"></i></div><span class="opct">18%</span></div>
+      <div class="orow"><span class="oname" style="width:174px">Переговорная деэскалация</span><div class="otrk"><i style="width:12%;background:var(--good)"></i></div><span class="opct">12%</span></div>
+      <div class="orow"><span class="oname" style="width:174px">Кризис рынка нефти</span><div class="otrk"><i style="width:9%;background:var(--bad)"></i></div><span class="opct">9%</span></div>
+      <div class="orow" style="margin-bottom:0"><span class="oname" style="width:174px;color:var(--muted)">Прочее</span><div class="otrk"><i style="width:9%;background:#45505c"></i></div><span class="opct">9%</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <p class="lab" data-en="Trajectories">Траектории</p>
+        <div class="grid3" style="gap:10px">
+          <div class="mini"><div style="font-size:12px;color:#cdd7e3;margin-bottom:6px" data-en="GDP, index">ВВП, индекс</div><svg viewBox="0 0 150 42" style="width:100%;height:42px"><polyline points="0,30 30,28 60,26 90,25 120,23 150,22" fill="none" stroke="#4f8cff" stroke-width="2"/><polyline points="0,28 30,26 60,27 90,30 120,33 150,35" fill="none" stroke="#ff8f6c" stroke-width="2"/></svg><div style="font-size:11px;color:var(--muted);margin-top:4px"><span style="color:var(--accent)">США +6%</span> · <span style="color:#ff8f6c">Китай −4%</span></div></div>
+          <div class="mini"><div style="font-size:12px;color:#cdd7e3;margin-bottom:6px" data-en="Social tension">Соц. напряж.</div><svg viewBox="0 0 150 42" style="width:100%;height:42px"><polyline points="0,32 30,30 60,28 90,24 120,19 150,15" fill="none" stroke="#ffbc52" stroke-width="2"/></svg><div style="font-size:11px;color:#caa15a;margin-top:4px" data-en="rising">растёт</div></div>
+          <div class="mini"><div style="font-size:12px;color:#cdd7e3;margin-bottom:6px" data-en="Energy prices">Цены: энергия</div><svg viewBox="0 0 150 42" style="width:100%;height:42px"><polyline points="0,30 30,29 60,27 90,28 120,22 150,18" fill="none" stroke="#ff6c6c" stroke-width="2"/></svg><div style="font-size:11px;color:#c47a7a;margin-top:4px">+11%</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="lab" data-en="Key drivers">Ключевые драйверы</p>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#cdd7e3;flex:1" data-en="Trade fragmentation">Торговая фрагментация</span><div style="width:110px;height:6px;border-radius:3px;background:#222a35"><i style="display:block;height:100%;width:71%;background:var(--warn);border-radius:3px"></i></div><span class="dlt">0.71</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#cdd7e3;flex:1" data-en="Debt rollover">Долговой ролловер</span><div style="width:110px;height:6px;border-radius:3px;background:#222a35"><i style="display:block;height:100%;width:58%;background:var(--accent);border-radius:3px"></i></div><span class="dlt">0.58</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#cdd7e3;flex:1" data-en="Energy gap">Энергодефицит</span><div style="width:110px;height:6px;border-radius:3px;background:#222a35"><i style="display:block;height:100%;width:44%;background:var(--accent);border-radius:3px"></i></div><span class="dlt">0.44</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tracebar" style="gap:10px">
+    <button class="btn ghost" data-go="compare"><span data-en="Compare with Dove">Сравнить с «Голубем»</span><i class="ti ti-arrows-split" style="font-size:15px"></i></button>
+    <button class="btn ghost" data-go="setup"><i class="ti ti-rotate" style="font-size:15px"></i><span data-en="Change move">Изменить ход</span></button>
+    <button class="btn ghost"><i class="ti ti-file-text" style="font-size:15px"></i><span data-en="Export brief">Экспорт брифинга</span></button>
+    <span class="trace" style="margin-left:auto">results/hybrid-…/evaluation.json</span>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="screen" id="compare">
+  <h1 class="title" data-en="Compare">Сравнить</h1>
+  <p class="sub">США · 5 <span data-en="years">лет</span> · Ястреб vs Голубь</p>
+  <div class="card" style="background:#0f1512;border-color:#1f3a2a">
+    <div style="font-size:11px;color:#5fae7e;font-family:var(--mono);margin-bottom:4px" data-en="KEY TRADEOFF">ГЛАВНЫЙ КОМПРОМИСС</div>
+    <div style="font-size:14px;color:var(--text);line-height:1.45" data-en="“Dove” cuts criticality <b style='color:#44c878'>0.62 → 0.34</b> and lifts de-escalation <b style='color:#44c878'>+14 pp</b> — at the cost of weaker US growth (<span style='color:#ffbc52'>GDP +6% → +2%</span>) and a softer bargaining position.">«Голубь» снижает критичность <b style="color:var(--good)">0.62 → 0.34</b> и поднимает деэскалацию <b style="color:var(--good)">+14 п.п.</b> — ценой более слабого роста США (<span style="color:var(--warn)">ВВП +6% → +2%</span>) и переговорной позиции.</div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="card" style="border-color:#3a2f1a">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div class="ring" style="width:46px;height:46px;border:3px solid var(--warn);color:var(--warn);font-size:13px">0.62</div><div><div style="font-size:13px;color:#fff;font-weight:500;display:flex;align-items:center;gap:6px"><i class="ti ti-flame" style="font-size:15px;color:var(--warn)"></i>Ястреб-протекционист</div><div style="font-size:11px;color:#caa15a;margin-top:2px" data-en="elevated escalation risk">повышенный риск эскалации</div></div></div>
+      <div class="orow"><span class="oname" style="width:96px">Статус-кво</span><div class="otrk"><i style="width:28%;background:var(--good)"></i></div><span class="opct">28%</span></div>
+      <div class="orow"><span class="oname" style="width:96px">Торг. эскал.</span><div class="otrk"><i style="width:24%;background:var(--warn)"></i></div><span class="opct">24%</span></div>
+      <div class="orow"><span class="oname" style="width:96px">Санкц. спир.</span><div class="otrk"><i style="width:18%;background:var(--warn)"></i></div><span class="opct">18%</span></div>
+      <div class="orow" style="margin-bottom:0"><span class="oname" style="width:96px">Деэскал.</span><div class="otrk"><i style="width:12%;background:var(--good)"></i></div><span class="opct">12%</span></div>
+    </div>
+    <div class="card" style="border-color:#1f3a2a">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div class="ring" style="width:46px;height:46px;border:3px solid var(--good);color:var(--good);font-size:13px">0.34</div><div><div style="font-size:13px;color:#fff;font-weight:500;display:flex;align-items:center;gap:6px"><i class="ti ti-feather" style="font-size:15px;color:var(--good)"></i>Голубь</div><div style="font-size:11px;color:#5fae7e;margin-top:2px" data-en="low risk, weaker growth">риск низкий, рост слабее</div></div></div>
+      <div class="orow"><span class="oname" style="width:96px">Статус-кво</span><div class="otrk"><i style="width:34%;background:var(--good)"></i></div><span class="opct">34%</span></div>
+      <div class="orow"><span class="oname" style="width:96px">Торг. эскал.</span><div class="otrk"><i style="width:8%;background:var(--warn)"></i></div><span class="opct">8%</span></div>
+      <div class="orow"><span class="oname" style="width:96px">Санкц. спир.</span><div class="otrk"><i style="width:9%;background:var(--warn)"></i></div><span class="opct">9%</span></div>
+      <div class="orow" style="margin-bottom:0"><span class="oname" style="width:96px">Деэскал.</span><div class="otrk"><i style="width:26%;background:var(--good)"></i></div><span class="opct">26%</span></div>
+    </div>
+  </div>
+  <div class="tracebar">
+    <span class="chip" style="border-style:dashed"><i class="ti ti-plus" style="font-size:14px"></i> <span data-en="Add run">Добавить прогон</span></span>
+    <span class="trace">diff: criticality_score · risk_probabilities</span>
+  </div>
+</section>
+
+</div>
+
+<script>
+var DOC=[
+ {ru:'Эскалация',en:'Escalation',base:55,shift:72,d:'▲.17'},
+ {ru:'Открытость торговли',en:'Trade openness',base:45,shift:22,d:'▼.23'},
+ {ru:'Санкц. толерантность',en:'Sanctions tolerance',base:50,shift:78,d:'▲.28'},
+ {ru:'Посредничество',en:'Mediation',base:50,shift:25,d:'▼.25'},
+ {ru:'Приоритет внутр.',en:'Domestic priority',base:55,shift:68,d:'▲.13'},
+ {ru:'Воен. готовность',en:'Military readiness',base:55,shift:60,d:'▲.05'}
+];
+function renderDoc(){
+  var lang=document.documentElement.lang;
+  document.getElementById('docrows').innerHTML=DOC.map(function(r){
+    var name=(lang==='en')?r.en:r.ru;
+    return '<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">'+
+      '<span style="color:#bcc7d3">'+name+'</span>'+
+      '<span class="dlt">'+(r.base/100).toFixed(2)+' → <span style="color:#cdd7e3">'+(r.shift/100).toFixed(2)+'</span> '+r.d+'</span></div>'+
+      '<div class="trk"><i style="width:'+r.shift+'%"></i><b style="left:'+r.base+'%"></b></div></div>';
+  }).join('');
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
+  var t=document.getElementById(id); if(t){t.classList.add('on')}
+  window.scrollTo(0,0);
+  if(id==='running'){animateRun()}
+}
+document.querySelectorAll('[data-go]').forEach(function(el){
+  el.addEventListener('click',function(){show(el.dataset.go)});
+});
+document.getElementById('proCard').addEventListener('click',function(){
+  alert('Экспертный режим — нынешний полный пульт (question / game / hybrid со всеми флагами). В прототипе показан как точка входа.');
+});
+var runTimer;
+function animateRun(){
+  clearTimeout(runTimer);
+  var bar=document.getElementById('rbar'),pct=document.getElementById('rpct'),yr=document.getElementById('ryear');
+  var p=61; bar.style.width=p+'%'; pct.textContent=p+'%'; yr.textContent='3';
+  runTimer=setInterval(function(){
+    p+=8; if(p>=100){p=100;clearInterval(runTimer);yr.textContent='5';pct.textContent='готово'}
+    else{yr.textContent=String(Math.min(5,3+Math.floor((p-61)/13)))}
+    bar.style.width=p+'%'; if(p<100)pct.textContent=p+'%';
+  },650);
+}
+function setLang(l){
+  document.documentElement.lang=l;
+  document.querySelectorAll('[data-en]').forEach(function(el){
+    if(el.dataset.ru===undefined){el.dataset.ru=el.innerHTML}
+    el.innerHTML=(l==='en')?el.dataset.en:el.dataset.ru;
+  });
+  document.querySelectorAll('#lang span').forEach(function(s){s.classList.toggle('on',s.dataset.l===l)});
+  renderDoc();
+}
+document.querySelectorAll('#lang span').forEach(function(s){
+  s.addEventListener('click',function(){setLang(s.dataset.l)});
+});
+var wfq=document.getElementById('wf-q'),wft=document.getElementById('wf-trace');
+if(wfq){wfq.addEventListener('input',function(){
+  var v=wfq.value.trim(),first=document.querySelector('#whatif .pc');
+  document.querySelectorAll('#whatif .pc').forEach(function(p){p.classList.remove('feat')});
+  if(v===''){first.classList.add('feat');wft.textContent='gim question --template maritime_deterrence --sim';}
+  else{wft.textContent='gim question --question "'+v+'" --sim';}
+});}
+renderDoc();
+</script>
+</body>
+</html>

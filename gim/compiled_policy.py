@@ -25,6 +25,7 @@ from .core.policy import (
     llm_enablement_status,
     simple_rule_based_policy,
 )
+from .persona import DOCTRINE_DIMENSIONS, Persona, apply_nudges, persona_prompt_block
 
 
 COMPILED_DOCTRINE_SCHEMA = """
@@ -172,6 +173,13 @@ class CompiledDoctrine:
     explanation: str
 
 
+def _doctrine_to_dict(doctrine: CompiledDoctrine) -> dict[str, Any]:
+    payload = {dim: round(getattr(doctrine, dim), 3) for dim in DOCTRINE_DIMENSIONS}
+    payload["source"] = doctrine.source
+    payload["explanation"] = doctrine.explanation
+    return payload
+
+
 class CompiledLLMPolicyManager:
     def __init__(
         self,
@@ -179,6 +187,7 @@ class CompiledLLMPolicyManager:
         refresh_mode: str = "trigger",
         refresh_years: int = 2,
         prefer_llm: bool = True,
+        personas: dict[str, Persona] | None = None,
     ) -> None:
         normalized_mode = (refresh_mode or "trigger").strip().lower()
         if normalized_mode not in {"trigger", "periodic", "never"}:
@@ -186,9 +195,17 @@ class CompiledLLMPolicyManager:
         self.refresh_mode = normalized_mode
         self.refresh_years = max(int(refresh_years), 1)
         self.prefer_llm = prefer_llm
-        self._doctrine_cache: dict[tuple[str, str], CompiledDoctrine] = {}
+        self._doctrine_cache: dict[tuple[str, str, str], CompiledDoctrine] = {}
         self._policy_cache: dict[str, Callable[..., Action]] = {}
         self._cache_lock = Lock()
+        self._personas: dict[str, Persona] = dict(personas or {})
+
+    def set_persona(self, agent_id: str, persona: Persona | None) -> None:
+        """Attach (or clear) the persona that biases this agent's doctrine."""
+        if persona is None:
+            self._personas.pop(agent_id, None)
+        else:
+            self._personas[agent_id] = persona
 
     def policy_for_agent(self, agent_id: str) -> Callable[..., Action]:
         policy = self._policy_cache.get(agent_id)
@@ -213,8 +230,18 @@ class CompiledLLMPolicyManager:
         obs: Observation,
         memory_summary: dict[str, Any] | None = None,
     ) -> CompiledDoctrine:
+        persona = self._personas.get(agent_id)
+        return self._compile_cached(agent_id, obs, memory_summary, persona)
+
+    def _compile_cached(
+        self,
+        agent_id: str,
+        obs: Observation,
+        memory_summary: dict[str, Any] | None,
+        persona: Persona | None,
+    ) -> CompiledDoctrine:
         signature = self._context_signature(obs)
-        cache_key = (agent_id, signature)
+        cache_key = (agent_id, signature, persona.id if persona else "")
         with self._cache_lock:
             cached = self._doctrine_cache.get(cache_key)
         if cached is not None:
@@ -223,11 +250,11 @@ class CompiledLLMPolicyManager:
         llm_enabled, reason = self._llm_status()
         if self.prefer_llm and llm_enabled:
             try:
-                doctrine = self._compile_doctrine_with_llm(obs, signature, memory_summary)
+                doctrine = self._compile_doctrine_with_llm(obs, signature, memory_summary, persona)
             except Exception as exc:
-                doctrine = self._heuristic_doctrine(obs, signature, f"LLM compile failed: {exc}")
+                doctrine = self._heuristic_doctrine(obs, signature, f"LLM compile failed: {exc}", persona)
         else:
-            doctrine = self._heuristic_doctrine(obs, signature, reason)
+            doctrine = self._heuristic_doctrine(obs, signature, reason, persona)
 
         with self._cache_lock:
             existing = self._doctrine_cache.get(cache_key)
@@ -235,6 +262,32 @@ class CompiledLLMPolicyManager:
                 return existing
             self._doctrine_cache[cache_key] = doctrine
         return doctrine
+
+    def doctrine_preview(
+        self,
+        agent_id: str,
+        obs: Observation,
+        persona: Persona | None,
+        memory_summary: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Base vs persona-shifted doctrine plus per-dimension deltas, for the UI.
+
+        Both sides are served through the doctrine cache (keyed by persona id), so
+        a repeated preview for the same country+persona does not recompile.
+        """
+        base = self._compile_cached(agent_id, obs, memory_summary, None)
+        shifted = self._compile_cached(agent_id, obs, memory_summary, persona) if persona else base
+        deltas = {
+            dim: round(getattr(shifted, dim) - getattr(base, dim), 3)
+            for dim in DOCTRINE_DIMENSIONS
+        }
+        return {
+            "agent_id": agent_id,
+            "persona_id": persona.id if persona else None,
+            "base": _doctrine_to_dict(base),
+            "shifted": _doctrine_to_dict(shifted),
+            "deltas": deltas,
+        }
 
     def _llm_status(self) -> tuple[bool, str]:
         return llm_enablement_status("llm")
@@ -275,12 +328,15 @@ class CompiledLLMPolicyManager:
         obs: Observation,
         signature: str,
         memory_summary: dict[str, Any] | None,
+        persona: Persona | None = None,
     ) -> CompiledDoctrine:
         payload = _context_payload(obs, memory_summary)
         prompt = COMPILED_DOCTRINE_PROMPT.format(
             context_json=json.dumps(payload, ensure_ascii=False),
             schema_hint=COMPILED_DOCTRINE_SCHEMA,
         )
+        if persona is not None:
+            prompt = f"{prompt}\n{persona_prompt_block(persona)}"
         raw = call_llm(prompt)
         start = raw.find("{")
         end = raw.rfind("}")
@@ -290,11 +346,17 @@ class CompiledLLMPolicyManager:
         return self._doctrine_from_payload(
             obs=obs,
             signature=signature,
-            source="compiled-llm",
+            source="compiled-llm+persona" if persona is not None else "compiled-llm",
             payload=data,
         )
 
-    def _heuristic_doctrine(self, obs: Observation, signature: str, reason: str) -> CompiledDoctrine:
+    def _heuristic_doctrine(
+        self,
+        obs: Observation,
+        signature: str,
+        reason: str,
+        persona: Persona | None = None,
+    ) -> CompiledDoctrine:
         political = obs.self_state.get("political", {})
         society = obs.self_state.get("society", {})
         culture = obs.self_state.get("culture", {})
@@ -368,10 +430,13 @@ class CompiledLLMPolicyManager:
             ),
             "explanation": f"Heuristic doctrine fallback ({reason}).",
         }
+        if persona is not None:
+            payload = apply_nudges(payload, persona)
+            payload["explanation"] = f"Heuristic doctrine ({reason}) with persona '{persona.id}' bias."
         return self._doctrine_from_payload(
             obs=obs,
             signature=signature,
-            source="heuristic",
+            source="heuristic+persona" if persona is not None else "heuristic",
             payload=payload,
         )
 

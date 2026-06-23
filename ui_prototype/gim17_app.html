@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GIM17 — ситуационная комната</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--surface:#13171d;--surface2:#0e131a;--line:#2b323b;--text:#edf1f5;--muted:#8b97a4;
+--dim:#56606c;--accent:#4f8cff;--accent2:#2663d2;--accent-br:#3f82f8;--good:#44c878;--warn:#ffbc52;--bad:#ff6c6c;--r:8px;--mono:'IBM Plex Mono',monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1300px 780px at 74% -22%,#191f28 0%,var(--bg) 48%),var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px 60px}
+header.top{position:sticky;top:0;z-index:9;background:#101419;border-bottom:1px solid var(--line)}
+.top-in{max-width:1060px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:11px}
+.brand b{font-family:var(--mono);font-weight:500;font-size:15px;color:#fff}
+.brand span{font-size:13px;color:var(--muted)}
+.top-r{display:flex;align-items:center;gap:14px}
+.homebtn{font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px}
+.homebtn:hover{color:#fff}
+.lang{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;font-size:11px;font-family:var(--mono);cursor:pointer}
+.lang span{padding:4px 9px;color:var(--muted)}.lang span.on{background:#16202b;color:#fff}
+.screen{display:none;padding-top:24px}.screen.on{display:block}
+h1.title{font-size:20px;font-weight:500;color:#fff;margin:0 0 3px}
+.sub{font-size:13px;color:var(--muted);margin:0 0 20px}
+.lab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin:0 0 12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.tracebar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding:12px 16px;background:#101419;border:1px solid var(--line);border-radius:10px;flex-wrap:wrap}
+.trace{font-size:11px;color:var(--dim);font-family:var(--mono);word-break:break-all}
+.btn{background:var(--accent2);border:1px solid var(--accent-br);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:inherit}
+.btn:hover{background:#2f72e6}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;border-color:var(--line);color:#cdd7e3}.btn.ghost:hover{background:#16202b}
+.chip{font-size:12px;padding:7px 13px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:#cdd7e3;cursor:pointer}
+.chip.on{border-color:var(--accent);color:#fff;background:#16202b}
+.pc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}
+.pc.on{border-color:var(--accent);background:#141c27}.pc.feat{border:2px solid var(--accent-br)}.pc:hover{border-color:#3e4f63}
+.trk{position:relative;height:8px;border-radius:4px;background:#222a35;overflow:hidden}
+.trk>i{position:absolute;left:0;top:0;height:100%;background:var(--accent);border-radius:4px}
+.trk>b{position:absolute;top:0;width:2px;height:100%;background:var(--muted)}
+.dlt{font-size:11px;font-family:var(--mono);color:var(--muted)}
+.orow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.oname{font-size:12px;color:#cdd7e3}
+.otrk{flex:1;height:9px;border-radius:4px;background:#1a212b;overflow:hidden}.otrk>i{display:block;height:100%;border-radius:4px}
+.opct{width:42px;text-align:right;font-size:12px;font-family:var(--mono);color:#aeb9c5}
+.ring{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:500}
+.in,select.in,textarea.in{width:100%;background:#0c1117;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:13px;color:#e6edf3;font-family:inherit}
+.in:focus{outline:none;border-color:var(--accent)}
+.note{font-size:12px;color:var(--muted)}
+.act{font-size:11px;padding:3px 8px;border-radius:6px;background:#11161c;border:1px solid #232b35;color:#aeb9c5;font-family:var(--mono)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #2b323b;border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
+</head>
+<body>
+<h2 class="sr-only">GIM17 decision-maker interface</h2>
+<header class="top"><div class="top-in">
+  <div class="brand"><b>GIM17</b><span data-en="Global integrated model">Глобальная интегрированная модель</span></div>
+  <div class="top-r">
+    <span class="homebtn" onclick="show('home')"><i class="ti ti-home"></i><span data-en="Home">Главная</span></span>
+    <a class="homebtn" href="/legacy" title="Экспертный режим"><i class="ti ti-adjustments"></i><span data-en="Expert">Эксперт</span></a>
+    <div class="lang" id="lang"><span class="on" data-l="ru">RU</span><span data-l="en">EN</span></div>
+  </div></div>
+</header>
+<div class="wrap">
+
+<section class="screen on" id="home">
+  <h1 class="title" data-en="What do you want to explore?">Что хотите исследовать?</h1>
+  <p class="sub" data-en="Pick a mode — model settings assemble themselves.">Выберите режим — настройки модели соберутся сами.</p>
+  <div class="grid2">
+    <div class="pc feat" onclick="show('setup')"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-user-shield" style="font-size:21px;color:var(--accent)"></i><span style="font-size:15px;font-weight:500;color:#fff" data-en="Play as a country">Играть за страну</span></div><div class="note" data-en="Take a country and a persona, set a goal — the model plays against AI actors.">Возьмите страну и персону, задайте цель — модель сыграет против ИИ-акторов.</div></div>
+    <div class="pc" onclick="show('whatif')"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-bolt" style="font-size:21px;color:var(--warn)"></i><span style="font-size:15px;font-weight:500;color:#fff" data-en="What if…">Что если…</span></div><div class="note" data-en="Ready-made shocks or your own question. One knob — and a result.">Готовые шоки или свой вопрос. Одна ручка — и результат.</div></div>
+    <div class="pc" onclick="openCompare()"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-arrows-split" style="font-size:21px;color:var(--good)"></i><span style="font-size:15px;font-weight:500;color:#fff" data-en="Compare">Сравнить</span></div><div class="note" data-en="Two recent runs side by side — outcomes and risks.">Два недавних прогона рядом — исходы и риски.</div></div>
+    <a class="pc" href="/legacy" style="text-decoration:none"><div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><i class="ti ti-adjustments" style="font-size:21px;color:var(--muted)"></i><span style="font-size:15px;font-weight:500;color:#cdd7e3" data-en="Expert mode">Экспертный режим</span></div><div class="note" data-en="Full panel: every lever, CSVs, runtime flags.">Полный пульт: все рычаги, CSV, флаги рантайма.</div></a>
+  </div>
+  <div style="margin-top:22px"><p class="lab" data-en="Recent runs">Недавние прогоны</p><div id="recent" style="display:flex;gap:8px;flex-wrap:wrap"><span class="note">—</span></div></div>
+</section>
+
+<section class="screen" id="setup">
+  <h1 class="title" data-en="Play as a country">Играть за страну</h1>
+  <p class="sub" data-en="Country → persona → goal. The persona biases the model-compiled doctrine.">Страна → персона → цель. Персона смещает доктрину, которую выводит модель.</p>
+  <div class="grid2" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card"><p class="lab" data-en="Who you play">За кого играем</p><select class="in" id="country" onchange="onSetupChange()"></select></div>
+      <div class="card"><p class="lab" data-en="Persona — behavioral archetype">Персона — поведенческий архетип</p><div id="personaCards" style="display:flex;flex-direction:column;gap:9px"></div></div>
+      <div class="card"><p class="lab" data-en="Goal and horizon">Цель на горизонт</p>
+        <input class="in" id="goal" placeholder="Например: дожать Китай по торговле, без военной эскалации" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="note" data-en="Horizon:">Горизонт:</span><span class="chip hz" data-y="2">2 года</span><span class="chip hz on" data-y="5">5 лет</span><span class="chip hz" data-y="10">10 лет</span></div>
+      </div>
+    </div>
+    <div class="card" style="background:var(--surface2)">
+      <p class="lab" style="margin:0 0 4px" data-en="Doctrine profile — base → persona shift">Профиль доктрины — база → сдвиг персоны</p>
+      <div style="font-size:11px;color:var(--dim);font-family:var(--mono);margin-bottom:14px"><i class="ti ti-lock" style="font-size:12px;vertical-align:-1px"></i> read-only · <span id="docnote">выберите страну и персону</span></div>
+      <div id="docrows" style="display:flex;flex-direction:column;gap:13px"></div>
+    </div>
+  </div>
+  <div class="tracebar"><span class="trace" id="setupTrace">hybrid · persona-bias</span><button class="btn" id="runPlay" onclick="runPlay()"><span data-en="Run">Запустить прогон</span><i class="ti ti-player-play" style="font-size:15px"></i></button></div>
+</section>
+
+<section class="screen" id="whatif">
+  <h1 class="title" data-en="A ready-made shock — or your own question">Готовый шок — или свой вопрос</h1>
+  <p class="sub" data-en="Pick a scenario; actors and template are chosen automatically.">Выберите сценарий; акторы и шаблон подберутся сами.</p>
+  <div class="grid3" id="presets"></div>
+  <div class="card" style="margin-top:14px"><p class="lab" data-en="…or ask your own question">…или задайте свой вопрос</p>
+    <input class="in" id="wfq" placeholder="Например: как закрытие Ормуза скажется на ценах на нефть и на США за 3 года?" oninput="onWfQuestion()">
+    <div class="note" style="margin-top:8px" data-en="Free-text scenario → the model compiles actors and template itself.">Свободный сценарий → модель сама подберёт акторов и шаблон.</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:12px"><span class="note" data-en="Horizon:">Горизонт:</span><span class="chip wfhz on" data-y="3">3 года</span><span class="chip wfhz" data-y="5">5 лет</span></div>
+  </div>
+  <div class="tracebar"><span class="trace" id="wfTrace">gim question --template …</span><button class="btn" onclick="runWhatIf()"><span data-en="Run">Запустить</span><i class="ti ti-player-play" style="font-size:15px"></i></button></div>
+</section>
+
+<section class="screen" id="running">
+  <h1 class="title"><span data-en="Run">Прогон</span> <span id="runLabel" class="note"></span></h1>
+  <p class="sub" data-en="Live phases of the yearly core.">Живые фазы годового ядра модели.</p>
+  <div class="card">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px"><span style="font-size:15px;color:#fff;font-weight:500"><span class="spin" id="runSpin"></span> <span id="runStatus" data-en="running">выполняется</span></span><span style="font-size:12px;font-family:var(--mono);color:var(--muted)" id="runPct">0%</span></div>
+    <div style="height:7px;border-radius:4px;background:#1a212b;overflow:hidden;margin-bottom:14px"><i id="runBar" style="display:block;height:100%;width:0%;background:var(--accent);border-radius:4px;transition:width .4s"></i></div>
+    <div class="note" id="runNote" style="font-family:var(--mono);font-size:11px;min-height:18px">queued…</div>
+  </div>
+  <div id="runFeed" style="margin-top:16px"></div>
+  <div class="tracebar"><span class="trace" id="runTrace"></span><button class="btn ghost" onclick="show('home')"><span data-en="Minimize">Свернуть</span></button><button class="btn" id="runToResult" style="display:none" onclick="goResult()"><span data-en="To result">К результату</span><i class="ti ti-arrow-right" style="font-size:15px"></i></button></div>
+</section>
+
+<section class="screen" id="result">
+  <h1 class="title" data-en="Situation room">Ситуационная комната</h1>
+  <p class="sub" id="resultLabel"></p>
+  <div class="card" style="background:#130f0a;display:flex;align-items:center;justify-content:space-between;gap:14px">
+    <div><div style="font-size:11px;color:#caa15a;font-family:var(--mono);margin-bottom:4px" data-en="VERDICT">ВЕРДИКТ</div><div id="verdict" style="font-size:15px;color:#fff;font-weight:500;line-height:1.4;white-space:pre-line">—</div></div>
+    <div style="text-align:center;flex:0 0 auto"><div class="ring" id="critRing" style="width:64px;height:64px;border:3px solid var(--warn);color:var(--warn);font-size:17px">—</div><div style="font-size:11px;color:#caa15a;margin-top:5px" data-en="criticality">критичность</div></div>
+  </div>
+  <div class="grid2" style="margin-top:14px;align-items:start">
+    <div class="card"><p class="lab" data-en="Outcome forecast">Прогноз исходов</p><div id="outcomes"></div></div>
+    <div class="card"><p class="lab" data-en="Key drivers">Ключевые драйверы</p><div id="drivers"></div></div>
+  </div>
+  <div class="tracebar">
+    <button class="btn ghost" onclick="openCompare()"><i class="ti ti-arrows-split" style="font-size:15px"></i><span data-en="Compare">Сравнить</span></button>
+    <button class="btn ghost" id="exportBtn"><i class="ti ti-file-text" style="font-size:15px"></i><span data-en="Export brief">Экспорт брифинга</span></button>
+    <span class="trace" id="resultTrace" style="margin-left:auto"></span>
+  </div>
+</section>
+
+<section class="screen" id="compare">
+  <h1 class="title" data-en="Compare">Сравнить</h1>
+  <p class="sub" data-en="Two most recent completed runs.">Два последних завершённых прогона.</p>
+  <div class="grid2" id="compareCols"><div class="note">Запустите хотя бы два прогона, чтобы сравнить.</div></div>
+</section>
+
+</div>
+<script>
+var DIMS=[["escalation_bias","Эскалация","Escalation"],["trade_openness","Открытость торговли","Trade openness"],["sanctions_tolerance","Санкц. толерантность","Sanctions tolerance"],["mediation_openness","Посредничество","Mediation"],["domestic_priority","Приоритет внутр.","Domestic priority"],["military_readiness","Воен. готовность","Military readiness"]];
+var PRESETS=[["maritime_deterrence","Ормуз закрыт","ti-anchor"],["regional_pressure","Блокада Тайваня","ti-ship"],["sanctions_spiral","Санкц. спираль","ti-ban"],["cyber_disruption","Кибер-сбой","ti-network"],["trade_war","Торговая война","ti-businessplan"],["resource_competition","Ресурсы","ti-target"]];
+var state={lang:"ru",country:null,personas:[],persona:null,horizon:5,wfHorizon:3,preset:"maritime_deterrence",wfQuestion:"",pollTimer:null,history:[]};
+
+function $(id){return document.getElementById(id)}
+async function getJSON(u){var r=await fetch(u);return r.json()}
+async function postJSON(u,b){var r=await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});return r.json()}
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});var t=$(id);if(t)t.classList.add('on');window.scrollTo(0,0)}
+
+async function init(){
+  try{
+    var a=await getJSON('/api/actors');
+    var sel=$('country');var top=["United States","China","Russia","Iran","Israel"];
+    var names=(a.actors||[]).map(function(x){return x.name});
+    var ordered=top.filter(function(n){return names.indexOf(n)>=0}).concat(names.filter(function(n){return top.indexOf(n)<0}));
+    sel.innerHTML=ordered.map(function(n){return '<option>'+n+'</option>'}).join('');
+    state.country=sel.value;
+  }catch(e){}
+  try{var p=await getJSON('/api/personas');state.personas=p.personas||[];renderPersonas()}catch(e){}
+  renderPresets();
+  document.querySelectorAll('.hz').forEach(function(c){c.onclick=function(){document.querySelectorAll('.hz').forEach(function(x){x.classList.remove('on')});c.classList.add('on');state.horizon=+c.dataset.y;updateSetupTrace()}});
+  document.querySelectorAll('.wfhz').forEach(function(c){c.onclick=function(){document.querySelectorAll('.wfhz').forEach(function(x){x.classList.remove('on')});c.classList.add('on');state.wfHorizon=+c.dataset.y}});
+  if(state.personas[0]){state.persona=state.personas[0].id;markPersona();onSetupChange()}
+  renderRecent();
+}
+
+function renderPersonas(){
+  $('personaCards').innerHTML=state.personas.map(function(p){
+    var nm=p.name[state.lang]||p.name.ru,tg=p.tagline[state.lang]||p.tagline.ru;
+    var ic=p.id==='hawk_protectionist'?'ti-flame':p.id==='dove'?'ti-feather':'ti-cpu';
+    return '<div class="pc" data-pid="'+p.id+'" onclick="selectPersona(\''+p.id+'\')"><div style="display:flex;align-items:center;gap:8px"><i class="ti '+ic+'" style="font-size:17px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">'+nm+'</span><span class="note" style="margin-left:auto">'+tg+'</span></div></div>';
+  }).join('');
+}
+function markPersona(){document.querySelectorAll('#personaCards .pc').forEach(function(c){c.classList.toggle('on',c.dataset.pid===state.persona)})}
+function selectPersona(id){state.persona=id;markPersona();onSetupChange()}
+
+function onSetupChange(){state.country=$('country').value;updateSetupTrace();loadDoctrine()}
+function updateSetupTrace(){$('setupTrace').textContent='hybrid · '+state.country+'=персона('+state.persona+') · '+state.horizon+'y · фон=compiled-llm'}
+
+async function loadDoctrine(){
+  if(!state.country||!state.persona)return;
+  $('docnote').textContent='считаю…';
+  try{
+    var d=await getJSON('/api/personas/'+state.persona+'/doctrine?country='+encodeURIComponent(state.country)+'&state_year=2026');
+    if(d.error){$('docnote').textContent=d.error;return}
+    $('docnote').textContent=(state.lang==='en'?'base → shift':'база → сдвиг');
+    $('docrows').innerHTML=DIMS.map(function(dm){
+      var b=d.base[dm[0]],s=d.shifted[dm[0]],de=d.deltas[dm[0]];
+      var nm=state.lang==='en'?dm[2]:dm[1];var arrow=de>0?'▲':de<0?'▼':'·';
+      return '<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#bcc7d3">'+nm+'</span><span class="dlt">'+b.toFixed(2)+' → <span style="color:#cdd7e3">'+s.toFixed(2)+'</span> '+arrow+Math.abs(de).toFixed(2)+'</span></div><div class="trk"><i style="width:'+(s*100)+'%"></i><b style="left:'+(b*100)+'%"></b></div></div>';
+    }).join('');
+  }catch(e){$('docnote').textContent='ошибка превью'}
+}
+
+function renderPresets(){
+  $('presets').innerHTML=PRESETS.map(function(p){
+    return '<div class="pc preset" data-t="'+p[0]+'" onclick="selectPreset(\''+p[0]+'\')"><div style="display:flex;align-items:center;gap:7px"><i class="ti '+p[2]+'" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:500;color:#cdd7e3">'+p[1]+'</span></div><div class="trace" style="margin-top:8px">'+p[0]+'</div></div>';
+  }).join('');
+  selectPreset(state.preset);
+}
+function selectPreset(t){state.preset=t;state.wfQuestion="";$('wfq').value="";document.querySelectorAll('.preset').forEach(function(c){c.classList.toggle('feat',c.dataset.t===t)});$('wfTrace').textContent='gim question --template '+t+' --sim'}
+function onWfQuestion(){state.wfQuestion=$('wfq').value.trim();if(state.wfQuestion){document.querySelectorAll('.preset').forEach(function(c){c.classList.remove('feat')});$('wfTrace').textContent='gim question --question "'+state.wfQuestion+'" --sim'}else{selectPreset(state.preset)}}
+
+async function runPlay(){
+  var goal=$('goal').value.trim()||"Защитить позиции страны";
+  var payload={command:"hybrid",tables:[state.country],intents:[state.country+"="+goal],persona:{},mode:"WHAT_IF",round_years:state.horizon,ensemble_size:3,state_year:2026,max_countries:16,background_policy:"compiled-llm",dashboard:true,brief:true};
+  payload.persona[state.country]=state.persona;
+  startRun(payload,state.country+" · "+(personaName(state.persona))+" · "+state.horizon+"y");
+}
+async function runWhatIf(){
+  var payload={command:"question",state_year:2026,max_countries:16,horizon:state.wfHorizon,sim:true,background_policy:"compiled-llm",dashboard:true,brief:true};
+  var label;
+  if(state.wfQuestion){payload.question=state.wfQuestion;label=state.wfQuestion.slice(0,48)}
+  else{payload.template=state.preset;payload.question=presetName(state.preset);label=presetName(state.preset)}
+  startRun(payload,label);
+}
+function personaName(id){var p=state.personas.filter(function(x){return x.id===id})[0];return p?(p.name[state.lang]||p.name.ru):id}
+function presetName(t){var p=PRESETS.filter(function(x){return x[0]===t})[0];return p?p[1]:t}
+
+async function startRun(payload,label){
+  show('running');$('runLabel').textContent=label;$('runStatus').textContent=state.lang==='en'?'starting':'старт';$('runBar').style.width='2%';$('runPct').textContent='0%';$('runNote').textContent='queued…';$('runSpin').style.display='inline-block';$('runFeed').innerHTML='';$('runToResult').style.display='none';
+  var res=await postJSON('/api/run',payload);
+  $('runTrace').textContent=res.command||'';
+  if(!res.run_id){$('runNote').textContent='ошибка запуска';return}
+  pollRun(res.run_id,label);
+}
+function pollRun(runId,label){
+  clearInterval(state.pollTimer);
+  state.pollTimer=setInterval(async function(){
+    var s;try{s=await getJSON('/api/run/'+runId+'/status')}catch(e){return}
+    var pct=Math.round(s.progress||0);$('runBar').style.width=Math.max(2,pct)+'%';$('runPct').textContent=pct+'%';
+    $('runNote').textContent=(s.note||'')+'';
+    if(s.status==='completed'){clearInterval(state.pollTimer);$('runSpin').style.display='none';$('runStatus').textContent=state.lang==='en'?'done':'готово';state.lastRun={runId:runId,label:label,artifacts:s.artifacts||{}};await renderFeed(runId);$('runToResult').style.display='inline-flex'}
+    else if(s.status==='failed'){clearInterval(state.pollTimer);$('runSpin').style.display='none';$('runStatus').textContent='ошибка';$('runNote').textContent=(s.stderr_tail||[]).slice(-3).join(' | ')||'failed'}
+  },1600);
+}
+
+async function renderFeed(runId){
+  var f;try{f=await getJSON('/api/run/'+runId+'/intents')}catch(e){f={feed:[]}}
+  var feed=f.feed||[];
+  if(!feed.length){$('runFeed').innerHTML='';return}
+  $('runFeed').innerHTML='<p class="lab">'+(state.lang==='en'?'Actor turns — posture, then actions':'Ходы акторов — позиция, затем действия')+'</p>'+feed.map(function(it){
+    var acts=(it.actions||[]).map(function(a){return '<span class="act">'+a+'</span>'}).join(' ');
+    var tags=(it.tags||[]).join(', ');
+    var code=(it.agent_name||'?').slice(0,2).toUpperCase();
+    return '<div style="display:flex;gap:12px;margin-bottom:12px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#161b22;border:1px solid var(--line);color:#cdd7e3;font-size:10px;flex:0 0 auto">'+code+'</div><div><div style="font-size:12px;color:#cdd7e3;margin-bottom:3px">'+it.agent_name+' <span style="color:var(--dim);font-size:11px">· '+(it.intensity||'')+'</span></div><div style="font-size:12px;color:#9fb0c3;font-style:italic;margin-bottom:6px">«'+(it.posture||'')+'»</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+acts+(tags?' <span class="act" style="opacity:.65">'+tags+'</span>':'')+'</div></div></div>';
+  }).join('');
+}
+function goResult(){if(state.lastRun)showResult(state.lastRun.runId,state.lastRun.label,state.lastRun.artifacts)}
+
+async function showResult(runId,label,artifacts){
+  var a;try{a=await getJSON('/api/run/'+runId+'/analytics')}catch(e){a={}}
+  state.history.unshift({runId:runId,label:label,analytics:a});state.history=state.history.slice(0,6);
+  $('resultLabel').textContent=label;
+  $('verdict').textContent=(a.summary||'Результат готов.').slice(0,320);
+  var crit=(a.criticality||0);var ring=$('critRing');ring.textContent=crit.toFixed(2);
+  var col=crit>=0.6?'var(--bad)':crit>=0.4?'var(--warn)':'var(--good)';ring.style.borderColor=col;ring.style.color=col;
+  $('outcomes').innerHTML=(a.scenario_distribution||[]).slice(0,6).map(function(o){
+    return '<div class="orow"><span class="oname" style="width:172px">'+o.name+'</span><div class="otrk"><i style="width:'+Math.round(o.value*100)+'%;background:'+(o.color||'#45505c')+'"></i></div><span class="opct">'+Math.round(o.value*100)+'%</span></div>';
+  }).join('')||'<div class="note">нет распределения исходов</div>';
+  $('drivers').innerHTML=(a.brief_drivers||[]).slice(0,6).map(function(d){return '<div class="note" style="color:#cdd7e3;margin-bottom:6px"><i class="ti ti-point" style="font-size:13px;color:var(--accent)"></i> '+d+'</div>'}).join('')||'<div class="note">нет драйверов</div>';
+  $('resultTrace').textContent='run '+runId;
+  var brief=artifacts['decision_brief.md']||artifacts['hybrid_report.md'];
+  $('exportBtn').onclick=brief?function(){window.open('/api/download?path='+encodeURIComponent(brief),'_blank')}:function(){alert('Брифинг не найден для этого прогона.')};
+  show('result');renderRecent();
+}
+
+function renderRecent(){
+  var el=$('recent');if(!state.history.length){el.innerHTML='<span class="note">пока пусто — запустите прогон</span>';return}
+  el.innerHTML=state.history.map(function(h){var c=(h.analytics&&h.analytics.criticality||0).toFixed(2);return '<span class="chip" onclick="reopen(\''+h.runId+'\')"><i class="ti ti-history" style="font-size:13px"></i> '+h.label+' — крит '+c+'</span>'}).join('');
+}
+function reopen(runId){var h=state.history.filter(function(x){return x.runId===runId})[0];if(h)showResultCached(h)}
+function showResultCached(h){var a=h.analytics||{};$('resultLabel').textContent=h.label;$('verdict').textContent=(a.summary||'').slice(0,320);var crit=a.criticality||0;var ring=$('critRing');ring.textContent=crit.toFixed(2);var col=crit>=0.6?'var(--bad)':crit>=0.4?'var(--warn)':'var(--good)';ring.style.borderColor=col;ring.style.color=col;$('outcomes').innerHTML=(a.scenario_distribution||[]).slice(0,6).map(function(o){return '<div class="orow"><span class="oname" style="width:172px">'+o.name+'</span><div class="otrk"><i style="width:'+Math.round(o.value*100)+'%;background:'+(o.color||'#45505c')+'"></i></div><span class="opct">'+Math.round(o.value*100)+'%</span></div>'}).join('');$('drivers').innerHTML=(a.brief_drivers||[]).map(function(d){return '<div class="note" style="color:#cdd7e3;margin-bottom:6px">'+d+'</div>'}).join('');show('result')}
+
+async function openCompare(){
+  var cols=$('compareCols');show('compare');
+  if(state.history.length<2){cols.innerHTML='<div class="note">Запустите хотя бы два прогона, чтобы сравнить.</div>';return}
+  var ids=state.history.slice(0,2).map(function(h){return h.runId});
+  var labels={};state.history.forEach(function(h){labels[h.runId]=h.label});
+  cols.innerHTML='<div class="note">сравниваю…</div>';
+  var data;try{data=await getJSON('/api/compare?runs='+ids.join(','))}catch(e){data={runs:[],diff:{}}}
+  var band='';
+  if(data.diff&&typeof data.diff.criticality_delta==='number'){
+    var cd=data.diff.criticality_delta,top=(data.diff.outcome_deltas||[])[0];
+    band='<div class="card" style="background:#0f1512;border-color:#1f3a2a;grid-column:1/-1"><div style="font-size:11px;color:#5fae7e;font-family:var(--mono);margin-bottom:4px">ГЛАВНЫЙ КОМПРОМИСС</div><div style="font-size:14px;color:var(--text);line-height:1.45">Критичность '+(cd>0?'+':'')+cd.toFixed(2)+' между прогонами'+(top?(', сильнее всего меняется «'+top.name+'» ('+(top.delta>0?'+':'')+Math.round(top.delta*100)+' п.п.)'):'')+'.</div></div>';
+  }
+  var cards=(data.runs||[]).map(function(r){
+    var crit=r.criticality||0,col=crit>=0.6?'var(--bad)':crit>=0.4?'var(--warn)':'var(--good)';
+    var outs=(r.scenario_distribution||[]).slice(0,4).map(function(o){return '<div class="orow"><span class="oname" style="width:120px">'+o.name.slice(0,18)+'</span><div class="otrk"><i style="width:'+Math.round(o.value*100)+'%;background:'+(o.color||'#45505c')+'"></i></div><span class="opct">'+Math.round(o.value*100)+'%</span></div>'}).join('');
+    return '<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div class="ring" style="width:46px;height:46px;border:3px solid '+col+';color:'+col+';font-size:13px">'+crit.toFixed(2)+'</div><div style="font-size:13px;color:#fff;font-weight:500">'+(labels[r.run_id]||r.run_id)+'</div></div>'+outs+'</div>';
+  }).join('');
+  cols.innerHTML=band+cards;
+}
+
+function setLang(l){state.lang=l;document.querySelectorAll('[data-en]').forEach(function(el){if(el.dataset.ru===undefined)el.dataset.ru=el.innerHTML;el.innerHTML=(l==='en')?el.dataset.en:el.dataset.ru});document.querySelectorAll('#lang span').forEach(function(s){s.classList.toggle('on',s.dataset.l===l)});renderPersonas();markPersona()}
+document.querySelectorAll('#lang span').forEach(function(s){s.onclick=function(){setLang(s.dataset.l)}});
+init();
+</script>
+</body>
+</html>
