@@ -1,0 +1,48 @@
+\documentclass[border=5pt]{standalone}
+\usepackage{fontspec}
+\setmainfont{DejaVu Serif}[Scale=0.92]
+\usepackage{polyglossia}\setmainlanguage{russian}\setotherlanguage{english}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,backgrounds,fit}
+\begin{document}
+\footnotesize
+\begin{tikzpicture}[
+  >={Stealth[length=2.4mm]},
+  blk/.style={draw,rounded corners=2.5pt,align=center,inner sep=4.5pt,
+    minimum height=10mm,minimum width=30mm,fill=#1,line width=0.5pt},
+  hub/.style={draw,rounded corners=3pt,align=center,inner sep=6pt,
+    minimum height=15mm,minimum width=34mm,fill=blue!12,line width=1pt},
+  lbl/.style={font=\scriptsize,fill=white,fill opacity=0.85,text opacity=1,inner sep=1.3pt},
+  fwd/.style={->,thick,black!75},
+  bi/.style={<->,thick,black!75},
+  feed/.style={->,thick,red!65!black},
+]
+\node[hub] (econ) at (0,0) {\textbf{Экономика}\\[-1pt]\scriptsize выпуск, капитал,\\[-2pt]\scriptsize цены, занятость};
+
+\node[blk={red!8}]    (clim) at (0,3.5)     {Климат и\\углеродный цикл};
+\node[blk={red!8}]    (dmg)  at (4.7,2.0)   {Ущерб $\Omega(T)$};
+\node[blk={orange!14}](geo)  at (5.2,-0.6)  {Геополитика\\\scriptsize торговля, конфликты};
+\node[blk={orange!14}](soc)  at (2.9,-3.0)  {Общество\\и политика};
+\node[blk={green!12}] (cris) at (-2.9,-3.0) {Кризисы\\и финансы};
+\node[blk={yellow!18}](res)  at (-5.2,-0.6) {Ресурсы\\\scriptsize энергия, металлы};
+\node[blk={red!8}]    (carb) at (-4.7,2.0)  {Цена\\углерода};
+
+% climate feedback loop
+\draw[fwd] (econ) -- node[lbl]{выбросы} (clim);
+\draw[fwd] (clim) -- node[lbl,pos=0.55]{потепление $T$} (dmg);
+\draw[feed] (dmg) -- node[lbl]{потери выпуска} (econ);
+\draw[feed] (carb) -- node[lbl,pos=0.5]{замещение энергии} (econ);
+% periphery
+\draw[bi]  (econ) -- node[lbl]{цены, спрос} (res);
+\draw[bi]  (econ) -- node[lbl]{торговля, санкции} (geo);
+\draw[fwd] (econ.south) to[out=-75,in=120] node[lbl,pos=0.78]{инфляция, безработица} (soc.north west);
+\draw[feed] (soc.north east) to[out=55,in=-55] node[lbl,pos=0.25]{сбережения, риск} (econ.south east);
+\draw[bi]  (econ) -- node[lbl,pos=0.6]{пороги, шоки} (cris);
+
+% monitoring layer
+\node[blk={gray!14},minimum width=150mm] (sig) at (0,-5.0)
+  {\textbf{Слабые сигналы:} мониторинг совместного состояния \scriptsize(расстояние Махаланобиса, разладка, критическое замедление)};
+\draw[dashed,->,gray!70] (cris) -- (sig);
+\draw[dashed,->,gray!70] (soc) -- (sig);
+\end{tikzpicture}
+\end{document}
