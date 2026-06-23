@@ -70,7 +70,9 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
-`17.1.0`. Adds the statistical-rigor and analysis layer on top of the 17.0.0 core (unchanged):
+`17.1.1`. Preprint snapshot: the accompanying paper is finalized in academic English with fully
+reproducible figures (engine and results unchanged from 17.1.0). The 17.1.0 release added the
+statistical-rigor and analysis layer on top of the 17.0.0 core (unchanged):
 reproducible conflict-AUC inference (bootstrap CI + permutation test), Morris-screening robustness
 and ensemble Monte-Carlo convergence checks, and an identification of the (lagged) economy→society
 channel. Ships a committed, reproducible figure generator and the accompanying paper.

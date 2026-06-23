@@ -2,6 +2,22 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [17.1.1] — 2026-06-24
+
+Preprint snapshot for the Zenodo archive. No changes to the simulation engine, calibration, or
+results relative to 17.1.0; this release finalizes the accompanying paper and makes the figure
+pipeline fully reproducible.
+
+### Changed
+
+- The accompanying paper (`paper/gim_paper.tex`) is translated into academic English, reframed
+  around strategic planning and scenario analysis; the Russian version is retained as
+  `paper/gim_paper_ru.tex`. The appendix and the bibliography each begin on a new page.
+- Figures regenerated with English labels: `fig1` (architecture, TikZ) and `fig2`--`fig5` via the
+  committed, reproducible generator `paper/figures/make_figures.py`.
+
+[17.1.1]: https://github.com/Theclimateguy/GIM/releases/tag/v17.1.1
+
 ## [17.1.0] — 2026-06-23
 
 Statistical-rigor, robustness, and analysis layer on top of the unchanged 17.0.0 core. The
