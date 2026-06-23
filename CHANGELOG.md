@@ -2,6 +2,42 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [17.1.0] — 2026-06-23
+
+Statistical-rigor, robustness, and analysis layer on top of the unchanged 17.0.0 core. The
+simulation engine and the "golden" backtest are not modified; this release strengthens the evidence
+behind the reported results, identifies the (lagged) economy→society channel, and makes the figures
+reproducible. The accompanying paper is reframed around strategic planning and scenario analysis.
+
+### Added
+
+- **Reproducible conflict-AUC inference** (`scripts/conflict_auc_inference.py`): bootstrap 95% CI
+  **[0.59, 0.86]** (20k resamples) and a label-permutation significance test for AUC = 0.736.
+- **Morris-screening robustness** (`scripts/run_sensitivity_robustness.py`): trajectory-count
+  convergence (Spearman **ρ ≥ 0.99** from r = 8 to r = 32) and seed stability across the four metrics.
+- **Ensemble Monte-Carlo convergence** (`scripts/run_ensemble_convergence.py`): N = 80 → 500
+  convergence with bootstrap standard errors on every reported percentile.
+- **Economy→social-tension channel analysis** (`scripts/social_channel_analysis.py`): localization,
+  accumulation, an impulse response to a stagflation shock, and a distributed-lag regression. The
+  channel is **statistically significant but lagged**; its direct drivers are the social-block priors,
+  which were absent from the screened physico-economic set — hence the screen's apparent null.
+- **Committed, reproducible figure generator** (`paper/figures/make_figures.py`) for Fig. 2–5,
+  including a new **Fig. 5** (economy→society channel). Method citations (Morris 1991,
+  Campolongo 2007, Efron & Tibshirani 1993) added to the paper.
+
+### Changed
+
+- All sensitivity/ensemble runs now use the **full 57 modeled countries** (was 25 for speed). The
+  reported "world GDP" is explicitly the 57-country aggregate (~116 trln at the 10-year horizon,
+  ~109 trln in the 2026 base), clarified in the paper as distinct from all-world output.
+- **Corrected** the conflict-AUC permutation p-value 0.0005 → **≈0.001** (the old value was a
+  2000-permutation artifact; stable at 50k permutations). Bootstrap CI [0.59, 0.86] confirmed.
+- Ensemble temperature 5–95% lower bound refined ≈0.9 → **≈1.0 °C** after the N-convergence check.
+- Paper reframed around **strategic planning and scenario analysis** (risk management secondary);
+  prose tidied for academic style.
+
+[17.1.0]: https://github.com/Theclimateguy/GIM/releases/tag/v17.1.0
+
 ## [17.0.0] — 2026-06-22
 
 First released version of GIM17. Evolves the frozen GIM16 baseline into an objective,

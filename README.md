@@ -70,7 +70,11 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
-`17.0.0`. Highlights vs. the frozen version 16: Python 3.10+ and lean repo; enforceable
+`17.1.0`. Adds the statistical-rigor and analysis layer on top of the 17.0.0 core (unchanged):
+reproducible conflict-AUC inference (bootstrap CI + permutation test), Morris-screening robustness
+and ensemble Monte-Carlo convergence checks, and an identification of the (lagged) economy→society
+channel. Ships a committed, reproducible figure generator and the accompanying paper.
+Highlights of the 17.0.0 core: Python 3.10+ and lean repo; enforceable
 accounting/integrity invariants; deterministic reproducible runs; full uncertainty machinery
 (evidence-based priors, Monte-Carlo ensembles, sensitivity analysis, history matching, skill
 scoring); an objective, fully-closed economic core (nested-CES production + market clearing + closed
