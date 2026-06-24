@@ -35,6 +35,7 @@ from __future__ import annotations
 from . import calibration_params as cal
 from .core import WorldState
 from .params import resolve_params
+from .expectations import expected_inflation
 
 _GDP_PREV_ATTR = "_macro_gdp_prev"
 _ENERGY_PRICE_PREV_ATTR = "_macro_energy_price_prev"
@@ -81,6 +82,15 @@ def update_inflation_unemployment(world: WorldState) -> None:
             params.INFLATION_EXPECTATION_ANCHOR * params.INFLATION_TARGET
             + (1.0 - params.INFLATION_EXPECTATION_ANCHOR) * econ.inflation
         )
+        # [E4.3] Near-rational: blend the model-consistent expected inflation from the forward
+        # projection (gim/core/expectations.py) into the anchor when EXPECTATIONS_INFLATION_WEIGHT>0 and
+        # a forecast is cached. w=0 (default) -> pure adaptive -> golden bit-identical. Falls back to
+        # adaptive when no forecast is available (e.g. inside the projection itself, under the guard).
+        infl_weight = getattr(params, "EXPECTATIONS_INFLATION_WEIGHT", 0.0)
+        if infl_weight > 0.0 and int(getattr(params, "EXPECTATIONS_HORIZON", 0)) > 0:
+            forecast = expected_inflation(world, agent.id)
+            if forecast is not None:
+                pi_expected = (1.0 - infl_weight) * pi_expected + infl_weight * forecast
         unemployment_gap = params.NAIRU - u_new  # positive when u below NAIRU -> inflationary
         cost_push = params.INFLATION_COSTPUSH_COEFF * energy_change
         pi_new = pi_expected + params.PHILLIPS_SLOPE * unemployment_gap + cost_push

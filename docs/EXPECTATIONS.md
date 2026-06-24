@@ -1,9 +1,9 @@
 # Near-rational expectations (E4.3)
 
-Status: **scaffold landed, switchable, OFF by default** (`EXPECTATIONS_HORIZON = 0`) — the golden
-2015–2023 backtest is bit-identical to the pre-E4.3 baseline. **Investment site wired**; the inflation
-anchor is designed but deferred to a second pass. Calibration / headline activation are future work.
-THE-62.
+Status: **both sites wired, switchable, OFF by default** (`EXPECTATIONS_HORIZON = 0`) — the golden
+2015–2023 backtest is bit-identical to the pre-E4.3 baseline. Investment and the inflation anchor both
+read the forward forecast; parameters are literature-grounded (not backtest-fit — expectations barely
+bite in-sample). Headline activation is the next, separate decision. THE-62.
 
 ## Why
 
@@ -53,9 +53,29 @@ must run their guards strictly sequentially (not nested inside the outer step's 
   when `HORIZON>0` and a forecast is cached, the forward-looking tilt sources its expected-growth
   signal from `expected_growth(world, agent_id)` instead of the backward Δgdp proxy. Falls back to the
   backward proxy when off, or when no forecast is available (e.g. inside the projection itself).
-- **Inflation anchor — designed, deferred.** `π_expected = (1−w)·adaptive + w·forecast π`, a new weight
-  `EXPECTATIONS_INFLATION_WEIGHT` defaulting to 0. Held to a second pass because the adaptive anchor's
-  persistence (ρ=0.5) was just independently validated by E4.1 ([MONEY_PRICES.md](MONEY_PRICES.md)).
+- **Inflation anchor — wired.** [labor_market.py](../gim/core/labor_market.py): the Phillips anchor
+  blends in the model-consistent expected inflation, `π_expected = (1−w)·adaptive + w·forecast π`,
+  weight `EXPECTATIONS_INFLATION_WEIGHT` (default 0). The grounded on-value **w ≈ 0.65** is the
+  forward-looking share of the hybrid New-Keynesian Phillips curve (Galí & Gertler 1999; GGLS 2005,
+  γ_f ≈ 0.6–0.7). **Regime caveat:** activating it shifts inflation persistence away from the adaptive
+  ρ=0.5 that E4.1 independently validated ([MONEY_PRICES.md](MONEY_PRICES.md)) toward the hybrid-NKPC
+  forward-looking regime — a deliberate expectation-regime switch, which is why the validated headline
+  keeps it off. In-sample the model-consistent forecast ≈ the adaptive anchor, so turning the inflation
+  site on alone leaves the 2015–2023 backtest **bit-identical** (it diverges only forward / under shocks).
+
+## Parameters (grounded on-values; defaults stay off)
+
+| Parameter | Default | On-value | Anchor |
+|---|---|---|---|
+| `EXPECTATIONS_HORIZON` | 0 | 3 | investment/forecast planning horizon |
+| `EXPECTATIONS_REFRESH_EVERY` | 5 | 5 | cost (≈2× at H=3; see spike) |
+| `EXPECTATIONS_FORESIGHT` | 0 | 0.5 | bounded investment tilt (F2.5) |
+| `EXPECTATIONS_INFLATION_WEIGHT` | 0 | 0.65 | hybrid-NKPC forward share (Galí–Gertler) |
+
+These are **literature-anchored priors, not a GIM-backtest fit** — the 2015–2023 window can't identify
+forward-looking behaviour (it barely bites in-sample, as the bit-identical activation shows). Validation
+is by forward ablation and the regime checks above. Full activation of both sites with the on-values
+keeps the backtest within the validated band (GDP RMSE 0.590→0.593, CO₂ 1.148→1.131).
 
 ## Cost (measured on the real 57-country world)
 
@@ -75,10 +95,13 @@ is a headline/scenario feature, not something to leave on for every ensemble mem
 ## Golden safety
 
 `EXPECTATIONS_HORIZON = 0` (default) → `update_expectations` is a no-op that writes no extra state →
-byte-identical golden. Even with the operator **on** but the tilt off (`HORIZON>0, FORESIGHT=0`) the
-run stays golden — the event-frozen, separately-seeded projection never perturbs the main RNG or
-critical fields. Verified by [tests/test_expectations.py](../tests/test_expectations.py):
-`test_default_golden_preserved`, `test_operator_alone_is_golden`, `test_recursion_guard_suppresses_operator`.
+byte-identical golden. Even with the operator **on** but both tilts off (`HORIZON>0, FORESIGHT=0,
+INFLATION_WEIGHT=0`) the run stays golden — the event-frozen, separately-seeded projection never
+perturbs the main RNG or critical fields. The **inflation site on alone** is also bit-identical
+in-sample (the forecast ≈ the adaptive anchor). Verified by
+[tests/test_expectations.py](../tests/test_expectations.py): `test_default_golden_preserved`,
+`test_operator_alone_is_golden`, `test_recursion_guard_suppresses_operator`, `test_inflation_on_alone_is_golden`,
+`test_inflation_site_applies_forecast` (proves the anchor actually blends the forecast).
 
 ## Honesty caveats
 
@@ -95,17 +118,19 @@ critical fields. Verified by [tests/test_expectations.py](../tests/test_expectat
 
 ```python
 run_historical_backtest(params_override={
-    "EXPECTATIONS_HORIZON": 3, "EXPECTATIONS_REFRESH_EVERY": 5, "EXPECTATIONS_FORESIGHT": 0.5,
+    "EXPECTATIONS_HORIZON": 3, "EXPECTATIONS_REFRESH_EVERY": 5,
+    "EXPECTATIONS_FORESIGHT": 0.5, "EXPECTATIONS_INFLATION_WEIGHT": 0.65,
 })
 ```
 
-Headline activation is a deliberate future decision (calibrate `H` / the tilt; record in
-`docs/RE_ANCHOR.md`).
+Headline activation is a deliberate future decision (record in `docs/RE_ANCHOR.md`).
 
 ## Files
 
-- `gim/core/expectations.py` — the operator, recursion guard, shared cache.
+- `gim/core/expectations.py` — the operator, recursion guard, shared cache, forecast accessors.
 - `gim/core/simulation.py` — `update_expectations(world)` called at the top of `step_world`.
 - `gim/core/economy.py` — the investment-site forward/backward swap.
-- `gim/core/calibration_params.py` — `EXPECTATIONS_HORIZON`, `EXPECTATIONS_REFRESH_EVERY`.
-- `tests/test_expectations.py` — golden-safety, operator caching, recursion guard, forward≠backward.
+- `gim/core/labor_market.py` — the inflation-anchor forward/adaptive blend.
+- `gim/core/calibration_params.py` — `EXPECTATIONS_HORIZON`, `EXPECTATIONS_REFRESH_EVERY`,
+  `EXPECTATIONS_INFLATION_WEIGHT`.
+- `tests/test_expectations.py` — golden-safety, operator caching, recursion guard, both site swaps.

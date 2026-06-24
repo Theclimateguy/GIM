@@ -49,6 +49,15 @@ def expected_growth(world, agent_id: str) -> float | None:
     return record["gdp_growth"] if record else None
 
 
+def expected_inflation(world, agent_id: str) -> float | None:
+    """The cached expected (mean H-step) inflation for an agent, or None when off/absent."""
+    cache = getattr(world, _CACHE_ATTR, None)
+    if not cache:
+        return None
+    record = cache.get(agent_id)
+    return record["inflation"] if record else None
+
+
 def update_expectations(world) -> None:
     """Refresh `world._expected_paths` when near-rational expectations are active.
 
@@ -100,4 +109,4 @@ def _project(world, horizon: int) -> dict[str, dict[str, float]]:
     return paths
 
 
-__all__ = ["update_expectations", "expected_growth", "in_expectation_mode"]
+__all__ = ["update_expectations", "expected_growth", "expected_inflation", "in_expectation_mode"]

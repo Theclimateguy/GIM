@@ -110,8 +110,15 @@ EXPECTATIONS_FORESIGHT = 0.0  # [F2.5] limited-foresight blend weight (0 = adapt
 # -> the operator never runs and no extra state is written -> golden bit-identical. The shared world-
 # level forecast is recomputed every EXPECTATIONS_REFRESH_EVERY years (cost control; see the cost spike
 # -- yearly is ~6x, every 5yr ~2x on a 200yr run). Design default-on value: HORIZON=3, REFRESH_EVERY=5.
-EXPECTATIONS_HORIZON = 0          # forecast horizon in years (0 = off / pure adaptive).
+EXPECTATIONS_HORIZON = 0          # forecast horizon in years (0 = off / pure adaptive). On-value: 3.
 EXPECTATIONS_REFRESH_EVERY = 5    # recompute the shared world-level forecast every k years (1 = yearly).
+# [E4.3] Weight on the model-consistent expected inflation in the Phillips anchor (labor_market.py):
+# pi_expected = (1-w)*adaptive + w*forecast. Default 0 -> pure adaptive (golden). Grounded on-value
+# ~0.65 = the forward-looking share of the HYBRID New-Keynesian Phillips curve (Gali & Gertler 1999;
+# GGLS 2005: gamma_f ~ 0.6-0.7). NB activating it moves the inflation persistence away from the
+# adaptive rho=0.5 that E4.1 validated, toward the hybrid-NKPC forward-looking regime -- a deliberate
+# expectation-regime switch, hence off by default (the validated headline keeps pure-adaptive).
+EXPECTATIONS_INFLATION_WEIGHT = 0.0
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]
