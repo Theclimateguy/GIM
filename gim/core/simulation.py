@@ -16,6 +16,7 @@ from .critical_pending import get_debt_flows, reset_debt_flows
 from .economy import compute_effective_interest_rate, update_economy_output, update_public_finances
 from .private_finance import update_private_finance
 from .labor_market import update_inflation_unemployment
+from .expectations import update_expectations
 from .geopolitics import apply_sanctions_effects, apply_security_actions, update_active_conflicts
 from .institutions import update_institutions
 from .memory import summarize_agent_memory, update_agent_memory
@@ -1008,6 +1009,12 @@ def step_world(
     else:
         disabled_channels = set()
     setattr(world.global_state, "_ablation_disabled_channels", disabled_channels)
+
+    # [E4.3] Near-rational expectations: refresh the shared forward forecast BEFORE entering the
+    # write-guard context. The guard uses a process-global handle and its __exit__ clears it, so the
+    # projection's own inner step_world guards must NOT be nested inside this step's guard; running the
+    # operator here keeps them strictly sequential. No-op when EXPECTATIONS_HORIZON=0 -> golden-safe.
+    update_expectations(world)
 
     guard_mode = resolve_guard_mode(phase_trace_requested=phase_trace is not None)
     write_guard = CriticalWriteGuard(

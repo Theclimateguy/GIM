@@ -42,6 +42,7 @@ notes have been moved out of the repository to keep it clean.)
 - [`LABOR_MARKET.md`](LABOR_MARKET.md) — endogenous inflation, unemployment, central-bank rate.
 - [`MONEY_PRICES.md`](MONEY_PRICES.md) — money→prices transmission (E4.1): the quantity-theory Phillips term, calibrated λ.
 - [`GROWTH_FOUNDATIONS.md`](GROWTH_FOUNDATIONS.md) — growth foundations (E4.2): R&D-stock (Jones) TFP-growth channel + SSP1–5 drift presets.
+- [`EXPECTATIONS.md`](EXPECTATIONS.md) — near-rational (model-consistent) expectations (E4.3): the level-1 forward-projection operator (investment site wired, off by default).
 
 ## Unique social / geopolitical / cultural layers
 

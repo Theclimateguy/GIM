@@ -103,6 +103,15 @@ SFC_PREMIUM_CAP = 0.10              # cap on the credit premium.
 # rate. GIM's recursive/adaptive default is a defended ABM-macro stance (see docs/ECONOMICS_BENCHMARK
 # D5); this provides a switchable forward-looking tilt for sensitivity analysis.
 EXPECTATIONS_FORESIGHT = 0.0  # [F2.5] limited-foresight blend weight (0 = adaptive).
+# [E4.3] Near-rational (model-consistent) expectations. When EXPECTATIONS_HORIZON>0, the forward-looking
+# investment tilt sources its expected-growth signal from an H-step EVENT-FROZEN projection of the model
+# (gim/core/expectations.py) rather than the backward Delta-gdp proxy -- a near-rational/level-1 forecast
+# (a recursion guard makes the projection's own inner steps fall back to the adaptive rule). Default 0
+# -> the operator never runs and no extra state is written -> golden bit-identical. The shared world-
+# level forecast is recomputed every EXPECTATIONS_REFRESH_EVERY years (cost control; see the cost spike
+# -- yearly is ~6x, every 5yr ~2x on a 200yr run). Design default-on value: HORIZON=3, REFRESH_EVERY=5.
+EXPECTATIONS_HORIZON = 0          # forecast horizon in years (0 = off / pure adaptive).
+EXPECTATIONS_REFRESH_EVERY = 5    # recompute the shared world-level forecast every k years (1 = yearly).
 SAVINGS_BASE = 0.24  # [WDI23]
 CAPITAL_DEPRECIATION = 0.05  # [PWT10]
 SAVINGS_BASELINE_OFFSET = 0.70  # [PRIOR]

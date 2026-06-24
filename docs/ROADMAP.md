@@ -102,9 +102,14 @@ to be brought fully up to the level of the rest of the model, the production sid
    feedbacks stay ensemble-only (deterministic feedback explodes the cost-of-carbon); the
    cost-of-carbon is reported with its growth/discounting sensitivity rather than tuned to a target.
    See `docs/climate/CLIMATE_BENCHMARKS.md`.
-5. **Forward-looking expectations** for investment and saving (or a documented defence of the current
-   backward-looking choice). *Partially addressed* by SSP2-anchored forward growth; the behavioural
-   expectations channel remains future work.
+5. **[Scaffold done — calibration/activation pending] Forward-looking expectations** for investment
+   and saving. A near-rational (model-consistent, level-1) expectation operator now exists (E4.3,
+   `docs/EXPECTATIONS.md`): agents forecast by running an H-step event-frozen projection of the model
+   itself (reusing `step_world` under a recursion guard), with the investment site wired to source its
+   expected-growth signal from the projection. Ships **switchable and off by default** (golden-safe);
+   the inflation-anchor site, parameter calibration, and headline activation remain future work. This
+   is a contained, additive change — not the equilibrium/DSGE rewrite that full rational expectations
+   would require.
 6. **[DONE — calibrated mechanism] Stronger growth foundations.** The long-run productivity drivers
    are now made explicit and calibrated (E4.2, `docs/GROWTH_FOUNDATIONS.md`): a Jones semi-endogenous
    R&D-**stock** TFP-growth channel calibrated on the World Bank 47-country panel (R&D-stock intensity

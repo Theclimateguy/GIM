@@ -5,6 +5,7 @@ from .critical_pending import get_transition_pending, record_debt_flow
 from .core import AgentState, WorldState, clamp01, effective_trade_intensity
 from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
 from .metrics import update_tfp_endogenous
+from .expectations import expected_growth
 
 _ECONOMY_CRITICAL_PENDING_ATTR = "_economy_critical_pending"
 
@@ -131,14 +132,22 @@ def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
     )
     savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
 
-    # [F2.5] Limited-foresight investment: blend a one-step expected-return signal (recent GDP
-    # growth) into the (otherwise adaptive) savings rate. Default EXPECTATIONS_FORESIGHT=0 ->
-    # pure adaptive expectations -> golden bit-identical. >0 tilts investment pro-cyclically toward
-    # expected returns (bounded), a tractable step toward forward-looking behaviour.
+    # [F2.5] Limited-foresight investment: blend an expected-return signal into the (otherwise
+    # adaptive) savings rate. Default EXPECTATIONS_FORESIGHT=0 -> pure adaptive expectations -> golden
+    # bit-identical. >0 tilts investment pro-cyclically toward expected returns (bounded).
     foresight = getattr(cal, "EXPECTATIONS_FORESIGHT", 0.0)
     if foresight > 0.0:
         g_prev = getattr(economy, "_gdp_prev_foresight", None)
-        exp_growth = (gdp - g_prev) / g_prev if (g_prev and g_prev > 0) else 0.0
+        backward = (gdp - g_prev) / g_prev if (g_prev and g_prev > 0) else 0.0
+        # [E4.3] Near-rational: when EXPECTATIONS_HORIZON>0 and a forward forecast has been cached for
+        # this agent, use the model-consistent expected growth instead of the backward Delta-gdp proxy.
+        # Falls back to the backward proxy when off, or when no forecast is available (e.g. inside the
+        # projection itself, where the recursion guard suppresses the operator) -> golden-safe.
+        exp_growth = backward
+        if int(getattr(cal, "EXPECTATIONS_HORIZON", 0)) > 0:
+            forward = expected_growth(world, agent.id)
+            if forward is not None:
+                exp_growth = forward
         savings_rate *= 1.0 + foresight * max(-0.5, min(0.5, exp_growth))
         savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
         economy._gdp_prev_foresight = gdp
