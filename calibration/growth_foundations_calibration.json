@@ -1,0 +1,164 @@
+{
+  "parameters": {
+    "TFP_RD_STOCK_ELASTICITY": 0.5,
+    "TFP_RD_STOCK_SENS": 0.0141,
+    "RD_STOCK_DEPRECIATION": 0.15
+  },
+  "preferred_spec": "C_power_grid_SELECTED",
+  "interpretation": "Semi-endogenous (Jones) growth-effect calibration. The WB panel pins the cross-country ELASTICITY phi (weakly identified -> fixed at the literature-standard 0.5) and VALIDATES the channel: the naive no-convergence slope is NEGATIVE (frontier confound), but conditional on catch-up convergence R&D-stock intensity is a significant POSITIVE growth driver (implied social return ~0.49, in the literature range). The model parameter TFP_RD_STOCK_SENS is LEVEL-MATCHED to reproduce the validated flow-form mean R&D contribution (NOT the raw regression SENS, which is relative to zero R&D and would double-count TFP_DRIFT) -- a drop-in flow->stock form upgrade that preserves the growth level. delta_R is a literature prior; phi is invariant to it (it only rescales intensity).",
+  "mean_rd_stock_intensity": 0.09806438691274892,
+  "sens_regression_vs_zero_rd": 0.0578,
+  "sens_level_matched_to_flow_USED": 0.0141,
+  "flow_form_sens": 0.3,
+  "implied_social_return_linear_form": 0.4872525139487083,
+  "social_return_literature_range": [
+    0.2,
+    0.55
+  ],
+  "method": "cross-country growth regression (country means) for phi + validation; SENS level-matched to the validated flow form",
+  "window": [
+    2000,
+    2023
+  ],
+  "delta_R": 0.15,
+  "specs": {
+    "A_linear_no_convergence": {
+      "sens": -0.05465999014942352,
+      "se": 0.03103507794253372,
+      "r2": 0.06448679953035752,
+      "n": 47,
+      "phi": 1.0
+    },
+    "B_linear_plus_convergence": {
+      "sens": 0.07308787709230624,
+      "se": 0.03258224218460328,
+      "convergence_coef": -0.010747740476074966,
+      "r2": 0.4641233565873236,
+      "n": 47,
+      "phi": 1.0
+    },
+    "C_power_grid_SELECTED": {
+      "selected": {
+        "phi": 0.5,
+        "sens": 0.05782473758552198,
+        "se": 0.020292791952422444,
+        "convergence_coef": -0.011893007301518946,
+        "r2": 0.49587210778515534,
+        "rss": 0.005722345415735484
+      },
+      "unconstrained_rss_min": {
+        "phi": 0.1,
+        "sens": 0.1023312544641195,
+        "se": 0.03278409711400838,
+        "convergence_coef": -0.012151903043376289,
+        "r2": 0.5110980414269881,
+        "rss": 0.005549516153714602
+      },
+      "grid": [
+        {
+          "phi": 0.1,
+          "sens": 0.1023312544641195,
+          "se": 0.03278409711400838,
+          "convergence_coef": -0.012151903043376289,
+          "r2": 0.5110980414269881,
+          "rss": 0.005549516153714602
+        },
+        {
+          "phi": 0.15,
+          "sens": 0.07946924258737342,
+          "se": 0.02550505038770096,
+          "convergence_coef": -0.012193860131642392,
+          "r2": 0.5107832203562603,
+          "rss": 0.005553089681263218
+        },
+        {
+          "phi": 0.2,
+          "sens": 0.0689147037296196,
+          "se": 0.022229513958077395,
+          "convergence_coef": -0.012210784267982444,
+          "r2": 0.5098938443795344,
+          "rss": 0.005563184969823673
+        },
+        {
+          "phi": 0.25,
+          "sens": 0.06330173533325595,
+          "se": 0.020584447453076405,
+          "convergence_coef": -0.012204084126560669,
+          "r2": 0.5084827781777528,
+          "rss": 0.00557920195348151
+        },
+        {
+          "phi": 0.4,
+          "sens": 0.057699875000141954,
+          "se": 0.019522062556414626,
+          "convergence_coef": -0.012063136933711707,
+          "r2": 0.5017602208898724,
+          "rss": 0.005655509564054913
+        },
+        {
+          "phi": 0.5,
+          "sens": 0.05782473758552198,
+          "se": 0.020292791952422444,
+          "convergence_coef": -0.011893007301518946,
+          "r2": 0.49587210778515534,
+          "rss": 0.005722345415735484
+        },
+        {
+          "phi": 0.6,
+          "sens": 0.05935394986616693,
+          "se": 0.02172881763192862,
+          "convergence_coef": -0.011684659675364924,
+          "r2": 0.4894237087046738,
+          "rss": 0.0057955410620920255
+        },
+        {
+          "phi": 0.75,
+          "sens": 0.06330162057680233,
+          "se": 0.024866414633834433,
+          "convergence_coef": -0.011335799672738359,
+          "r2": 0.4795005942232605,
+          "rss": 0.005908178132048738
+        },
+        {
+          "phi": 0.9,
+          "sens": 0.06873218990360608,
+          "se": 0.029108966705965,
+          "convergence_coef": -0.010978298544212419,
+          "r2": 0.4699973619752996,
+          "rss": 0.006016049127342949
+        },
+        {
+          "phi": 1.0,
+          "sens": 0.07308787709230624,
+          "se": 0.03258224218460328,
+          "convergence_coef": -0.010747740476074966,
+          "r2": 0.4641233565873236,
+          "rss": 0.006082724842618718
+        }
+      ],
+      "n": 47,
+      "phi_weakly_identified": true,
+      "r2_range": [
+        0.4641233565873236,
+        0.5110980414269881
+      ],
+      "note": "R^2 is nearly flat across the grid and the RSS minimum sits on the lower boundary; phi is fixed at the literature-standard 0.5 rather than the boundary argmin."
+    }
+  },
+  "indicators": {
+    "rd": "GB.XPD.RSDV.GD.ZS",
+    "growth": "NY.GDP.PCAP.KD.ZG",
+    "level": "NY.GDP.PCAP.KD"
+  },
+  "n_countries": 47,
+  "coverage": {
+    "wb_panel_universe": 49,
+    "estimated": 47,
+    "excluded": {
+      "BGD": "thin_rd_coverage:0yrs(<8)",
+      "NGA": "thin_rd_coverage:2yrs(<8)"
+    },
+    "note": "The WB panel is the 49 WB-covered members of the model's 57 agents; the other 8 are 7 synthetic 'Rest of ...' aggregates (no coherent country R&D series) + TWN (not WB-covered). phi is fixed and SENS is level-matched, so excluded countries do not shift the model parameters -- they would only refine the validation."
+  },
+  "generated_utc": "2026-06-24T17:20:33.208387+00:00"
+}

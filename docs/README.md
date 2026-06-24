@@ -40,6 +40,8 @@ notes have been moved out of the repository to keep it clean.)
 
 - [`ECONOMICS_BENCHMARK.md`](ECONOMICS_BENCHMARK.md) — honest economics review vs industry models + the depth roadmap (D1–D5).
 - [`LABOR_MARKET.md`](LABOR_MARKET.md) — endogenous inflation, unemployment, central-bank rate.
+- [`MONEY_PRICES.md`](MONEY_PRICES.md) — money→prices transmission (E4.1): the quantity-theory Phillips term, calibrated λ.
+- [`GROWTH_FOUNDATIONS.md`](GROWTH_FOUNDATIONS.md) — growth foundations (E4.2): R&D-stock (Jones) TFP-growth channel + SSP1–5 drift presets.
 
 ## Unique social / geopolitical / cultural layers
 

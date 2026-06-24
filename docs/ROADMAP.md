@@ -105,9 +105,14 @@ to be brought fully up to the level of the rest of the model, the production sid
 5. **Forward-looking expectations** for investment and saving (or a documented defence of the current
    backward-looking choice). *Partially addressed* by SSP2-anchored forward growth; the behavioural
    expectations channel remains future work.
-6. **Stronger growth foundations**: identify the long-run productivity drivers and anchor baseline
-   growth to the standard scenario pathways, reporting growth skill against naive baselines.
-   *Partially done* — forward growth is now SSP2-anchored with GDP skill-vs-naive reported.
+6. **[DONE — calibrated mechanism] Stronger growth foundations.** The long-run productivity drivers
+   are now made explicit and calibrated (E4.2, `docs/GROWTH_FOUNDATIONS.md`): a Jones semi-endogenous
+   R&D-**stock** TFP-growth channel calibrated on the World Bank 47-country panel (R&D-stock intensity
+   is a significant positive growth driver conditional on convergence, SENS≈0.058; the naive slope is
+   a frontier confound), and SSP1–5 forward-drift presets grounded on the published SSP marker
+   GDP-per-capita pathways (reproducing the 1.0%–2.8% growth envelope). Both ship **switchable and
+   off/SSP2-default** — golden-safe; headline activation of the R&D-stock core remains a deliberate
+   re-anchor decision. Forward growth was already SSP2-anchored with GDP skill-vs-naive reported.
 
 Items 1–4 (the objective production core + full price/balance closure + climate-benchmark decisions)
 are **done and now the base model**. Items 5–6 are partially addressed refinements (forward-looking

@@ -124,12 +124,21 @@ POLICY_LOG_DEPTH = 3  # [PRIOR] Visible action/outcome memory horizon for agent 
 TFP_RD_SHARE_SENS = 0.30  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
 # [E4.2] R&D capital-stock (Jones semi-endogenous) growth channel. Default OFF -> the flow R&D-share
 # form above is used (golden bit-identical). When RD_STOCK_GROWTH is on, TFP growth comes from the
-# R&D-stock intensity (perpetual inventory of rd_spending) with diminishing returns (phi<1). The
-# SENS / ELASTICITY / depreciation defaults are placeholders pending calibration. See docs.
+# R&D-stock intensity (perpetual inventory of rd_spending) with diminishing returns (phi<1).
+# CALIBRATED from the World Bank 47-country panel (2000-2023) via calibration/calibrate_growth_
+# foundations.py; see docs/GROWTH_FOUNDATIONS.md. The panel VALIDATES the channel (conditional on
+# catch-up convergence R&D-stock intensity is a significant positive growth driver, implied social
+# return ~0.49 in the literature range; the naive no-convergence slope is negative -- a frontier
+# confound) and pins the cross-country ELASTICITY phi (weakly identified -> fixed at the literature-
+# standard 0.5; Jones 1995, Bloom et al. 2020). SENS is LEVEL-MATCHED to reproduce the validated flow-
+# form mean R&D contribution (= SENS_flow*delta_R*X_bar^(1-phi)), NOT the raw regression slope -- a
+# drop-in flow->stock form upgrade that preserves the growth level (the regression slope is relative
+# to zero R&D and would double-count TFP_DRIFT). Channel stays OFF pending a deliberate headline
+# re-anchor; the R&D channel is dormant in the 2015-2023 backtest, so the golden is unaffected.
 RD_STOCK_GROWTH = False
-RD_STOCK_DEPRECIATION = 0.15    # R&D knowledge-stock depreciation (perpetual inventory).
-TFP_RD_STOCK_SENS = 0.30        # Jones scale on R&D-stock intensity (to be calibrated).
-TFP_RD_STOCK_ELASTICITY = 0.50  # phi < 1: diminishing returns to the R&D stock (semi-endogenous).
+RD_STOCK_DEPRECIATION = 0.15    # [LIT] R&D knowledge-stock depreciation (perpetual inventory; OECD/BLS ~0.15).
+TFP_RD_STOCK_SENS = 0.0141      # [CALIBRATED] level-matched to the flow form at the WB-panel mean (phi=0.5).
+TFP_RD_STOCK_ELASTICITY = 0.50  # [LIT/DATA] phi<1: diminishing returns; weakly identified, fixed at 0.5.
 TFP_TRADE_SPILLOVER_SENS = 0.30  # [PRIOR]
 TFP_DRIFT = 0.01  # [PRIOR] historical baseline TFP drift (calibrated to the 2015-2023 backtest).
 # [E3.4/SSP] Forward (post-2024) baseline TFP drift anchored to SSP2 "middle of the road" (~0.018),
@@ -139,17 +148,21 @@ TFP_DRIFT = 0.01  # [PRIOR] historical baseline TFP drift (calibrated to the 201
 SSP_FORWARD_GROWTH = True       # use the SSP2 forward baseline drift after SSP_FORWARD_FROM_YEAR.
 SSP_FORWARD_FROM_YEAR = 2024    # last historical year (forward = strictly after this).
 SSP_FORWARD_TFP_DRIFT = 0.018   # SSP2 baseline TFP drift (Dellink et al. 2017 / Riahi et al. 2017).
-# [E4.2] SSP1-5 forward TFP-drift presets (global-mean, consistent with the SSP marker GDP pathways;
-# Dellink et al. 2017 / Riahi et al. 2017 ordering SSP5>SSP1>SSP2>SSP4>SSP3). SSP_SCENARIO selects;
-# default "SSP2" -> 0.018, reproducing the prior single forward drift (golden + forward unchanged).
-# Values are an ordered spread anchored on the validated SSP2; refine against the SSP database.
+# [E4.2] SSP1-5 forward TFP-drift presets, GROUNDED on the published SSP marker GDP-per-capita
+# pathways (Dellink et al. 2017 OECD ENV-Growth; IIASA SSP database). Derivation: take the published
+# 2100 global GDP-pc levels (SSP5~$120k, SSP1~$77k, SSP2~$63k, SSP4~$46k, SSP3~$24k), back out the
+# implied 2010-2100 per-capita growth (reproduces the published 1.0%-2.8% envelope), and scale the
+# VALIDATED SSP2 drift (0.018) by each scenario's growth ratio to SSP2 (balanced-growth approximation:
+# TFP-drift ratios track per-capita-GDP-growth ratios). Ordering SSP5>SSP1>SSP2>SSP4>SSP3. These are
+# selectable forward SCENARIO presets, not a headline change: SSP_SCENARIO defaults to "SSP2" -> 0.018,
+# reproducing the prior single forward drift (golden + forward unchanged). See docs/GROWTH_FOUNDATIONS.md.
 SSP_SCENARIO = "SSP2"
 SSP_TFP_DRIFT_PRESETS = {
-    "SSP1": 0.021,  # Sustainability — high productivity growth.
-    "SSP2": 0.018,  # Middle of the road (current default).
-    "SSP3": 0.011,  # Regional rivalry — low growth.
-    "SSP4": 0.014,  # Inequality.
-    "SSP5": 0.025,  # Fossil-fueled development — highest growth.
+    "SSP1": 0.020,  # Sustainability — high productivity growth (2.29%/yr GDP-pc).
+    "SSP2": 0.018,  # Middle of the road (validated anchor; 2.07%/yr GDP-pc).
+    "SSP3": 0.009,  # Regional rivalry — lowest growth (0.98%/yr GDP-pc).
+    "SSP4": 0.015,  # Inequality (1.71%/yr GDP-pc).
+    "SSP5": 0.024,  # Fossil-fueled development — highest growth (2.80%/yr GDP-pc).
 }
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
 TFP_GROWTH_MIN = -0.05

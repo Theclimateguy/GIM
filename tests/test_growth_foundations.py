@@ -41,6 +41,15 @@ class GrowthFoundationsTests(unittest.TestCase):
         self.assertGreater(p["SSP2"], p["SSP4"])
         self.assertGreater(p["SSP4"], p["SSP3"])
 
+    def test_calibrated_values_contract(self):
+        # Calibration contract (calibration/growth_foundations_calibration.json + docs/GROWTH_FOUNDATIONS.md).
+        # Guards the WB-panel R&D-stock fit and the SSP-pathway-grounded presets against accidental drift.
+        self.assertAlmostEqual(cal.TFP_RD_STOCK_SENS, 0.0141, places=4)  # level-matched to the flow form
+        self.assertEqual(cal.TFP_RD_STOCK_ELASTICITY, 0.50)
+        self.assertEqual(cal.RD_STOCK_DEPRECIATION, 0.15)
+        self.assertEqual(cal.SSP_TFP_DRIFT_PRESETS,
+                         {"SSP1": 0.020, "SSP2": 0.018, "SSP3": 0.009, "SSP4": 0.015, "SSP5": 0.024})
+
     def test_rd_stock_accumulates(self):
         agent = _tfp_after_update(0.02, stock_form=True)
         self.assertIsNotNone(getattr(agent.economy, "_rd_stock", None))
