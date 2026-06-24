@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import json
 import os
-import textwrap
 
 import numpy as np
 import matplotlib
@@ -73,10 +72,6 @@ STR = {
         "leg_gim_tension": "GIM: tension response",
         "ann_emis_cut": "−{:.1f}% @10y",
         "ann_tension_trust": "@10y:  tension +{:.1f}×10⁻³\n          trust {:.1f}×10⁻³",
-        "carbon_caption": ("Anchor: Nordhaus, DICE-2016R (PNAS 2017) — optimal carbon price "
-                           "welfare-optimal, emissions decline; no unemployment / inflation / politics.  "
-                           "Real reversals: France 2018 (gilets jaunes), Australia 2014.  GIM adds the "
-                           "economy, society and policy chain that determines whether the tax survives."),
         # oil
         "oil_suptitle": "Scenario B — Oil price shock:  an energy model sees price; GIM sees the sovereign-debt cascade",
         "oil_p1": "Sovereign-debt cascade in importers",
@@ -90,10 +85,6 @@ STR = {
         "leg_gim_extra": "GIM: extra importers in crisis",
         "ann_realistic": "realistic\n(~3% GDP)",
         "ann_severe": "severe\n(~15% GDP)",
-        "oil_caption": ("Anchor: IMF GFSR Oct-2025 ch.3; BU GDP Center 2026.  Energy-system models "
-                        "(MESSAGEix) stop at price / demand adjustment — no sovereign-finance block.  "
-                        "Real case: Sri Lanka 2022 ($1.9B reserves vs $6B debt service, ending in "
-                        "default).  The cascade is threshold-shaped; the energy model is flat-zero everywhere."),
         # crop
         "crop_suptitle": "Scenario C — severe crop yield shock:  AgMIP stops at hunger; GIM carries it to protest pressure",
         "crop_p1": "Food stress (AgMIP) to protest (GIM)",
@@ -108,10 +99,6 @@ STR = {
         "leg_gim_food": "GIM: food-stress delta",
         "leg_gim_protest": "GIM: protest delta",
         "ann_severe50": "severe (−50%)",
-        "crop_caption": ("Anchor: AgMIP / IPCC AR6 (yield decline to a hunger index).  Lagi, Bertrand "
-                         "& Bar-Yam 2011 (arXiv:1108.2455): food riots above FAO index 210 (p<1e-7), "
-                         "coinciding with the Arab Spring 2011.  GIM adds the food, affordability and "
-                         "protest chain in vulnerable importers, with convex escalation."),
         # summary
         "sum_suptitle": "The integration dividend — three cross-sector channels with a non-zero GIM slope where sectoral models are flat",
         "sum_A": "A · economy and society",
@@ -127,12 +114,6 @@ STR = {
         "lab_messageix_zero": "MESSAGEix: zero",
         "lab_gim_protest": "GIM: protest pressure",
         "lab_agmip_zero": "AgMIP: zero",
-        "sum_caption": ("Each curve is one cross-sector channel, normalized to its own peak; the dashed "
-                        "red line is every sectoral model's structural zero on that axis.  Headline "
-                        "effects (10y): A carbon $50/t: emissions −{:.1f}%, tension +{:.1f}×10⁻³;  "
-                        "B severe oil shock (~15% GDP): +{:.0f} importers in sovereign crisis, "
-                        "debt-crisis-years ×{:.1f};  C severe yield −50%: food-stress +{:.3f}, protest "
-                        "+{:.3f}.  Shapes differ honestly: B threshold-stepped, C convex, A weak-but-robust."),
     },
     "ru": {
         "year": "год",
@@ -153,10 +134,6 @@ STR = {
         "leg_gim_tension": "GIM: отклик напряжения",
         "ann_emis_cut": "−{:.1f}% за 10 лет",
         "ann_tension_trust": "за 10 лет:  напряжение +{:.1f}×10⁻³\n          доверие {:.1f}×10⁻³",
-        "carbon_caption": ("Эталон: Нордхаус, DICE-2016R (PNAS 2017) — оптимальная по благосостоянию "
-                           "цена углерода, выбросы снижаются; нет безработицы, инфляции и политики.  "
-                           "Реальные развороты: Франция 2018 (жёлтые жилеты), Австралия 2014.  GIM "
-                           "добавляет цепочку «экономика — общество — политика», определяющую, доживёт ли налог."),
         # oil
         "oil_suptitle": "Сценарий Б — Нефтяной шок: энергомодель видит цену, GIM — долговой каскад",
         "oil_p1": "Суверенный долговой каскад у импортёров",
@@ -170,10 +147,6 @@ STR = {
         "leg_gim_extra": "GIM: доп. импортёры в кризисе",
         "ann_realistic": "реалистичный\n(~3% ВВП)",
         "ann_severe": "тяжёлый\n(~15% ВВП)",
-        "oil_caption": ("Эталон: IMF GFSR окт. 2025, гл. 3; BU GDP Center 2026.  Энергосистемные "
-                        "модели (MESSAGEix) останавливаются на цене и подстройке спроса — без блока "
-                        "суверенных финансов.  Реальный случай: Шри-Ланка 2022 ($1.9 млрд резервов "
-                        "против $6 млрд обслуживания долга, дефолт).  Каскад пороговый; энергомодель всюду на нуле."),
         # crop
         "crop_suptitle": "Сценарий В — Урожайный шок: AgMIP видит голод, GIM — протестное давление",
         "crop_p1": "Прод. стресс (AgMIP) и протест (GIM)",
@@ -188,10 +161,6 @@ STR = {
         "leg_gim_food": "GIM: прирост прод. стресса",
         "leg_gim_protest": "GIM: прирост протеста",
         "ann_severe50": "тяжёлый (−50%)",
-        "crop_caption": ("Эталон: AgMIP / МГЭИК AR6 (снижение урожая до индекса голода).  Lagi, "
-                         "Bertrand & Bar-Yam 2011 (arXiv:1108.2455): продовольственные бунты выше "
-                         "индекса ФАО 210 (p<1e-7), совпадая с «Арабской весной» 2011.  GIM добавляет "
-                         "цепочку «продовольствие — доступность — протест» у уязвимых импортёров, с выпуклой эскалацией."),
         # summary
         "sum_suptitle": "Выигрыш от интеграции — три межсекторных канала с ненулевым наклоном GIM там, где секторальные модели плоские",
         "sum_A": "А · экономика и общество",
@@ -207,13 +176,6 @@ STR = {
         "lab_messageix_zero": "MESSAGEix: ноль",
         "lab_gim_protest": "GIM: протестное давление",
         "lab_agmip_zero": "AgMIP: ноль",
-        "sum_caption": ("Каждая кривая — один межсекторный канал, нормированный к собственному пику; "
-                        "красный пунктир — структурный ноль любой секторальной модели по этой оси.  "
-                        "Ключевые эффекты (10 лет): А углеродный налог $50/т: выбросы −{:.1f}%, "
-                        "напряжение +{:.1f}×10⁻³;  Б тяжёлый нефтяной шок (~15% ВВП): +{:.0f} импортёра "
-                        "в суверенном кризисе, годы долгового кризиса ×{:.1f};  В тяжёлая потеря урожая "
-                        "−50%: прод. стресс +{:.3f}, протест +{:.3f}.  Формы честно различаются: "
-                        "Б ступенчато-пороговая, В выпуклая, А слабая-но-устойчивая."),
     },
 }
 
@@ -231,17 +193,13 @@ def L(key):
     return STR[LANG][key]
 
 
-def _finish(fig, name, suptitle, caption, top=0.90, bottom=0.27, width=150):
-    """Lay out, add a wrapped figure caption + suptitle, save (no tight bbox -- the bbox
-    would otherwise expand to fit the wide caption and squash the axes). '$' is escaped
+def _finish(fig, name, suptitle, top=0.90):
+    """Lay out, add the suptitle, save. Explanatory text lives in the LaTeX \\caption,
+    so it is NOT drawn on the figure -- the panels fill the freed space. '$' is escaped
     so it renders literally instead of opening a mathtext span. Filename gets the
     language SUFFIX."""
-    esc = lambda t: t.replace("$", r"\$")
-    fig.tight_layout(rect=(0.0, bottom, 1.0, top))
-    fig.suptitle(esc(suptitle), fontsize=11.5, color=INK, y=0.975)
-    fig.text(0.5, bottom * 0.42, esc(textwrap.fill(caption, width=width)),
-             ha="center", va="center", fontsize=7.8, style="italic", color=INK,
-             bbox=dict(boxstyle="round,pad=0.55", fc="#f5f5f2", ec="#d9d9d4", lw=0.8))
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, top))
+    fig.suptitle(suptitle.replace("$", r"\$"), fontsize=11.5, color=INK, y=0.97)
     for ext in ("pdf", "png"):
         fig.savefig(os.path.join(FIGDIR, f"{name}{SUFFIX}.{ext}"))
     plt.close(fig)
@@ -297,7 +255,7 @@ def fig_carbon(sc):
     ax3.set_xlabel(L("xl_carbon_price")); ax3.set_ylabel(L("yl_tension_delta"))
     ax3.legend(loc="upper left")
 
-    _finish(fig, "fig6_integration_carbon", L("carbon_suptitle"), L("carbon_caption"))
+    _finish(fig, "fig6_integration_carbon", L("carbon_suptitle"))
 
 
 # ----------------------------------------------------------------------------------
@@ -329,7 +287,7 @@ def fig_oil(sc):
     ax2.set_xlabel(L("xl_burden")); ax2.set_ylabel(L("yl_extra_crisis"))
     ax2.legend(loc="upper left")
 
-    _finish(fig, "fig7_integration_oil", L("oil_suptitle"), L("oil_caption"), width=108)
+    _finish(fig, "fig7_integration_oil", L("oil_suptitle"))
 
 
 # ----------------------------------------------------------------------------------
@@ -361,7 +319,7 @@ def fig_crop(sc):
     ax2.set_xlabel(L("xl_yield_loss")); ax2.set_ylabel(L("yl_terminal_delta"))
     ax2.legend(loc="upper left", fontsize=7.6)
 
-    _finish(fig, "fig8_integration_crop", L("crop_suptitle"), L("crop_caption"), width=108)
+    _finish(fig, "fig8_integration_crop", L("crop_suptitle"))
 
 
 # ----------------------------------------------------------------------------------
@@ -403,12 +361,7 @@ def fig_summary(scn):
         a.set_ylim(-0.12, 1.08)
         a.set_xlim(-0.02, 1.05)
 
-    ha = A["headline"]; hb = B["headline"]; hc = C["headline"]
-    cap = L("sum_caption").format(
-        ha["emissions_cut_pct_10y"], ha["tension_delta_10y"] * 1e3,
-        hb["extra_importers_in_crisis_peak"], hb["dca_ratio_peak"],
-        hc["food_delta_10y"], hc["protest_delta_10y"])
-    _finish(fig, "fig9_integration_summary", L("sum_suptitle"), cap, bottom=0.30, width=158)
+    _finish(fig, "fig9_integration_summary", L("sum_suptitle"))
 
 
 def main():
