@@ -31,12 +31,12 @@ DOC_PATHS = [
     "docs/README.md",
     "docs/MODEL_METHODOLOGY.md",
     "docs/GIM17_UNIFIED_MODEL_SPEC.md",
-    "docs/CALIBRATION_REFERENCE.md",
-    "docs/CALIBRATION_LAYER.md",
+    "docs/calibration/CALIBRATION_REFERENCE.md",
+    "docs/calibration/CALIBRATION_LAYER.md",
     "docs/SIMULATION_STEP_ORDER.md",
     "COMMAND_REFERENCE.md",
-    "docs/CRISIS_VALIDATION_PROTOCOL.md",
-    "docs/PARAMETER_CHANGE_POLICY.md",
+    "docs/calibration/CRISIS_VALIDATION_PROTOCOL.md",
+    "docs/calibration/PARAMETER_CHANGE_POLICY.md",
 ]
 
 NEGATIVE_OUTCOME_HINTS = (

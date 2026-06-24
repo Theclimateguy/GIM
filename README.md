@@ -86,7 +86,7 @@ Full index: [`docs/README.md`](docs/README.md). Key entry points:
 - Plain-language overview — [`docs/MODEL_LAYERS.md`](docs/MODEL_LAYERS.md)
 - Where it stands / next steps — [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - Model specification & methodology — [`docs/GIM17_UNIFIED_MODEL_SPEC.md`](docs/GIM17_UNIFIED_MODEL_SPEC.md), [`docs/MODEL_METHODOLOGY.md`](docs/MODEL_METHODOLOGY.md)
-- Calibration ledger — [`docs/CALIBRATION_REFERENCE.md`](docs/CALIBRATION_REFERENCE.md)
+- Calibration ledger — [`docs/CALIBRATION_REFERENCE.md`](docs/calibration/CALIBRATION_REFERENCE.md)
 
 ## Tests
 

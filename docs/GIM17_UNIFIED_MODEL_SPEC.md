@@ -302,7 +302,7 @@ Recalibration is required when numeric values, equation structure, or free param
 
 Policy document:
 
-- [`docs/PARAMETER_CHANGE_POLICY.md`](/Users/theclimateguy/Documents/jupyter_lab/GIM17/docs/PARAMETER_CHANGE_POLICY.md)
+- [`docs/PARAMETER_CHANGE_POLICY.md`](calibration/PARAMETER_CHANGE_POLICY.md)
 
 ## 9. Implementation pointers
 
