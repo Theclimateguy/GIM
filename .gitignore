@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+.claude/
 logs/
 results/*
 !results/backtest/
@@ -63,3 +64,7 @@ paper/hi-*.png
 paper/sec-*.png
 paper/figures/fig1_test.*
 paper/figures/fig1_prev*.png
+
+# Manuscript backups (kept locally, out of the remote)
+paper/*_backup.tex
+paper/*_ORIGINAL*.tex
