@@ -14,7 +14,12 @@ thesis - to climate/resource price shocks:
     Expectations-augmented Phillips curve (inflation):
         pi_expected = ANCHOR*INFLATION_TARGET + (1-ANCHOR)*pi_{t-1}
         cost_push   = COSTPUSH_COEFF * (energy price change this year)
-        pi_t        = pi_expected + PHILLIPS_SLOPE*(NAIRU - u_t) + cost_push
+        money_term  = MONEY_INFLATION_PASS * (broad-money growth - (g* + pi*))   # [E4.1], off by default
+        pi_t        = pi_expected + PHILLIPS_SLOPE*(NAIRU - u_t) + cost_push + money_term
+
+The optional [E4.1] money term is the quantity-theory channel: excess broad-money growth
+(deposits from the SFC block, above the stable-velocity reference) passes through to prices.
+It is computed only when MONEY_INFLATION_PASS != 0, so the default run is golden bit-identical.
 
 Both are clamped to plausible bounds. Inflation and unemployment are *non-critical*
 fields, so they are written directly (no transition/critical-pending machinery).
@@ -33,6 +38,7 @@ from .params import resolve_params
 
 _GDP_PREV_ATTR = "_macro_gdp_prev"
 _ENERGY_PRICE_PREV_ATTR = "_macro_energy_price_prev"
+_MONEY_PREV_ATTR = "_macro_money_prev"
 
 
 def _clamp(x: float, lo: float, hi: float) -> float:
@@ -78,4 +84,20 @@ def update_inflation_unemployment(world: WorldState) -> None:
         unemployment_gap = params.NAIRU - u_new  # positive when u below NAIRU -> inflationary
         cost_push = params.INFLATION_COSTPUSH_COEFF * energy_change
         pi_new = pi_expected + params.PHILLIPS_SLOPE * unemployment_gap + cost_push
+
+        # [E4.1] Quantity-theory money->price transmission (switchable, default off). EXCESS
+        # broad-money growth above the stable-velocity reference (g* + pi*) feeds into inflation.
+        # MONEY_INFLATION_PASS=0 -> this whole block is skipped (no term, no extra agent state)
+        # -> golden bit-identical. Broad money is the SFC deposit stock (set before this step).
+        money_pass = getattr(params, "MONEY_INFLATION_PASS", 0.0)
+        if money_pass != 0.0:
+            money = getattr(econ, "_money_supply", None)
+            money_prev = getattr(econ, _MONEY_PREV_ATTR, None)
+            if money and money_prev and money_prev > 0.0:
+                money_growth = (money - money_prev) / money_prev
+                ref_growth = params.POTENTIAL_OUTPUT_GROWTH + params.INFLATION_TARGET
+                pi_new += money_pass * (money_growth - ref_growth)
+            if money is not None:
+                setattr(econ, _MONEY_PREV_ATTR, money)
+
         econ.inflation = _clamp(pi_new, params.INFLATION_MIN, params.INFLATION_MAX)

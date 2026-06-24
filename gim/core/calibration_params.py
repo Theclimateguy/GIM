@@ -249,6 +249,15 @@ INFLATION_TARGET = 0.02  # [PRIOR] central-bank/anchor inflation.
 INFLATION_EXPECTATION_ANCHOR = 0.5  # [PRIOR] weight on the anchor vs last year's inflation (adaptive expectations).
 PHILLIPS_SLOPE = 0.25  # [PRIOR] flat modern Phillips curve: +1pp unemployment gap -> +0.25pp inflation.
 INFLATION_COSTPUSH_COEFF = 0.05  # [PRIOR] energy-price pass-through: +20% energy price -> +1pp inflation.
+# [E4.1] HEADLINE: quantity-theory money->price transmission. Weight on EXCESS broad-money growth
+# (broad money = bank deposits from the SFC block) above the stable-velocity reference g* + pi*
+# (= POTENTIAL_OUTPUT_GROWTH + INFLATION_TARGET) in the Phillips curve. 0.0 -> term skipped (the
+# pre-E4.1 golden). Activated at the data-calibrated 0.027 (dynamic-panel short-run pass-through,
+# LSDV w/ lagged inflation; rho~0.51 independently validates ANCHOR=0.5; modern low-inflation WB
+# panel 2000-2023; calibration/calibrate_money_inflation_pass.py -- the naive cross-section 0.235 was
+# ~9x inflated by between-country regime heterogeneity + persistence). Golden re-anchored on
+# activation (4th-decimal backtest move). See docs/MONEY_PRICES.md.
+MONEY_INFLATION_PASS = 0.027
 INFLATION_MIN = -0.02
 INFLATION_MAX = 0.30
 

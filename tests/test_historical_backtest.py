@@ -20,6 +20,9 @@ class HistoricalBacktestTests(unittest.TestCase):
     # [E3 full-closure base] headline = objective economic core (nested-CES + cost-min energy) PLUS
     # full price closure (resource + capital-market clearing). GDP RMSE 0.630->0.590 (further
     # improvement), CO2 1.106->1.146, temperature ~0.135. Prior Cobb-Douglas golden was 1.026/1.606/0.134.
+    # [E4.1] money->price transmission now in the headline (MONEY_INFLATION_PASS=0.027, data-calibrated
+    # dynamic-panel pass-through). Golden re-anchored; the move is 4th-decimal (0.590/1.146/0.135
+    # unchanged at this precision). See docs/MONEY_PRICES.md.
     GOLDEN = {
         "gdp_rmse_trillions": 0.590,
         "global_co2_rmse_gtco2": 1.146,
