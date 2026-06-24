@@ -90,7 +90,8 @@ socio-political dynamics; the classic world-system models (World3) lack an expli
 and a modern-grade climate. The distinguishing feature of the proposed model --- the Global
 Integrated Model (GIM) --- is that it carries the loop through to society, geopolitics, and discrete
 crises, and embeds large-language-model agents that play as countries
-(Table~\ref{tab:compare}, Section~\ref{sec:repo}).
+(Table~\ref{tab:compare}, Section~\ref{sec:repo}); a controlled benchmark that quantifies this
+advantage against sectoral models is given in Appendix~\ref{app:benchmark}.
 
 \begin{table}[t]
 \centering
@@ -711,7 +712,7 @@ Trust-anchor strength & $0.060$ & $0.039$--$0.081$ & Structural assumption (reve
 \end{table}
 
 \clearpage
-\section{Integration benchmark: where sectoral models stop and GIM continues}
+\section{Integration benchmark: where sectoral models stop}
 \label{app:benchmark}
 
 The breadth-of-coupling claim (Table~\ref{tab:compare}) is made \emph{computational} here. The
@@ -734,38 +735,71 @@ an import-bill and reserve burden for the oil shock, a food-supply gap for the c
 the three spillovers differ in magnitude and shape, and are reported as such rather than uniformly
 inflated.
 
-\paragraph{A. Carbon tax (anchor: DICE).} DICE-2016R \citep{nordhaus2017} finds a welfare-optimal
-carbon price (about \$31/tCO$_2$ in 2015, rising) whose only first-order effect is lower emissions; it contains no
-labour market and no political economy. Fed the same \$50/tCO$_2$ tax, GIM reproduces the emissions
-decline (about $6\%$ over ten years) and, in addition, raises social tension and lowers government
-trust as the tax's pass-through to energy prices feeds inflation and unemployment --- the
-political-economy channel behind the reversals of the French carbon/fuel tax (2018) and the
-Australian carbon price (2014). On the dose--response (Fig.~\ref{fig:bench-carbon}) the tension
-response rises monotonically with the carbon price, while DICE's response on that axis is zero.
+\subsection{Carbon tax (anchor: DICE)}
 
-\paragraph{B. Oil price shock (anchor: energy-system models).} An energy-system model such as
-MESSAGEix resolves an oil-supply shock as a price rise and demand adjustment, bounded within the
-energy sector. GIM carries the same shock into sovereign finance: the higher import bill, financed by
-drawing reserves and issuing debt, pushes the most fiscally fragile importers across their
-debt-crisis thresholds (which agents tip is decided by the model's own debt and interest-rate
-triggers, not selected by hand). At a realistic $-20\%$ supply shock (an import burden of about $3\%$
-of GDP) the effect is marginal --- one additional importer in crisis; under a severe shock (about
-$15\%$ of GDP, comparable to the worst historical oil episodes) the mean importer debt-crisis
-duration rises about $2.7\times$ and four additional importers enter sovereign crisis
-(Fig.~\ref{fig:bench-oil}). The response is threshold-stepped, and the energy model produces no
-sovereign crises at any magnitude --- the mechanism behind episodes such as Sri Lanka's 2022 default.
+DICE-2016R \citep{nordhaus2017} finds a welfare-optimal carbon price (about \$31/tCO$_2$ in 2015,
+rising) whose only first-order effect is lower emissions; it contains no labour market and no
+political economy. Fed the same \$50/tCO$_2$ tax, GIM reproduces the emissions decline (about $6\%$
+over ten years) and, in addition, raises social tension and lowers government trust as the tax's
+pass-through to energy prices feeds inflation and unemployment --- the political-economy channel
+behind the reversals of the French carbon and fuel tax (2018) and the Australian carbon price (2014).
+As the rate increases, the tension response rises monotonically (Fig.~\ref{fig:bench-carbon}), while
+DICE's response on that axis is zero.
 
-\paragraph{C. Crop yield shock (anchor: AgMIP/AR6).} AgMIP and IPCC~AR6 crop assessments stop at
-yield decline and a food-security (hunger) index. GIM carries the same yield loss into domestic
-instability: cutting the production and reserves of the most income-vulnerable importers opens a
-food-affordability gap that raises protest pressure, with convex (accelerating) escalation as the
-loss deepens --- the nonlinear ``crossing into high impact'' documented for food prices and the Arab
-Spring \citep{lagi2011food} (threshold FAO food-price index $210$). At a severe $50\%$ regional yield
-loss, food-affordability stress rises by about $0.09$ and protest pressure by about $0.014$ on the
-vulnerable subset (Fig.~\ref{fig:bench-crop}); the chain attenuates toward regime fragility, and the
-endpoint is domestic instability, not interstate conflict.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig6_integration_carbon.pdf}
+\caption{Carbon-tax scenario. Left: GIM reproduces the emissions decline that DICE models. Middle:
+GIM adds the social-tension response DICE cannot represent. Right: the response of tension to the tax
+rate has a non-zero GIM slope against DICE's zero response.}
+\label{fig:bench-carbon}
+\end{figure}
 
-Across the three channels (Fig.~\ref{fig:bench-summary}) GIM exhibits a positive, quantified slope on
+\subsection{Oil price shock (anchor: energy-system models)}
+
+An energy-system model such as MESSAGEix resolves an oil-supply shock as a price rise and demand
+adjustment, bounded within the energy sector. GIM carries the same shock further, into sovereign
+finance: the higher import bill, financed by drawing reserves and issuing debt, brings the most
+fiscally fragile importers to their debt-crisis thresholds, and which countries tip is decided by the
+model's own debt and interest-rate triggers, not by hand. At a realistic shock (a $20\%$ supply cut,
+a burden of about $3\%$ of GDP) the effect is marginal: one additional importer enters crisis. Under a
+severe shock (a burden of about $15\%$ of GDP, comparable to the worst historical oil episodes) the
+mean importer debt-crisis duration rises about $2.7$-fold and four further countries enter sovereign
+crisis (Fig.~\ref{fig:bench-oil}). The response is threshold-stepped, and the energy-system model
+produces no sovereign crises at any magnitude. This is the mechanism behind episodes such as
+Sri Lanka's 2022 default.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig7_integration_oil.pdf}
+\caption{Oil-price-shock scenario. Left: importer sovereign-debt-crisis duration under a severe
+shock. Right: the response to the import burden is threshold-stepped, marking the marginal
+(realistic) and pronounced (severe) points against the energy-system model's zero response.}
+\label{fig:bench-oil}
+\end{figure}
+
+\subsection{Crop yield shock (anchor: AgMIP and AR6)}
+
+Crop assessments in the AgMIP project and the IPCC Sixth Assessment stop at yield decline and a
+food-security index. GIM carries the same yield loss further, into domestic instability: cutting the
+production and reserves of the most income-vulnerable importers opens a food-supply gap that raises
+protest pressure, and the escalation accelerates as the loss deepens. This is the nonlinear
+``crossing into high impact'' documented for food prices and the Arab Spring \citep{lagi2011food}
+(a threshold FAO food-price index of $210$). At a severe $50\%$ regional yield loss, food-affordability
+stress rises by about $0.09$ and protest pressure by about $0.014$ on the vulnerable subset
+(Fig.~\ref{fig:bench-crop}); further along the chain the response attenuates toward regime fragility,
+and the endpoint is domestic instability rather than interstate conflict.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig8_integration_crop.pdf}
+\caption{Crop-yield-shock scenario. Left: food-affordability stress and protest pressure on the
+vulnerable subset. Right: the response to the depth of the yield loss is convex against AgMIP's zero
+response on the protest axis.}
+\label{fig:bench-crop}
+\end{figure}
+
+Across the three channels (Fig.~\ref{fig:bench-summary}) GIM exhibits a positive, measurable slope on
 an axis where every sectoral model is, by construction, flat at zero. That gap --- not any single
 number --- is the integration dividend, and it is exactly the dimension the coverage table summarizes
 qualitatively.
@@ -774,37 +808,10 @@ qualitatively.
 \centering
 \includegraphics[width=\linewidth]{fig9_integration_summary.pdf}
 \caption{The integration dividend. Each panel is one cross-sector channel, normalized to its own
-peak; the dashed line is every sectoral model's structural zero on that axis. GIM's slope is smooth
-for the carbon$\to$society channel, threshold-stepped for the oil$\to$finance channel, and convex for
-the crop$\to$society channel.}
+maximum; the dashed line is every sectoral model's zero response on that axis. GIM's slope is smooth
+for the economy and society channel, threshold-stepped for the resources and finance channel, and
+convex for the climate and society channel.}
 \label{fig:bench-summary}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{fig6_integration_carbon.pdf}
-\caption{Scenario~A (carbon tax). GIM reproduces the emissions decline DICE models \emph{(left)} and
-adds the social-tension response DICE cannot represent \emph{(middle)}; the dose--response
-\emph{(right)} has a non-zero GIM slope against DICE's structural zero.}
-\label{fig:bench-carbon}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{fig7_integration_oil.pdf}
-\caption{Scenario~B (oil price shock). Importer sovereign-debt-crisis duration under a severe shock
-\emph{(left)}; the dose--response \emph{(right)} is threshold-stepped, marking the marginal realistic
-point and the pronounced severe point, against the energy model's flat zero.}
-\label{fig:bench-oil}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{fig8_integration_crop.pdf}
-\caption{Scenario~C (crop yield shock). Food-affordability stress and protest pressure on the
-vulnerable subset \emph{(left)}; the dose--response \emph{(right)} is convex against AgMIP's
-structural zero on the protest axis.}
-\label{fig:bench-crop}
 \end{figure}
 
 \clearpage

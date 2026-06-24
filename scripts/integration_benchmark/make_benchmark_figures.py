@@ -120,7 +120,7 @@ def fig_carbon(sc):
             "Scenario A — Carbon tax $50/tCO2:  GIM agrees on emissions, adds the political-economy cost",
             "Anchor: Nordhaus, DICE-2016R (PNAS 2017) — optimal carbon price welfare-optimal, emissions "
             "decline; no unemployment / inflation / politics.  Real reversals: France 2018 (gilets jaunes), "
-            "Australia 2014.  GIM adds the economy→society→policy path that determines whether the tax survives.")
+            "Australia 2014.  GIM adds the economy, society and policy chain that determines whether the tax survives.")
 
 
 # ----------------------------------------------------------------------------------
@@ -146,13 +146,11 @@ def fig_oil(sc):
     ax2.plot(x, sw["extra_in_crisis"], color=GIM, lw=2.4, marker="o", ms=4,
              label="GIM: extra importers in crisis")
     ax2.axvline(3.3, color=MUTED, lw=1.1, ls=":", alpha=0.9)
-    ax2.annotate("realistic\n−20% supply\n(~3% GDP)", xy=(3.3, 0.0), xytext=(0.5, 2.6),
-                 fontsize=7.2, color="#5F5E5A",
-                 arrowprops=dict(arrowstyle="->", color=MUTED, lw=0.8))
+    ax2.text(3.7, 0.55, "realistic\n(~3% GDP)", fontsize=7.2, color="#5F5E5A",
+             ha="left", va="bottom")
     ax2.axvline(15, color=SOCIAL, lw=1.3, ls=":", alpha=0.9)
-    ax2.annotate("severe\n(~15% GDP)", xy=(15, 3.0), xytext=(8.5, 3.6),
-                 fontsize=7.6, color=SOCIAL,
-                 arrowprops=dict(arrowstyle="->", color=SOCIAL, lw=0.9))
+    ax2.text(15.4, 0.9, "severe\n(~15% GDP)", fontsize=7.6, color=SOCIAL,
+             ha="left", va="bottom")
     ax2.set_title("Dose–response: threshold-shaped cascade", color=INK)
     ax2.set_xlabel("oil-import burden (% of GDP / yr)")
     ax2.set_ylabel("extra importers in sovereign crisis")
@@ -162,7 +160,7 @@ def fig_oil(sc):
             "Scenario B — Oil price shock:  an energy model sees price; GIM sees the sovereign-debt cascade",
             "Anchor: IMF GFSR Oct-2025 ch.3; BU GDP Center 2026.  Energy-system models (MESSAGEix) stop at "
             "price / demand adjustment — no sovereign-finance block.  Real case: Sri Lanka 2022 ($1.9B reserves "
-            "vs $6B debt service → default).  The cascade is threshold-shaped; the energy model is flat-zero everywhere.",
+            "vs $6B debt service, ending in default).  The cascade is threshold-shaped; the energy model is flat-zero everywhere.",
             width=108)
 
 
@@ -179,7 +177,7 @@ def fig_crop(sc):
     ax[0].plot(yrs, s["protest_shock"], color=SOCIAL, lw=2.0, ls="--",
                label="protest pressure (yield -50%)")
     ax[0].fill_between(yrs, s["food_base"], s["food_shock"], color=GOOD, alpha=0.12)
-    ax[0].set_title("Food stress (AgMIP) → protest (GIM)", color=INK)
+    ax[0].set_title("Food stress (AgMIP) to protest (GIM)", color=INK)
     ax[0].set_xlabel("year"); ax[0].set_ylabel("metric level (vulnerable subset)")
     ax[0].legend(loc="center right", fontsize=7.6)
     _time_axis(ax[0], len(yrs))
@@ -193,9 +191,7 @@ def fig_crop(sc):
     ax2.plot(x, sw["protest_delta"], color=SOCIAL, lw=2.4, marker="s", ms=4,
              label="GIM: protest delta")
     ax2.axvline(50, color=SOCIAL, lw=1.2, ls=":", alpha=0.8)
-    ax2.annotate("severe (−50%)", xy=(50, 0.09), xytext=(26, 0.15),
-                 fontsize=7.6, color=SOCIAL,
-                 arrowprops=dict(arrowstyle="->", color=SOCIAL, lw=0.9))
+    ax2.text(50, 0.19, "severe (−50%)", fontsize=7.6, color=SOCIAL, ha="center", va="top")
     ax2.set_title("Dose–response: convex escalation", color=INK)
     ax2.set_xlabel("vulnerable-region yield loss (%)")
     ax2.set_ylabel("terminal delta")
@@ -203,9 +199,9 @@ def fig_crop(sc):
 
     _finish(fig, "fig8_integration_crop",
             "Scenario C — severe crop yield shock:  AgMIP stops at hunger; GIM carries it to protest pressure",
-            "Anchor: AgMIP / IPCC AR6 (yield→hunger endpoint).  Lagi, Bertrand & Bar-Yam 2011 "
+            "Anchor: AgMIP / IPCC AR6 (yield decline to a hunger index).  Lagi, Bertrand & Bar-Yam 2011 "
             "(arXiv:1108.2455): food riots above FAO index 210 (p<1e-7), coinciding with the Arab Spring 2011.  "
-            "GIM adds food→affordability→protest in vulnerable importers, with convex (accelerating) escalation.",
+            "GIM adds the food, affordability and protest chain in vulnerable importers, with convex escalation.",
             width=108)
 
 
@@ -224,29 +220,29 @@ def fig_summary(scn):
     ax[0].axhline(0, color=SECT, lw=2.0, ls="--")
     ax[0].plot(norm(A["sweep"]["carbon"]), norm(A["sweep"]["tension_delta"]),
                color=GIM, lw=2.6, marker="o", ms=4)
-    ax[0].set_title("A · economy → society", color=INK)
+    ax[0].set_title("A · economy and society", color=INK)
     ax[0].set_xlabel("carbon price (normalized)")
     ax[0].set_ylabel("cross-sector response (normalized)")
     ax[0].text(0.04, 0.90, "GIM: social tension", color=GIM, fontsize=8.5, transform=ax[0].transAxes)
-    ax[0].text(0.04, 0.06, "DICE: zero", color=SECT, fontsize=8.5, transform=ax[0].transAxes)
+    ax[0].text(0.96, 0.20, "DICE: zero", color=SECT, fontsize=8.5, ha="right", transform=ax[0].transAxes)
 
     # B
     ax[1].axhline(0, color=SECT, lw=2.0, ls="--")
     ax[1].plot(norm(B["sweep"]["burden_gdp"]), norm(B["sweep"]["dca_delta"]),
                color=GIM, lw=2.6, marker="o", ms=4)
-    ax[1].set_title("B · resources → finance", color=INK)
+    ax[1].set_title("B · resources and finance", color=INK)
     ax[1].set_xlabel("oil-import burden (normalized)")
     ax[1].text(0.04, 0.90, "GIM: sovereign crises", color=GIM, fontsize=8.5, transform=ax[1].transAxes)
-    ax[1].text(0.04, 0.06, "MESSAGEix: zero", color=SECT, fontsize=8.5, transform=ax[1].transAxes)
+    ax[1].text(0.96, 0.20, "MESSAGEix: zero", color=SECT, fontsize=8.5, ha="right", transform=ax[1].transAxes)
 
     # C
     ax[2].axhline(0, color=SECT, lw=2.0, ls="--")
     ax[2].plot(norm(C["sweep"]["yield_cut"]), norm(C["sweep"]["protest_delta"]),
                color=GIM, lw=2.6, marker="o", ms=4)
-    ax[2].set_title("C · climate/food → society", color=INK)
+    ax[2].set_title("C · climate and society", color=INK)
     ax[2].set_xlabel("yield loss (normalized)")
     ax[2].text(0.04, 0.90, "GIM: protest pressure", color=GIM, fontsize=8.5, transform=ax[2].transAxes)
-    ax[2].text(0.04, 0.06, "AgMIP: zero", color=SECT, fontsize=8.5, transform=ax[2].transAxes)
+    ax[2].text(0.96, 0.20, "AgMIP: zero", color=SECT, fontsize=8.5, ha="right", transform=ax[2].transAxes)
 
     for a in ax:
         a.set_ylim(-0.12, 1.08)
@@ -255,9 +251,9 @@ def fig_summary(scn):
     ha = A["headline"]; hb = B["headline"]; hc = C["headline"]
     cap = (f"Each curve is one cross-sector channel, normalized to its own peak; the dashed red line is "
            f"every sectoral model's structural zero on that axis.  Headline effects (10y): "
-           f"A carbon $50/t → emissions −{ha['emissions_cut_pct_10y']:.1f}%, tension +{ha['tension_delta_10y']*1e3:.1f}×10⁻³;  "
-           f"B severe oil shock (~15% GDP) → +{hb['extra_importers_in_crisis_peak']:.0f} importers in sovereign crisis, debt-crisis-years ×{hb['dca_ratio_peak']:.1f};  "
-           f"C severe yield −50% → food-stress +{hc['food_delta_10y']:.3f}, protest +{hc['protest_delta_10y']:.3f}.  "
+           f"A carbon $50/t: emissions −{ha['emissions_cut_pct_10y']:.1f}%, tension +{ha['tension_delta_10y']*1e3:.1f}×10⁻³;  "
+           f"B severe oil shock (~15% GDP): +{hb['extra_importers_in_crisis_peak']:.0f} importers in sovereign crisis, debt-crisis-years ×{hb['dca_ratio_peak']:.1f};  "
+           f"C severe yield −50%: food-stress +{hc['food_delta_10y']:.3f}, protest +{hc['protest_delta_10y']:.3f}.  "
            f"Shapes differ honestly: B threshold-stepped, C convex, A weak-but-robust.")
     _finish(fig, "fig9_integration_summary",
             "The integration dividend — three cross-sector channels with a non-zero GIM slope where sectoral models are flat",

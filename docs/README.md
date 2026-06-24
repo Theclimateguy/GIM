@@ -24,6 +24,7 @@ notes have been moved out of the repository to keep it clean.)
 - [`DETERMINISM.md`](calibration/DETERMINISM.md) — world-scoped randomness and reproducibility.
 - [`PRIORS.md`](calibration/PRIORS.md) / [`UNCERTAINTY.md`](calibration/UNCERTAINTY.md) / [`VALIDATION.md`](calibration/VALIDATION.md) — priors, ensembles, sensitivity, history matching, skill scoring.
 - [`CRISIS_VALIDATION_PROTOCOL.md`](calibration/CRISIS_VALIDATION_PROTOCOL.md) — operational crisis-scenario validation.
+- [`INTEGRATION_BENCHMARK.md`](INTEGRATION_BENCHMARK.md) — literature-anchored benchmark of the integration claim vs sectoral models (carbon/DICE, oil/MESSAGEix, crop/AgMIP); the paper's Appendix B.
 
 ## Climate & damages
 
