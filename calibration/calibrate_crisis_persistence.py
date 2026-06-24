@@ -21,7 +21,7 @@ from pathlib import Path
 import sys
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
@@ -36,7 +36,7 @@ from gim.core.simulation import step_world
 from gim.runtime import load_world
 
 
-OUTPUT_PATH = REPO_ROOT / "misc" / "calibration" / "crisis_persistence_calibration.json"
+OUTPUT_PATH = REPO_ROOT / "calibration" / "crisis_persistence_calibration.json"
 SIM_STEPS = 6
 SUITE_ID = "operational_v2"
 TARGET_CASE_IDS = ("argentina_default_2001", "south_korea_imf_1997")

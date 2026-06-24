@@ -1,7 +1,7 @@
 import unittest
 
 from gim.core import calibration_params as cal
-from misc.calibration.calibrate_gamma_cross_section import estimate_gamma_cross_section, load_gamma_cross_section
+from calibration.calibrate_gamma_cross_section import estimate_gamma_cross_section, load_gamma_cross_section
 
 
 class GammaCrossSectionTests(unittest.TestCase):

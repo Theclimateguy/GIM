@@ -7,7 +7,8 @@ from .paths import DEFAULT_STATE_CSV, OPERATIONAL_STATE_CSV
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MISC_ROOT = REPO_ROOT / "misc"
+CALIBRATION_ROOT = REPO_ROOT / "calibration"
+SCENARIOS_ROOT = REPO_ROOT / "scenarios"
 DEFAULT_STATE_YEAR = 2023
 
 
@@ -59,7 +60,8 @@ __all__ = [
     "AgentState",
     "RelationState",
     "WorldState",
-    "MISC_ROOT",
+    "CALIBRATION_ROOT",
+    "SCENARIOS_ROOT",
     "REPO_ROOT",
     "default_state_csv",
     "default_state_year",

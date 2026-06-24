@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_STATE_CSV = REPO_ROOT / "data" / "agent_states_operational.csv"
 DEFAULT_OBSERVED_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_observed.json"
 DEFAULT_REFERENCE_STATE_CSV = REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv"

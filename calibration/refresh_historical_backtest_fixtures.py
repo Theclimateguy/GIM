@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from zipfile import ZipFile
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures"
 BASE_STATE_CSV = REPO_ROOT / "data" / "agent_states.csv"
 OBSERVED_OUTPUT = FIXTURES_DIR / "historical_backtest_observed.json"

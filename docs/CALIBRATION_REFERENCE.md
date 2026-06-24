@@ -17,13 +17,13 @@ It documents:
 | Parameter registry | `gim/core/calibration_params.py` | Single place for model constants and provenance tags |
 | Manifest-bound artifacts | `gim/core/state_artifact.py`, `data/agent_states_operational.artifacts.json` | Locks state-derived climate coefficients to the compiled operational state |
 | Historical backtest | `gim/historical_backtest.py` | GDP/CO2/temperature replay over `2015-2023` |
-| Rolling walk-forward backtest | `gim/rolling_backtest.py`, `misc/calibration/run_rolling_origin_backtest.py` | Origin windows + stepwise recalibration + out-of-sample validation (`2015->2023`) |
+| Rolling walk-forward backtest | `gim/rolling_backtest.py`, `calibration/run_rolling_origin_backtest.py` | Origin windows + stepwise recalibration + out-of-sample validation (`2015->2023`) |
 | Decarb sensitivity | `gim/decarb_sensitivity.py` | Compares active structural decarb rate against observed/alternative candidates |
 | Geopolitical calibration | `gim/geo_calibration.py`, `gim/calibration_validator.py` | Outcome/action/shift weight priors and sanity guards |
-| Operational suite | `gim/calibration.py`, `misc/calibration_cases/operational_v1` | Regression suite for crisis and control cases |
-| Near-miss suite | `gim/calibration.py`, `misc/calibration_cases/operational_v2` | Historical near-miss discrimination suite |
-| Outcome sensitivity sweep | `gim/sensitivity_sweep.py`, `misc/calibration/sensitivity_sweep.py` | Weight perturbation sensitivity report |
-| Crisis persistence search | `misc/calibration/calibrate_crisis_persistence.py` | Debt/regime crisis persistence tuning |
+| Operational suite | `gim/calibration.py`, `calibration/cases/operational_v1` | Regression suite for crisis and control cases |
+| Near-miss suite | `gim/calibration.py`, `calibration/cases/operational_v2` | Historical near-miss discrimination suite |
+| Outcome sensitivity sweep | `gim/sensitivity_sweep.py`, `calibration/sensitivity_sweep.py` | Weight perturbation sensitivity report |
+| Crisis persistence search | `calibration/calibrate_crisis_persistence.py` | Debt/regime crisis persistence tuning |
 
 ## 2. Authoritative Calibration Values
 
@@ -65,7 +65,7 @@ Source: `gim/core/calibration_params.py`
 
 ### 2.3 Crisis persistence tuned parameters
 
-Source: `gim/core/calibration_params.py`, provenance in `misc/calibration/crisis_persistence_calibration.json`
+Source: `gim/core/calibration_params.py`, provenance in `calibration/crisis_persistence_calibration.json`
 
 - `DEBT_CRISIS_PERSIST_GDP_MULT = 0.965`
 - `DEBT_CRISIS_PERSIST_TRUST_HIT = 0.025`
@@ -159,28 +159,28 @@ Post-switch Stage B/C block-4 robust candidate (reference only; not fully promot
 Manifest refresh:
 
 ```bash
-python3 misc/calibration/refresh_state_artifact_manifest.py
+python3 calibration/refresh_state_artifact_manifest.py
 ```
 
 Historical fixture refresh:
 
 ```bash
-python3 misc/calibration/refresh_historical_backtest_fixtures.py
-python3 misc/calibration/refresh_historical_backtest_baseline.py
+python3 calibration/refresh_historical_backtest_fixtures.py
+python3 calibration/refresh_historical_backtest_baseline.py
 ```
 
 Focused calibration helpers:
 
 ```bash
-python3 misc/calibration/calibrate_decarb_rate.py
-python3 misc/calibration/calibrate_gamma_energy.py
-python3 misc/calibration/calibrate_gamma_cross_section.py
-python3 misc/calibration/calibrate_tfp_rd_share_sens.py
-python3 misc/calibration/calibrate_heat_cap_surface.py
-python3 misc/calibration/calibrate_temperature_variability.py
-python3 misc/calibration/calibrate_crisis_persistence.py
-python3 misc/calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
-python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
+python3 calibration/calibrate_decarb_rate.py
+python3 calibration/calibrate_gamma_energy.py
+python3 calibration/calibrate_gamma_cross_section.py
+python3 calibration/calibrate_tfp_rd_share_sens.py
+python3 calibration/calibrate_heat_cap_surface.py
+python3 calibration/calibrate_temperature_variability.py
+python3 calibration/calibrate_crisis_persistence.py
+python3 calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
+python3 calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
 ```
 
 ## 5. Validation Commands
@@ -203,12 +203,12 @@ python3 -m gim calibrate --suite operational_v2
 Sensitivity report generation:
 
 ```bash
-python3 misc/calibration/sensitivity_sweep.py --suite operational_v1 --out misc/calibration/geo_sensitivity_operational_v1.json
-python3 misc/calibration/sensitivity_sweep.py --suite operational_v2
+python3 calibration/sensitivity_sweep.py --suite operational_v1 --out calibration/geo_sensitivity_operational_v1.json
+python3 calibration/sensitivity_sweep.py --suite operational_v2
 ```
 
 ## 6. Guardrails
 
 - Treat `EMISSIONS_SCALE` and `DECARB_RATE_STRUCTURAL` as manifest-bound artifacts.
-- Keep crisis persistence parameters synchronized with `misc/calibration/crisis_persistence_calibration.json`.
+- Keep crisis persistence parameters synchronized with `calibration/crisis_persistence_calibration.json`.
 - If refresh scripts change baseline fixtures, update tests and this file in the same commit.

@@ -218,9 +218,9 @@ EMISSIONS_SCALE = ACTIVE_STATE_ARTIFACT.emissions_scale  # [GCP2023] Derived dur
 TECH_DECARB_K = 0.12  # [PRIOR]
 DECARB_RATE_OBSERVED_REFERENCE = (
     ACTIVE_STATE_ARTIFACT.decarb_reference_rate or ACTIVE_STATE_ARTIFACT.decarb_rate
-)  # [DATA] GCP fossil CO2 / World Bank PPP GDP fit over 2000-2023 excluding 2020-2021; see misc/calibration/decarb_rate_calibration.json.
+)  # [DATA] GCP fossil CO2 / World Bank PPP GDP fit over 2000-2023 excluding 2020-2021; see calibration/decarb_rate_calibration.json.
 DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Pipeline-bound residual structural energy-transition rate.
-# NOTE: Empirical CO2/GDP intensity decline is 0.016 (see misc/calibration/decarb_rate_calibration.json).
+# NOTE: Empirical CO2/GDP intensity decline is 0.016 (see calibration/decarb_rate_calibration.json).
 # The gap between the active 0.052 artifact rate and the empirical fit implicitly absorbs
 # energy-mix shift and efficiency gains encoded in the 2015 base state. Decompose this
 # compound parameter when the model gets an explicit energy sector / fossil phase-out layer.
@@ -404,7 +404,7 @@ FX_CRISIS_PERSIST_TENSION_HIT = 0.015  # [PRIOR]
 FX_CRISIS_RECOVERY_RESERVE_MONTHS = 3.0  # [PRIOR]
 FX_CRISIS_MAX_YEARS = 4  # [PRIOR]
 # Crisis persistence guardrail-safe plateau candidate selected from
-# misc/calibration/crisis_persistence_calibration.json.
+# calibration/crisis_persistence_calibration.json.
 DEBT_CRISIS_PERSIST_GDP_MULT = 0.965  # [DATA plateau-guardrail]
 DEBT_CRISIS_PERSIST_TRUST_HIT = 0.025  # [DATA plateau-guardrail]
 DEBT_CRISIS_PERSIST_TENSION_HIT = 0.02  # [DATA plateau-guardrail]

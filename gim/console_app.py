@@ -15,13 +15,13 @@ from .explanations import format_equilibrium_result, format_game_result, format_
 from .game_theory.equilibrium_runner import run_equilibrium_search
 from .game_runner import GameRunner
 from .results import build_run_artifacts, resolve_run_output_path, write_json_artifact, write_run_manifest
-from .runtime import MISC_ROOT, default_state_csv, load_world
+from .runtime import SCENARIOS_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question, load_game_definition
 from .sim_bridge import SimBridge, SimProgress
 from .types import GameDefinition
 
 
-CASES_DIR = MISC_ROOT / "cases"
+CASES_DIR = SCENARIOS_ROOT
 BUILD_NEW_GAME = "__build_new_game__"
 BACKGROUND_POLICY_CHOICES = ("compiled-llm", "llm", "simple", "growth")
 LLM_REFRESH_CHOICES = ("trigger", "periodic", "never")

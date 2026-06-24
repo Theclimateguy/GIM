@@ -42,7 +42,7 @@ python3 -m gim question \
 
 # Game from a case file (sim path + equilibrium)
 python3 -m gim game \
-  --case misc/cases/maritime_pressure_game.json \
+  --case scenarios/maritime_pressure_game.json \
   --state-csv data/agent_states_operational_2026_calibrated.csv \
   --state-year 2026 \
   --horizon 3 \

@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 from gim.core import state_artifact
-from misc.calibration.refresh_state_artifact_manifest import build_manifest
+from calibration.refresh_state_artifact_manifest import build_manifest
 
 
 PRIMARY_MANIFEST = REPO_ROOT / "data" / "agent_states_operational.artifacts.json"

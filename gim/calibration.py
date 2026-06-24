@@ -8,12 +8,12 @@ from statistics import mean, pstdev
 from typing import Any
 
 from .game_runner import GameRunner
-from .runtime import MISC_ROOT, REPO_ROOT, default_state_csv, load_world
+from .runtime import CALIBRATION_ROOT, REPO_ROOT, default_state_csv, load_world
 from .scenario_compiler import compile_question
 from .sim_bridge import SimBridge
 
 
-CALIBRATION_CASES_DIR = MISC_ROOT / "calibration_cases"
+CALIBRATION_CASES_DIR = CALIBRATION_ROOT / "cases"
 DEFAULT_CALIBRATION_SUITE = "operational_v1"
 DEFAULT_TOP_DRIVER_LIMIT = 4
 DEFAULT_TOP_METRIC_LIMIT = 3

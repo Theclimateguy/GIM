@@ -8,7 +8,7 @@ from gim.core import calibration_params as cal
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CALIBRATION_ARTIFACT = REPO_ROOT / "misc" / "calibration" / "decarb_rate_calibration.json"
+CALIBRATION_ARTIFACT = REPO_ROOT / "calibration" / "decarb_rate_calibration.json"
 
 
 class DecarbCalibrationArtifactTests(unittest.TestCase):

@@ -41,7 +41,7 @@ pip install -e .          # Python 3.10+
 ```bash
 python3 -m gim                                   # core multi-year world simulation
 python3 -m gim question "Will Red Sea tensions escalate?"
-python3 -m gim game --case misc/cases/maritime_pressure_game.json --dashboard
+python3 -m gim game --case scenarios/maritime_pressure_game.json --dashboard
 python3 -m gim metrics --agents Iran "United States"
 python3 -m gim calibrate --suite operational_v1
 python3 -m gim ui --host 127.0.0.1 --port 8090   # local analytical dashboard

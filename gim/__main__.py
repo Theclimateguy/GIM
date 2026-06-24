@@ -37,7 +37,7 @@ from .hybrid_simulator import (
     render_hybrid_report_markdown,
 )
 from .results import build_run_artifacts, resolve_run_output_path, write_json_artifact, write_run_manifest
-from .runtime import MISC_ROOT, load_world
+from .runtime import SCENARIOS_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
 from .sim_bridge import SimBridge, SimProgress
 from .ui_server import run_ui_server
@@ -50,7 +50,7 @@ def _resolve_case_path(raw_value: str) -> Path:
     candidate = Path(raw_value)
     if candidate.exists():
         return candidate
-    packaged = MISC_ROOT / "cases" / raw_value
+    packaged = SCENARIOS_ROOT / raw_value
     if packaged.exists():
         return packaged
     return candidate

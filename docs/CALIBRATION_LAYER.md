@@ -29,7 +29,7 @@ Core modules:
 - `gim/calibration_validator.py`
 - `gim/calibration.py`
 - `gim/sensitivity_sweep.py`
-- `misc/calibration/calibrate_crisis_persistence.py`
+- `calibration/calibrate_crisis_persistence.py`
 
 Primary questions:
 
@@ -43,7 +43,7 @@ Primary questions:
 Core modules:
 
 - `gim/rolling_backtest.py`
-- `misc/calibration/run_rolling_origin_backtest.py`
+- `calibration/run_rolling_origin_backtest.py`
 
 Primary questions:
 
@@ -80,8 +80,8 @@ flowchart TD
 Only refresh scripts should modify them:
 
 ```bash
-python3 misc/calibration/refresh_state_artifact_manifest.py
-python3 misc/calibration/refresh_historical_backtest_fixtures.py
+python3 calibration/refresh_state_artifact_manifest.py
+python3 calibration/refresh_historical_backtest_fixtures.py
 ```
 
 ## 4. Crisis Suite Semantics
@@ -120,21 +120,21 @@ python3 -m gim calibrate --suite operational_v2
 ### Sensitivity outputs
 
 ```bash
-python3 misc/calibration/sensitivity_sweep.py --suite operational_v1 --out misc/calibration/geo_sensitivity_operational_v1.json
-python3 misc/calibration/sensitivity_sweep.py --suite operational_v2
+python3 calibration/sensitivity_sweep.py --suite operational_v1 --out calibration/geo_sensitivity_operational_v1.json
+python3 calibration/sensitivity_sweep.py --suite operational_v2
 ```
 
 ### Persistence search
 
 ```bash
-python3 misc/calibration/calibrate_crisis_persistence.py
+python3 calibration/calibrate_crisis_persistence.py
 ```
 
 ### Rolling walk-forward
 
 ```bash
-python3 misc/calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
-python3 misc/calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
+python3 calibration/run_rolling_origin_backtest.py --stage pairwise --output-dir results/backtest/rolling_pairwise_2015_2023
+python3 calibration/run_rolling_origin_backtest.py --stage block4 --output-dir results/backtest/stage_bc_block4_2015_2023
 ```
 
 ## 6. Change Discipline
