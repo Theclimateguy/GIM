@@ -200,7 +200,24 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
         avg_trade /= count
 
     spillover = 1.0 + cal.TFP_TRADE_SPILLOVER_SENS * avg_trade
-    tfp_growth = cal.TFP_RD_SHARE_SENS * rd_share * spillover
+
+    # [E4.2] R&D -> TFP growth. Default: the flow R&D-share channel (golden). When RD_STOCK_GROWTH is
+    # on, use a Jones semi-endogenous form -- TFP growth from the R&D CAPITAL STOCK intensity (a
+    # perpetual inventory of rd_spending) with diminishing returns (elasticity phi < 1), instead of
+    # the raw flow share. Off by default and the stock block (incl. the _rd_stock attribute) is
+    # skipped -> golden bit-identical. Stock intensity 0 (no R&D) -> 0 contribution, like the flow form.
+    if getattr(cal, "RD_STOCK_GROWTH", False):
+        delta_r = getattr(cal, "RD_STOCK_DEPRECIATION", 0.15)
+        stock = getattr(economy, "_rd_stock", None)
+        if stock is None:
+            stock = economy.rd_spending / delta_r if delta_r > 0 else economy.rd_spending
+        stock = (1.0 - delta_r) * stock + economy.rd_spending
+        economy._rd_stock = stock
+        rd_intensity = stock / gdp if gdp > 0 else 0.0
+        phi = getattr(cal, "TFP_RD_STOCK_ELASTICITY", 0.5)
+        tfp_growth = cal.TFP_RD_STOCK_SENS * (rd_intensity ** phi) * spillover
+    else:
+        tfp_growth = cal.TFP_RD_SHARE_SENS * rd_share * spillover
 
     tech_gap_weighted = 0.0
     tech_weight = 0.0
@@ -233,7 +250,13 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
         base_year = getattr(world.global_state, "_calendar_year_base", 2026)
         year = base_year + int(getattr(world, "time", 0))
         if year > getattr(cal, "SSP_FORWARD_FROM_YEAR", 2024):
-            drift = getattr(cal, "SSP_FORWARD_TFP_DRIFT", 0.018)
+            # [E4.2] SSP1-5 preset selection; default SSP2 reproduces the prior single forward drift.
+            presets = getattr(cal, "SSP_TFP_DRIFT_PRESETS", None)
+            scenario = getattr(cal, "SSP_SCENARIO", "SSP2")
+            if presets and scenario in presets:
+                drift = presets[scenario]
+            else:
+                drift = getattr(cal, "SSP_FORWARD_TFP_DRIFT", 0.018)
 
     tfp_growth = drift + tfp_growth + diffusion - growth_drag
     tfp_growth = max(cal.TFP_GROWTH_MIN, min(tfp_growth, cal.TFP_GROWTH_MAX))

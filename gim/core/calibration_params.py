@@ -122,6 +122,14 @@ POLICY_LOG_DEPTH = 3  # [PRIOR] Visible action/outcome memory horizon for agent 
 
 # TFP block.
 TFP_RD_SHARE_SENS = 0.30  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
+# [E4.2] R&D capital-stock (Jones semi-endogenous) growth channel. Default OFF -> the flow R&D-share
+# form above is used (golden bit-identical). When RD_STOCK_GROWTH is on, TFP growth comes from the
+# R&D-stock intensity (perpetual inventory of rd_spending) with diminishing returns (phi<1). The
+# SENS / ELASTICITY / depreciation defaults are placeholders pending calibration. See docs.
+RD_STOCK_GROWTH = False
+RD_STOCK_DEPRECIATION = 0.15    # R&D knowledge-stock depreciation (perpetual inventory).
+TFP_RD_STOCK_SENS = 0.30        # Jones scale on R&D-stock intensity (to be calibrated).
+TFP_RD_STOCK_ELASTICITY = 0.50  # phi < 1: diminishing returns to the R&D stock (semi-endogenous).
 TFP_TRADE_SPILLOVER_SENS = 0.30  # [PRIOR]
 TFP_DRIFT = 0.01  # [PRIOR] historical baseline TFP drift (calibrated to the 2015-2023 backtest).
 # [E3.4/SSP] Forward (post-2024) baseline TFP drift anchored to SSP2 "middle of the road" (~0.018),
@@ -131,6 +139,18 @@ TFP_DRIFT = 0.01  # [PRIOR] historical baseline TFP drift (calibrated to the 201
 SSP_FORWARD_GROWTH = True       # use the SSP2 forward baseline drift after SSP_FORWARD_FROM_YEAR.
 SSP_FORWARD_FROM_YEAR = 2024    # last historical year (forward = strictly after this).
 SSP_FORWARD_TFP_DRIFT = 0.018   # SSP2 baseline TFP drift (Dellink et al. 2017 / Riahi et al. 2017).
+# [E4.2] SSP1-5 forward TFP-drift presets (global-mean, consistent with the SSP marker GDP pathways;
+# Dellink et al. 2017 / Riahi et al. 2017 ordering SSP5>SSP1>SSP2>SSP4>SSP3). SSP_SCENARIO selects;
+# default "SSP2" -> 0.018, reproducing the prior single forward drift (golden + forward unchanged).
+# Values are an ordered spread anchored on the validated SSP2; refine against the SSP database.
+SSP_SCENARIO = "SSP2"
+SSP_TFP_DRIFT_PRESETS = {
+    "SSP1": 0.021,  # Sustainability — high productivity growth.
+    "SSP2": 0.018,  # Middle of the road (current default).
+    "SSP3": 0.011,  # Regional rivalry — low growth.
+    "SSP4": 0.014,  # Inequality.
+    "SSP5": 0.025,  # Fossil-fueled development — highest growth.
+}
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
 TFP_GROWTH_MIN = -0.05
 TFP_GROWTH_MAX = 0.05
