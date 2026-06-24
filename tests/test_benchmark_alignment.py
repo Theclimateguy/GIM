@@ -38,7 +38,7 @@ class SCCAlignmentTests(unittest.TestCase):
         # the broad modern consensus range, a little below the EPA-2023/RFF-SP central (~$190).
         # The SCC is genuinely sensitive to the forward economic structure (it has ranged ~$140-380
         # across the economic-core variants); we report the headline value and document the sensitivity
-        # rather than tune to a target. (See docs/CLIMATE_BENCHMARKS.md.)
+        # rather than tune to a target. (See docs/climate/CLIMATE_BENCHMARKS.md.)
         rep = scc_alignment_report(horizons=(200,))
         scc200 = rep["gim_modern_2pct"][200]
         self.assertTrue(80.0 <= scc200 <= 400.0, scc200)

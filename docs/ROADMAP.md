@@ -32,7 +32,7 @@ limitations are, whether they block using the model, and the priority order for 
    non-CO₂ forcing keeps the calibrated net as the headline (the AR6 central over-warms the validated
    record), the strongest carbon-cycle feedbacks stay ensemble-only (deterministic feedback explodes
    the cost-of-carbon), and the cost-of-carbon is reported with its growth/discounting sensitivity
-   rather than tuned to a target. See `docs/CLIMATE_BENCHMARKS.md`.
+   rather than tuned to a target. See `docs/climate/CLIMATE_BENCHMARKS.md`.
 3. ~~**The economy's production core is simple.**~~ **[Resolved.]** The headline now uses a
    calibrated capital–energy-substitution (nested-CES) core with cost-minimising energy demand; the
    remaining economic gap is market clearing (item 1 above), not the production recipe.
@@ -101,7 +101,7 @@ to be brought fully up to the level of the rest of the model, the production sid
    calibrated net as the headline (AR6 central over-warms the validated record); carbon-cycle
    feedbacks stay ensemble-only (deterministic feedback explodes the cost-of-carbon); the
    cost-of-carbon is reported with its growth/discounting sensitivity rather than tuned to a target.
-   See `docs/CLIMATE_BENCHMARKS.md`.
+   See `docs/climate/CLIMATE_BENCHMARKS.md`.
 5. **Forward-looking expectations** for investment and saving (or a documented defence of the current
    backward-looking choice). *Partially addressed* by SSP2-anchored forward growth; the behavioural
    expectations channel remains future work.

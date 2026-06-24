@@ -54,4 +54,4 @@ The World Bank API does NOT serve these; they are zip/xlsx/rda. Download and dro
 
 When a frozen release is cut, record each file's download date and dataset version in
 `data/external/raw/MANIFEST.json` and treat them as immutable inputs (mirror the climate
-artifact-binding rule in `docs/CALIBRATION_REFERENCE.md`).
+artifact-binding rule in `docs/calibration/CALIBRATION_REFERENCE.md`).

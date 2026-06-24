@@ -19,7 +19,7 @@ ENFORCEABLE (strict mode raises ``InvariantViolation``):
   3. channel_telescope - the per-channel deltas sum to the net propagation delta
                        (snapshot-wiring consistency)
 
-DIAGNOSTIC (reported, never raises - documented known gap, see docs/INVARIANTS.md):
+DIAGNOSTIC (reported, never raises - documented known gap, see docs/calibration/INVARIANTS.md):
   4. debt_fiscal_residual - deviation of the realised debt change from the clean
                        fiscal identity ``Δdebt = (gov_spending - taxes) + interest``.
                        Currently non-zero by construction (borrowing cap, debt
@@ -258,14 +258,14 @@ def aggregate_run(step_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
             "worst_year": worst_debt["year"],
             "worst_top": worst_debt["debt_fiscal_residual"]["top"][:5],
             "flagged": worst_share > DEBT_FISCAL_RESIDUAL_FLAG_SHARE,
-            "note": "Diagnostic only (not enforced). See docs/INVARIANTS.md Finding B-1.",
+            "note": "Diagnostic only (not enforced). See docs/calibration/INVARIANTS.md Finding B-1.",
         },
         "diagnostic_resource_consistency": {
             "pools_exhausted_with_active_production": exhausted_pools,
             "min_global_to_own_ratio": (min(ratio_samples) if ratio_samples else None),
             "max_global_to_own_ratio": (max(ratio_samples) if ratio_samples else None),
             "flagged": bool(exhausted_pools),
-            "note": "Diagnostic only (not enforced). See docs/INVARIANTS.md Finding C-1.",
+            "note": "Diagnostic only (not enforced). See docs/calibration/INVARIANTS.md Finding C-1.",
         },
         "per_year": per_year,
     }

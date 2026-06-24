@@ -302,7 +302,7 @@ Recalibration is required when numeric values, equation structure, or free param
 
 Policy document:
 
-- [`docs/PARAMETER_CHANGE_POLICY.md`](calibration/PARAMETER_CHANGE_POLICY.md)
+- [`docs/calibration/PARAMETER_CHANGE_POLICY.md`](calibration/PARAMETER_CHANGE_POLICY.md)
 
 ## 9. Implementation pointers
 

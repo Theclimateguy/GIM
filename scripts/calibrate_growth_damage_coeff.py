@@ -22,7 +22,7 @@ from gim.benchmark_alignment import MODERN_RHO, MODERN_ETA
 from gim.historical_backtest import run_historical_backtest
 
 # Literature SCC anchors at modern 2% discounting, 200-yr horizon ($/tCO2).
-# coeff -> (target SCC, interpretation). Targets from docs/GROWTH_DAMAGE.md / parameter_priors.csv.
+# coeff -> (target SCC, interpretation). Targets from docs/climate/GROWTH_DAMAGE.md / parameter_priors.csv.
 TARGETS = {
     0.0:    (184.0, "level-effect only (DICE / RFF-GIVE) ~ EPA/RFF central $185-190"),
     0.0002: (None,  "prior mode (Burke/Kotz/Moore-Diaz, conservative)"),

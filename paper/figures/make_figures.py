@@ -8,7 +8,7 @@ fig5_social_channel -- each as .pdf (for LaTeX) and .png (preview).
 
 Data sources (latest matching artifact is picked automatically):
   fig2  results/calibration/conflict_backtest.json + conflict_auc_inference.json; backtest RMSE
-        are the verified headline numbers (docs/CALIBRATION_REFERENCE.md / paper Table 3).
+        are the verified headline numbers (docs/calibration/CALIBRATION_REFERENCE.md / paper Table 3).
   fig3  results/sensitivity-*/sensitivity.json   (4 metrics, max_agents=57)
   fig4  results/ensemble-*/ensemble.json         (N=500, max_agents=57)
   fig5  results/social_channel/social_channel.json

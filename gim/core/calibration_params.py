@@ -65,7 +65,7 @@ CARBON_PRICE_PASSTHROUGH = 0.003    # [D1] fractional economy-wide energy-price 
                                     # With sigma_KE=0.4 this yields a LONG-RUN ~5.5% emission cut at
                                     # $50/tCO2 -- above the observed SHORT-RUN ETS effect (~1-2.5%);
                                     # the gap is the adjustment-friction wedge (GIM = frictionless
-                                    # equilibrium substitution). See docs/CARBON_PRICE_CHANNEL.md.
+                                    # equilibrium substitution). See docs/climate/CARBON_PRICE_CHANNEL.md.
 # [F2.2] Partial market clearing for resource (energy/food/metals) prices. Default OFF keeps the
 # validated sluggish tatonnement (partial price adjustment, step PRICE_ADJUST_ALPHA) -> golden
 # bit-identical. When ON, the price jumps within-period to the level that equates a constant-
@@ -127,7 +127,7 @@ TFP_DRIFT = 0.01  # [PRIOR] historical baseline TFP drift (calibrated to the 201
 # [E3.4/SSP] Forward (post-2024) baseline TFP drift anchored to SSP2 "middle of the road" (~0.018),
 # so long-horizon projections (SCC, 2100) sit on a recognised scenario instead of the lower emergent
 # rate. HEADLINE-ON; golden-safe because the 2015-2023 backtest is entirely in the historical window
-# (year <= SSP_FORWARD_FROM_YEAR) and keeps TFP_DRIFT. See docs/SCENARIO_ALIGNMENT.md (SSP_TFP_DRIFT).
+# (year <= SSP_FORWARD_FROM_YEAR) and keeps TFP_DRIFT. See docs/climate/SCENARIO_ALIGNMENT.md (SSP_TFP_DRIFT).
 SSP_FORWARD_GROWTH = True       # use the SSP2 forward baseline drift after SSP_FORWARD_FROM_YEAR.
 SSP_FORWARD_FROM_YEAR = 2024    # last historical year (forward = strictly after this).
 SSP_FORWARD_TFP_DRIFT = 0.018   # SSP2 baseline TFP drift (Dellink et al. 2017 / Riahi et al. 2017).

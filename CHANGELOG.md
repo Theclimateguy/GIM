@@ -87,7 +87,7 @@ geopolitics core.
 ### Changed
 
 - Headline non-CO₂ forcing retains the calibrated net (the AR6 central over-warms the validated
-  record); AR6 components exposed as scenario levers. See `docs/CLIMATE_BENCHMARKS.md`.
+  record); AR6 components exposed as scenario levers. See `docs/climate/CLIMATE_BENCHMARKS.md`.
 - Social cost of carbon reported at ~$140/tCO₂ (modern 2% discounting) within the broad modern
   range, with the growth/discounting sensitivity (~$140–380) documented rather than tuned to target.
 - Culture layer trimmed to the load-bearing dimensions; inert dimensions removed.

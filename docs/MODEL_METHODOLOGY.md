@@ -261,8 +261,8 @@ The full objective contract and template priors are documented in:
 
 Calibration contracts are documented in:
 
-- `docs/CALIBRATION_REFERENCE.md`
-- `docs/CALIBRATION_LAYER.md`
+- `docs/calibration/CALIBRATION_REFERENCE.md`
+- `docs/calibration/CALIBRATION_LAYER.md`
 
 Important hard contract:
 
