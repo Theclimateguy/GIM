@@ -177,7 +177,12 @@ forward projections its drift is anchored to the SSP2 socio-economic development
 investment respond to the price of energy and the cost of capital with calibrated elasticities.
 Inflation (a Phillips curve with energy cost pass-through), unemployment (Okun's law), the
 central-bank rate (a Taylor rule, \citep{taylor1993}), the government budget and debt, and trade
-flows are tracked separately. The economic block reproduces the last decade of actual history and is
+flows are tracked separately. Inflation additionally carries a weak quantity-theory term: excess
+growth of broad money (the endogenous stock of bank deposits) above a stable-velocity reference is
+passed through to prices, with a pass-through coefficient ($\lambda\approx0.027$) estimated from a
+cross-country panel that is small by construction --- consistent with the flat post-1990 Phillips
+curve --- and whose estimation independently confirms the model's inflation-persistence anchor. The
+economic block reproduces the last decade of actual history and is
 therefore not speculative but empirically anchored.\footnote{Calibration sources for the economic
 block: the Penn World Table (factor shares and total factor productivity); the World Bank's World
 Development Indicators (gross product, population, energy use, military spending); the forward
@@ -213,7 +218,12 @@ function reducing the level of output is adopted,
 corresponding to losses of $2.4\,\%$, $5.4\,\%$, and $9.6\,\%$ of gross product at warming of $+2$,
 $+3$, and $+4\,^\circ$C. This estimate lies in the middle of the empirical range: about two and a
 half times higher than in DICE-2016R2 and below the central estimate of the Howard--Sterner
-meta-analysis \citep{howard2017,burke2015}. From the damage function, the social cost of carbon ---
+meta-analysis \citep{howard2017,burke2015}. That this difference resides in the damage function
+rather than the valuation machinery is confirmed by a direct cross-model check: fed DICE's damage
+coefficient and discounting, the model's own marginal-pulse engine recovers DICE-2016R2's social
+cost of carbon (approximately \$31 per ton of carbon dioxide, converging to \$32--33 over a
+multi-century horizon), so the higher headline cost of carbon follows entirely from the higher,
+empirically grounded damage function. From the damage function, the social cost of carbon ---
 the economic damage from emitting one additional ton of carbon dioxide, a standard reference point
 for climate policy --- is computed by the marginal-pulse method. This quantity depends substantially
 on the discounting scheme and on the structure of future growth; results are reported in
