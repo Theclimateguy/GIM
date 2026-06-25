@@ -120,14 +120,40 @@ input. **Deferred:** a true common-set bake-off needs ViEWS replication data; an
 Artifacts: `gim/conflict_benchmark.py`, `scripts/run_s4_conflict_benchmark.py`,
 `tests/test_s4_conflict_benchmark.py`.
 
+### S5 — geography in the conflict block — DONE (diagnostic → leverage → switchable wiring)
+
+A follow-on from S2/S4: GIM's escalation/`border_incident` target is `argmax(conflict_level + 0.5·(1−trust))`
+with **no adjacency term** — geography-shaped but geography-free. Three steps, each cheap and golden-safe:
+
+1. **Geography asset** (`gim/geography.py`, from `data/world_countries.geojson` via shapely): centroid
+   great-circle distance + shared-border adjacency for the agents (48/57 matched; 7 aggregates + 2
+   city-states unmatched, ≈6.5% of GDP). **Not imported by the core** — pure diagnostic.
+2. **Diagnostic** (`scripts/diagnose_border_geography.py`): real interstate conflict is strongly local
+   (UCDP 1990–2023, full world: **92%** of dyads between neighbours, **45.6× chance**, median **863 km**)
+   while GIM's escalation targets are not (**12%**, **2.7×**, median 6906 km).
+3. **Leverage test** (`gim/conflict_geography.py`, `scripts/run_s5_conflict_geography.py`): augmenting
+   `conflict_proneness` with a spatial lag of neighbour conflict-risk (spatial contagion; Gleditsch 2007;
+   Buhaug & Gleditsch 2008) lifts the conflict ranking **AUC 0.772 → 0.805** (neighbour-exposure alone
+   0.690). Gain is **modest** and on a small geo-matched set; the blended best is grid-search-optimistic.
+
+Given a real (if modest) gain, wired a **switchable, off-by-default** adjacency contagion term into
+`update_relations_endogenous` (`GEOGRAPHY_CONFLICT_LINKS=False`, `GEO_CONTAGION_W=0.03`; adjacency built
+lazily so the core stays shapely-free and **golden-identical** when off). Enabling it raises GIM's
+escalation locality **2.7× → 9.6× chance** (median 6906 → 3364 km), closing part of the gap to reality.
+Artifacts add: `gim/geography.py`, `gim/conflict_geography.py`, two scripts, three tests, a result ledger.
+
 ## Status
 
 - **S1** — DONE (war-size exponent anchored; sampler validated, α̂=1.51, KS=0.003).
 - **S2** — DONE (migration gravity elasticities reproduced; mass=1, income≈1.18; MIGRATION_* anchored).
 - **S3** — DONE (no marginal trust→growth channel found; regime-collapse 20% GDP hit anchored to disasters).
 - **S4** — DONE (conflict skill + calibration + published-reference placement; live ViEWS bake-off deferred).
+- **S5** — DONE (geography diagnostic → leverage AUC 0.772→0.805 → switchable adjacency contagion,
+  locality 2.7×→9.6×; off by default, golden-safe).
 
 **Net:** 7 new literature-anchored prior rows in `data/parameter_priors.csv` (was 0 social/political);
-4 reproduction scripts + 4 test modules; 3 validation modules. Two honest carry-overs: (i) all cited
-numeric values need first-source verification before paper inclusion; (ii) Tier-C residual (collapse
-thresholds, culture-coupling coefficients) stays sensitivity-disciplined, not D6-validated.
+6 reproduction/diagnostic scripts + 6 test modules; 5 validation modules; one switchable, off-by-default
+core enhancement (geography contagion). Honest carry-overs: (i) all cited numeric values need first-source
+verification before paper inclusion; (ii) Tier-C residual (collapse thresholds, culture-coupling
+coefficients) stays sensitivity-disciplined, not D6-validated; (iii) the geography AUC gain is modest and
+the wiring ships off by default.

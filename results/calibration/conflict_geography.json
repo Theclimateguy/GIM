@@ -1,0 +1,14 @@
+{
+  "experiment": "S5 geography leverage: conflict_proneness + spatial-lag(neighbour conflict) vs UCDP",
+  "window": [
+    1990,
+    2023
+  ],
+  "n_countries": 48,
+  "auc_conflict_proneness": 0.772,
+  "auc_neighbour_exposure_alone": 0.69,
+  "auc_blended": 0.805,
+  "blend_weight": 0.35,
+  "auc_gain": 0.034,
+  "note": "Modest gain on a small geo-matched set; blended best is grid-search-optimistic. Spatial contagion of conflict: Gleditsch 2007; Buhaug & Gleditsch 2008."
+}

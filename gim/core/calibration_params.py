@@ -196,6 +196,13 @@ CRISIS_SEVERITY_POWERLAW = False  # [F5] enable fat-tailed crisis severity.
 CRISIS_SEVERITY_ALPHA = 1.5       # [RICHARDSON] power-law exponent for event severity (~1.5-1.6).
 CRISIS_SEVERITY_MAX = 20.0        # truncation of the severity power law.
 
+# [GEO/S5] Adjacency-based conflict contagion. Real interstate conflict is strongly local (UCDP: ~92%
+# of dyads between neighbours, ~46x chance) while GIM's relational escalation is not (~2.7x); adding a
+# spatial-contagion term improves the conflict ranking (AUC 0.772 -> 0.805). Default OFF =>
+# golden-preserving (no geography in the core unless enabled; the term needs the optional shapely extra).
+GEOGRAPHY_CONFLICT_LINKS = False  # enable adjacency border-friction + conflict contagion in dynamics.
+GEO_CONTAGION_W = 0.03            # weight of the contiguity premium + neighbour-conflict spillover.
+
 # Fiscal and sovereign block.
 BASE_INTEREST_RATE = 0.02  # [WEO25]
 DEBT_SPREAD_THRESHOLD = 0.60  # [PRIOR]

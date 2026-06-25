@@ -402,6 +402,18 @@ score relative to the base-rate forecast is $+0.143$ (a positive value indicates
 This is a reasonable bar for a block of this kind: the model is suitable for assessing relative risk
 but not for predicting specific wars on specific dates.
 
+A targeted diagnostic adds a spatial dimension to this block. Real interstate conflict is
+overwhelmingly local: over 1990--2023 the two states share a land border in about $92\,\%$ of cases
+(some $46\times$ the chance rate, median centroid distance $863$\,km), matching the
+territorial-proximity regularity of conflict studies \citep{vasquez1995}. The model's relational
+escalation rule, which targets the most hostile partner with no geographic term, is far less local
+($2.7\times$ chance). Augmenting the conflict-risk score with a spatial lag of neighbouring countries'
+risk (spatial contagion; \citealp{gleditsch2007, buhaug2008}) raises the ranking AUC from $0.772$ to
+$0.805$ on the geographically matched subset --- a modest but genuine gain (Fig.~\ref{fig:geography}).
+A switchable adjacency-contagion term was therefore added to the relational dynamics, off by default
+so the validated trajectories are unchanged; enabling it lifts the locality of the model's own
+escalation from $2.7\times$ to $9.6\times$ chance, closing part of the gap to reality.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig2_validation.pdf}
@@ -413,6 +425,17 @@ armed conflicts of 1990--2023 yields an area under the curve of $0.736$ (the boo
 is shaded; $95\,\%$ CI $[0.59;\,0.86]$; permutation test $p\approx0.001$) versus $0.5$ for random
 guessing.}
 \label{fig:valid}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig10_geography.pdf}
+\caption{Geography of conflict. \emph{(a)}~Neighbour adjacency relative to chance: real interstate
+conflict (UCDP 1990--2023) is strongly local, the model's escalation targets are not, and enabling
+the switchable adjacency-contagion term moves the model toward reality (median dyad distances in km
+annotated). \emph{(b)}~Leverage on skill: a spatial lag of neighbouring conflict risk raises the
+conflict-ranking AUC from $0.772$ to $0.805$; the neighbour exposure alone already scores $0.690$.}
+\label{fig:geography}
 \end{figure}
 
 The social cost of carbon is sensitive to the discounting scheme. Under a modern Ramsey scheme with

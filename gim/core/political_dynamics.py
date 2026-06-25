@@ -272,7 +272,37 @@ def apply_trade_barrier_effects(world: WorldState) -> None:
             relation.trade_intensity = max(0.0, relation.trade_intensity * (1.0 - decay))
 
 
+def _geo_adjacency(world: WorldState) -> Dict[str, set]:
+    """{agent_id -> set of geographically adjacent agent_ids}, built once and cached on the world.
+
+    Lazy: the shapely-backed geography module is imported only when geographic links are enabled, so the
+    simulation core stays standard-library-only (and golden-identical) when the feature is off.
+    """
+    cached = getattr(world.global_state, "_geo_adjacency_ids", None)
+    if cached is not None:
+        return cached
+    adj: Dict[str, set] = {aid: set() for aid in world.agents}
+    try:
+        from ..geography import build_geography
+        name_to_id = {a.name: aid for aid, a in world.agents.items()}
+        geo = build_geography([a.name for a in world.agents.values()])
+        for pair in geo.adjacency:
+            a, b = tuple(pair)
+            ia, ib = name_to_id.get(a), name_to_id.get(b)
+            if ia is not None and ib is not None:
+                adj[ia].add(ib)
+                adj[ib].add(ia)
+    except Exception:
+        pass  # shapely/geojson unavailable -> no geographic links (graceful; stays effectively off)
+    setattr(world.global_state, "_geo_adjacency_ids", adj)
+    return adj
+
+
 def update_relations_endogenous(world: WorldState) -> None:
+    cal = resolve_params(world)
+    geo_links = bool(getattr(cal, "GEOGRAPHY_CONFLICT_LINKS", False))
+    geo_adj = _geo_adjacency(world) if geo_links else {}
+
     baseline_trade = 0.5
     baseline_trust = 0.6
     baseline_conflict = 0.1
@@ -288,6 +318,13 @@ def update_relations_endogenous(world: WorldState) -> None:
         trade_conflict[actor_id] = (
             weighted_conflict / total_weight if total_weight > 0.0 else 0.0
         )
+
+    geo_conflict: Dict[str, float] = {}
+    if geo_links:
+        for actor_id, neigh in geo_adj.items():
+            own = world.relations.get(actor_id, {})
+            levels = [own[nb].conflict_level for nb in neigh if nb in own]
+            geo_conflict[actor_id] = sum(levels) / len(levels) if levels else 0.0
 
     block_tension: Dict[tuple[str, str], float] = {}
     block_pairs: Dict[tuple[str, str], list[float]] = {}
@@ -337,6 +374,13 @@ def update_relations_endogenous(world: WorldState) -> None:
             sanction_flag = 1.0 if target_id in actor.active_sanctions else 0.0
             barrier = clamp01(relation.trade_barrier)
             propagation = 0.03 * (trade_conflict.get(actor_id, 0.0) + trade_conflict.get(target_id, 0.0))
+            # [GEO/S5] contiguity premium + neighbour-conflict spillover, only between geographic
+            # neighbours; 0.0 when GEOGRAPHY_CONFLICT_LINKS is off (default) -> golden-identical.
+            geo_prop = 0.0
+            if geo_links and target_id in geo_adj.get(actor_id, ()):
+                geo_prop = cal.GEO_CONTAGION_W * (
+                    1.0 + geo_conflict.get(actor_id, 0.0) + geo_conflict.get(target_id, 0.0)
+                )
             block_key = (actor.alliance_block, target.alliance_block)
             block_rivalry = 0.0
             if actor.alliance_block != "NonAligned" and target.alliance_block != "NonAligned":
@@ -357,6 +401,7 @@ def update_relations_endogenous(world: WorldState) -> None:
                 + 0.03 * sanction_flag
                 + propagation
                 + block_rivalry
+                + geo_prop
             )
             conflict_push = max(0.0, conflict_push - mediation)
             relation.conflict_level = clamp01(
