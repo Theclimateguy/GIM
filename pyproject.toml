@@ -16,7 +16,8 @@ dependencies = []
 llm = ["requests>=2.31"]          # LLM / orchestration policy path
 analysis = ["numpy>=1.26", "pandas>=2.0"]  # game theory + data scripts
 viz = ["matplotlib>=3.8"]         # credit maps / plotting scripts
-dev = ["requests>=2.31", "numpy>=1.26", "pandas>=2.0", "matplotlib>=3.8"]
+geo = ["shapely>=2.0"]            # geography diagnostic (gim/geography.py) — not used by the core
+dev = ["requests>=2.31", "numpy>=1.26", "pandas>=2.0", "matplotlib>=3.8", "shapely>=2.0"]
 
 [tool.setuptools]
 include-package-data = false
