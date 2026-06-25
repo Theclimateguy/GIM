@@ -7,6 +7,7 @@ from .params import default_params, resolve_params
 from .forcing import nonco2_forcing
 from ..criticality import abrupt_carbon_release
 from .critical_pending import get_transition_pending
+from .geo_coupling import adjacency as _geo_adjacency
 from .rng import get_rng
 from .core import (
     CO2_PREINDUSTRIAL_GT,
@@ -362,12 +363,21 @@ def update_climate_risks(
 ) -> None:
     cal = resolve_params(world)
     delta_t = max(0.0, world.global_state.temperature_global - TGLOBAL_2023_C)
+    geo_links = bool(getattr(cal, "GEOGRAPHY_CLIMATE_LINKS", False))
+    geo_adj = _geo_adjacency(world) if geo_links else {}
+    # [GEO] regional climate correlation: hazards (drought, heatwave, monsoon failure) are spatially
+    # clustered, so neighbours' climate risk co-moves. Snapshot start-of-step risk for order-stability.
+    prev_risk = {aid: a.climate.climate_risk for aid, a in world.agents.items()} if geo_links else {}
     for agent in world.agents.values():
         base = base_const + base_water * agent.risk.water_stress
         base += base_gini * (agent.society.inequality_gini / 100.0)
         base = clamp01(base)
         temp_component = 1.0 - math.exp(-sensitivity * delta_t)
         target = clamp01(base + (1.0 - base) * temp_component)
+        if geo_links:
+            vals = [prev_risk[nb] for nb in geo_adj.get(agent.id, ()) if nb in prev_risk]
+            if vals:
+                target = clamp01(target + cal.GEO_CLIMATE_SPILLOVER_W * (sum(vals) / len(vals) - target))
         agent.climate.climate_risk = clamp01(
             agent.climate.climate_risk + response_rate * (target - agent.climate.climate_risk)
         )

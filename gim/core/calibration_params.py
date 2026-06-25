@@ -196,12 +196,36 @@ CRISIS_SEVERITY_POWERLAW = False  # [F5] enable fat-tailed crisis severity.
 CRISIS_SEVERITY_ALPHA = 1.5       # [RICHARDSON] power-law exponent for event severity (~1.5-1.6).
 CRISIS_SEVERITY_MAX = 20.0        # truncation of the severity power law.
 
-# [GEO/S5] Adjacency-based conflict contagion. Real interstate conflict is strongly local (UCDP: ~92%
-# of dyads between neighbours, ~46x chance) while GIM's relational escalation is not (~2.7x); adding a
-# spatial-contagion term improves the conflict ranking (AUC 0.772 -> 0.805). Default OFF =>
-# golden-preserving (no geography in the core unless enabled; the term needs the optional shapely extra).
-GEOGRAPHY_CONFLICT_LINKS = False  # enable adjacency border-friction + conflict contagion in dynamics.
+# [GEO] HEADLINE geographic coupling (conflict / trade / tension / climate). The model's distinctive
+# claim is cross-domain coupling; grounding it in a real spatial graph (gim/geography.py, shapely) makes
+# shock propagation geographically realistic. ACTIVATED in the headline: the 2015-2023 backtest stays in
+# band (GDP RMSE 0.590->0.592, CO2 1.148->1.147, T unchanged), so quality/robustness are preserved while
+# realism rises. Set the relevant flag False to recover the former flat (geography-free) behaviour.
+
+# [GEO/S5] Adjacency conflict contagion. Real interstate conflict is strongly local (UCDP ~92% of dyads
+# between neighbours, ~46x chance) vs GIM's relational escalation (~2.7x); the term lifts it to ~9.6x and
+# improves the conflict ranking (AUC 0.772 -> 0.805). Anchored only as an expert weight.
+GEOGRAPHY_CONFLICT_LINKS = True  # HEADLINE: adjacency border-friction + conflict contagion.
 GEO_CONTAGION_W = 0.03            # weight of the contiguity premium + neighbour-conflict spillover.
+
+# [GRAVITY] Bilateral trade ∝ GDP_i·GDP_j / distance^delta instead of a flat 0.5, so the shock-propagation
+# network is realistic. delta is the literature distance elasticity (Head & Mayer 2014 ~0.9), an anchored
+# structural prior, NOT tuned. Mapped to mean ~0.5 so only network STRUCTURE changes, not the trade level.
+# Strongest geo channel: anchored + clean cascade shape. (Needs shapely; see pyproject.)
+TRADE_GRAVITY_INIT = True        # HEADLINE: gravity trade initialisation.
+TRADE_GRAVITY_DIST_ELASTICITY = 0.9  # distance decay exponent (Head & Mayer 2014).
+
+# [GEO] Social-tension spatial contagion: unrest diffuses across neighbours (Arab-Spring-style; Braha
+# 2012 PLoS ONE; Hale 2013 regime-change cascades). Spatial lag toward the neighbourhood mean. Weakest
+# channel — directionally right (near ~2.2x far) but modest, and the weight is an expert prior.
+GEOGRAPHY_TENSION_LINKS = True   # HEADLINE: neighbour social-tension spillover.
+GEO_TENSION_SPILLOVER_W = 0.05    # per-step pull of tension toward the geographic-neighbourhood mean.
+
+# [GEO] Climate-risk spatial correlation: climate hazards (drought, heatwave, monsoon failure) are
+# spatially clustered, so a country's climate risk co-moves with its neighbours'. Pulls the risk target
+# toward the neighbourhood mean. Expert-prior weight.
+GEOGRAPHY_CLIMATE_LINKS = True   # HEADLINE: regional climate-risk spillover.
+GEO_CLIMATE_SPILLOVER_W = 0.10    # pull of the climate-risk target toward the neighbourhood mean.
 
 # Fiscal and sovereign block.
 BASE_INTEREST_RATE = 0.02  # [WEO25]

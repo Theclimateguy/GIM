@@ -44,8 +44,8 @@ class GeoContagionTests(unittest.TestCase):
     def test_flag_on_raises_adjacent_conflict(self):
         def run(geo_on):
             world = make_world_from_csv(STATE, base_year=2026)
-            if geo_on:
-                world.params = default_params().with_overrides({"GEOGRAPHY_CONFLICT_LINKS": True})
+            # override explicitly for both cases — the headline default is now ON, so "off" must be forced
+            world.params = default_params().with_overrides({"GEOGRAPHY_CONFLICT_LINKS": geo_on})
             pol = {aid: simple_rule_based_policy for aid in world.agents}
             mem: dict = {}
             for _ in range(8):

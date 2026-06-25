@@ -8,6 +8,11 @@ from .core import (
     clamp01,
     effective_trade_intensity,
 )
+from .geo_coupling import (
+    adjacency as _geo_adjacency,
+    apply_trade_gravity_once as _apply_trade_gravity_once,
+    geography_for as _geography_for,
+)
 from .metrics import compute_debt_stress, compute_protest_risk, compute_reserve_years
 from .params import resolve_params
 
@@ -272,34 +277,10 @@ def apply_trade_barrier_effects(world: WorldState) -> None:
             relation.trade_intensity = max(0.0, relation.trade_intensity * (1.0 - decay))
 
 
-def _geo_adjacency(world: WorldState) -> Dict[str, set]:
-    """{agent_id -> set of geographically adjacent agent_ids}, built once and cached on the world.
-
-    Lazy: the shapely-backed geography module is imported only when geographic links are enabled, so the
-    simulation core stays standard-library-only (and golden-identical) when the feature is off.
-    """
-    cached = getattr(world.global_state, "_geo_adjacency_ids", None)
-    if cached is not None:
-        return cached
-    adj: Dict[str, set] = {aid: set() for aid in world.agents}
-    try:
-        from ..geography import build_geography
-        name_to_id = {a.name: aid for aid, a in world.agents.items()}
-        geo = build_geography([a.name for a in world.agents.values()])
-        for pair in geo.adjacency:
-            a, b = tuple(pair)
-            ia, ib = name_to_id.get(a), name_to_id.get(b)
-            if ia is not None and ib is not None:
-                adj[ia].add(ib)
-                adj[ib].add(ia)
-    except Exception:
-        pass  # shapely/geojson unavailable -> no geographic links (graceful; stays effectively off)
-    setattr(world.global_state, "_geo_adjacency_ids", adj)
-    return adj
-
-
 def update_relations_endogenous(world: WorldState) -> None:
     cal = resolve_params(world)
+    if getattr(cal, "TRADE_GRAVITY_INIT", False):
+        _apply_trade_gravity_once(world, cal)
     geo_links = bool(getattr(cal, "GEOGRAPHY_CONFLICT_LINKS", False))
     geo_adj = _geo_adjacency(world) if geo_links else {}
 

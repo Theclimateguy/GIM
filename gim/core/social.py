@@ -6,6 +6,7 @@ from .params import resolve_params
 from .critical_pending import get_transition_pending, record_debt_flow
 from .core import Action, AgentState, WorldState, clamp01, effective_trade_intensity
 from .economy import compute_effective_interest_rate
+from .geo_coupling import adjacency as _geo_adjacency
 from .rng import get_rng
 from ..criticality import powerlaw_severity
 
@@ -260,6 +261,14 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
     if getattr(cal, "CULTURE_SOCIAL_LINKS", False):
         _ref = cal.CULTURE_DIM_REF
         tension_change *= 1.0 - cal.CULTURE_LTO_PATIENCE_SENS * (agent.culture.lto - _ref) / 100.0
+    # [GEO] Spatial contagion: unrest diffuses across geographic neighbours (Arab-Spring-style; Braha
+    # 2012; Hale 2013). Spatial lag toward the neighbourhood-mean tension; 0.0 when off => golden-safe.
+    # Neighbours are read at their start-of-step values (society writes are deferred), so order-stable.
+    if getattr(cal, "GEOGRAPHY_TENSION_LINKS", False):
+        neigh = _geo_adjacency(world).get(agent.id, ())
+        vals = [world.agents[nb].society.social_tension for nb in neigh if nb in world.agents]
+        if vals:
+            tension_change += cal.GEO_TENSION_SPILLOVER_W * (sum(vals) / len(vals) - current_tension)
     tension_next = clamp01(current_tension + tension_change)
     _set_critical_effective(world, agent, "social_tension", tension_next)
 

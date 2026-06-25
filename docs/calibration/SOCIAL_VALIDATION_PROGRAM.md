@@ -142,12 +142,36 @@ lazily so the core stays shapely-free and **golden-identical** when off). Enabli
 escalation locality **2.7× → 9.6× chance** (median 6906 → 3364 km), closing part of the gap to reality.
 Artifacts add: `gim/geography.py`, `gim/conflict_geography.py`, two scripts, three tests, a result ledger.
 
+### S6 — geographic coupling across four channels, ACTIVATED in the headline
+
+The model's distinctive claim is cross-domain coupling, so its shock-propagation network was grounded in
+a real spatial graph (`gim/core/geo_coupling.py`: cached adjacency + centroid distance, shapely). Four
+switchable channels, each validated against the same gates (golden-in-band G1, cascade locality G3,
+suite G4):
+
+| Channel | What | Anchor | Cascade | Golden (G1, all-on) |
+| --- | --- | --- | --- | --- |
+| **Trade** (`TRADE_GRAVITY_INIT`) | bilateral trade ∝ GDP·GDP / dist^0.9 (vs flat 0.5) | **δ=0.9 Head & Mayer 2014** | shock corr 0→**+0.40** | GDP 0.590→**0.592** |
+| **Conflict** (`GEOGRAPHY_CONFLICT_LINKS`) | adjacency contagion / border friction | expert prior | locality 2.7×→**9.6×** | CO₂ 1.148→**1.147** |
+| **Tension** (`GEOGRAPHY_TENSION_LINKS`) | unrest spillover to neighbours (Braha 2012) | expert prior | near **2.2×** far (weak) | T **unchanged** |
+| **Climate** (`GEOGRAPHY_CLIMATE_LINKS`) | regional climate-risk correlation | expert prior | — | (in band) |
+
+**Activated** (all four `=True` in `calibration_params`): the 2015–2023 backtest stays in band
+(GDP RMSE +0.24%, CO₂ −0.14%, T ±0), full suite **455 passed**, determinism intact. **shapely is now a
+runtime dependency** (the headline degrades to geography-free without it — a reproducibility footgun
+otherwise). Honest tiering: **trade** is the strong channel (literature-anchored δ + clean cascade
+shape); **conflict/tension/climate** are directionally-right but modest, expert-prior weights — the
+geographic payoff is concentrated in trade. Diagnostics: `scripts/diagnose_trade_gravity.py`,
+`diagnose_shock_propagation.py`, `diagnose_tension_contagion.py`. Tests: `test_trade_gravity.py`,
+`test_geo_tension.py`, `test_s5_geography_contagion.py`.
+
 ## Status
 
 - **S1** — DONE (war-size exponent anchored; sampler validated, α̂=1.51, KS=0.003).
 - **S2** — DONE (migration gravity elasticities reproduced; mass=1, income≈1.18; MIGRATION_* anchored).
 - **S3** — DONE (no marginal trust→growth channel found; regime-collapse 20% GDP hit anchored to disasters).
 - **S4** — DONE (conflict skill + calibration + published-reference placement; live ViEWS bake-off deferred).
+- **S6** — DONE (geographic coupling across trade/conflict/tension/climate, ACTIVATED in headline; golden in band, suite 455 passed; shapely now a runtime dep; payoff concentrated in trade).
 - **S5** — DONE (geography diagnostic → leverage AUC 0.772→0.805 → switchable adjacency contagion,
   locality 2.7×→9.6×; off by default, golden-safe).
 
