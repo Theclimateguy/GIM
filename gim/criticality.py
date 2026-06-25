@@ -88,6 +88,79 @@ def powerlaw_severity(rng, alpha: float = 1.5, a: float = 1.0, b: float = 20.0) 
     return x / mean if mean > 0 else 1.0
 
 
+def truncated_pareto_cdf(x: float, alpha: float, a: float = 1.0, b: float = 20.0) -> float:
+    """CDF of the truncated power law (pdf proportional to x^-alpha on [a, b]).
+
+    Exact inverse of the inverse-CDF sampler in `powerlaw_severity` (before mean-normalisation):
+    F(a)=0, F(b)=1. Used for Kolmogorov-Smirnov goodness-of-fit in the S1 war-size check.
+    """
+    if x <= a:
+        return 0.0
+    if x >= b:
+        return 1.0
+    if abs(alpha - 1.0) < 1e-9:
+        alpha += 1e-6
+    a1 = a ** (1.0 - alpha)
+    b1 = b ** (1.0 - alpha)
+    return (a1 - x ** (1.0 - alpha)) / (a1 - b1)
+
+
+def _trunc_pareto_negloglik(alpha: float, sum_log: float, n: int, a: float, b: float) -> float:
+    # pdf(x) = (alpha-1) x^-alpha / (a^{1-alpha} - b^{1-alpha});  maximise the log-likelihood in alpha.
+    if alpha <= 1.0:
+        alpha = 1.0 + 1e-9
+    a1 = a ** (1.0 - alpha)
+    b1 = b ** (1.0 - alpha)
+    return -(n * math.log(alpha - 1.0) - alpha * sum_log - n * math.log(a1 - b1))
+
+
+def fit_truncated_pareto_alpha(
+    samples: Sequence[float], a: float = 1.0, b: float = 20.0, lo: float = 1.0001, hi: float = 6.0
+) -> float:
+    """Maximum-likelihood exponent of a truncated power law on [a, b] (Clauset-style, truncated).
+
+    Golden-section search on the (unimodal) negative log-likelihood -- pure-python, no SciPy. This is
+    the S1 *reproduction procedure*: applied to GIM's `powerlaw_severity` draws it must recover the
+    input exponent (sampler validation); applied to an empirical war-size record (Richardson/Clauset)
+    it estimates the war-size exponent that anchors the prior.
+    """
+    xs = [float(x) for x in samples if a <= float(x) <= b]
+    n = len(xs)
+    if n < 2:
+        return float("nan")
+    sum_log = sum(math.log(x) for x in xs)
+    invphi = (math.sqrt(5.0) - 1.0) / 2.0
+    c = hi - invphi * (hi - lo)
+    d = lo + invphi * (hi - lo)
+    fc = _trunc_pareto_negloglik(c, sum_log, n, a, b)
+    fd = _trunc_pareto_negloglik(d, sum_log, n, a, b)
+    for _ in range(200):
+        if hi - lo < 1e-7:
+            break
+        if fc < fd:
+            hi, d, fd = d, c, fc
+            c = hi - invphi * (hi - lo)
+            fc = _trunc_pareto_negloglik(c, sum_log, n, a, b)
+        else:
+            lo, c, fc = c, d, fd
+            d = lo + invphi * (hi - lo)
+            fd = _trunc_pareto_negloglik(d, sum_log, n, a, b)
+    return 0.5 * (lo + hi)
+
+
+def ks_distance(samples: Sequence[float], alpha: float, a: float = 1.0, b: float = 20.0) -> float:
+    """Kolmogorov-Smirnov distance between `samples` and the truncated-Pareto(alpha, a, b) CDF."""
+    xs = sorted(float(x) for x in samples if a <= float(x) <= b)
+    n = len(xs)
+    if n == 0:
+        return float("nan")
+    d = 0.0
+    for i, x in enumerate(xs):
+        cdf = truncated_pareto_cdf(x, alpha, a, b)
+        d = max(d, abs(cdf - i / n), abs((i + 1) / n - cdf))
+    return d
+
+
 def abrupt_carbon_release(
     rng,
     temperature: float,
