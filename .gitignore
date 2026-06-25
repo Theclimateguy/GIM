@@ -45,6 +45,9 @@ paper/*.blg
 paper/*.bbl
 paper/*.out
 paper/*.toc
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.xdv
 paper/figures/*.aux
 paper/figures/*.log
 
