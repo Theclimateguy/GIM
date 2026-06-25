@@ -2,6 +2,7 @@
 
 import unittest
 
+from gim.core.params import default_params
 from gim.scc import scc_distribution, scc_multi_horizon, social_cost_of_carbon
 
 CSV = "data/agent_states_operational_2026_calibrated.csv"
@@ -24,6 +25,19 @@ class SCCTests(unittest.TestCase):
         a = social_cost_of_carbon(CSV, years=15, max_agents=12, seed=2026)
         b = social_cost_of_carbon(CSV, years=15, max_agents=12, seed=2026)
         self.assertEqual(a["scc_usd_per_tco2"], b["scc_usd_per_tco2"])
+
+
+class SCCDiceReproductionTests(unittest.TestCase):
+    def test_d6_damage_coefficient_is_the_lever(self):
+        # D6 (scripts/run_d6_dice_scc.py): GIM's SCC engine reproduces DICE-2016R (~$31/tCO2) at a
+        # multi-century horizon under DICE's damage coefficient (a2=0.00236) -- the full repro is too
+        # slow for CI, so this fast guard checks the mechanism behind it: at a fixed horizon DICE's
+        # lower damages give a positive SCC strictly below GIM's default-damage (a2=0.006) SCC.
+        kw = dict(years=20, pulse_gtco2=10.0, max_agents=15, seed=2026)
+        gim = social_cost_of_carbon(CSV, params=default_params().with_overrides({"DAMAGE_QUAD_COEFF": 0.006}), **kw)
+        dice = social_cost_of_carbon(CSV, params=default_params().with_overrides({"DAMAGE_QUAD_COEFF": 0.00236}), **kw)
+        self.assertGreater(dice["scc_usd_per_tco2"], 0.0)
+        self.assertLess(dice["scc_usd_per_tco2"], gim["scc_usd_per_tco2"])
 
 
 class SCCHorizonTests(unittest.TestCase):

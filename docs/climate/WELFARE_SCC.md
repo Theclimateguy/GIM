@@ -51,6 +51,28 @@ probabilistic SCC (varying ECS, the damage coefficient, η, ρ, heat capacity, e
 is **right-skewed** — median ≈ $13, p95 ≈ $32 at 30 y — the characteristic shape of modern IAM
 SCC distributions (cf. RFF-SP / Rennert et al. 2022).
 
+## D6 — DICE reproduction (keystone cross-model check)
+
+The decisive economic-core validation: does GIM's *independently built* marginal-pulse SCC engine
+recover Nordhaus's DICE-2016R number (~$31/tCO₂) when fed DICE's inputs? GIM already shares DICE's
+discounting (η=1.45, ρ=1.5%) and ECS (~3.0); the only material difference is the damage **coefficient**
+(same quadratic form, GIM's a₂=0.006 ≈ 5.4% at 3 °C vs DICE-2016R a₂=0.00236 ≈ 2.12%; Nordhaus 2017,
+PNAS). Setting GIM's a₂ to DICE's and integrating over a DICE-comparable multi-century horizon
+(`scripts/run_d6_dice_scc.py`, full 57-agent panel, seed 2026):
+
+| Horizon | GIM damages (a₂=0.006) | DICE damages (a₂=0.00236) |
+| --- | --- | --- |
+| 30 y | $24.9 | $12.1 (horizon-truncated) |
+| 100 y | $106.8 | $29.1 |
+| 200 y | $122.1 | **$32.3** |
+| 300 y | $123.6 | **$32.6** (converged) |
+
+**Result: reproduced.** Under DICE's damage function and discounting, GIM's SCC converges to
+**~$32–33/tCO₂**, matching Nordhaus's ~$31. So the valuation engine is sound, and GIM's *higher*
+headline SCC (~$122 at 200 y with its own damages) is attributable **entirely to its higher,
+literature-based damage function (~2.5× DICE), not to the SCC machinery**. The short-horizon value is
+low purely because a 30-year cutoff truncates the multi-century damage tail that DICE integrates.
+
 ## Verification
 
 `tests/test_welfare.py` (CRRA properties, discounting) and `tests/test_scc.py` (positive SCC
@@ -60,5 +82,5 @@ confirming the marginal interpretation.
 
 ## Next
 
-- Longer (multi-century) horizon for a full DICE-comparable SCC level.
+- ~~Longer (multi-century) horizon for a full DICE-comparable SCC level.~~ **[Done — D6 above.]**
 - Optional welfare-optimization mode (optimal mitigation path maximizing W) for full DICE parity.

@@ -103,6 +103,25 @@ in-sample (the forecast ≈ the adaptive anchor). Verified by
 `test_operator_alone_is_golden`, `test_recursion_guard_suppresses_operator`, `test_inflation_on_alone_is_golden`,
 `test_inflation_site_applies_forecast` (proves the anchor actually blends the forecast).
 
+## Validation — the channel is a stress-response feature
+
+The 2015–2023 backtest can't validate forward-looking behaviour (it barely bites in-sample). The honest
+test is whether the channel moves things *where it should* — under shocks — and not where it shouldn't
+(a smooth baseline). `scripts/run_expectations_ablation.py` contrasts expectations off vs on under two
+environments, **calm** (extreme events off) and **crisis** (events on), with common random numbers
+(identical shocks; the only difference is how agents form expectations), 2026→2100:
+
+| Environment | GDP-2100 effect (on − off) | growth-vol | inflation-vol |
+| --- | --- | --- | --- |
+| calm | **+0.09%** | +0.04 pp | +0.08 pp |
+| crisis | **−2.03%** | −0.01 pp | +0.09 pp |
+
+The GDP-2100 effect is ~22× larger under crisis than calm: forward-looking agents anticipate the
+persistence of climate shocks and pull investment back, where the backward-looking proxy under-reacts.
+So the channel is a **stress-response feature** — near-silent in a smooth baseline, materially
+cautionary under shocks — exactly the behaviour claimed, and the reason it is reported as a switchable
+extension rather than a baseline-growth headline.
+
 ## Honesty caveats
 
 - **Level-1 truncation** is an approximation of rational expectations, documented above — not full RE.
@@ -110,9 +129,9 @@ in-sample (the forecast ≈ the adaptive anchor). Verified by
   regardless of the outer run's actual (e.g. scenario) policies — a deliberate, cheap, deterministic
   freeze.
 - **The 2015–2023 backtest cannot strongly validate this** — expectations mostly bite forward and in
-  crises (same caveat as the R&D-stock channel). Validation is by forward ablation (how H shifts
-  trajectories / SCC) and behavioural checks, anchored to the adaptive-learning literature (Evans &
-  Honkapohja).
+  crises (same caveat as the R&D-stock channel). Validation is therefore the calm-vs-crisis ablation
+  above (the channel is near-silent in calm, materially cautionary under shocks) and behavioural
+  checks, anchored to the adaptive-learning literature (Evans & Honkapohja) — not an in-sample fit.
 
 ## Activating
 

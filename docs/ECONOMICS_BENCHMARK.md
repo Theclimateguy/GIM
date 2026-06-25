@@ -115,26 +115,36 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   `compute_effective_interest_rate`. Runtime-attribute state (no CSV/hash change); golden
   bit-identical at default. Remaining: explicit bank balance sheets + money stock (deposits as the
   mirror liability) for full SFC closure.
-- **D4 — Growth foundations + SSP anchoring. [scaffold delivered — F2.4/THE-39]** SSP TFP-drift
-  anchors in `gim/scenario_alignment.py` (`SSP_TFP_DRIFT`, `ssp_growth_preset`, switchable override,
-  default unchanged → golden preserved); `scripts/report_gdp_skill.py` surfaces the headline GDP
-  skill-vs-naive (**+0.09**, beats naive) + the baseline-growth gap (GIM drift 0.010 ≈ SSP3, below
-  SSP2 0.018 — the "low growth" flag, now quantified). Raising the drift to an SSP anchor rides with
-  the re-anchor.
-- **D5 — Expectations. [delivered — F2.5/THE-40]** `EXPECTATIONS_FORESIGHT` (default 0 → pure
-  adaptive, golden-preserving) blends a one-step expected-return (recent GDP growth) signal into the
-  savings/investment rate — a switchable, bounded forward-looking tilt. The recursive/adaptive
-  default is the **defended** stance: there is no unified theory of second best (Pollitt-Mercure
-  2021) and demand-led non-equilibrium models (E3ME) argue full foresight is unrealistic; GIM's
-  behavioural-recursive choice is a legitimate ABM-macro position, and the switch lets us test
-  sensitivity to it rather than assume it away.
-- **D6 — DICE reproduction (Phase-5 THE-16, the keystone check).** Reproduce Nordhaus ~\$31/tCO₂ in
-  GIM's welfare/SCC frame — the minimum cross-model validation that the economic core is sound.
+- **D4 — Growth foundations + SSP anchoring. [calibrated — E4.2/THE-61]** Now data-calibrated: the
+  R&D→growth channel is a Jones semi-endogenous **R&D-stock** form (SENS level-matched to the validated
+  flow form, elasticity φ=0.5 from the World Bank 47-country panel), and the SSP1–5 forward TFP-drift
+  presets are grounded on the published SSP marker GDP-per-capita pathways (reproducing the 1.0–2.8%
+  growth envelope). Both switchable, off by default (golden-safe). See `docs/GROWTH_FOUNDATIONS.md`.
+  (Earlier scaffold: F2.4/THE-39 — SSP TFP-drift anchors + `scripts/report_gdp_skill.py`, GDP
+  skill-vs-naive **+0.09**.)
+- **D5 — Expectations. [near-rational operator — E4.3/THE-62]** Beyond the `EXPECTATIONS_FORESIGHT`
+  backward proxy (F2.5/THE-40), a near-rational (model-consistent, **level-1**) operator now exists
+  (`gim/core/expectations.py`): agents forecast by running an H-step event-frozen projection of the
+  model itself (reusing `step_world` under a recursion guard); both the investment and Phillips
+  inflation-anchor sites read it. Switchable, off by default. The recursive/adaptive default remains
+  the **defended** stance (no unified theory of second best — Pollitt-Mercure 2021; demand-led
+  non-equilibrium models argue full foresight is unrealistic), and the operator is a *contained,
+  additive* change, not an equilibrium rewrite. See `docs/EXPECTATIONS.md`.
+- **D6 — DICE reproduction (THE-16, the keystone check). [DONE — reproduced.]** GIM's independent
+  marginal-pulse SCC engine recovers Nordhaus's DICE-2016R ~\$31/tCO₂ when fed DICE's damage
+  coefficient (a₂=0.00236) and discounting (η=1.45, ρ=1.5%, already GIM defaults) at a DICE-comparable
+  multi-century horizon: **\$29 (100 y) → \$32–33 (200–300 y)**. So the valuation core is sound, and
+  GIM's higher *headline* SCC is attributable to its higher (literature-based, ~2.5× DICE) damage
+  function, not the engine. Reproducible via `scripts/run_d6_dice_scc.py`; see
+  `docs/climate/WELFARE_SCC.md`.
 
 ## 6. Self-critique of this benchmark
 
-- This is a **structural/parametric** comparison, not a head-to-head output run. The decisive test
-  is D6 (reproduce DICE numerically); until then "competitive" is a structural claim.
+- This is a **structural/parametric** comparison, not a head-to-head output run. The decisive
+  numeric test, D6 (reproduce DICE's SCC), is **now done** — GIM's SCC engine recovers DICE-2016R's
+  ~\$31/tCO₂ under DICE's inputs (see D6 above), so "competitive economics" is no longer only a
+  structural claim on the SCC axis. A full head-to-head on output paths (welfare-optimal mitigation)
+  remains future work.
 - "Behind the GE class" assumes the GE paradigm is the target. There is **no unified theory of
   second best** (Pollitt-Mercure; IOP 2021 review), and demand-led non-equilibrium models (E3ME)
   argue market clearing is *unrealistic*. So D1/D2 should be pursued as *options to evaluate*, not
