@@ -129,7 +129,10 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   inflation-anchor sites read it. Switchable, off by default. The recursive/adaptive default remains
   the **defended** stance (no unified theory of second best — Pollitt-Mercure 2021; demand-led
   non-equilibrium models argue full foresight is unrealistic), and the operator is a *contained,
-  additive* change, not an equilibrium rewrite. See `docs/EXPECTATIONS.md`.
+  additive* change, not an equilibrium rewrite. A 20-seed ensemble ablation
+  (`scripts/run_expectations_ensemble.py`) finds its effect on aggregate GDP-2100 is **within noise**
+  (an earlier single-seed "stress-response" reading did not replicate), so it is a *structural option,
+  off by default* — not a demonstrated effect and not a paper/headline claim. See `docs/EXPECTATIONS.md`.
 - **D6 — DICE reproduction (THE-16, the keystone check). [DONE — reproduced.]** GIM's independent
   marginal-pulse SCC engine recovers Nordhaus's DICE-2016R ~\$31/tCO₂ when fed DICE's damage
   coefficient (a₂=0.00236) and discounting (η=1.45, ρ=1.5%, already GIM defaults) at a DICE-comparable

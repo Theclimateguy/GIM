@@ -103,24 +103,30 @@ in-sample (the forecast ≈ the adaptive anchor). Verified by
 `test_operator_alone_is_golden`, `test_recursion_guard_suppresses_operator`, `test_inflation_on_alone_is_golden`,
 `test_inflation_site_applies_forecast` (proves the anchor actually blends the forecast).
 
-## Validation — the channel is a stress-response feature
+## Validation — the aggregate effect is within noise (the single-seed claim did not replicate)
 
-The 2015–2023 backtest can't validate forward-looking behaviour (it barely bites in-sample). The honest
-test is whether the channel moves things *where it should* — under shocks — and not where it shouldn't
-(a smooth baseline). `scripts/run_expectations_ablation.py` contrasts expectations off vs on under two
-environments, **calm** (extreme events off) and **crisis** (events on), with common random numbers
-(identical shocks; the only difference is how agents form expectations), 2026→2100:
+The 2015–2023 backtest can't validate forward-looking behaviour (it barely bites in-sample). A single
+crisis ablation (`scripts/run_expectations_ablation.py`, one seed) had suggested a "stress-response"
+effect — −2.03% GDP-2100 under crisis vs +0.09% under calm. **An ensemble re-test refutes that as a
+single-seed artefact.** `scripts/run_expectations_ensemble.py` repeats the off-vs-on, calm-vs-crisis
+contrast across **20 seeds** (common random numbers within each seed — identical shocks; only
+expectation-formation differs), 2026→2100:
 
-| Environment | GDP-2100 effect (on − off) | growth-vol | inflation-vol |
-| --- | --- | --- | --- |
-| calm | **+0.09%** | +0.04 pp | +0.08 pp |
-| crisis | **−2.03%** | −0.01 pp | +0.09 pp |
+| Environment | GDP-2100 effect (on − off), mean | 95% CI | share < 0 | range |
+| --- | --- | --- | --- | --- |
+| calm   | +0.16% | [−0.44, +0.77] | 35% | [−2.94, +2.56] |
+| crisis | −0.18% | [−0.99, +0.62] | 55% | [−2.76, +4.26] |
 
-The GDP-2100 effect is ~22× larger under crisis than calm: forward-looking agents anticipate the
-persistence of climate shocks and pull investment back, where the backward-looking proxy under-reacts.
-So the channel is a **stress-response feature** — near-silent in a smooth baseline, materially
-cautionary under shocks — exactly the behaviour claimed, and the reason it is reported as a switchable
-extension rather than a baseline-growth headline.
+The crisis mean is **indistinguishable from zero**, the crisis effect is positive in 9 of 20 seeds, and
+the paired "crisis more adverse than calm" pattern holds in exactly **50% of seeds — a coin flip**. So
+the channel's effect on aggregate GDP-2100 is **noise-dominated**: its sign and size are set by the
+shock realisation, not by the channel. Seed 0 happened to reproduce the documented single run but is not
+representative.
+
+**Conclusion:** there is **no demonstrated stress-response, nor any robust aggregate effect**. The
+channel's value is purely **structural** — a model-consistent expectation operator available as a
+switchable option — not a demonstrated behavioural improvement. It is correctly **off by default** and is
+**not** used as a headline or paper claim.
 
 ## Honesty caveats
 
@@ -128,10 +134,12 @@ extension rather than a baseline-growth headline.
 - **Frozen-policy assumption.** The projection assumes baseline (`simple`) policy behaviour forward,
   regardless of the outer run's actual (e.g. scenario) policies — a deliberate, cheap, deterministic
   freeze.
-- **The 2015–2023 backtest cannot strongly validate this** — expectations mostly bite forward and in
-  crises (same caveat as the R&D-stock channel). Validation is therefore the calm-vs-crisis ablation
-  above (the channel is near-silent in calm, materially cautionary under shocks) and behavioural
-  checks, anchored to the adaptive-learning literature (Evans & Honkapohja) — not an in-sample fit.
+- **Neither the 2015–2023 backtest nor the forward ablation validates an aggregate effect.** A
+  single-seed crisis ablation suggested a stress-response, but the 20-seed ensemble
+  (`scripts/run_expectations_ensemble.py`) shows the effect is within noise (crisis CI [−0.99, +0.62];
+  calm-vs-crisis a 50/50 coin flip). The channel is retained as a contained, literature-grounded
+  *structural* operator (model-consistent expectations; Evans & Honkapohja), off by default — not an
+  empirically validated effect.
 
 ## Activating
 
