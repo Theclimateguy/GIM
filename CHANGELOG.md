@@ -2,27 +2,56 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
-## [Unreleased]
+## [17.2.0] — 2026-06-26
+
+**The final release of the 17.x family.** It completes the model's distinctive cross-domain story: the
+geographic-coupling layer is activated in the headline and grounded in the literature with a delivered
+reproduction benchmark; the social/political layers are put on a reproducible numeric footing; the
+economic core is deepened; and the integration claim is made computational. Every headline number is
+calibrated, literature-anchored, and shown to be statistically reliable, with the objective 17.0.0 core
+and the "golden" backtest preserved (now under the geo-on default).
 
 ### Added
 
-- `docs/calibration/GEO_PRIOR_ANCHORS.md` — literature anchors for the geographic-coupling weights
-  (conflict / tension / climate) plus a delivered reproduction benchmark
-  (`scripts/run_s6_geo_autocorrelation.py`, `tests/test_s6_geo_autocorrelation.py`): emergent Moran's I
-  and a dyadic neighbour-conflict premium (1.0×→1.5×, matching the +44–52% literature) measured against
-  the empirical spatial-dependence literature. First-source verification corrected the tension anchor
-  (Arezki et al.: pure-adjacency protest spillover is statistically insignificant — tension stays a
-  modest expert prior, not a literature-anchored magnitude).
-- `docs/calibration/GEO_ON_REVALIDATION.md` — re-validation of all headline numbers (2015–2023 backtest
-  RMSE, conflict AUC, Morris sensitivity) under the geo-coupling-on headline; all hold.
+- **Geographic coupling — activated and anchored.** A real spatial graph (shapely, now a runtime
+  dependency) drives four switchable channels: trade gravity (δ = 0.9; Disdier–Head 2008 / Head–Mayer
+  2014) plus conflict / tension / climate spatial contagion. Literature anchors and a *delivered*
+  reproduction benchmark (`scripts/run_s6_geo_autocorrelation.py`): emergent Moran's I and a dyadic
+  neighbour-conflict premium of 1.0×→1.5× (matching the +44–52% empirical record). First-source
+  verification keeps each anchor honest — the tension channel is documented as a modest expert prior
+  (the cleanest cross-national study finds pure-adjacency protest spillover insignificant). The S5
+  conflict-geography leverage test and a switchable adjacency-contagion term. Docs:
+  `docs/calibration/GEO_PRIOR_ANCHORS.md`, `GEO_ON_REVALIDATION.md`.
+- **Social / political validation program (S1–S6).** War-size power-law exponent (Richardson; Clauset),
+  migration gravity elasticities (Beine et al.), trust→growth / regime-collapse disaster magnitude
+  (Barro–Ursúa), conflict-onset forecast skill placed against PITF/ViEWS, and the geographic coupling
+  above — each with a literature anchor and, where the quantity is emergent, an engine-reproduction
+  check. `docs/calibration/SOCIAL_VALIDATION_PROGRAM.md`.
+- **Integration benchmark (paper Appendix B).** A literature-anchored, computational contrast of the
+  cross-sector claim against sectoral models — carbon tax / DICE, oil shock / MESSAGEix, crop shock /
+  AgMIP — showing GIM reproduces each sectoral first-order effect and surfaces a cross-sector
+  consequence the sectoral model structurally cannot. `scripts/integration_benchmark/`,
+  `docs/INTEGRATION_BENCHMARK.md`.
+- **Economic-core deepening (E4.1–E4.3).** Money→prices transmission (quantity-theory Phillips term,
+  calibrated λ ≈ 0.027); growth foundations (R&D-stock / Jones TFP channel + SSP1–5 drift presets);
+  near-rational (model-consistent) expectations scaffold — the last two off by default.
+- **D6 DICE/SCC engine reproduction** in the validation table: GIM recovers DICE-2016R2's social cost of
+  carbon (~$32–33) under DICE inputs with its own engine.
+- **Decision-maker interface + LLM persona scenarios** (`python3 -m gim ui`): a bilingual, exploration-
+  first UI ("play as a country", "what if", "compare", expert mode) with persona-biased doctrines.
 
 ### Changed
 
-- Paper (RU + EN): corrected the Morris-screening parameter counts (26→33 key, 294→305 total) after the
-  social-validation program added 7 priors; revised the world-product robustness sentence and
-  regenerated `fig3_sensitivity` from the 33-factor screen.
-- Refreshed the golden historical-backtest fixture to the geo-on headline (GDP 0.5917 / CO₂ 1.1467 /
-  T 0.1349); full suite 460 passed; both papers recompile.
+- The headline model now runs with **geographic coupling ON by default**; the 2015–2023 "golden"
+  backtest is re-pinned to the geo-on configuration (GDP 0.5917 / CO₂ 1.1467 / T 0.1349) and stays in
+  band.
+- **Re-validated under geo-on:** backtest RMSE, conflict AUC 0.736 [0.59; 0.86] (BSS +0.143), and the
+  Morris sensitivity (drivers + robustness ρ ≥ 0.99) all hold. Paper Morris parameter counts corrected
+  to 33 key / 305 total; `fig3_sensitivity` regenerated from the 33-factor screen.
+- Repository reorganized for academic presentation (climate/calibration doc subfolders, meaningful
+  top-level directories); committed, reproducible figure generator.
+
+[17.2.0]: https://github.com/Theclimateguy/GIM/releases/tag/v17.2.0
 
 ## [17.1.1] — 2026-06-24
 

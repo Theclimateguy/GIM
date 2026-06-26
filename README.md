@@ -23,6 +23,9 @@ every layer, what it can do, and its limits. For where the model stands and what
 - Cost of carbon in the modern consensus range (~$140/tCO₂ at modern 2% discounting, with a
   documented growth/discounting sensitivity); conflict-risk validated against the standard
   armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
+- Geographic coupling grounds shock propagation in a real spatial graph: literature-anchored trade
+  gravity plus switchable conflict/tension/climate spatial contagion, checked by an
+  emergent-spatial-autocorrelation reproduction benchmark (the payoff is concentrated in trade).
 - Strict, accounting-consistent government finance (including through debt crises).
 - A dedicated **weak-signal detection** module (Mahalanobis joint-state anomaly + structural-break
   change-point + critical-slowing-down) for what-if / early-warning analysis (`gim/weak_signal.py`).
@@ -97,12 +100,16 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
-`17.1.1`. Preprint snapshot: the accompanying paper is finalized in academic English with fully
-reproducible figures (engine and results unchanged from 17.1.0). The 17.1.0 release added the
-statistical-rigor and analysis layer on top of the 17.0.0 core (unchanged):
-reproducible conflict-AUC inference (bootstrap CI + permutation test), Morris-screening robustness
-and ensemble Monte-Carlo convergence checks, and an identification of the (lagged) economy→society
-channel. Ships a committed, reproducible figure generator and the accompanying paper.
+`17.2.0` — **the final release of the 17.x family.** It completes the cross-domain story: the
+geographic-coupling layer is activated in the headline and grounded in the literature with a delivered
+reproduction benchmark (emergent Moran's I + a dyadic neighbour-conflict premium of 1.0×→1.5×, matching
+the +44–52% empirical record); the social/political layers (S1–S6) are put on a reproducible numeric
+footing; the economic core is deepened (money→prices, growth foundations, near-rational expectations —
+the last two off by default); and the integration claim is made computational (Appendix B: carbon/DICE,
+oil/MESSAGEix, crop/AgMIP). Every headline number is calibrated, literature-anchored, and statistically
+validated, with the objective 17.0.0 core and the golden backtest preserved under the geo-on default.
+Earlier in the family, 17.1.x added the statistical-rigor layer (conflict-AUC inference, Morris
+robustness, ensemble convergence) on the unchanged 17.0.0 objective core.
 Highlights of the 17.0.0 core: Python 3.10+ and lean repo; enforceable
 accounting/integrity invariants; deterministic reproducible runs; full uncertainty machinery
 (evidence-based priors, Monte-Carlo ensembles, sensitivity analysis, history matching, skill
