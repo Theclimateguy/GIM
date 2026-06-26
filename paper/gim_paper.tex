@@ -253,8 +253,9 @@ sanctions. Each country's military capability is anchored to observed measures o
 rather than to arbitrarily assigned values \citep{singer1972}. A small set of cultural traits
 (chiefly individualism, uncertainty avoidance, long-term orientation, and hierarchy), together with
 the character of the political regime, influence economic and social behavior \citep{hofstede2010}.
-Unlike the economy and climate, no single authoritative dataset exists for these links, so they are
-built on expert judgment and the general evidence base and are assessed against a more modest
+Unlike the economy and climate, no single authoritative calibration dataset exists for these links;
+where possible their priors are tied to the literature and to reproducible numbers
+(Section~\ref{sec:uq}), and the remainder is expert-set and assessed against a more modest
 criterion (Section~\ref{sec:calib}).\footnote{The socio-political and geopolitical variables are
 anchored to recognized indices: income inequality --- the SWIID database and the World Bank Gini
 index; legitimacy, governance quality, and political stability --- the Worldwide Governance
@@ -547,13 +548,16 @@ of the social block (marked $*$) dominate, not the physico-economic ones.}
 An honest list of what the model \emph{cannot} yet do is no less important than a list of its
 capabilities.
 
-\textbf{Expectations are adaptive.} Households and firms look to the recent past rather than to a
-rationally anticipated future. The model therefore does not reproduce anticipatory effects (for
-example, a response to a pre-announced policy before it takes effect).
+\textbf{Expectations in the headline run are adaptive.} Households and firms look to the recent past
+rather than to a rationally anticipated future, so the headline run does not reproduce anticipatory
+effects (for example, a response to a pre-announced policy before it takes effect). A model-consistent
+(near-rational) expectations mechanism has been implemented and tested, but an ensemble check found its
+marginal effect statistically unstable, so it is left off by default.
 
-\textbf{Long-run growth is weakly identified.} The long-run rate of productivity growth is only
-weakly pinned down by the available short history and, for forward projections, is anchored to an
-external scenario rather than derived endogenously.
+\textbf{Long-run growth is weakly identified.} The long-run rate of productivity growth is generated
+by an endogenous mechanism (R\&D-stock accumulation à la Jones, technology diffusion, frontier
+convergence) but is only weakly pinned down by the available short history and, for forward
+projections, is anchored to an external scenario rather than derived from it.
 
 \textbf{The climate is described by a fast approximation.} The climate block reproduces the standard
 indicators but is not a full Earth-system model; the strongest carbon feedbacks are deeply uncertain
@@ -563,20 +567,28 @@ and are relegated to tail scenarios.
 uncertain across the entire field; the model carries this uncertainty as an interval rather than as
 a single number.
 
-\textbf{The socio-political links rest on structural assumptions.} There is no single calibration
-dataset for the transition from conditions to social discontent, so the forms and magnitudes of the
-social-block coefficients are set by expert judgment. The channel from the economy to tension is
-nonetheless not arbitrary: it is statistically significant, directionally correct, and lagged
-(Section~\ref{sec:uq}, Fig.~\ref{fig:social}); what remains unestablished is the precise functional
-forms and lags, not the existence of the link. Conflict is intrinsically hard to predict, and the
-geopolitical block is suitable only for relative risk.
+\textbf{The socio-political links are partly anchored, partly expert.} There is no single calibration
+dataset for the transition from conditions to discontent, but a substantial part of the social-block
+priors is now tied to the literature and to reproducible numbers (Section~\ref{sec:uq}): the war-size
+power-law tail exponent, the migration-gravity elasticities, the regime-collapse GDP-loss magnitude,
+and conflict-onset forecast skill --- and a geographic coupling checked against the spatial dependence
+of the real record. What remains expert-set are the coupling thresholds and, in particular, the weight
+of cross-border tension diffusion, for which there is no clean adjacency anchor: in the most careful
+cross-national study, pure-adjacency protest spillover is statistically insignificant. The channel from
+the economy to tension is nonetheless significant, directionally correct, and lagged
+(Fig.~\ref{fig:social}); conflict is intrinsically hard to predict, and the geopolitical block is
+suitable only for relative risk (AUC ${\approx}0.74$).
 
-\textbf{Crises are threshold-based.} Discrete crises are specified by threshold rules and capture the
-correct qualitative behavior but are not derived from a single fitted crisis dataset.
+\textbf{Crisis triggers are threshold-based.} Discrete crises are launched by threshold rules and
+capture the correct qualitative behavior without being derived from a single fitted crisis dataset;
+their severity distribution, however, is anchored to the power-law of war sizes (exponent
+${\alpha}{\approx}1.5$; Richardson; Clauset).
 
-\textbf{The money-to-prices transmission needs further work.} The government and private-sector
-balance sheets are closed and accounting-consistent, but a more explicit transmission from the money
-stock to price pressure remains a subject for further calibration.
+\textbf{The geographic coupling is realistic but its payoff is concentrated in trade.} Shock
+propagation is grounded on a real spatial graph, and the model reproduces the spatial dependence of the
+real record (a neighbour-conflict premium; an emergent Moran's I). The substantive payoff, however, is
+concentrated in the trade channel (anchored gravity), while the cross-border diffusion weights for
+conflict, tension, and climate risk are modest and, for tension, lack a clean literature anchor.
 
 The overall stance is unchanged: the realistic goal is to be calibrated against one's own
 uncertainty rather than to serve as an instrument of infallible foresight. A realistic accuracy bar
@@ -681,10 +693,12 @@ decisions, express uncertainty correctly through ensembles, and detect weak sign
 structural shifts. The economic and climate blocks are empirically anchored and pass retrospective
 validation; the socio-political and geopolitical blocks, which constitute the model's distinguishing
 feature, are validated against a more modest but substantive criterion --- improvement over naive
-benchmarks. Further development concerns the introduction of forward-looking (rational) expectations,
-a deeper grounding of long-run growth, and an explicit money-to-prices transmission; these
-directions are framed as limitations and subjects for future work rather than as obstacles to
-applying the model in the modes outlined.
+benchmarks. The economic loop has since been deepened: an explicit money-to-prices transmission (a calibrated
+quantity-theory term), an endogenous long-run-growth mechanism (R\&D-stock accumulation à la Jones),
+and a tested forward-looking-expectations mechanism (left off by default, as its marginal effect proved
+unstable) have all been added. The residual limitations --- the fast-approximation climate block, the
+discipline-wide uncertainty of damage estimates, and the intrinsically low predictability of conflict
+--- are stated honestly and are not obstacles to applying the model in the modes outlined.
 
 \clearpage
 \appendix
