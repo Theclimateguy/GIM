@@ -221,8 +221,9 @@ half times higher than in DICE-2016R2 and below the central estimate of the Howa
 meta-analysis \citep{howard2017,burke2015}. That this difference resides in the damage function
 rather than the valuation machinery is confirmed by a direct cross-model check: fed DICE's damage
 coefficient and discounting, the model's own marginal-pulse engine recovers DICE-2016R2's social
-cost of carbon (approximately \$31 per ton of carbon dioxide, converging to \$32--33 over a
-multi-century horizon), so the higher headline cost of carbon follows entirely from the higher,
+cost of carbon under DICE inputs (about \$30 per ton of carbon dioxide at a 100-year horizon versus
+DICE's \$31, rising to about \$37 over a multi-century horizon as the long-run damage tail
+integrates), so the higher headline cost of carbon follows entirely from the higher,
 empirically grounded damage function. From the damage function, the social cost of carbon ---
 the economic damage from emitting one additional ton of carbon dioxide, a standard reference point
 for climate policy --- is computed by the marginal-pulse method. This quantity depends substantially
@@ -380,7 +381,7 @@ Block & Source & Criterion & Result \\
 \midrule
 Economy & PWT, WDI & retrospective RMSE, 2015--2023 & GDP $0.59$ trillion USD (Cobb--Douglas $1.03$) \\
 Climate and carbon & IPCC AR6, GCB & retrospective RMSE, 2015--2023 & $\mathrm{CO_2}$ $1.15$ Gt; $T$ $0.135\,^\circ$C \\
-Cost of carbon & EPA-2023, RFF-SP & published cross-check; DICE engine reproduction & ${\approx}\$140$/t$\,\mathrm{CO_2}$ (range $140$--$380$); recovers DICE-2016R2 \$32--33 under DICE inputs \\
+Cost of carbon & EPA-2023, RFF-SP & published cross-check; DICE engine reproduction & ${\approx}\$140$/t$\,\mathrm{CO_2}$ (range $140$--$380$); recovers DICE-2016R2 (\$30 at 100\,y; target \$31) under DICE inputs \\
 Conflict & UCDP/PRIO & ranking vs.\ registry & AUC $0.736$ $[0.59;\,0.86]$; BSS $+0.143$; $p{\approx}0.001$ \\
 Social block & SWIID, WGI & channel identification (Sec.~\ref{sec:uq}) & significant lagged channel; regression $p<10^{-12}$ \\
 \bottomrule
@@ -706,9 +707,10 @@ discipline-wide uncertainty of damage estimates, and the intrinsically low predi
 \label{app:params}
 
 Each parameter is specified by a prior distribution; below are the central value, the plausibility
-range (roughly the $5$--$95$th percentile of the prior), and the main source. The full set of $33$
-key and $305$ total parameters with distributions and justifications is available in the repository
-(Section~\ref{sec:repo}).
+range (roughly the $5$--$95$th percentile of the prior), and the main source. The $33$ key parameters carry
+literature-grounded priors (each with a source and rationale); the model's full registry comprises
+$287$ parameters with calibration-status tags, most of them expert-set or structural, and is
+available in the repository (Section~\ref{sec:repo}).
 
 \begin{table}[h]
 \centering
