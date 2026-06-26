@@ -1,0 +1,49 @@
+{
+  "experiment": "S6 reproduction: emergent Moran's I / spatial-lag of conflict, tension, climate-risk (geo coupling ON vs OFF) vs literature spatial-dependence targets",
+  "state_csv": "data/agent_states_operational_2026_calibrated.csv",
+  "horizon_years": 10,
+  "n_countries": 48,
+  "n_edges": 49,
+  "expected_I_null": -0.0213,
+  "n_perm": 999,
+  "variables": {
+    "conflict": {
+      "morans_i_off": -0.0509,
+      "morans_i_on": -0.0083,
+      "delta_i_on_minus_off": 0.0425,
+      "perm_p_on": 0.468,
+      "lag_corr_on": -0.0424,
+      "lag_corr_off": -0.1026,
+      "significant_positive_on": false,
+      "literature_target": "Salehyan-Gleditsch 2006; Buhaug-Gleditsch 2008"
+    },
+    "tension": {
+      "morans_i_off": 0.7894,
+      "morans_i_on": 0.8391,
+      "delta_i_on_minus_off": 0.0497,
+      "perm_p_on": 0.001,
+      "lag_corr_on": 0.8862,
+      "lag_corr_off": 0.8361,
+      "significant_positive_on": true,
+      "literature_target": "Arezki et al. 2024; Braha 2012"
+    },
+    "climate": {
+      "morans_i_off": 0.8596,
+      "morans_i_on": 0.8712,
+      "delta_i_on_minus_off": 0.0116,
+      "perm_p_on": 0.001,
+      "lag_corr_on": 0.8393,
+      "lag_corr_off": 0.8218,
+      "significant_positive_on": true,
+      "literature_target": "Costa-Hooley 2025; Sustainability 2023"
+    }
+  },
+  "conflict_dyadic": {
+    "metric": "mean conflict_level adjacent-dyad / non-adjacent-dyad (neighbour premium)",
+    "premium_off": 1.032,
+    "premium_on": 1.472,
+    "adj_mean_on": 0.9321,
+    "nonadj_mean_on": 0.6332,
+    "note": "Node Moran's I dilutes an edge-level variable; this dyadic premium is the right reproduction target. Salehyan-Gleditsch 2006; Buhaug-Gleditsch 2008; S5 locality."
+  }
+}

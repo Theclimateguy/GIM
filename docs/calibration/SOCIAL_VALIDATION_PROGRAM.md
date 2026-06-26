@@ -165,6 +165,17 @@ geographic payoff is concentrated in trade. Diagnostics: `scripts/diagnose_trade
 `diagnose_shock_propagation.py`, `diagnose_tension_contagion.py`. Tests: `test_trade_gravity.py`,
 `test_geo_tension.py`, `test_s5_geography_contagion.py`.
 
+**Follow-up — anchoring + reproduction ([`GEO_PRIOR_ANCHORS.md`](GEO_PRIOR_ANCHORS.md)).** The four
+weights were taken to the literature and a delivered reproduction benchmark
+(`run_s6_geo_autocorrelation.py`): GIM's **emergent** spatial dependence reproduces the empirical
+record — conflict's dyadic neighbour-premium rises 1.0×→**1.47×** (≈ the +44–52% of Salehyan-Gleditsch /
+Buhaug-Gleditsch), and tension/climate show positive significant Moran's I. First-source verification
+landed **conflict and climate inside their literature bands** but **corrected tension**: Arezki et al.'s
+pure-adjacency protest spillover is statistically *insignificant* (significant only via common
+social-media penetration), so the tension weight stays an honest, modest expert prior — no clean
+adjacency anchor. All headline numbers were re-validated under the geo-on default in
+[`GEO_ON_REVALIDATION.md`](GEO_ON_REVALIDATION.md).
+
 ## Status
 
 - **S1** — DONE (war-size exponent anchored; sampler validated, α̂=1.51, KS=0.003).

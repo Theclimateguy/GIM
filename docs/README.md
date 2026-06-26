@@ -25,6 +25,7 @@ notes have been moved out of the repository to keep it clean.)
 - [`PRIORS.md`](calibration/PRIORS.md) / [`UNCERTAINTY.md`](calibration/UNCERTAINTY.md) / [`VALIDATION.md`](calibration/VALIDATION.md) — priors, ensembles, sensitivity, history matching, skill scoring.
 - [`CRISIS_VALIDATION_PROTOCOL.md`](calibration/CRISIS_VALIDATION_PROTOCOL.md) — operational crisis-scenario validation.
 - [`INTEGRATION_BENCHMARK.md`](INTEGRATION_BENCHMARK.md) — literature-anchored benchmark of the integration claim vs sectoral models (carbon/DICE, oil/MESSAGEix, crop/AgMIP); the paper's Appendix B.
+- [`GEO_ON_REVALIDATION.md`](calibration/GEO_ON_REVALIDATION.md) — re-validation of all headline numbers (2015–2023 backtest RMSE, conflict AUC, Morris sensitivity) under the geo-coupling-on headline; all hold, plus two resolved bookkeeping drifts.
 
 ## Climate & damages
 
@@ -47,6 +48,8 @@ notes have been moved out of the repository to keep it clean.)
 ## Unique social / geopolitical / cultural layers
 
 - [`SOCIAL_GEO_METRICS.md`](SOCIAL_GEO_METRICS.md) — mapping each unique-layer variable to an external index.
+- [`SOCIAL_VALIDATION_PROGRAM.md`](calibration/SOCIAL_VALIDATION_PROGRAM.md) — S1–S6: lifting the social/political/geopolitical priors onto literature-anchored, reproducible footing (war-size exponent, migration gravity, trust→growth, conflict forecast skill, switchable geographic coupling).
+- [`GEO_PRIOR_ANCHORS.md`](calibration/GEO_PRIOR_ANCHORS.md) — literature anchors + a delivered reproduction benchmark for the geographic-coupling weights (conflict / tension / climate): emergent Moran's I and a dyadic neighbour-conflict premium vs the empirical spatial-dependence literature.
 - [`UNIQUE_LAYER_AUDIT.md`](UNIQUE_LAYER_AUDIT.md) — which inputs actually move outputs (culture wire/remove decision).
 - [`STRESS_AUDIT.md`](STRESS_AUDIT.md) — threshold-gated inputs re-audited under stress.
 - [`WEAK_SIGNAL.md`](WEAK_SIGNAL.md) — analyst-tier weak-signal detection (Mahalanobis anomaly + structural break + critical slowing-down) for what-if / early-warning.

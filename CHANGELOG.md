@@ -2,6 +2,28 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [Unreleased]
+
+### Added
+
+- `docs/calibration/GEO_PRIOR_ANCHORS.md` — literature anchors for the geographic-coupling weights
+  (conflict / tension / climate) plus a delivered reproduction benchmark
+  (`scripts/run_s6_geo_autocorrelation.py`, `tests/test_s6_geo_autocorrelation.py`): emergent Moran's I
+  and a dyadic neighbour-conflict premium (1.0×→1.5×, matching the +44–52% literature) measured against
+  the empirical spatial-dependence literature. First-source verification corrected the tension anchor
+  (Arezki et al.: pure-adjacency protest spillover is statistically insignificant — tension stays a
+  modest expert prior, not a literature-anchored magnitude).
+- `docs/calibration/GEO_ON_REVALIDATION.md` — re-validation of all headline numbers (2015–2023 backtest
+  RMSE, conflict AUC, Morris sensitivity) under the geo-coupling-on headline; all hold.
+
+### Changed
+
+- Paper (RU + EN): corrected the Morris-screening parameter counts (26→33 key, 294→305 total) after the
+  social-validation program added 7 priors; revised the world-product robustness sentence and
+  regenerated `fig3_sensitivity` from the 33-factor screen.
+- Refreshed the golden historical-backtest fixture to the geo-on headline (GDP 0.5917 / CO₂ 1.1467 /
+  T 0.1349); full suite 460 passed; both papers recompile.
+
 ## [17.1.1] — 2026-06-24
 
 Preprint snapshot for the Zenodo archive. No changes to the simulation engine, calibration, or

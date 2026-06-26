@@ -179,6 +179,8 @@ def fig3():
         "BASE_INTEREST_RATE": "interest rate", "DAMAGE_BENEFIT_MAX": "damage benefit",
         "DAMAGE_RISK_ADJ": "damage risk adj.", "PURE_TIME_PREFERENCE": "time preference",
         "MARKET_DEMAND_ELASTICITY": "demand elast.",
+        "REGIME_COLLAPSE_GDP_MULT": "regime collapse (GDP)",
+        "REGIME_COLLAPSE_CAPITAL_MULT": "regime collapse (cap.)",
     }
     fig, axes = plt.subplots(2, 2, figsize=(9.2, 6.0))
     for ax, (metric, title, col) in zip(axes.flat, specs):
@@ -202,7 +204,7 @@ def fig3():
         ax.text(0.97, 0.06, note, transform=ax.transAxes, ha="right", va="bottom",
                 fontsize=7.5, color=INK,
                 bbox=dict(boxstyle="round,pad=0.25", fc="#f5f5f5", ec="#cccccc", lw=0.5))
-    fig.suptitle("Sensitivity screening (Morris, 26 priors): seven leading parameters",
+    fig.suptitle("Sensitivity screening (Morris, 33 priors): seven leading parameters",
                  fontsize=11, y=1.0)
     _save(fig, "fig3_sensitivity")
 

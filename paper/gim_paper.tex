@@ -446,7 +446,7 @@ into the computation through ensembles.
 
 \textbf{Sensitivity analysis.} To establish which parameters actually determine outcomes, a global
 screening by the Morris elementary-effects method \citep{morris1991,campolongo2007} was carried out
-over 26 key parameters for four output quantities (Fig.~\ref{fig:sens}; $8$ trajectories, 10-year
+over 33 key parameters for four output quantities (Fig.~\ref{fig:sens}; $8$ trajectories, 10-year
 horizon). The picture is consistent with the model's structure and with physics: temperature is
 determined almost exclusively by climate parameters --- equilibrium sensitivity, ocean heat
 exchange, and surface heat capacity; world product by capital depreciation, the damage coefficient,
@@ -455,8 +455,9 @@ structural decarbonization. These conclusions are robust to the screening budget
 number of trajectories from $8$ to $32$, the Spearman rank correlation of the full $\mu^*$ vector
 with the reference run is $\rho\geq0.99$ for all four quantities, and the leading parameters reappear
 in the top five across all tested random-number seeds (a complete match for temperature and
-emissions; for product the top four are stable, while the fifth position is exchanged between two
-economic parameters). Social tension, by contrast, is almost insensitive to these physico-economic
+emissions; for product the top four are stable (capital depreciation, the damage coefficient, energy intensity,
+and the regime-collapse GDP multiplier), while the fifth alternates between the capital--energy
+substitution elasticity and the equilibrium climate sensitivity). Social tension, by contrast, is almost insensitive to these physico-economic
 parameters: its elementary effects lie at the screening noise floor (the absolute $\mu^*$ is about
 three orders of magnitude smaller than for the physical quantities), and their ranking --- unlike the
 stable ranking of the physical quantities --- is itself unstable to the choice of seed. Importantly,
@@ -487,7 +488,7 @@ than point values, that constitute the model's substantive result.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig3_sensitivity.pdf}
-\caption{Global sensitivity screening (Morris method) over 26 key parameters for four output
+\caption{Global sensitivity screening (Morris method) over 33 key parameters for four output
 quantities (57 countries); the seven most influential parameters are shown, with $\mu^*$ normalized
 to the maximum within each panel and the absolute maximum $\mu^*$ indicated in the box. Temperature
 is governed by climate parameters, product and emissions by economic and emission parameters. For
@@ -691,8 +692,8 @@ applying the model in the modes outlined.
 \label{app:params}
 
 Each parameter is specified by a prior distribution; below are the central value, the plausibility
-range (roughly the $5$--$95$th percentile of the prior), and the main source. The full set of $26$
-key and $294$ total parameters with distributions and justifications is available in the repository
+range (roughly the $5$--$95$th percentile of the prior), and the main source. The full set of $33$
+key and $305$ total parameters with distributions and justifications is available in the repository
 (Section~\ref{sec:repo}).
 
 \begin{table}[h]
