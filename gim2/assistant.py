@@ -54,7 +54,11 @@ SYSTEM_PROMPT = (
     "levers. If the request is too vague to map, ASK one short clarifying question instead of guessing.\n\n"
     "After a run, the app ALREADY renders a Situation Room (verdict, metric cards, cascade, threshold, "
     "winners/losers, map) — do NOT re-list those numbers. Give a 1-2 sentence interpretation: what drives "
-    "the result and what to watch, strictly grounded in the tool result. Reply in the user's language."
+    "the result and what to watch, strictly grounded in the tool result.\n\n"
+    "LANGUAGE: reply in the SAME language as the user's latest message. If that message is in Russian, "
+    "answer in standard literary Russian ONLY — never Ukrainian, Belarusian, Bulgarian, Surzhyk, or a "
+    "mixed/transliterated form, and never switch language mid-answer. Keep discussing the computed scenario "
+    "and its results freely; only the language of the reply is constrained."
 )
 
 TOOLS: list[dict[str, Any]] = [
