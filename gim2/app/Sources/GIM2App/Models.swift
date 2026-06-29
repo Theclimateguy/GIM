@@ -247,21 +247,26 @@ struct ScenarioRecord: Identifiable {
     let kind: String                 // "scenario" | "answer"
     let metrics: [(key: String, delta: Double)]
     let cli: String?
+    // Full result kept for per-scenario PDF export (the complete war room / delta fans).
+    let answer: AnswerResult?
+    let scenario: ScenarioResult?
 
-    init(label: String, kind: String, metrics: [(key: String, delta: Double)], cli: String?) {
+    init(label: String, kind: String, metrics: [(key: String, delta: Double)], cli: String?,
+         answer: AnswerResult? = nil, scenario: ScenarioResult? = nil) {
         self.label = label; self.kind = kind; self.metrics = metrics; self.cli = cli
+        self.answer = answer; self.scenario = scenario
     }
 
     init(scenario r: ScenarioResult, label: String) {
         self.init(label: label, kind: "scenario",
                   metrics: r.projection.metrics.map { ($0.metric, $0.delta.p50.last ?? 0) },
-                  cli: r.equivCli)
+                  cli: r.equivCli, scenario: r)
     }
 
     init(answer r: AnswerResult, label: String) {
         self.init(label: label, kind: "answer",
                   metrics: r.cards.map { ($0.metric, $0.deltaP50) },
-                  cli: r.equivCli)
+                  cli: r.equivCli, answer: r)
     }
 
     func delta(of key: String) -> Double? { metrics.first { $0.key == key }?.delta }

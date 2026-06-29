@@ -5,6 +5,7 @@ import SwiftUI
 // so the base column is zero by construction).
 struct CompareView: View {
     @EnvironmentObject var app: AppState
+    @State private var comparing = false
 
     private var selectedRecords: [ScenarioRecord] {
         app.history.filter { app.compareSelection.contains($0.id) }.prefix(3).map { $0 }
@@ -52,14 +53,29 @@ struct CompareView: View {
                     }
                 }
 
-                if selectedRecords.count >= 2 {
+                if !app.history.isEmpty {
+                    HStack(spacing: 10) {
+                        Button { comparing = true } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.left.arrow.right").font(.system(size: 11))
+                                Text(selectedRecords.count <= 1 ? "Сравнить с базовым" : "Сравнить выбранные (\(selectedRecords.count))")
+                            }
+                        }
+                        .buttonStyle(PrimaryButtonStyle(enabled: !selectedRecords.isEmpty))
+                        .disabled(selectedRecords.isEmpty)
+                        Text(selectedRecords.isEmpty
+                             ? "Отметьте хотя бы один прогон — сравним его с базовым сценарием."
+                             : "Один прогон сравнивается с базой; до трёх — между собой и с базой.")
+                            .font(Theme.ui(11)).foregroundStyle(Theme.faint)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                if comparing, !selectedRecords.isEmpty {
                     Panel(title: "Δ к базовой линии", icon: "arrow.left.arrow.right",
                           caption: "терминальная Δ (сценарий − база) по метрикам") {
                         CompareMatrix(records: selectedRecords)
                     }
-                } else if !app.history.isEmpty {
-                    Text("Отметьте минимум два прогона для сопоставления.")
-                        .font(Theme.ui(12)).foregroundStyle(Theme.faint)
                 }
             }
             .padding(28)
@@ -176,32 +192,41 @@ struct CompareView: View {
     private func historyRow(_ record: ScenarioRecord) -> some View {
         let on = app.compareSelection.contains(record.id)
         let atCap = app.compareSelection.count >= 3
-        return Button {
-            if on { app.compareSelection.removeAll { $0 == record.id } }
-            else if !atCap { app.compareSelection.append(record.id) }
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: on ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 15)).foregroundStyle(on ? Theme.accent : Theme.faint)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(record.label).font(Theme.ui(13, .medium)).foregroundStyle(Theme.text).lineLimit(1)
-                    Text(summary(record)).font(Theme.mono(11)).foregroundStyle(Theme.muted).lineLimit(1)
+        return HStack(spacing: 10) {
+            Button {
+                if on { app.compareSelection.removeAll { $0 == record.id } }
+                else if !atCap { app.compareSelection.append(record.id) }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: on ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 15)).foregroundStyle(on ? Theme.accent : Theme.faint)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(record.label).font(Theme.ui(13, .medium)).foregroundStyle(Theme.text).lineLimit(1)
+                        Text(summary(record)).font(Theme.mono(11)).foregroundStyle(Theme.muted).lineLimit(1)
+                    }
+                    Spacer(minLength: 8)
+                    Text(record.kind == "answer" ? "ассистент" : "эксперт")
+                        .font(Theme.ui(10)).foregroundStyle(Theme.faint)
+                        .padding(.horizontal, 7).padding(.vertical, 2)
+                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.line, lineWidth: 1))
                 }
-                Spacer(minLength: 8)
-                Text(record.kind == "answer" ? "ассистент" : "эксперт")
-                    .font(Theme.ui(10)).foregroundStyle(Theme.faint)
-                    .padding(.horizontal, 7).padding(.vertical, 2)
-                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.line, lineWidth: 1))
+                .opacity(!on && atCap ? 0.5 : 1)
+                .contentShape(Rectangle())
             }
-            .padding(.horizontal, 12).padding(.vertical, 10)
-            .background(on ? Theme.surface2 : Color.clear)
-            .overlay(RoundedRectangle(cornerRadius: 9).stroke(on ? Theme.accent.opacity(0.45) : Theme.line, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: 9))
-            .opacity(!on && atCap ? 0.5 : 1)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .disabled(!on && atCap)
+
+            Button { exportScenarioPDF(record) } label: {
+                Image(systemName: "arrow.down.doc").font(.system(size: 13)).foregroundStyle(Theme.muted)
+                    .padding(.leading, 2).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help("Экспорт сценария в PDF — полный war room (графики, каскад, страны)")
         }
-        .buttonStyle(.plain)
-        .disabled(!on && atCap)
+        .padding(.horizontal, 12).padding(.vertical, 10)
+        .background(on ? Theme.surface2 : Color.clear)
+        .overlay(RoundedRectangle(cornerRadius: 9).stroke(on ? Theme.accent.opacity(0.45) : Theme.line, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
     private func summary(_ r: ScenarioRecord) -> String {

@@ -146,14 +146,14 @@ struct ReportDoc: View {
     private func fmtDelta(_ v: Double) -> String { String(format: abs(v) >= 100 ? "%+.0f" : "%+.3g", v) }
 }
 
-// Render the report to a PDF and save via NSSavePanel.
+// Generic: render any SwiftUI view to a one-page PDF at a fixed width, save via NSSavePanel.
 @MainActor
-func exportReportPDF(_ doc: ReportDoc) {
-    let renderer = ImageRenderer(content: doc)
-    renderer.proposedSize = ProposedViewSize(width: 560, height: nil)
+func exportViewPDF<V: View>(_ view: V, name: String, width: CGFloat) {
+    let renderer = ImageRenderer(content: view)
+    renderer.proposedSize = ProposedViewSize(width: width, height: nil)
     let panel = NSSavePanel()
     panel.allowedContentTypes = [UTType.pdf]
-    panel.nameFieldStringValue = "GIM17_report.pdf"
+    panel.nameFieldStringValue = name
     panel.canCreateDirectories = true
     panel.begin { resp in
         guard resp == .OK, let url = panel.url else { return }
@@ -165,5 +165,62 @@ func exportReportPDF(_ doc: ReportDoc) {
             pdf.endPDFPage()
             pdf.closePDF()
         }
+    }
+}
+
+@MainActor func exportReportPDF(_ doc: ReportDoc) {
+    exportViewPDF(doc, name: "GIM17_report.pdf", width: 560)
+}
+
+@MainActor func exportScenarioPDF(_ record: ScenarioRecord) {
+    let safe = String(record.label.prefix(48)).replacingOccurrences(of: "/", with: "-")
+    exportViewPDF(ScenarioReport(record: record), name: "GIM17_\(safe).pdf", width: 760)
+}
+
+// Full per-scenario "war room": the assistant Situation Room (sans the live map, which
+// can't rasterize) or, for an Expert run, its delta fans. Dark, matching the app.
+struct ScenarioReport: View {
+    let record: ScenarioRecord
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(record.label).font(Theme.ui(17, .semibold)).foregroundStyle(Theme.text)
+                Spacer(minLength: 12)
+                Text("GIM17 · \(stamp)").font(Theme.ui(10)).foregroundStyle(Theme.muted)
+            }
+            Rectangle().fill(Theme.line).frame(height: 1)
+            if let a = record.answer {
+                SituationRoom(result: a, printMode: true)
+            } else if let s = record.scenario {
+                scenarioFans(s)
+            } else {
+                Text("Нет сохранённых данных прогона для отчёта.")
+                    .font(Theme.ui(12)).foregroundStyle(Theme.muted)
+            }
+        }
+        .padding(22)
+        .frame(width: 760, alignment: .leading)
+        .background(Theme.bg)
+        .environment(\.colorScheme, .dark)
+    }
+
+    @ViewBuilder private func scenarioFans(_ s: ScenarioResult) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if !s.brief.isEmpty { BriefView(text: s.brief) }
+            ForEach(s.projection.metrics) { m in
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Δ \(MetricLabel.of(m.metric))").font(Theme.ui(12, .semibold)).foregroundStyle(Theme.text)
+                    DeltaChartView(delta: m.delta, height: 150)
+                }
+            }
+        }
+    }
+
+    private var stamp: String {
+        let f = DateFormatter()
+        f.dateFormat = "d MMMM yyyy, HH:mm"
+        f.locale = Locale(identifier: "ru_RU")
+        return f.string(from: Date())
     }
 }

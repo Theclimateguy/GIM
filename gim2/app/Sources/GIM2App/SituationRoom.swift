@@ -5,6 +5,7 @@ import SwiftUI
 // deterministic outputs.
 struct SituationRoom: View {
     let result: AnswerResult
+    var printMode = false       // PDF export: drop the WKWebView map (can't rasterize)
 
     // Severity proxy: share of mapped countries in net loss (score < −0.25).
     private var severity: Double {
@@ -90,10 +91,12 @@ struct SituationRoom: View {
                 ActorBars(title: "▼ В проигрыше", actors: result.actors.laggards, positive: false)
             }
 
-            MapWebView(geo: result.actors.geo)
-                .frame(height: 360)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.line))
+            if !printMode {
+                MapWebView(geo: result.actors.geo)
+                    .frame(height: 360)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.line))
+            }
 
             BriefView(text: result.brief)
             TraceLine(cli: result.equivCli)
