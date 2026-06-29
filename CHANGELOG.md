@@ -2,6 +2,47 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [17.2.1] — 2026-06-29
+
+**Resource-block units & data reconciliation (patch).** A forward-projection patch correcting three
+localized units/data defects in the resource block that depressed the *baseline forward* GDP path
+(~5% spurious drag, with a near-term dip in the first years) without ever touching the validated
+historical surfaces. The "golden" 2015–2023 backtest is **byte-identical** (GDP RMSE 0.5917 trn,
+CO₂ 1.1467 Gt, T 0.1349 °C), as are the geo-calibration golden and the state-CSV loader contract;
+the forward baseline now grows smoothly from year one. This is a correction of model *plumbing*
+(units and a state-data imbalance), not of any calibrated parameter — the 17.x calibration and its
+validation stand unchanged. Full suite: 460 passed.
+
+### Fixed
+
+- **Energy-block unit mismatch.** The physical ZJ annual-supply cap was `min()`-compared directly
+  against the model's energy *index* production (~10⁴), collapsing effective supply to ~0.65 and
+  slamming the energy price into its ceiling on step 1 — a units bug, not a calibration choice. The
+  cap is now anchored to base-year world production (× `ENERGY_ANNUAL_CAP_HEADROOM`) so it constrains
+  only *growth*, never current output; under-scaled forward energy reserves (~7 yr of cover) are
+  lifted to the physical proven-reserves horizon (~50 yr). Forward path only.
+- **Metals market never cleared.** Forward-state metals production is understated ~4.7× vs
+  consumption, and the substitution term used a *fixed* price reference `(p/p_ref)^(−e)`, compounding
+  a constant off-reference price into an exponential demand ratchet (~30× over a decade — the exact
+  runaway the energy demand-response comment warns against). Metals production/reserve are balanced to
+  the consumption scale on the forward path, and the substitution is made non-compounding
+  (year-over-year, like energy).
+- **Food stress over-triggered.** `_resource_stress` used a 3-yr "years of reserve" threshold for
+  food, but food is a perishable flow good (real stocks-to-use ≈ 0.3 yr), so every realistic world
+  read as ~90% food-stressed and bled GDP through the security channel. The threshold is lowered to a
+  realistic perishable horizon.
+
+### Changed
+
+- **Live conflict-risk ensemble metric.** The ensemble now also reports `conflict_risk` (structural
+  `conflict_proneness` — the AUC-0.736 onset ranking — modulated by current social tension) alongside
+  the legacy discrete `n_wars`, which is dormant in the deterministic baseline. Additive; no validated
+  surface changes.
+
+The three forward-path corrections are confined to a single member-runner init step
+(`normalize_resource_scales_forward`, called only on the forward projection path and only ever scaling
+*up*), so the historical backtest, geo calibration, and game modes remain byte-identical.
+
 ## [17.2.0] — 2026-06-26
 
 **The final release of the 17.x family.** It completes the model's distinctive cross-domain story: the
