@@ -9,10 +9,79 @@ from .core import (
 from .params import resolve_params
 
 
+# The physical world annual-supply cap (WORLD_ANNUAL_SUPPLY_CAP_ZJ, in ZJ) is anchored
+# to the model's energy *index* by the base-year world production, so the cap acts as a
+# real growth ceiling sitting this multiple above current output. Before this, the ZJ
+# cap was min()-compared directly against index-scale production (~1e4), collapsing
+# effective supply to ~0.65 and slamming the energy price into its cap on step 1 — a
+# units bug, not a calibration choice. Reserves still bind long-run via `own_reserve`.
+ENERGY_ANNUAL_CAP_HEADROOM = 1.5
+
+
+def normalize_resource_scales_forward(world: WorldState) -> None:
+    """Forward-projection init: correct two resource-block scale issues in the state so the
+    forward markets are functional. Called ONLY on the forward member path (not the raw loader,
+    the game/geo calibration, or the historical backtest) and only ever scales UP — so the
+    validated surfaces stay byte-identical. Idempotent.
+
+    1) ENERGY reserves imply only ~7 yr of cover at the index production rate; scale them to the
+       physical proven-reserves / annual-supply horizon (~50 yr), else the stock binds production
+       within a decade -> supply collapses -> the energy price hits its cap -> a near-term GDP dip.
+    2) METALS production is understated ~4.7x vs consumption (a top producer like China shows
+       prod << cons), so the market never clears: price slams to the floor, production runs away,
+       and resource-stress climbs. Scale metals production AND reserve to the consumption scale so
+       the market balances and reserve-cover (years) is preserved.
+    """
+    # 1) Energy reserves -> physical horizon.
+    e_prod = e_res = 0.0
+    for agent in world.agents.values():
+        energy = agent.resources.get("energy")
+        if energy is not None:
+            e_prod += max(0.0, energy.production)
+            e_res += max(0.0, energy.own_reserve)
+    if e_prod > 0.0 and e_res > 0.0:
+        factor = (WORLD_PROVEN_RESERVES_ZJ / max(WORLD_ANNUAL_SUPPLY_CAP_ZJ, 1e-9)) * e_prod / e_res
+        if factor > 1.0:
+            for agent in world.agents.values():
+                energy = agent.resources.get("energy")
+                if energy is not None:
+                    energy.own_reserve *= factor
+
+    # 2) Metals production/reserve -> balance the market with consumption.
+    m_prod = m_cons = 0.0
+    for agent in world.agents.values():
+        metals = agent.resources.get("metals")
+        if metals is not None:
+            m_prod += max(0.0, metals.production)
+            m_cons += max(0.0, metals.consumption)
+    if m_prod > 0.0 and m_cons > m_prod:
+        factor = m_cons / m_prod
+        for agent in world.agents.values():
+            metals = agent.resources.get("metals")
+            if metals is not None:
+                metals.production *= factor
+                metals.own_reserve *= factor
+
+    sync_global_reserves_from_agents(world)
+
+
 def allocate_energy_reserves_and_caps(world: WorldState) -> Dict[str, Dict[str, float]]:
     global_energy_reserves = world.global_state.global_reserves.get(
         "energy", WORLD_PROVEN_RESERVES_ZJ
     )
+
+    # Base-year world energy production (index units), captured once. The physical ZJ
+    # annual cap is expressed as this many index-units so it is commensurate with the
+    # production it constrains.
+    base_prod = getattr(world.global_state, "_energy_base_production_index", None)
+    if base_prod is None:
+        base_prod = sum(
+            max(0.0, energy.production)
+            for agent in world.agents.values()
+            if (energy := agent.resources.get("energy")) is not None
+        )
+        world.global_state._energy_base_production_index = base_prod
+    global_cap_index = max(base_prod, 1e-9) * ENERGY_ANNUAL_CAP_HEADROOM
 
     keys: Dict[str, float] = {}
     total_key = 0.0
@@ -29,15 +98,19 @@ def allocate_energy_reserves_and_caps(world: WorldState) -> Dict[str, Dict[str, 
         for agent_id in world.agents:
             allocation[agent_id] = {
                 "reserve_zj": global_energy_reserves / count,
-                "prod_cap_zj_per_year": WORLD_ANNUAL_SUPPLY_CAP_ZJ / count,
+                "prod_cap_zj_per_year": global_cap_index / count,
             }
         return allocation
 
     for agent_id, key in keys.items():
         share = key / total_key
+        # Reserve-share of the global ceiling, but never below the agent's current
+        # output, so the cap can only constrain *growth*, never throttle current supply.
+        energy = world.agents[agent_id].resources.get("energy")
+        current_prod = max(0.0, energy.production) if energy is not None else 0.0
         allocation[agent_id] = {
             "reserve_zj": share * global_energy_reserves,
-            "prod_cap_zj_per_year": share * WORLD_ANNUAL_SUPPLY_CAP_ZJ,
+            "prod_cap_zj_per_year": max(share * global_cap_index, current_prod),
         }
 
     return allocation
@@ -75,6 +148,16 @@ def update_resource_stocks(
     if energy_demand_response:
         world.global_state._energy_demand_price_prev = energy_price_now
 
+    # Metals substitution, made NON-COMPOUNDING (year-over-year, like energy above): a
+    # constant price now leaves demand unchanged. The previous fixed-reference form
+    # (p/p_ref)^(-e) compounded a constant off-reference price into an exponential demand
+    # ratchet — exactly the runaway the energy comment warns about — which, combined with the
+    # understated metals supply, blew metals consumption/production up ~30x over a decade.
+    metals_price_now = max(1e-6, float(world.global_state.prices.get("metals", metals_price_ref)))
+    metals_price_prev = max(1e-6, float(getattr(world.global_state, "_metals_demand_price_prev", metals_price_now)))
+    metals_demand_adjust = (metals_price_now / metals_price_prev) ** (-metals_substitution_elasticity)
+    world.global_state._metals_demand_price_prev = metals_price_now
+
     for agent_id, agent in world.agents.items():
         for resource_name in RESOURCE_NAMES:
             resource = agent.resources.get(resource_name)
@@ -84,12 +167,9 @@ def update_resource_stocks(
             if resource_name == "energy" and energy_demand_response:
                 resource.consumption = max(0.0, resource.consumption * energy_demand_adjust)
 
-            if resource_name == "metals":
-                price = world.global_state.prices.get("metals", metals_price_ref)
-                if metals_substitution_elasticity > 0.0 and price > 0.0:
-                    # Price-based substitution reduces metals demand when prices rise.
-                    adjust = (price / metals_price_ref) ** (-metals_substitution_elasticity)
-                    resource.consumption = max(0.0, resource.consumption * adjust)
+            if resource_name == "metals" and metals_substitution_elasticity > 0.0:
+                # Price-based substitution reduces metals demand when prices rise (non-compounding).
+                resource.consumption = max(0.0, resource.consumption * metals_demand_adjust)
 
             if resource_name == "energy" and energy_alloc is not None:
                 caps = energy_alloc.get(

@@ -58,6 +58,7 @@ UNITS: Dict[str, str] = {
     "n_regime_crises": "count of agents in regime crisis",
     "n_wars": "count of undirected war pairs",
     "mean_social_tension": "mean social tension across agents, 0..1",
+    "conflict_risk": "structural conflict risk, 0..1 (conflict_proneness x social tension)",
 }
 
 # Metrics that the sensitivity output-function supports (see sensitivity.make_output_fn).
@@ -211,7 +212,7 @@ def gim_ensemble(
     metrics over ``horizon`` years — the scenario *distribution* for portfolio stress.
 
     fidelity: quick(100) | standard(500) | publication(2000) members.
-    metrics: subset of the 8 headline metrics; None => all.
+    metrics: subset of the 9 headline metrics; None => all.
     """
     n_members = FIDELITY_MEMBERS.get(fidelity, FIDELITY_MEMBERS["quick"])
     csv_path, snap_id = _resolve_snapshot(snapshot)

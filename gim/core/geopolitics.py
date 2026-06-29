@@ -216,7 +216,10 @@ def _resource_stress(agent: AgentState) -> float:
         return clamp01(1.0 - years / threshold)
 
     energy_stress = _stress(reserves.get("energy", 10.0), 5.0)
-    food_stress = _stress(reserves.get("food", 10.0), 3.0)
+    # Food is a flow good (perishable): real stocks-to-use is ~0.3 yr, so a 3-yr "years of
+    # reserve" threshold flagged every realistic world as ~90% food-stressed. Use a realistic
+    # perishable horizon so only genuine shortfalls (reserves below ~0.3 yr) register.
+    food_stress = _stress(reserves.get("food", 10.0), 0.3)
     metals_stress = _stress(reserves.get("metals", 10.0), 5.0)
     return clamp01(0.5 * energy_stress + 0.3 * food_stress + 0.2 * metals_stress)
 

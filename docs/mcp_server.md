@@ -44,7 +44,7 @@ Restart the client. The `gim` server then exposes 3 resources + 6 tools.
 | Tool | Purpose |
 |---|---|
 | `gim_baseline` | current observable state of selected countries (the "where are we now" anchor) |
-| `gim_ensemble` | Monte-Carlo fan bands (p5..p95) over 8 headline metrics — scenario distribution |
+| `gim_ensemble` | Monte-Carlo fan bands (p5..p95) over 9 headline metrics — scenario distribution |
 | `gim_scenario_delta` | evaluate a natural-language what-if; validated risk profile + crisis deltas |
 | `gim_scc` | social cost of carbon ($/tCO₂): point / multi-horizon / distribution |
 | `gim_sensitivity` | Morris screening — which parameters drive a target metric (factor attribution) |
