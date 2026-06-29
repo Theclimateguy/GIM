@@ -32,20 +32,20 @@ def normalize_resource_scales_forward(world: WorldState) -> None:
        and resource-stress climbs. Scale metals production AND reserve to the consumption scale so
        the market balances and reserve-cover (years) is preserved.
     """
-    # 1) Energy reserves -> physical horizon.
-    e_prod = e_res = 0.0
+    # 1) Energy reserves -> PER-AGENT physical horizon. The state lists ~7 yr of cover globally,
+    #    but most importers only ~2-3 yr — and a single *global* scale factor (the global ratio is
+    #    dominated by a few big reserve-holders) leaves those importers short. Within a decade an
+    #    importer's reserve then binds its production (production = min(desired, cap, own_reserve));
+    #    supply falls below demand, the energy price spikes mid-horizon, forward emissions drop, CO2
+    #    draws down and the temperature fan's lower tail cools. Lift EACH agent to the proven-reserves
+    #    horizon (scale UP only) so no agent depletes in-horizon and forward energy supply stays put.
+    horizon_years = WORLD_PROVEN_RESERVES_ZJ / max(WORLD_ANNUAL_SUPPLY_CAP_ZJ, 1e-9)
     for agent in world.agents.values():
         energy = agent.resources.get("energy")
-        if energy is not None:
-            e_prod += max(0.0, energy.production)
-            e_res += max(0.0, energy.own_reserve)
-    if e_prod > 0.0 and e_res > 0.0:
-        factor = (WORLD_PROVEN_RESERVES_ZJ / max(WORLD_ANNUAL_SUPPLY_CAP_ZJ, 1e-9)) * e_prod / e_res
-        if factor > 1.0:
-            for agent in world.agents.values():
-                energy = agent.resources.get("energy")
-                if energy is not None:
-                    energy.own_reserve *= factor
+        if energy is not None and energy.production > 0.0:
+            target = energy.production * horizon_years
+            if energy.own_reserve < target:
+                energy.own_reserve = target
 
     # 2) Metals production/reserve -> balance the market with consumption.
     m_prod = m_cons = 0.0
