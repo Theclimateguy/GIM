@@ -183,53 +183,83 @@
     </div>
   </div>
 
+  <h2>Данные и источники</h2>
+  <p class="muted" style="margin-bottom:12px;max-width:820px">Состояние ~57 стран на базовый год собрано из публичных
+  рецензируемых наборов; калибровочные приоры взяты из литературы. Ниже — что лежит в модели и откуда.</p>
+  <div class="panel" style="padding:4px 16px 8px">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="text-align:left;color:#9A948A;font-size:10px;letter-spacing:.5px;text-transform:uppercase">
+          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2E2C28">Домен</th>
+          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2E2C28">Данные</th>
+          <th style="padding:9px 0 7px 0;border-bottom:1px solid #2E2C28">Источники</th>
+        </tr>
+      </thead>
+      <tbody style="color:#ECE6DD">
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Экономика</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">ВВП, население, капитал, производительность</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">World Bank (WDI), IMF, Penn World Table</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Климат</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">выбросы CO₂, наблюдаемая температура</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Global Carbon Project, NOAA / HadCRUT</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Ресурсы</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">продовольствие; энергетические и металлические балансы</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">FAO; публичная отраслевая статистика</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Общество и геополитика</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">вооружённые конфликты, бедствия, институты/режим, госдолг</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">UCDP GED, EM-DAT, V-Dem / Polity, World Bank</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Геометрия</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">границы стран (граф соседства)</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">общедоступный мировой GeoJSON</td></tr>
+        <tr><td style="padding:8px 10px 4px 0;vertical-align:top">Приоры (калибровка)</td>
+            <td style="padding:8px 10px 4px 0;color:#9A948A;vertical-align:top">33 ключевых параметра с распределениями</td>
+            <td style="padding:8px 0 4px 0;vertical-align:top">рецензируемая литература (см. Валидацию)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note" style="margin-top:9px">Все источники общедоступны. «Золотой» ретро-прогон 2015–2023 (раздел «Валидация»)
+  проверяет согласие модели с наблюдениями на исторических данных.</p>
+
   <h2>Обращение к языковой модели (ЛЛМ)</h2>
-  <p class="muted" style="margin-bottom:12px;max-width:780px">Ассистент — это <b>маршрутизатор инструментов</b>, а не генератор чисел.
-  Языковая модель отображает вопрос на рычаги или типовой сценарий, вызывает движок и описывает результат;
-  любые величины приходят из детерминированного прогона.</p>
+  <p class="muted" style="margin-bottom:12px;max-width:820px">Ассистент — это <b>маршрутизатор инструментов</b>, а не генератор
+  чисел. Языковая модель отображает вопрос на рычаги или типовой сценарий, вызывает движок и описывает результат; любые
+  величины приходят из детерминированного прогона. Последовательность одного ответа:</p>
   <div class="svgwrap">
-    <svg viewBox="0 0 920 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+    <svg viewBox="0 0 920 408" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
       <defs>
-        <marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 Z" fill="#6E6A5E"/>
-        </marker>
+        <marker id="ams" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a8472"/></marker>
       </defs>
-      <g text-anchor="middle" font-size="12">
-        <rect x="20"  y="40" width="150" height="56" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="95" y="64" fill="#ECE6DD">Пользователь</text>
-        <text x="95" y="80" fill="#9A948A" font-size="10">вопрос</text>
-
-        <rect x="222" y="40" width="160" height="56" rx="9" fill="#17181D" stroke="#2E2C28"/>
-        <text x="302" y="64" fill="#ECE6DD">Приложение</text>
-        <text x="302" y="80" fill="#9A948A" font-size="10">POST /assistant</text>
-
-        <rect x="434" y="40" width="160" height="56" rx="9" fill="#17181D" stroke="#2E2C28"/>
-        <text x="514" y="64" fill="#ECE6DD">Движок</text>
-        <text x="514" y="80" fill="#9A948A" font-size="10">маршрутизатор</text>
-
-        <rect x="646" y="40" width="254" height="56" rx="9" fill="#1b1a17" stroke="#2E2C28"/>
-        <text x="773" y="64" fill="#E0A458">Языковая модель</text>
-        <text x="773" y="80" fill="#9A948A" font-size="10">OpenAI-совместимая / Ollama / без ЛЛМ</text>
+      <!-- lane headers -->
+      <g text-anchor="middle">
+        <rect x="35"  y="6" width="150" height="40" rx="9" fill="#121317" stroke="#2E2C28"/><text x="110" y="31" fill="#ECE6DD" font-size="12.5">Пользователь</text>
+        <rect x="275" y="6" width="150" height="40" rx="9" fill="#17181D" stroke="#2E2C28"/><text x="350" y="31" fill="#ECE6DD" font-size="12.5">Приложение</text>
+        <rect x="515" y="6" width="150" height="40" rx="9" fill="#17181D" stroke="#2E2C28"/><text x="590" y="31" fill="#ECE6DD" font-size="12.5">Движок</text>
+        <rect x="730" y="6" width="190" height="40" rx="9" fill="#1b1a17" stroke="#2E2C28"/>
+        <text x="825" y="26" fill="#E0A458" font-size="12">Языковая модель</text><text x="825" y="39" fill="#9A948A" font-size="9">OpenAI / Ollama / без ЛЛМ</text>
       </g>
-      <g stroke="#5A554D" font-size="10" fill="#9A948A">
-        <line x1="170" y1="68" x2="222" y2="68" marker-end="url(#arr2)"/>
-        <line x1="382" y1="68" x2="434" y2="68" marker-end="url(#arr2)"/>
-        <line x1="594" y1="60" x2="646" y2="60" marker-end="url(#arr2)"/>
-        <text x="620" y="52" text-anchor="middle">запрос+инструменты</text>
-        <line x1="646" y1="78" x2="594" y2="78" marker-end="url(#arr2)"/>
-        <text x="620" y="94" text-anchor="middle">tool_call: run_answer</text>
+      <!-- lifelines -->
+      <g stroke="#2E2C28" stroke-dasharray="2 4">
+        <line x1="110" y1="46" x2="110" y2="398"/><line x1="350" y1="46" x2="350" y2="398"/>
+        <line x1="590" y1="46" x2="590" y2="398"/><line x1="825" y1="46" x2="825" y2="398"/>
       </g>
-      <!-- tool execution -->
-      <rect x="222" y="150" width="372" height="56" rx="9" fill="#121317" stroke="#2E2C28"/>
-      <text x="408" y="174" fill="#ECE6DD" font-size="12" text-anchor="middle">Движок: compute_answer — детерминированный прогон</text>
-      <text x="408" y="190" fill="#9A948A" font-size="10" text-anchor="middle">вердикт · веера Δ · каскад · пороги · карта</text>
-      <line x1="514" y1="96" x2="450" y2="150" stroke="#5A554D" marker-end="url(#arr2)"/>
-      <line x1="470" y1="150" x2="540" y2="96" stroke="#5A554D" marker-end="url(#arr2)"/>
-      <text x="600" y="132" fill="#9A948A" font-size="10" text-anchor="middle">результат → ЛЛМ описывает</text>
-      <line x1="302" y1="150" x2="302" y2="96" stroke="#5A554D" marker-end="url(#arr2)"/>
-      <text x="232" y="124" fill="#9A948A" font-size="10" text-anchor="start">рендер: Ситуационная комната</text>
+      <!-- messages -->
+      <g font-size="10" fill="#9A948A" text-anchor="middle">
+        <line x1="110" y1="80"  x2="350" y2="80"  stroke="#5A554D" marker-end="url(#ams)"/><text x="230" y="74">1 · вопрос</text>
+        <line x1="350" y1="112" x2="590" y2="112" stroke="#5A554D" marker-end="url(#ams)"/><text x="470" y="106">2 · POST /assistant</text>
+        <line x1="590" y1="150" x2="825" y2="150" stroke="#5A554D" marker-end="url(#ams)"/><text x="707" y="144">3 · промпт + вопрос + инструменты</text>
+        <line x1="825" y1="186" x2="590" y2="186" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="180">4 · tool_call: run_answer</text>
+        <line x1="590" y1="186" x2="590" y2="206" stroke="#5A554D"/>
+        <rect x="452" y="206" width="276" height="36" rx="8" fill="#121317" stroke="#2E2C28"/>
+        <text x="590" y="229" fill="#ECE6DD" font-size="11">5 · compute_answer — детерминированный прогон</text>
+        <line x1="590" y1="242" x2="590" y2="264" stroke="#5A554D"/>
+        <line x1="590" y1="266" x2="825" y2="266" stroke="#5A554D" marker-end="url(#ams)"/><text x="707" y="260">6 · результат прогона</text>
+        <line x1="825" y1="300" x2="590" y2="300" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="294">7 · интерпретация (язык польз.)</text>
+        <line x1="590" y1="334" x2="350" y2="334" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="470" y="328">8 · SSE: tool_call · run_result · текст</text>
+        <line x1="350" y1="368" x2="110" y2="368" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="230" y="362">9 · Ситуационная комната</text>
+      </g>
     </svg>
-    <div class="legend">Числа — <b class="a">всегда из движка</b>. ЛЛМ выбирает рычаги/архетип и формулирует интерпретацию; режим «без ЛЛМ» делает это правилами.</div>
+    <div class="legend">Числа — <b class="a">всегда из движка</b>. Шаги 3–7 — цикл инструментов: повторяются, пока модель не
+    вернёт текст вместо нового вызова. Режим «без ЛЛМ» проходит тот же путь правилами, без обращения к модели.</div>
   </div>
 
   <h2>Валидация</h2>
