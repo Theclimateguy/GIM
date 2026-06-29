@@ -17,8 +17,10 @@ enum Theme {
     static let ring = Color(hex: 0xE8B45A)
     // Outcome bars — Variant 3: muted graphite ramp, gold only on the lead.
     static let barRamp = [Color(hex: 0x736E64), Color(hex: 0x67625A), Color(hex: 0x5C5851), Color(hex: 0x524E48)]
-    static let deltaUp = Color(hex: 0xE0A458)
-    static let deltaDown = Color(hex: 0xC08457)
+    // +/- outcome colours: clearly distinct green/coral, matched to the map legend
+    // ("лучше базы" / "хуже базы") so bars and choropleth read the same.
+    static let deltaUp = Color(hex: 0x4FBF86)
+    static let deltaDown = Color(hex: 0xE07A5F)
 
     static func ui(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight)

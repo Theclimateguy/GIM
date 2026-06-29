@@ -146,13 +146,19 @@ struct SeverityRing: View {
     }
 }
 
-// Winners / losers bars — ported from v1's OutcomeBars (graphite track + accent fill).
+// Winners / losers bars — graphite track + green (winners) / coral (losers) fill.
+// The value column width adapts to the widest number so large losses like "−38.10"
+// never wrap onto a second line (which used to shift the whole layout).
 struct ActorBars: View {
     let title: String
     let actors: [ActorEntry]
     let positive: Bool
 
     private var maxAbs: Double { max(0.01, actors.map { abs($0.score) }.max() ?? 1) }
+    private var valWidth: CGFloat {
+        let maxLen = actors.map { String(format: "%+.2f", $0.score).count }.max() ?? 5
+        return CGFloat(maxLen) * 7.5 + 4   // monospaced ≈ 7pt/char at 11pt + slack
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
@@ -169,8 +175,8 @@ struct ActorBars: View {
                         }
                     }
                     .frame(height: 8)
-                    Text(String(format: "%+.2f", a.score)).font(Theme.mono(11))
-                        .foregroundStyle(Theme.muted).frame(width: 40, alignment: .trailing)
+                    Text(String(format: "%+.2f", a.score)).font(Theme.mono(11)).lineLimit(1)
+                        .foregroundStyle(Theme.muted).frame(width: valWidth, alignment: .trailing)
                 }
             }
         }

@@ -243,23 +243,26 @@ struct ExpandableChartCard<C: View>: View {
     @State private var open = false
 
     var body: some View {
-        Panel(title: title, icon: icon, caption: caption) {
+        // Expand affordance lives in the Panel title row (trailing) — it used to overlay
+        // the chart's top-right corner and collide with the y-axis labels there.
+        Panel(title: title, icon: icon, caption: caption, trailing: AnyView(expandButton)) {
             Button { open = true } label: {
-                ZStack(alignment: .topTrailing) {
-                    chart(inlineHeight)
-                    Image(systemName: "arrow.up.left.and.arrow.down.right")
-                        .font(.system(size: 10)).foregroundStyle(Theme.faint)
-                        .padding(5).background(Theme.surface.opacity(0.7))
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
-                        .help("Открыть на весь экран")
-                }
-                .contentShape(Rectangle())
+                chart(inlineHeight).contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
         .sheet(isPresented: $open) {
             ChartSheet(title: title, note: note) { chart(fullHeight) }
         }
+    }
+
+    private var expandButton: some View {
+        Button { open = true } label: {
+            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                .font(.system(size: 11)).foregroundStyle(Theme.faint)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain).help("Открыть на весь экран")
     }
 }
 

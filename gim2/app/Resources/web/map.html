@@ -44,8 +44,11 @@ let MAP, LAYER, BY={}, DOMAIN="score", DOMAINS=["score"], MAXABS={};
 function colorFor(val,good,mx){
   if(val===undefined||val===null) return "#1b1c21";
   const t=mx>0?Math.min(1,Math.abs(val)/mx):0, gd=good*val;
+  // Visibility floor: low magnitudes used to fade to near-black. Modeled countries now
+  // show at least ~38% of the green/coral (same hues as the winners/losers bars).
+  const tt=0.38+0.62*t;
   const base=[40,41,47], pos=[79,191,134], neg=[224,122,95];
-  const tg=gd>=0?pos:neg, m=base.map((b,i)=>Math.round(b+(tg[i]-b)*t));
+  const tg=gd>=0?pos:neg, m=base.map((b,i)=>Math.round(b+(tg[i]-b)*tt));
   return `rgb(${m[0]},${m[1]},${m[2]})`;
 }
 function styleFeature(f){
@@ -69,7 +72,7 @@ function popup(f){
   const c=BY[f.properties.name];
   if(!c) return `<b>${f.properties.name}</b><br><span style="color:#9A948A">нет в модели</span>`;
   const sgn=c.score>=0?'#4FBF86':'#E07A5F';
-  let h=`<div style="min-width:214px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">`
+  let h=`<div style="min-width:300px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">`
        +`<b style="font-size:13px">${c.name}</b>`
        +`<span style="color:${sgn};font-weight:600">итог ${c.score.toFixed(2)}</span></div>`
        +`<table style="border-collapse:collapse;width:100%;font-size:11px">`;
@@ -88,7 +91,7 @@ function popup(f){
 function draw(){
   if(LAYER){LAYER.remove();}
   LAYER=L.geoJSON(window.WORLD_GEOJSON,{style:styleFeature,
-    onEachFeature:(f,l)=>l.bindPopup(popup(f),{maxWidth:240})}).addTo(MAP);
+    onEachFeature:(f,l)=>l.bindPopup(popup(f),{maxWidth:340,minWidth:300})}).addTo(MAP);
   const meta=META[DOMAIN]||{label:DOMAIN};
   document.getElementById("leg").style.display="block";
   document.getElementById("leg").innerHTML=`Слой: <b style="color:#ECE6DD">${meta.label}</b>`

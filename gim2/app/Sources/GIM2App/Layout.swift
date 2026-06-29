@@ -51,6 +51,7 @@ struct Panel<Content: View>: View {
     let title: String
     var icon: String? = nil
     var caption: String? = nil
+    var trailing: AnyView? = nil          // optional accessory pinned to the title row
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -64,6 +65,7 @@ struct Panel<Content: View>: View {
                     Text(caption).font(Theme.ui(11)).foregroundStyle(Theme.faint)
                 }
                 Spacer(minLength: 0)
+                if let trailing { trailing }
             }
             content()
         }
