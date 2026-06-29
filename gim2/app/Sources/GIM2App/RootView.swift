@@ -11,6 +11,7 @@ struct RootView: View {
         ("Ассистент", "message"),
         ("Экспертный режим", "slider.horizontal.3"),
         ("Сравнение", "arrow.left.arrow.right"),
+        ("Документация", "book"),
     ]
 
     var body: some View {
@@ -21,7 +22,8 @@ struct RootView: View {
                 switch section {
                 case 0: ChatView()
                 case 1: ExpertView()
-                default: CompareView()
+                case 2: CompareView()
+                default: DocsView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
