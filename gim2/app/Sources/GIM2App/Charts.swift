@@ -19,6 +19,104 @@ private func fanPoints(_ fan: FanSeries) -> [FanPoint] {
     }
 }
 
+// Adaptive numeric format for hover read-outs: more decimals for small magnitudes.
+private func fanFmt(_ v: Double) -> String {
+    let a = abs(v)
+    if a >= 100 { return String(format: "%.0f", v) }
+    if a >= 10  { return String(format: "%.1f", v) }
+    if a >= 1   { return String(format: "%.2f", v) }
+    return String(format: "%.3f", v)
+}
+
+// Bulletproof uncertainty band: a single closed polygon (upper edge left→right, then
+// lower edge right→left). Drawn in .chartBackground via the chart proxy, so — unlike a
+// range AreaMark, which self-intersects into the herringbone "ёлочка" on this Charts
+// version — it is geometrically guaranteed continuous.
+private func bandShape(_ pts: [FanPoint], _ low: KeyPath<FanPoint, Double>,
+                       _ high: KeyPath<FanPoint, Double>, _ proxy: ChartProxy, _ frame: CGRect) -> Path {
+    var path = Path()
+    func pt(_ t: Int, _ v: Double) -> CGPoint? {
+        guard let x = proxy.position(forX: t), let y = proxy.position(forY: v) else { return nil }
+        return CGPoint(x: frame.minX + x, y: frame.minY + y)
+    }
+    let upper = pts.compactMap { pt($0.t, $0[keyPath: high]) }
+    let lower = pts.reversed().compactMap { pt($0.t, $0[keyPath: low]) }
+    guard let start = upper.first else { return path }
+    path.move(to: start)
+    upper.dropFirst().forEach { path.addLine(to: $0) }
+    lower.forEach { path.addLine(to: $0) }
+    path.closeSubpath()
+    return path
+}
+
+// Hover read-out for the banded charts: a vertical guide, a median marker, and a
+// tooltip with the year and the value on both axes (median + 5–95 range). Pure
+// chartOverlay so it composes onto any fan/delta Chart without touching its marks.
+private struct FanHover: ViewModifier {
+    let pts: [FanPoint]
+    var unit: String = ""
+    var color: Color = Theme.accent
+    var deltaPrefix: Bool = false
+    @State private var hit: FanPoint? = nil
+
+    func body(content: Content) -> some View {
+        content.chartOverlay { proxy in
+            GeometryReader { geo in
+                let frame = geo[proxy.plotAreaFrame]
+                if frame.width > 0 {
+                    ZStack(alignment: .topLeading) {
+                        Rectangle().fill(Color.clear).contentShape(Rectangle())
+                            .onContinuousHover { phase in
+                                switch phase {
+                                case .active(let p):
+                                    let dx = p.x - frame.minX
+                                    if dx >= 0, dx <= frame.width, let xv: Double = proxy.value(atX: dx) {
+                                        hit = pts.min(by: { abs(Double($0.t) - xv) < abs(Double($1.t) - xv) })
+                                    } else { hit = nil }
+                                case .ended:
+                                    hit = nil
+                                }
+                            }
+                        if let h = hit, let px = proxy.position(forX: h.t), let py = proxy.position(forY: h.p50) {
+                            let gx = frame.minX + px
+                            Rectangle().fill(Theme.muted.opacity(0.45))
+                                .frame(width: 1, height: frame.height)
+                                .position(x: gx, y: frame.midY)
+                            Circle().fill(color).frame(width: 7, height: 7)
+                                .overlay(Circle().stroke(Theme.bg, lineWidth: 1.5))
+                                .position(x: gx, y: frame.minY + py)
+                            tip(h)
+                                .position(x: min(max(gx, frame.minX + 54), frame.maxX - 54),
+                                          y: frame.minY + 22)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func tip(_ h: FanPoint) -> some View {
+        let pfx = deltaPrefix ? "Δ " : ""
+        let suffix = unit.isEmpty ? "" : " " + unit
+        VStack(alignment: .leading, spacing: 1) {
+            Text("год \(h.t)").font(Theme.ui(9.5)).foregroundStyle(Theme.muted)
+            Text(pfx + fanFmt(h.p50) + suffix).font(Theme.mono(12, .semibold)).foregroundStyle(Theme.text)
+            Text(fanFmt(h.p5) + " – " + fanFmt(h.p95)).font(Theme.mono(9.5)).foregroundStyle(Theme.faint)
+        }
+        .padding(.vertical, 4).padding(.horizontal, 7)
+        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.surface)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line, lineWidth: 1)))
+        .fixedSize()
+    }
+}
+
+private extension View {
+    func fanHover(_ pts: [FanPoint], unit: String = "", color: Color = Theme.accent,
+                  deltaPrefix: Bool = false) -> some View {
+        modifier(FanHover(pts: pts, unit: unit, color: color, deltaPrefix: deltaPrefix))
+    }
+}
+
 private func darkAxes<V: View>(_ chart: V) -> some View {
     chart
         .chartXAxis { AxisMarks { AxisGridLine().foregroundStyle(Theme.line)
@@ -32,16 +130,33 @@ struct FanChartView: View {
     let fan: FanSeries
     var color: Color = Theme.accent
     var height: CGFloat = 150
+    var unit: String = ""
     var body: some View {
         let pts = fanPoints(fan)
-        darkAxes(Chart(pts) { p in
-            AreaMark(x: .value("Год", p.t), yStart: .value("p5", p.p5), yEnd: .value("p95", p.p95))
-                .foregroundStyle(color.opacity(0.10))
-            AreaMark(x: .value("Год", p.t), yStart: .value("p25", p.p25), yEnd: .value("p75", p.p75))
-                .foregroundStyle(color.opacity(0.22))
-            LineMark(x: .value("Год", p.t), y: .value("медиана", p.p50))
-                .foregroundStyle(color).lineStyle(.init(lineWidth: 2))
-        })
+        let yLo = pts.map(\.p5).min() ?? 0
+        let yHi = pts.map(\.p95).max() ?? 1
+        let pad = max((yHi - yLo) * 0.08, 1e-9)
+        // Only the median LineMark lives in the Chart; the 5–95 / 25–75 bands are drawn as
+        // explicit closed polygons in .chartBackground (bandShape) because range AreaMarks
+        // render as a self-crossing "ёлочка" here. The y-scale is widened to the 5–95 span.
+        darkAxes(
+            Chart(pts) { p in
+                LineMark(x: .value("Год", p.t), y: .value("медиана", p.p50))
+                    .foregroundStyle(color).lineStyle(.init(lineWidth: 2))
+                    .interpolationMethod(.monotone)
+            }
+            .chartYScale(domain: (yLo - pad)...(yHi + pad))
+            .chartBackground { proxy in
+                GeometryReader { geo in
+                    let f = geo[proxy.plotAreaFrame]
+                    ZStack {
+                        bandShape(pts, \.p5, \.p95, proxy, f).fill(color.opacity(0.12))
+                        bandShape(pts, \.p25, \.p75, proxy, f).fill(color.opacity(0.22))
+                    }
+                }
+            }
+        )
+        .fanHover(pts, unit: unit, color: color)
         .frame(height: height)
     }
 }
@@ -50,18 +165,32 @@ struct FanChartView: View {
 struct DeltaChartView: View {
     let delta: FanSeries
     var height: CGFloat = 150
+    var unit: String = ""
     var body: some View {
         let pts = fanPoints(delta)
-        darkAxes(Chart(pts) { p in
-            AreaMark(x: .value("Год", p.t), yStart: .value("p5", p.p5), yEnd: .value("p95", p.p95))
-                .foregroundStyle(Theme.accent.opacity(0.10))
-            AreaMark(x: .value("Год", p.t), yStart: .value("p25", p.p25), yEnd: .value("p75", p.p75))
-                .foregroundStyle(Theme.accent.opacity(0.20))
-            LineMark(x: .value("Год", p.t), y: .value("Δ медиана", p.p50))
-                .foregroundStyle(Theme.accent).lineStyle(.init(lineWidth: 2))
-            RuleMark(y: .value("0", 0.0))
-                .foregroundStyle(Theme.faint).lineStyle(.init(lineWidth: 1, dash: [4, 3]))
-        })
+        let yLo = min(0, pts.map(\.p5).min() ?? 0)
+        let yHi = max(0, pts.map(\.p95).max() ?? 0)
+        let pad = max((yHi - yLo) * 0.08, 1e-9)
+        darkAxes(
+            Chart(pts) { p in
+                LineMark(x: .value("Год", p.t), y: .value("Δ медиана", p.p50))
+                    .foregroundStyle(Theme.accent).lineStyle(.init(lineWidth: 2))
+                    .interpolationMethod(.monotone)
+                RuleMark(y: .value("0", 0.0))
+                    .foregroundStyle(Theme.faint).lineStyle(.init(lineWidth: 1, dash: [4, 3]))
+            }
+            .chartYScale(domain: (yLo - pad)...(yHi + pad))
+            .chartBackground { proxy in
+                GeometryReader { geo in
+                    let f = geo[proxy.plotAreaFrame]
+                    ZStack {
+                        bandShape(pts, \.p5, \.p95, proxy, f).fill(Theme.accent.opacity(0.12))
+                        bandShape(pts, \.p25, \.p75, proxy, f).fill(Theme.accent.opacity(0.22))
+                    }
+                }
+            }
+        )
+        .fanHover(pts, unit: unit, color: Theme.accent, deltaPrefix: true)
         .frame(height: height)
     }
 }

@@ -105,7 +105,8 @@ function buildBar(){
 // Called by Swift with the engine's actors.geo payload.
 window.renderGeo=function(geo){
   if(!MAP){MAP=L.map("map",{worldCopyJump:true,minZoom:1,maxZoom:6,attributionControl:false,
-    zoomControl:false,scrollWheelZoom:false,doubleClickZoom:true}).setView([25,12],1.4);}
+    zoomControl:false,scrollWheelZoom:true,doubleClickZoom:true}).setView([25,12],1.4);
+    L.control.zoom({position:'topright'}).addTo(MAP);}
   document.getElementById("empty").style.display="none";
   BY={}; (geo.countries||[]).forEach(c=>{BY[c.geo_name]=c;});
   DOMAINS=["score"].concat((geo.domains||[]).filter(d=>d!=="score"));
