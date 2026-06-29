@@ -10,10 +10,12 @@ calls inside the engine, so it runs inside a company perimeter.
 ```bash
 pip install "gim17[mcp]"     # from the built wheel/sdist; pulls mcp + numpy + shapely
 # or, from a checkout:
-pip install -e ".[mcp]"
+pip install ".[mcp]"
 ```
 
-This registers the `gim-mcp` console script (stdio MCP server).
+This registers the `gim-mcp` console script (stdio MCP server). State snapshots, priors, and
+world geometry are bundled inside the package (`gim/data/`), so the server works out of the box
+on a clean machine — no source checkout or data download required.
 
 ## Connect (Claude Desktop)
 

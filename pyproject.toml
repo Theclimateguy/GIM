@@ -25,7 +25,12 @@ dev = ["requests>=2.31", "numpy>=1.26", "pandas>=2.0", "matplotlib>=3.8", "shape
 gim-mcp = "gim.mcp_server:main"
 
 [tool.setuptools]
-include-package-data = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["gim*"]
+
+# Runtime data lives inside the package (gim/data) so a plain `pip install` works
+# out of the box — no source checkout needed. These files are bundled into the wheel.
+[tool.setuptools.package-data]
+gim = ["data/*.csv", "data/*.json", "data/*.geojson"]

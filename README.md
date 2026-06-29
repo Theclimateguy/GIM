@@ -12,7 +12,8 @@ inside a company perimeter.
 ```
 gim/                  the validated GIM17 engine (the library)
 gim/mcp_server.py     the MCP server (gim-mcp) — 6 tools + 3 resources
-data/                 calibrated state snapshots, priors, world geometry (required at runtime)
+gim/data/             calibrated state snapshots, priors, world geometry — bundled
+                      INSIDE the package, so a plain `pip install` works out of the box
 docs/mcp_server.md    MCP tool/resource reference + client setup
 paper/                the GIM17 paper (RU primary, EN) — the authoritative math guide
 ```
@@ -30,11 +31,15 @@ invents quantities; it only surfaces what the engine in this paper produces.
 ## Install
 
 ```bash
-pip install -e ".[mcp]"     # editable install from this checkout (recommended)
+pip install ".[mcp]"        # from a checkout
+# or build a wheel and install it on a clean machine:
+#   pip install build && python -m build
+#   pip install "dist/gim17-*.whl[mcp]"
 ```
 
-Editable install lets the engine resolve the bundled `data/` (priors, snapshots, geometry)
-relative to the repository root. This registers the `gim-mcp` console script.
+The calibrated state snapshots, priors, and world geometry ship **inside the package**
+(`gim/data/`), so the engine finds them after a plain install — no source tree required.
+This registers the `gim-mcp` console script.
 
 ## Connect (Claude Desktop)
 

@@ -41,7 +41,7 @@ LEGACY_FALLBACK_CONTRACT = (
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[1]  # package root (gim/); data ships inside the package
 
 
 def _primary_state_csv(repo_root: Path) -> Path:

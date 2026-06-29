@@ -28,7 +28,7 @@ from typing import Dict, Iterable, Optional
 
 from .params import ParameterSet, default_params
 
-_DATA = Path(__file__).resolve().parents[2] / "data"
+_DATA = Path(__file__).resolve().parents[1] / "data"
 PRIORS_CSV = _DATA / "parameter_priors.csv"
 REGISTRY_CSV = _DATA / "parameters_gim17.csv"
 

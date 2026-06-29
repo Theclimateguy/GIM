@@ -23,6 +23,7 @@ from .core.policy import make_policy_map
 from .core.rng import seed_world
 from .core.simulation import step_world
 from .core.world_factory import make_world_from_csv
+from .paths import CALIBRATED_STATE_CSV
 from .welfare import marginal_utility, per_capita_consumption, world_consumption
 
 
@@ -59,7 +60,7 @@ def _run_trajectory(
 
 
 def social_cost_of_carbon(
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = str(CALIBRATED_STATE_CSV),
     *,
     years: int = 30,
     pulse_year: int = 1,
@@ -101,7 +102,7 @@ def social_cost_of_carbon(
 
 
 def scc_multi_horizon(
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = str(CALIBRATED_STATE_CSV),
     *,
     horizons: tuple = (30, 100, 200),
     pulse_year: int = 1,
@@ -138,7 +139,7 @@ SCC_PRIOR_PARAMS = [
 
 
 def scc_distribution(
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = str(CALIBRATED_STATE_CSV),
     *,
     names: Optional[List[str]] = None,
     n_samples: int = 50,
