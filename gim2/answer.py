@@ -20,12 +20,12 @@ from .dose_response import compute_dose
 from .scenario import Progress, _METRIC_LABEL, compute_scenario
 
 # Метрики, для которых рост = хуже (для вердикта/знака).
-_BAD_WHEN_UP = {"mean_social_tension", "n_debt_crises", "n_wars", "n_regime_crises", "temperature", "co2"}
+_BAD_WHEN_UP = {"mean_social_tension", "n_debt_crises", "conflict_risk", "n_regime_crises", "temperature", "co2"}
 
 # Порог «срыва» по метрике: ("abs", значение) или ("frac", доля |базы|).
 _METRIC_THRESHOLD: Dict[str, tuple] = {
     "n_debt_crises": ("abs", 1.0),
-    "n_wars": ("abs", 1.0),
+    "conflict_risk": ("abs", 0.03),
     "n_regime_crises": ("abs", 1.0),
     "mean_social_tension": ("abs", 0.05),
     "temperature": ("abs", 0.05),
@@ -33,7 +33,7 @@ _METRIC_THRESHOLD: Dict[str, tuple] = {
     "co2": ("frac", 0.02),
 }
 
-_CARD_ORDER = ("world_gdp", "n_debt_crises", "mean_social_tension", "co2", "temperature", "n_wars")
+_CARD_ORDER = ("world_gdp", "n_debt_crises", "mean_social_tension", "co2", "temperature", "conflict_risk")
 
 
 def _label(metric: str) -> str:
@@ -45,7 +45,7 @@ def _terminal(seq: Sequence[float]) -> float:
 
 
 def _verdict(metric: str, delta_terminal: float, base_terminal: float) -> str:
-    rel = (delta_terminal / abs(base_terminal)) if (metric not in {"n_debt_crises", "n_wars", "n_regime_crises"} and base_terminal) else delta_terminal
+    rel = (delta_terminal / abs(base_terminal)) if (metric not in {"n_debt_crises", "n_regime_crises"} and base_terminal) else delta_terminal
     worse = (delta_terminal > 0 and metric in _BAD_WHEN_UP) or (delta_terminal < 0 and metric not in _BAD_WHEN_UP)
     mag = abs(rel)
     name = _label(metric)
@@ -53,7 +53,7 @@ def _verdict(metric: str, delta_terminal: float, base_terminal: float) -> str:
         return f"Близко к базовой траектории: {name} почти не сдвигается."
     if not worse:
         return f"Улучшение относительно базы: {name} сдвигается в благоприятную сторону."
-    if mag >= 0.10 or (metric in {"n_debt_crises", "n_wars", "n_regime_crises"} and abs(delta_terminal) >= 2):
+    if mag >= 0.10 or (metric in {"n_debt_crises", "n_regime_crises"} and abs(delta_terminal) >= 2):
         return f"Скорее срыв, чем стабилизация: {name} заметно ухудшается относительно базы."
     return f"Умеренный негативный сдвиг: {name} ухудшается, но в пределах управляемого."
 
@@ -78,7 +78,7 @@ def _threshold_crossing(dose_proj: Dict[str, Any], lever: str, metric: str) -> D
 
     if crossing is None:
         note = f"порог не достигается в диапазоне интенсивности [0, {x[-1] if x else 1.25}]"
-    elif kind == "abs" and metric in {"n_debt_crises", "n_wars", "n_regime_crises"}:
+    elif kind == "abs" and metric in {"n_debt_crises", "n_regime_crises"}:
         note = f"при «{lever}» ≈ {crossing} сценарий даёт ≥{int(thr)} доп. событий ({_label(metric)})"
     else:
         note = f"при «{lever}» ≈ {crossing} Δ {_label(metric)} пересекает порог {round(thr, 3)}"

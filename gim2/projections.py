@@ -18,7 +18,7 @@ DEFAULT_FAN_METRICS: tuple[str, ...] = (
     "co2",
     "mean_social_tension",
     "n_debt_crises",
-    "n_wars",
+    "conflict_risk",
 )
 
 _BAND_KEYS = ("p5", "p25", "p50", "p75", "p95", "mean")

@@ -83,7 +83,7 @@ ARCHETYPES: Dict[str, Archetype] = {
         segments=("geo", "energy"),
         headline_metric="world_gdp",
         threshold_lever="trade_sanctions",
-        threshold_metric="n_wars",
+        threshold_metric="conflict_risk",
         actors=("United States", "China"),
     ),
     "green_transition_shock": Archetype(

@@ -234,6 +234,7 @@ enum MetricLabel {
         "mean_social_tension": "Соц. напряжённость",
         "n_debt_crises": "Долговые кризисы",
         "n_wars": "Войны",
+        "conflict_risk": "Риск конфликта",
     ]
     static func of(_ key: String) -> String { ru[key] ?? key }
 }

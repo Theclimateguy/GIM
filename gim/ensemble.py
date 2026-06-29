@@ -33,6 +33,7 @@ METRICS: tuple[str, ...] = (
     "n_regime_crises",
     "n_wars",
     "mean_social_tension",
+    "conflict_risk",
 )
 
 DEFAULT_PERCENTILES: tuple[float, ...] = (5.0, 25.0, 50.0, 75.0, 95.0)
@@ -65,6 +66,15 @@ def _collect_metrics(world) -> Dict[str, float]:
             if getattr(rel, "at_war", False):
                 war_pairs += 1
     tensions = [a.society.social_tension for a in agents]
+    # Live conflict-risk: the validated structural risk input (conflict_proneness,
+    # the AUC-scored ranking) modulated by current social tension. Anchored so
+    # tension ≈ 0.5 reproduces conflict_proneness; tension above/below amplifies or
+    # dampens. Unlike n_wars (discrete war onset, dormant in the deterministic
+    # baseline), this moves with the scenario.
+    conflict_risk = [
+        min(1.0, max(0.0, float(getattr(a.risk, "conflict_proneness", 0.4)) * (0.5 + float(a.society.social_tension))))
+        for a in agents
+    ]
     return {
         "world_gdp": float(sum(a.economy.gdp for a in agents)),
         "world_population": float(sum(a.economy.population for a in agents)),
@@ -74,6 +84,7 @@ def _collect_metrics(world) -> Dict[str, float]:
         "n_regime_crises": float(n_regime),
         "n_wars": float(war_pairs // 2),  # directed relations -> undirected pairs
         "mean_social_tension": float(sum(tensions) / len(tensions)) if tensions else 0.0,
+        "conflict_risk": float(sum(conflict_risk) / len(conflict_risk)) if conflict_risk else 0.0,
     }
 
 

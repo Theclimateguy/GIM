@@ -385,6 +385,7 @@ _METRIC_LABEL = {
     "mean_social_tension": ("напряжённость", ""),
     "n_debt_crises": ("долговые кризисы", ""),
     "n_wars": ("войны", ""),
+    "conflict_risk": ("риск конфликта", ""),
 }
 
 
