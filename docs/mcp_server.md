@@ -1,9 +1,9 @@
 # GIM17 MCP server
 
-Exposes the validated GIM17 deterministic core as tools for any MCP-capable LLM client
-(Claude Desktop, IDE plugins, the Anthropic API). The LLM drives scenario work in natural
-language; the engine supplies the validated math. Fully self-contained — no network/LLM
-calls inside the engine, so it runs inside a company perimeter.
+Exposes the validated GIM17 deterministic core as tools for any MCP-capable host
+(LLM desktop apps, IDE plugins, agent frameworks, custom clients). The LLM drives scenario
+work in natural language; the engine supplies the validated math. Fully self-contained — no
+network/LLM calls inside the engine, so it runs inside a company perimeter.
 
 ## Install
 
