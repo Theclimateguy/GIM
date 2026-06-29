@@ -39,8 +39,10 @@ from .hybrid_simulator import (
 from .results import build_run_artifacts, resolve_run_output_path, write_json_artifact, write_run_manifest
 from .runtime import SCENARIOS_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
+from .scenario_composer import compose_scenario
 from .sim_bridge import SimBridge, SimProgress
 from .ui_server import run_ui_server
+from .engine_service import run_engine_service
 
 BACKGROUND_POLICY_CHOICES = ("compiled-llm", "llm", "simple", "growth")
 LLM_REFRESH_CHOICES = ("trigger", "periodic", "never")
@@ -68,6 +70,12 @@ def build_parser() -> ArgumentParser:
     question_parser.add_argument("--base-year", type=int)
     question_parser.add_argument("--horizon-months", type=int, default=24)
     question_parser.add_argument("--template")
+    question_parser.add_argument(
+        "--compose",
+        action="store_true",
+        help="Compose the scenario on the fly from the calibrated lever ontology "
+        "instead of selecting a fixed template.",
+    )
     question_parser.add_argument("--state-csv")
     question_parser.add_argument("--state-year", type=int)
     question_parser.add_argument("--max-countries", type=int)
@@ -214,6 +222,13 @@ def build_parser() -> ArgumentParser:
     )
     ui_parser.add_argument("--host", default="127.0.0.1")
     ui_parser.add_argument("--port", type=int, default=8090)
+
+    engine_parser = subparsers.add_parser(
+        "engine",
+        help="Launch the loopback HTTP+SSE engine sidecar for the macOS app (token-gated, ephemeral port)",
+    )
+    engine_parser.add_argument("--host", default="127.0.0.1")
+    engine_parser.add_argument("--port", type=int, default=0)
 
     hybrid_parser = subparsers.add_parser(
         "hybrid",
@@ -457,7 +472,7 @@ def _apply_world_cli_overrides(argv: list[str]) -> None:
 
 
 def main() -> None:
-    orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief", "ui", "hybrid"}
+    orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief", "ui", "engine", "hybrid"}
     argv = sys.argv[1:]
     if not argv:
         core_main()
@@ -482,6 +497,9 @@ def main() -> None:
         return
     if args.command == "ui":
         run_ui_server(host=args.host, port=args.port)
+        return
+    if args.command == "engine":
+        run_engine_service(host=args.host, port=args.port)
         return
     if args.command == "brief":
         run_artifacts = build_run_artifacts(args.command)
@@ -663,14 +681,21 @@ def main() -> None:
     if args.command == "question":
         use_sim = _should_use_simulation(args)
         run_artifacts = build_run_artifacts(args.command)
-        scenario = compile_question(
-            question=_resolve_question_text(args),
-            world=world,
-            base_year=args.base_year,
-            actors=args.actors,
-            horizon_months=args.horizon_months,
-            template_id=args.template,
-        )
+        if getattr(args, "compose", False):
+            scenario = compose_scenario(
+                _resolve_question_text(args),
+                world,
+                horizon_months=args.horizon_months,
+            )
+        else:
+            scenario = compile_question(
+                question=_resolve_question_text(args),
+                world=world,
+                base_year=args.base_year,
+                actors=args.actors,
+                horizon_months=args.horizon_months,
+                template_id=args.template,
+            )
         trajectory = [world]
         if use_sim:
             bridge = SimBridge()
