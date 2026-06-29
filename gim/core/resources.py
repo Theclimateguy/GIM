@@ -9,10 +9,63 @@ from .core import (
 from .params import resolve_params
 
 
+# The physical world annual-supply cap (WORLD_ANNUAL_SUPPLY_CAP_ZJ, in ZJ) is anchored
+# to the model's energy *index* by the base-year world production, so the cap acts as a
+# real growth ceiling sitting this multiple above current output. Before this, the ZJ
+# cap was min()-compared directly against index-scale production (~1e4), collapsing
+# effective supply to ~0.65 and slamming the energy price into its cap on step 1 — a
+# units bug, not a calibration choice. Reserves still bind long-run via `own_reserve`.
+ENERGY_ANNUAL_CAP_HEADROOM = 1.5
+
+
+def normalize_energy_reserves_to_physical(world: WorldState) -> None:
+    """Forward-projection init: scale the energy reserve stock to the physical proven-reserves /
+    annual-supply horizon (~50 yr), preserving cross-country heterogeneity.
+
+    The state CSV's energy reserves imply only ~7 yr of cover at the index production rate, so the
+    stock binds production within a decade -> supply collapses -> the energy price hits its cap ->
+    a spurious near-term GDP dip. Called ONLY on the forward member path (not the raw loader, the
+    game/geo calibration, or the historical backtest), and only ever scales UP — so the validated
+    surfaces stay byte-identical while the forward energy market becomes functional. Idempotent.
+    """
+    total_prod = 0.0
+    total_res = 0.0
+    for agent in world.agents.values():
+        energy = agent.resources.get("energy")
+        if energy is None:
+            continue
+        total_prod += max(0.0, energy.production)
+        total_res += max(0.0, energy.own_reserve)
+    if total_prod <= 0.0 or total_res <= 0.0:
+        return
+    target = (WORLD_PROVEN_RESERVES_ZJ / max(WORLD_ANNUAL_SUPPLY_CAP_ZJ, 1e-9)) * total_prod
+    factor = target / total_res
+    if factor <= 1.0:
+        return
+    for agent in world.agents.values():
+        energy = agent.resources.get("energy")
+        if energy is not None:
+            energy.own_reserve *= factor
+    sync_global_reserves_from_agents(world)
+
+
 def allocate_energy_reserves_and_caps(world: WorldState) -> Dict[str, Dict[str, float]]:
     global_energy_reserves = world.global_state.global_reserves.get(
         "energy", WORLD_PROVEN_RESERVES_ZJ
     )
+
+    # Base-year world energy production (index units), captured once. The physical ZJ
+    # annual cap is expressed as this many index-units so it is commensurate with the
+    # production it constrains.
+    base_prod = getattr(world.global_state, "_energy_base_production_index", None)
+    if base_prod is None:
+        base_prod = sum(
+            max(0.0, energy.production)
+            for agent in world.agents.values()
+            if (energy := agent.resources.get("energy")) is not None
+        )
+        world.global_state._energy_base_production_index = base_prod
+    global_cap_index = max(base_prod, 1e-9) * ENERGY_ANNUAL_CAP_HEADROOM
 
     keys: Dict[str, float] = {}
     total_key = 0.0
@@ -29,15 +82,19 @@ def allocate_energy_reserves_and_caps(world: WorldState) -> Dict[str, Dict[str, 
         for agent_id in world.agents:
             allocation[agent_id] = {
                 "reserve_zj": global_energy_reserves / count,
-                "prod_cap_zj_per_year": WORLD_ANNUAL_SUPPLY_CAP_ZJ / count,
+                "prod_cap_zj_per_year": global_cap_index / count,
             }
         return allocation
 
     for agent_id, key in keys.items():
         share = key / total_key
+        # Reserve-share of the global ceiling, but never below the agent's current
+        # output, so the cap can only constrain *growth*, never throttle current supply.
+        energy = world.agents[agent_id].resources.get("energy")
+        current_prod = max(0.0, energy.production) if energy is not None else 0.0
         allocation[agent_id] = {
             "reserve_zj": share * global_energy_reserves,
-            "prod_cap_zj_per_year": share * WORLD_ANNUAL_SUPPLY_CAP_ZJ,
+            "prod_cap_zj_per_year": max(share * global_cap_index, current_prod),
         }
 
     return allocation

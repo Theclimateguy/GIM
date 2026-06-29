@@ -19,6 +19,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 from .core.params import default_params
 from .core.priors import all_priors, key_priors, sample_parameter_set
 from .core.policy import make_policy_map
+from .core.resources import normalize_energy_reserves_to_physical
 from .core.rng import seed_world
 from .core.simulation import step_world
 from .core.world_factory import make_world_from_csv
@@ -102,6 +103,7 @@ def _run_member(args: Dict[str, Any]) -> List[Dict[str, float]]:
     world = make_world_from_csv(cfg.state_csv, max_agents=cfg.max_agents, base_year=cfg.base_year)
     world.params = sampled
     seed_world(world, seed)
+    normalize_energy_reserves_to_physical(world)
     policies = make_policy_map(world.agents.keys(), mode="simple")
 
     trajectory = [_collect_metrics(world)]
