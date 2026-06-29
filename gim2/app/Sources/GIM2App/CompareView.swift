@@ -16,9 +16,11 @@ struct CompareView: View {
                 PageHeader(
                     kicker: "Сравнение сценариев",
                     title: "Сравнение сценариев",
-                    subtitle: "Сверху — валидированная базовая линия модели. Отметьте прогоны из истории, чтобы сопоставить их Δ к базе между собой.")
+                    subtitle: "Сверху — базовый сценарий: инерционный мир без новых шоков. Все прогоны ниже измеряются как Δ к нему.")
 
-                baselinePanel
+                baselineScenarioPanel
+                baselineCharts
+                trustPanel
 
                 Panel(title: "История прогонов", icon: "clock.arrow.circlepath",
                       caption: app.history.isEmpty ? "пусто" : "\(app.history.count) · отметьте до 3") {
@@ -42,17 +44,73 @@ struct CompareView: View {
                 }
             }
             .padding(28)
-            .frame(maxWidth: 1040, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .task { await app.loadValidation() }
+        .task { await app.loadValidation(); await app.loadBaselineEnsemble() }
     }
 
-    // MARK: pinned validated baseline (model-trust metrics)
+    // MARK: baseline scenario — the no-lever inertial ensemble (what we compare to)
 
-    private var baselinePanel: some View {
-        Panel(title: "Базовая линия (валидированная)", icon: "checkmark.seal",
-              caption: "опорная траектория модели — из ретро-прогонов") {
+    private let baseMetricOrder = ["world_gdp", "temperature", "co2", "mean_social_tension"]
+    private func baseMetrics(_ ens: EnsembleResult) -> [FanSeries] {
+        baseMetricOrder.compactMap { key in ens.projection.metrics.first { $0.metric == key } }
+    }
+    private func terminalText(_ fan: FanSeries) -> String {
+        let v = fan.p50.last ?? 0
+        return String(format: abs(v) >= 100 ? "%.0f" : "%.2f", v)
+    }
+
+    private var baselineScenarioPanel: some View {
+        Panel(title: "Базовый сценарий", icon: "scope",
+              caption: "инерционный мир без новых шоков · ансамбль 120 × 10 лет") {
+            if let ens = app.baselineEnsemble {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Опорная траектория, относительно которой измеряется каждый сценарий (Δ = сценарий − база). Медиана и интервалы — по ансамблю приоров.")
+                        .font(Theme.ui(12)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
+                    HStack(alignment: .top, spacing: 30) {
+                        ForEach(baseMetrics(ens)) { fan in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(MetricLabel.of(fan.metric)).font(Theme.ui(11)).foregroundStyle(Theme.muted)
+                                Text(terminalText(fan)).font(Theme.mono(16, .medium)).foregroundStyle(Theme.text)
+                                Text("к году \(fan.years.last ?? 0)").font(Theme.ui(10)).foregroundStyle(Theme.faint)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+            } else if app.baselineEnsembleLoading {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small).tint(Theme.accent)
+                    Text("считаю базовый сценарий…").font(Theme.ui(12.5)).foregroundStyle(Theme.muted)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Button("Построить базовый сценарий") { Task { await app.loadBaselineEnsemble() } }
+                    .buttonStyle(GhostButtonStyle())
+            }
+        }
+    }
+
+    @ViewBuilder private var baselineCharts: some View {
+        if let ens = app.baselineEnsemble {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 14)], spacing: 14) {
+                ForEach(baseMetrics(ens)) { fan in
+                    ExpandableChartCard(
+                        title: MetricLabel.of(fan.metric), icon: "chart.line.uptrend.xyaxis",
+                        caption: "база · медиана · IQR · 5–95 · нажмите, чтобы развернуть",
+                        note: "Абсолютная траектория «\(MetricLabel.of(fan.metric))» в инерционном мире без новых шоков: медиана и интервалы неопределённости по ансамблю.") { h in
+                        FanChartView(fan: fan, height: h)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: model-trust metrics (separate panel)
+
+    private var trustPanel: some View {
+        Panel(title: "Доверие к модели", icon: "checkmark.seal",
+              caption: "валидированные показатели из ретро-прогонов") {
             VStack(alignment: .leading, spacing: 12) {
                 if let auc = app.auc {
                     VStack(alignment: .leading, spacing: 6) {
@@ -90,8 +148,6 @@ struct CompareView: View {
                     .buttonStyle(GhostButtonStyle())
                     .disabled(app.backtestLoading)
                 }
-                Text("Сценарии ниже измеряются как отклонение от этой базы.")
-                    .font(Theme.ui(11)).foregroundStyle(Theme.faint)
             }
         }
     }

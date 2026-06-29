@@ -138,6 +138,11 @@ struct ConflictMetaResult: Decodable {
     let projection: ConflictAUCProjection
 }
 
+// MARK: ollama discovery (queried directly from the app, not via the engine)
+
+struct OllamaModel: Decodable { let name: String }
+struct OllamaTags: Decodable { let models: [OllamaModel] }
+
 // MARK: weak signals
 
 struct WeakRequest: Encodable {

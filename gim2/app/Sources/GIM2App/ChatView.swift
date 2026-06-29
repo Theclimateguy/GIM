@@ -144,23 +144,20 @@ struct LLMSettingsView: View {
             if app.llmProvider == "deterministic" {
                 Text("Распознаёт типовые сценарии и ключевые рычаги по тексту. Подключите Ollama или ключ — и ассистент сам подберёт рычаги и уточнит детали.")
                     .font(Theme.ui(12)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
+            } else if app.llmProvider == "ollama" {
+                ollamaSection
             } else {
-                field("Модель", help: app.llmProvider == "ollama" ? "напр. qwen2.5:14b, llama3.1:8b (tools)" : "напр. gpt-4o-mini; для DeepSeek — deepseek-chat") {
-                    textField(app.llmProvider == "ollama" ? "qwen2.5:14b" : "gpt-4o-mini", text: $app.llmModel)
+                field("Модель", help: "напр. gpt-4o-mini; для DeepSeek — deepseek-chat") {
+                    textField("gpt-4o-mini", text: $app.llmModel)
                 }
-                if app.llmProvider == "ollama" {
-                    Text("Нужен установленный Ollama и модель с поддержкой tools (qwen2.5 / llama3.1). Полностью офлайн.")
-                        .font(Theme.ui(11)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
-                } else {
-                    field("API-ключ", help: "хранится в Связке ключей macOS (Keychain)") {
-                        SecureField("sk-…", text: $app.llmApiKey)
-                            .textFieldStyle(.plain).padding(8).background(Theme.surface2)
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line, lineWidth: 1))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    field("Base URL (опц.)", help: "DeepSeek → https://api.deepseek.com; пусто → OpenAI") {
-                        textField("https://api.openai.com/v1", text: $app.llmBaseURL)
-                    }
+                field("API-ключ", help: "хранится в Связке ключей macOS (Keychain)") {
+                    SecureField("sk-…", text: $app.llmApiKey)
+                        .textFieldStyle(.plain).padding(8).background(Theme.surface2)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line, lineWidth: 1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                field("Base URL (опц.)", help: "DeepSeek → https://api.deepseek.com; пусто → OpenAI") {
+                    textField("https://api.openai.com/v1", text: $app.llmBaseURL)
                 }
             }
 
@@ -174,6 +171,51 @@ struct LLMSettingsView: View {
             }
         }
         .padding(24).frame(width: 460).background(Theme.bg).foregroundStyle(Theme.text)
+        .task { if app.llmProvider == "ollama" { await app.refreshOllama() } }
+        .onChange(of: app.llmProvider) { v in if v == "ollama" { Task { await app.refreshOllama() } } }
+    }
+
+    // Ollama: probe the local daemon, list installed models, and warm the choice.
+    @ViewBuilder private var ollamaSection: some View {
+        HStack(spacing: 7) {
+            Circle().fill(app.ollamaChecked ? (app.ollamaReachable ? Color(hex: 0x4FBF86) : Theme.deltaDown) : Theme.faint)
+                .frame(width: 7, height: 7)
+            Text(!app.ollamaChecked ? "проверяю Ollama…"
+                 : app.ollamaReachable ? "Ollama найдена · \(app.ollamaModels.count) модел."
+                 : "Ollama не найдена на \(app.ollamaBase)")
+                .font(Theme.ui(12)).foregroundStyle(Theme.muted)
+            Spacer()
+            Button("обновить") { Task { await app.refreshOllama() } }
+                .buttonStyle(.plain).font(Theme.ui(11)).foregroundStyle(Theme.accent)
+        }
+
+        if app.ollamaReachable && !app.ollamaModels.isEmpty {
+            field("Модель", help: "берите модель с поддержкой инструментов (tools) — напр. qwen2.5 / llama3.1") {
+                Picker("", selection: $app.llmModel) {
+                    ForEach(app.ollamaModels, id: \.self) { Text($0).tag($0) }
+                }.labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            HStack(spacing: 10) {
+                Button { Task { await app.warmOllama() } } label: {
+                    HStack(spacing: 6) {
+                        if app.ollamaWarming { ProgressView().controlSize(.small).tint(Theme.accentInk) }
+                        Text(app.ollamaWarming ? "Загружаю…" : "Запустить модель")
+                    }
+                }
+                .buttonStyle(PrimaryButtonStyle(enabled: !app.ollamaWarming))
+                .disabled(app.ollamaWarming)
+                if let m = app.ollamaWarmMessage {
+                    Text(m).font(Theme.ui(11)).foregroundStyle(Theme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        } else {
+            field("Модель", help: "напр. qwen2.5:14b, llama3.1:8b (с поддержкой tools)") {
+                textField("qwen2.5:14b", text: $app.llmModel)
+            }
+            Text("Ollama не отвечает на \(app.ollamaBase). Установите её (ollama.ai), запустите `ollama serve`, затем нажмите «обновить». Работает полностью офлайн.")
+                .font(Theme.ui(11)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     @ViewBuilder private func textField(_ placeholder: String, text: Binding<String>) -> some View {

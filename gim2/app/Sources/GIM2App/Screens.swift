@@ -100,7 +100,6 @@ struct ExpertView: View {
                 }
             }
             .padding(28)
-            .frame(maxWidth: 1040, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

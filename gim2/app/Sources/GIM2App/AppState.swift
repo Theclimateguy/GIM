@@ -18,6 +18,17 @@ final class AppState: ObservableObject {
     @Published var backtest: BacktestResult?
     @Published var backtestLoading = false
 
+    // The baseline scenario itself — the no-lever inertial ensemble shown in Compare.
+    @Published var baselineEnsemble: EnsembleResult?
+    @Published var baselineEnsembleLoading = false
+
+    // Ollama discovery (queried directly from the app at the base URL).
+    @Published var ollamaChecked = false
+    @Published var ollamaReachable = false
+    @Published var ollamaModels: [String] = []
+    @Published var ollamaWarming = false
+    @Published var ollamaWarmMessage: String?
+
     // Assistant chat + LLM config (key in Keychain; rest in UserDefaults).
     @Published var chat: [ChatMessage] = []
     @Published var chatStreaming = false
@@ -101,6 +112,66 @@ final class AppState: ObservableObject {
         async let sccTask = meta("scc", as: SccResult.self)
         backtest = try? await btTask
         scc = try? await sccTask
+    }
+
+    // The baseline scenario = the no-lever inertial ensemble (absolute trajectory).
+    // It is the reference every scenario Δ is measured against.
+    func loadBaselineEnsemble() async {
+        guard baselineEnsemble == nil, !baselineEnsembleLoading, let client else { return }
+        baselineEnsembleLoading = true
+        defer { baselineEnsembleLoading = false }
+        let req = EnsembleRequest(members: 120, years: 10, maxAgents: 57, seed: 2026, priorSet: "key")
+        baselineEnsemble = try? await client.post("/run/ensemble", req, as: EnsembleResult.self)
+    }
+
+    // MARK: - Ollama (queried directly; the engine relays the actual chat)
+
+    var ollamaBase: String {
+        let b = llmBaseURL.trimmingCharacters(in: .whitespaces)
+        return b.isEmpty ? "http://127.0.0.1:11434" : b
+    }
+
+    func refreshOllama() async {
+        ollamaChecked = false
+        guard let url = URL(string: ollamaBase + "/api/tags") else { return }
+        var req = URLRequest(url: url)
+        req.timeoutInterval = 4
+        do {
+            let (data, _) = try await URLSession.shared.data(for: req)
+            let tags = try JSONDecoder().decode(OllamaTags.self, from: data)
+            ollamaModels = tags.models.map { $0.name }
+            ollamaReachable = true
+            if (llmModel.isEmpty || !ollamaModels.contains(llmModel)), let first = ollamaModels.first {
+                llmModel = first
+            }
+        } catch {
+            ollamaReachable = false
+            ollamaModels = []
+        }
+        ollamaChecked = true
+    }
+
+    // Warm the selected model so it is loaded and ready for the assistant.
+    func warmOllama() async {
+        let model = llmModel.trimmingCharacters(in: .whitespaces)
+        guard !model.isEmpty, let url = URL(string: ollamaBase + "/api/generate") else { return }
+        ollamaWarming = true
+        ollamaWarmMessage = nil
+        defer { ollamaWarming = false }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.timeoutInterval = 120
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try? JSONSerialization.data(withJSONObject: ["model": model, "prompt": "ok", "stream": false])
+        do {
+            let (_, resp) = try await URLSession.shared.data(for: req)
+            let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+            ollamaWarmMessage = (200..<300).contains(code)
+                ? "Модель «\(model)» загружена и готова."
+                : "Не удалось загрузить модель (код \(code))."
+        } catch {
+            ollamaWarmMessage = "Ошибка: \(error.localizedDescription)"
+        }
     }
 
     func saveLLM() {
