@@ -37,6 +37,11 @@ final class AppState: ObservableObject {
     @Published var llmBaseURL = ""
     @Published var llmApiKey = ""
 
+    // LLM connection test ("Проверить" in settings).
+    enum LLMTestState: Equatable { case idle, testing, ok, fail }
+    @Published var llmTestState: LLMTestState = .idle
+    @Published var llmTestMessage = ""
+
     private let proc = EngineProcess()
     private(set) var client: EngineClient?
 
@@ -180,6 +185,37 @@ final class AppState: ObservableObject {
         d.set(llmModel, forKey: "llmModel")
         d.set(llmBaseURL, forKey: "llmBaseURL")
         Keychain.set(llmApiKey.trimmingCharacters(in: .whitespacesAndNewlines), account: "llm_key")
+    }
+
+    // Probe the configured model through the engine: green on success, red + the provider's
+    // actual error message (tooltip) on failure. Tests the values currently in the form.
+    func testLLM() async {
+        guard let client else {
+            llmTestState = .fail; llmTestMessage = "движок ещё не запущен"; return
+        }
+        llmTestState = .testing
+        llmTestMessage = ""
+        let req = LLMTestRequest(provider: llmProvider,
+                                 model: llmModel.trimmingCharacters(in: .whitespaces),
+                                 apiKey: llmApiKey.trimmingCharacters(in: .whitespacesAndNewlines),
+                                 baseURL: llmBaseURL.trimmingCharacters(in: .whitespaces))
+        do {
+            let r = try await client.post("/assistant/test", req, as: LLMTestResult.self)
+            if r.ok {
+                llmTestState = .ok
+                var parts: [String] = []
+                if let m = r.model, !m.isEmpty { parts.append(m) }
+                if let l = r.latencyMs { parts.append("\(l) мс") }
+                if let n = r.note, !n.isEmpty { parts.append(n) }
+                llmTestMessage = parts.isEmpty ? "соединение успешно" : parts.joined(separator: " · ")
+            } else {
+                llmTestState = .fail
+                llmTestMessage = r.error ?? "не удалось подключиться"
+            }
+        } catch {
+            llmTestState = .fail
+            llmTestMessage = "ошибка запроса к движку: \(error.localizedDescription)"
+        }
     }
 
     func sendChat(_ text: String) async {

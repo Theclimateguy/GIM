@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -251,6 +252,76 @@ def _chat(config: AssistantConfig, messages: list[dict[str, Any]]) -> dict[str, 
 
 
 # --------------------------------------------------------------------------- #
+# Connection probe — powers the "Проверить" button in settings
+# --------------------------------------------------------------------------- #
+
+
+def _api_error_message(resp: Any) -> str:
+    """Extract the provider's actual error text from a non-2xx body. This is what
+    `requests.raise_for_status()` throws away — leaving the user with a bare
+    '400 Bad Request' and no idea that e.g. the model name is wrong."""
+    try:
+        data = resp.json()
+        err = data.get("error")
+        if isinstance(err, dict):
+            msg = err.get("message") or err.get("type") or err.get("code")
+            if msg:
+                return f"{resp.status_code}: {msg}"
+        if isinstance(err, str) and err:
+            return f"{resp.status_code}: {err}"
+        if isinstance(data, dict) and isinstance(data.get("message"), str):
+            return f"{resp.status_code}: {data['message']}"
+    except Exception:
+        pass
+    body = (getattr(resp, "text", "") or "").strip()
+    return f"{resp.status_code}: {body[:300]}" if body else f"HTTP {resp.status_code}"
+
+
+def probe_llm(config: AssistantConfig) -> dict[str, Any]:
+    """Minimal connectivity / auth / model probe for the configured provider. Mirrors a real
+    `_chat` request — including the tool payload the assistant *requires* (so a model that
+    can't do function-calling is reported as failing, which is the truth for this app) — but
+    with a one-token message. Returns the provider's actual error message on failure."""
+    if config.provider == "deterministic":
+        return {"ok": True, "provider": "deterministic", "note": "правила, без LLM — соединение не нужно"}
+    if not REQUESTS_AVAILABLE:
+        return {"ok": False, "error": "модуль requests недоступен в движке"}
+
+    probe = [{"role": "user", "content": "ping"}]
+    timeout = float(os.getenv("LLM_PROBE_TIMEOUT_SEC", "20"))
+    t0 = time.time()
+    try:
+        if config.provider == "ollama":
+            base = (config.base_url or os.getenv("OLLAMA_BASE_URL") or OLLAMA_DEFAULT_URL).rstrip("/")
+            model = config.model or os.getenv("OLLAMA_MODEL") or OLLAMA_DEFAULT_MODEL
+            payload = {"model": model, "messages": probe, "stream": False,
+                       "options": {"temperature": 0.0, "num_predict": 1}}
+            resp = requests.post(f"{base}/api/chat", json=payload, timeout=timeout)
+        else:
+            base = (config.base_url or "https://api.openai.com/v1").rstrip("/")
+            key = (config.api_key or os.getenv("OPENAI_API_KEY") or os.getenv("DEEPSEEK_API_KEY") or "").strip()
+            model = config.model or (DEEPSEEK_MODEL if "deepseek" in base else "gpt-4o-mini")
+            if not key:
+                return {"ok": False, "model": model, "error": "не указан API-ключ"}
+            payload = {"model": model, "messages": probe, "tools": TOOLS,
+                       "max_tokens": 1, "temperature": 0.0}
+            headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+            resp = requests.post(f"{base}/chat/completions", headers=headers, json=payload, timeout=timeout)
+
+        latency = int((time.time() - t0) * 1000)
+        if resp.status_code // 100 == 2:
+            return {"ok": True, "model": model, "status": resp.status_code, "latency_ms": latency}
+        return {"ok": False, "model": model, "status": resp.status_code, "latency_ms": latency,
+                "error": _api_error_message(resp)}
+    except requests.exceptions.Timeout:
+        return {"ok": False, "error": f"таймаут {timeout:.0f} c — хост не отвечает"}
+    except requests.exceptions.ConnectionError:
+        return {"ok": False, "error": "не удалось подключиться к хосту (проверьте Base URL и сеть)"}
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": str(exc) or exc.__class__.__name__}
+
+
+# --------------------------------------------------------------------------- #
 # Deterministic provider — rule-based router (no LLM required)
 # --------------------------------------------------------------------------- #
 
@@ -313,4 +384,4 @@ def _deterministic_turn(messages: list[dict[str, Any]], tool_executor: ToolExecu
     emit("done", {})
 
 
-__all__ = ["AssistantConfig", "run_assistant_turn", "TOOLS", "SYSTEM_PROMPT"]
+__all__ = ["AssistantConfig", "run_assistant_turn", "probe_llm", "TOOLS", "SYSTEM_PROMPT"]

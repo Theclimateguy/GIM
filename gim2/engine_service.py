@@ -36,7 +36,7 @@ from . import archetypes as _archetypes
 from . import levers as L
 from . import scenario as S
 from .answer import compute_answer
-from .assistant import AssistantConfig, run_assistant_turn
+from .assistant import AssistantConfig, probe_llm, run_assistant_turn
 from .dose_response import compute_dose
 from .runtime import load_world_for  # local light loader (no v1 world cache)
 
@@ -317,6 +317,10 @@ class EngineHandler(BaseHTTPRequestHandler):
             self._handle_assistant(self._read_body())
             return
 
+        if path == "/assistant/test":
+            self._handle_assistant_test(self._read_body())
+            return
+
         if path.startswith("/run/") and path.endswith("/cancel"):
             run_id = path[len("/run/"):-len("/cancel")]
             run = _get_run(run_id)
@@ -356,6 +360,21 @@ class EngineHandler(BaseHTTPRequestHandler):
                                lambda ev, data: self._sse_emit(ev, data))
         except Exception as exc:  # noqa: BLE001
             self._sse_emit("error", {"message": str(exc)})
+
+    def _handle_assistant_test(self, body: Dict[str, Any]) -> None:
+        """Probe whether the configured LLM is reachable/usable; returns ok + the provider's
+        actual error message (not a bare HTTP status). Powers the settings "Проверить" button."""
+        config = AssistantConfig(
+            provider=str(body.get("provider", "deterministic")),
+            model=str(body.get("model", "")),
+            api_key=str(body.get("api_key", "")),
+            base_url=str(body.get("base_url", "")),
+        )
+        try:
+            result = probe_llm(config)
+        except Exception as exc:  # noqa: BLE001
+            result = {"ok": False, "error": str(exc) or exc.__class__.__name__}
+        self._send_json({"schema": SCHEMA, "mode": "assistant.test", **result})
 
     def _trace(self, run: EngineRun) -> Dict[str, Any]:
         return {"run_id": run.run_id, "elapsed_ms": int((time.time() - run.started_at) * 1000)}

@@ -159,6 +159,7 @@ struct LLMSettingsView: View {
                 field("Base URL (опц.)", help: "DeepSeek → https://api.deepseek.com; пусто → OpenAI") {
                     textField("https://api.openai.com/v1", text: $app.llmBaseURL)
                 }
+                llmTestRow
             }
 
             HStack {
@@ -172,7 +173,54 @@ struct LLMSettingsView: View {
         }
         .padding(24).frame(width: 460).background(Theme.bg).foregroundStyle(Theme.text)
         .task { if app.llmProvider == "ollama" { await app.refreshOllama() } }
-        .onChange(of: app.llmProvider) { v in if v == "ollama" { Task { await app.refreshOllama() } } }
+        .onChange(of: app.llmProvider) { v in app.llmTestState = .idle; if v == "ollama" { Task { await app.refreshOllama() } } }
+        .onChange(of: app.llmModel) { _ in app.llmTestState = .idle }
+        .onChange(of: app.llmApiKey) { _ in app.llmTestState = .idle }
+        .onChange(of: app.llmBaseURL) { _ in app.llmTestState = .idle }
+    }
+
+    // "Проверить" — calls the engine probe and shows a green/red dot; the full provider
+    // error is in the tooltip (and inline). Resets to grey when any field changes above.
+    @ViewBuilder private var llmTestRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 9) {
+                Button { Task { await app.testLLM() } } label: {
+                    HStack(spacing: 6) {
+                        if app.llmTestState == .testing {
+                            ProgressView().controlSize(.small).tint(Theme.accentInk)
+                        }
+                        Text(app.llmTestState == .testing ? "Проверяю…" : "Проверить")
+                    }
+                }
+                .buttonStyle(PrimaryButtonStyle(enabled: app.llmTestState != .testing))
+                .disabled(app.llmTestState == .testing)
+
+                Circle().fill(testColor).frame(width: 8, height: 8)
+                    .help(app.llmTestMessage)
+                Text(testStatusText)
+                    .font(Theme.ui(11)).foregroundStyle(app.llmTestState == .fail ? Theme.deltaDown : Theme.muted)
+                    .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                    .help(app.llmTestMessage)
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private var testColor: Color {
+        switch app.llmTestState {
+        case .ok: return Color(hex: 0x4FBF86)
+        case .fail: return Theme.deltaDown
+        default: return Theme.faint
+        }
+    }
+
+    private var testStatusText: String {
+        switch app.llmTestState {
+        case .idle: return "не проверено"
+        case .testing: return "проверяю соединение…"
+        case .ok: return app.llmTestMessage.isEmpty ? "соединение успешно" : app.llmTestMessage
+        case .fail: return app.llmTestMessage.isEmpty ? "ошибка соединения" : app.llmTestMessage
+        }
     }
 
     // Ollama: probe the local daemon, list installed models, and warm the choice.
