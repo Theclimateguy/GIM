@@ -18,7 +18,7 @@ from gim.scc import scc_distribution, scc_multi_horizon, social_cost_of_carbon
 
 
 def main() -> int:
-    csv = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+    csv = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
     years = int(os.getenv("SCC_YEARS", "30"))
     pulse = float(os.getenv("SCC_PULSE", "10.0"))
     samples = int(os.getenv("SCC_SAMPLES", "50"))

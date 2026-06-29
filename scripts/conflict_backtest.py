@@ -34,7 +34,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if REPO not in sys.path:
     sys.path.insert(0, REPO)
 
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
 UCDP_GLOB = os.path.join(REPO, "data", "external", "raw", "ucdp-prio-acd-*.csv")
 
 # Published reference: ~ fraction of country-years with an active state-based armed conflict,

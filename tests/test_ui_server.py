@@ -30,13 +30,13 @@ class UIServerTests(unittest.TestCase):
 
     def test_state_csv_listing(self):
         csvs = _list_state_csvs()
-        self.assertTrue(any(p.endswith("agent_states_operational_2026_calibrated.csv") for p in csvs))
+        self.assertTrue(any(p.endswith("agent_states_operational.csv") for p in csvs))
 
     def test_actor_options_from_default_state_csv(self):
         payload = _list_actor_options()
         names = {entry["name"] for entry in payload["actors"]}
         self.assertIn("United States", names)
-        self.assertTrue(payload["state_csv"].endswith("agent_states_operational_2026_calibrated.csv"))
+        self.assertTrue(payload["state_csv"].endswith("agent_states_operational.csv"))
 
     def test_scenario_color_mapping(self):
         self.assertEqual(_scenario_color("direct_strike_exchange"), "#d85c5c")
@@ -54,7 +54,7 @@ class UIServerTests(unittest.TestCase):
             "background_policy": "compiled-llm",
             "llm_refresh": "trigger",
             "llm_refresh_years": 2,
-            "state_csv": "data/agent_states_operational_2026_calibrated.csv",
+            "state_csv": "data/agent_states_operational.csv",
             "dashboard": True,
             "brief": True,
             "narrative": False,

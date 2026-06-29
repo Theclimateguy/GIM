@@ -51,7 +51,7 @@ def build_config(
         state_csv=state_csv or default_state_csv(),
         n_members=int(members),
         years=int(years),
-        base_year=2026,
+        base_year=2023,
         max_agents=int(max_agents),
         master_seed=int(seed),
         prior_set=prior_set,
@@ -264,7 +264,7 @@ def compute_sensitivity(
     if not names:
         raise ValueError("no sensitivity parameters resolved against the priors")
     fn = make_output_fn(metric, state_csv or default_state_csv(), years=int(years),
-                        max_agents=int(max_agents), base_year=2026, seed=int(seed))
+                        max_agents=int(max_agents), base_year=2023, seed=int(seed))
     result = morris(names, bounds_for(priors, names), fn, r=int(r), levels=int(levels), seed=int(seed))
     out = {
         "schema": SCHEMA,
@@ -311,7 +311,7 @@ def compute_scc(
     csv = state_csv or default_state_csv()
     multi = scc_mod.scc_multi_horizon(csv, horizons=tuple(int(h) for h in horizons),
                                       pulse_gtco2=float(pulse_gtco2), seed=int(seed),
-                                      max_agents=int(max_agents), base_year=2026)
+                                      max_agents=int(max_agents), base_year=2023)
     out: Dict[str, Any] = {
         "schema": SCHEMA,
         "mode": "scc",
@@ -322,7 +322,7 @@ def compute_scc(
     if distribution:
         dist = scc_mod.scc_distribution(csv, n_samples=int(samples), years=int(min(horizons)),
                                         pulse_gtco2=float(pulse_gtco2), max_agents=int(max_agents),
-                                        base_year=2026, master_seed=int(seed))
+                                        base_year=2023, master_seed=int(seed))
         out["distribution"] = _jsonify(dist)
     return out
 

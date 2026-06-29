@@ -48,7 +48,7 @@ _DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 FIXTURE = os.path.join(_DATA_DIR, "tests", "fixtures", "climate_observations_1990_2023.json")
 EMISSIONS_CSV = os.path.join(_DATA_DIR, "data", "global_co2_emissions_owid.csv")
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 # Year from which the carbon cycle / EBM are spun up from the pre-industrial state.
 SPINUP_START_YEAR = 1750

@@ -6,7 +6,7 @@ from gim.core.params import default_params
 from gim.core.private_finance import update_private_finance
 from gim.core.world_factory import make_world_from_csv
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 
 
 class PrivateFinanceTests(unittest.TestCase):
@@ -15,7 +15,7 @@ class PrivateFinanceTests(unittest.TestCase):
         self.assertTrue(cal.SFC_FINANCE)
 
     def test_explicit_off_sets_no_state(self):
-        world = make_world_from_csv(STATE, max_agents=4, base_year=2026)
+        world = make_world_from_csv(STATE, max_agents=4, base_year=2023)
         world.params = default_params().with_overrides({"SFC_FINANCE": False})
         a = next(iter(world.agents.values()))
         update_private_finance(a, world)  # explicitly off -> no-op
@@ -23,7 +23,7 @@ class PrivateFinanceTests(unittest.TestCase):
         self.assertFalse(hasattr(a.economy, "_credit_premium"))
 
     def test_on_builds_credit_and_premium(self):
-        world = make_world_from_csv(STATE, max_agents=4, base_year=2026)
+        world = make_world_from_csv(STATE, max_agents=4, base_year=2023)
         world.params = default_params().with_overrides({
             "SFC_FINANCE": True, "SFC_INIT_LEVERAGE": 2.0,  # start over-levered -> premium > 0
         })
@@ -37,7 +37,7 @@ class PrivateFinanceTests(unittest.TestCase):
         from gim.core.policy import make_policy_map
         from gim.core.simulation import step_world
         from gim.core.private_finance import sfc_balance_residual
-        world = make_world_from_csv(STATE, max_agents=8, base_year=2026)  # SFC_FINANCE base (on)
+        world = make_world_from_csv(STATE, max_agents=8, base_year=2023)  # SFC_FINANCE base (on)
         pol = make_policy_map(world.agents.keys(), mode="simple")
         for _ in range(6):
             step_world(world, pol)
@@ -47,7 +47,7 @@ class PrivateFinanceTests(unittest.TestCase):
 
     def test_stock_flow_update_is_consistent(self):
         # private_debt_{t+1} = private_debt_t + new_credit - repayment, both >= 0
-        world = make_world_from_csv(STATE, max_agents=4, base_year=2026)
+        world = make_world_from_csv(STATE, max_agents=4, base_year=2023)
         world.params = default_params().with_overrides({"SFC_FINANCE": True, "SFC_INIT_LEVERAGE": 1.0})
         a = next(iter(world.agents.values()))
         gdp = a.economy.gdp

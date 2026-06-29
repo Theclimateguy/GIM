@@ -31,7 +31,7 @@ def main() -> int:
     names = [n.strip() for n in names_env.split(",")] if names_env else list(priors.keys())
     names = [n for n in names if n in priors]
 
-    state_csv = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+    state_csv = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
     years = int(os.getenv("SENS_YEARS", "10"))
     max_agents = int(os.getenv("SENS_MAX_AGENTS", "100"))
     seed = int(os.getenv("SENS_SEED", "2026"))

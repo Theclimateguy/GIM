@@ -14,11 +14,11 @@ from gim.core.rng import get_rng, get_seed, seed_world
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _build(max_agents: int = 12):
-    return make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2026)
+    return make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2023)
 
 
 def _run(world, years: int = 6):

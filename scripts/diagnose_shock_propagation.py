@@ -30,7 +30,7 @@ from gim.core.params import default_params                            # noqa: E4
 from gim.core.economy import compute_effective_interest_rate          # noqa: E402
 from gim.core.political_dynamics import _apply_trade_gravity_once      # noqa: E402
 
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
 ORIGINS = ["Germany", "China", "United States", "Brazil", "India"]   # hubs, averaged for robustness
 
 
@@ -48,7 +48,7 @@ def _rates(world):
 
 
 def _gradient(geo, gravity: bool, origin_name: str):
-    world = make_world_from_csv(STATE, base_year=2026)
+    world = make_world_from_csv(STATE, base_year=2023)
     name = {aid: a.name for aid, a in world.agents.items()}
     by_name = {a.name: aid for aid, a in world.agents.items()}
     if origin_name not in by_name:

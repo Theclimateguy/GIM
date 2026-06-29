@@ -44,7 +44,7 @@ import urllib.request
 from typing import Dict, List, Optional
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE_CSV = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE_CSV = os.path.join(REPO, "data", "agent_states_operational.csv")
 OUT_DIR = os.path.join(REPO, "data", "external")
 RAW_DIR = os.path.join(OUT_DIR, "raw")
 

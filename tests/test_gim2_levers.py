@@ -15,7 +15,7 @@ def _config(years: int = 8, max_agents: int = 16) -> EnsembleConfig:
         state_csv=default_state_csv(),
         n_members=1,
         years=years,
-        base_year=2026,
+        base_year=2023,
         max_agents=max_agents,
         master_seed=2026,
         prior_set="key",

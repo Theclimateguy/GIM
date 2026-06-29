@@ -26,14 +26,14 @@ python3 -m gim --version
 ```bash
 # World simulation from a specific snapshot year
 python3 -m gim world \
-  --state-csv data/agent_states_operational_2026_calibrated.csv \
+  --state-csv data/agent_states_operational.csv \
   --state-year 2026
 
 # Question scenario (sim path)
 python3 -m gim question \
   --question "How will the Iran-US conflict evolve in 2026?" \
   --actors Iran "United States" Israel \
-  --state-csv data/agent_states_operational_2026_calibrated.csv \
+  --state-csv data/agent_states_operational.csv \
   --state-year 2026 \
   --horizon 3 \
   --sim \
@@ -43,7 +43,7 @@ python3 -m gim question \
 # Game from a case file (sim path + equilibrium)
 python3 -m gim game \
   --case scenarios/maritime_pressure_game.json \
-  --state-csv data/agent_states_operational_2026_calibrated.csv \
+  --state-csv data/agent_states_operational.csv \
   --state-year 2026 \
   --horizon 3 \
   --sim \
@@ -55,7 +55,7 @@ python3 -m gim game \
 python3 -m gim hybrid \
   --tables "United States" \
   --intent "United States=Increase AI spending moderately." \
-  --state-csv data/agent_states_operational_2026_calibrated.csv \
+  --state-csv data/agent_states_operational.csv \
   --state-year 2026 \
   --round-years 4 \
   --background-policy simple \
@@ -65,7 +65,7 @@ python3 -m gim hybrid \
 # Crisis metrics snapshot
 python3 -m gim metrics \
   --agents "United States" Iran Israel \
-  --state-csv data/agent_states_operational_2026_calibrated.csv \
+  --state-csv data/agent_states_operational.csv \
   --state-year 2026
 
 # Calibration suite
@@ -216,7 +216,7 @@ Behavior:
 
 - `Simulation Modes` builds real `python3 -m gim <command>` invocations from UI controls.
 - `Game` builds real `python3 -m gim hybrid ...` runs for facilitator-led human-in-the-loop rounds.
-- actor selection is sourced from `data/agent_states_operational_2026_calibrated.csv`.
+- actor selection is sourced from `data/agent_states_operational.csv`.
 - leaving `Template` blank enables backend auto-detection.
 - public templates currently exposed in UI: `general_tail_risk`, `sanctions_spiral`, `alliance_fragmentation`, `regional_pressure`, `maritime_deterrence`, `resource_competition`, `tech_blockade`, `trade_war`, `cyber_disruption`, `regime_stress`
 - `Run chosen modes` starts a real local run and tracks progress against the phase pipeline.

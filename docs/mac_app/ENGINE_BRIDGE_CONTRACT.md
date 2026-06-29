@@ -66,7 +66,7 @@ it adds no model math. All function references below already exist in the repo.
 
 `POST /world/load` request:
 ```json
-{"state_csv": "data/agent_states_operational_2026_calibrated.csv", "state_year": 2026, "max_countries": null}
+{"state_csv": "data/agent_states_operational.csv", "state_year": 2023, "max_countries": null}
 ```
 Response: `{"world_key":"w_8f3…","state_year":2026,"actors":[…],"personas":[…],"schema":"gim-engine/1"}`
 

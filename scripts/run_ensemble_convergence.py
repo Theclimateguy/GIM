@@ -42,7 +42,7 @@ def main() -> int:
     years = int(os.getenv("ENS_YEARS", "10"))
     max_agents = int(os.getenv("ENS_MAX_AGENTS", "25"))
     seed = int(os.getenv("ENS_SEED", "2026"))
-    state_csv = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+    state_csv = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
     n_jobs = int(os.getenv("ENS_JOBS", "0")) or (os.cpu_count() or 1)
 
     cfg = EnsembleConfig(state_csv=state_csv, n_members=n_max, years=years,

@@ -20,7 +20,7 @@ from gim.results import build_run_artifacts, write_json_artifact, write_run_mani
 
 def main() -> int:
     cfg = EnsembleConfig(
-        state_csv=os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv"),
+        state_csv=os.getenv("STATE_CSV", "data/agent_states_operational.csv"),
         n_members=int(os.getenv("ENS_MEMBERS", "500")),
         years=int(os.getenv("ENS_YEARS", "10")),
         max_agents=int(os.getenv("ENS_MAX_AGENTS", "100")),

@@ -17,11 +17,11 @@ from gim.core.policy import make_policy_map
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _run(years: int = 4, max_agents: int = 15, mode: str | None = None):
-    world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2026)
+    world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2023)
     policies = make_policy_map(world.agents.keys(), mode="simple")
     log: list[dict] = []
     for _ in range(years):
@@ -140,7 +140,7 @@ class DebtIdentityTests(unittest.TestCase):
         from gim.core.critical_pending import get_debt_flows, record_debt_flow, reset_debt_flows
         from gim.core.world_factory import make_world_from_csv
 
-        w = make_world_from_csv(STATE_CSV, max_agents=4, base_year=2026)
+        w = make_world_from_csv(STATE_CSV, max_agents=4, base_year=2023)
         reset_debt_flows(w)
         aid = next(iter(w.agents))
         record_debt_flow(w, aid, "restructuring", -0.5)

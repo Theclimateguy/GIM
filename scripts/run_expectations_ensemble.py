@@ -28,7 +28,7 @@ from gim.core.rng import seed_world               # noqa: E402
 from gim.core.simulation import step_world        # noqa: E402
 from gim.core.world_factory import make_world_from_csv  # noqa: E402
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 YEARS = 74  # 2026 -> 2100
 EXP_ON = {"EXPECTATIONS_HORIZON": 3, "EXPECTATIONS_FORESIGHT": 0.5, "EXPECTATIONS_INFLATION_WEIGHT": 0.65}
 
@@ -43,7 +43,7 @@ def _world_gdp(w):
 
 
 def run_gdp2100(exp_on: bool, events: bool, seed: int) -> float:
-    w = make_world_from_csv(STATE, base_year=2026)
+    w = make_world_from_csv(STATE, base_year=2023)
     w.params = default_params().with_overrides(EXP_ON if exp_on else {})
     seed_world(w, seed)
     pol = make_policy_map(w.agents.keys(), mode="simple")

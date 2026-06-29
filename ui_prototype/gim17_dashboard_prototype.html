@@ -929,7 +929,7 @@
                 <div class="form-row">
                   <div class="row-label">Actors</div>
                   <div class="multi-select">
-                    <button id="actorToggle" type="button" class="ctrl multi-select-btn"><span id="actorToggleLabel">Choose actors from operational_2026</span></button>
+                    <button id="actorToggle" type="button" class="ctrl multi-select-btn"><span id="actorToggleLabel">Choose actors from operational</span></button>
                     <div id="actorMenu" class="multi-select-menu">
                       <input id="actorSearch" class="ctrl" placeholder="Filter actors" />
                       <div id="actorList" class="actor-list"></div>
@@ -1406,7 +1406,7 @@
     function setActorToggleLabel() {
       if (!q('actorToggleLabel')) return;
       if (!selectedActors.length) {
-        q('actorToggleLabel').textContent = 'Choose actors from operational_2026';
+        q('actorToggleLabel').textContent = 'Choose actors from operational';
         return;
       }
       q('actorToggleLabel').textContent =

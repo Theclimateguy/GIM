@@ -5,7 +5,7 @@ import unittest
 from gim.core.params import default_params
 from gim.scc import scc_distribution, scc_multi_horizon, social_cost_of_carbon
 
-CSV = "data/agent_states_operational_2026_calibrated.csv"
+CSV = "data/agent_states_operational.csv"
 
 
 class SCCTests(unittest.TestCase):

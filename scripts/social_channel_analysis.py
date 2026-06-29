@@ -51,7 +51,7 @@ from gim.core.world_factory import make_world_from_csv
 # Module handle so we can wrap update_inflation_unemployment as step_world looks it up.
 sim = sys.modules["gim.core.simulation"]
 
-CSV = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+CSV = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
 SOCIAL_PRIORS = [
     "SOCIAL_STRESS_UNEMPLOYMENT_SENS",
     "SOCIAL_STRESS_INFLATION_SENS",
@@ -89,7 +89,7 @@ def _means(world):
 
 def run_member(seed, params, years, max_agents, shock_years=None, du=0.0, dpi=0.0):
     """Return trajectory array [years+1, 5] of (tension, unemp, infl, gini, gdp) means."""
-    world = make_world_from_csv(CSV, max_agents=max_agents, base_year=2026)
+    world = make_world_from_csv(CSV, max_agents=max_agents, base_year=2023)
     world.params = params
     seed_world(world, seed)
     pol = make_policy_map(world.agents.keys(), mode="simple")

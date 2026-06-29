@@ -24,7 +24,7 @@ UI_HTML = ROOT / "ui_prototype" / "gim17_dashboard_prototype.html"
 APP_HTML = ROOT / "ui_prototype" / "gim17_app.html"
 RESULTS_DIR = ROOT / "results"
 DATA_DIR = ROOT / "data"
-DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational_2026_calibrated.csv"
+DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational.csv"
 
 DOC_PATHS = [
     "README.md",

@@ -29,7 +29,7 @@ from gim.core.world_factory import make_world_from_csv    # noqa: E402
 from gim.core.simulation import step_world                # noqa: E402
 from gim.core.policy import simple_rule_based_policy      # noqa: E402
 
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
 DELTA = 0.9          # gravity distance elasticity (Head & Mayer 2014 ~ -0.9)
 RUN_YEARS = 20
 
@@ -91,12 +91,12 @@ def main() -> int:
     geo = build_geography()
     print("Trade-gravity diagnostic — does gravity-vs-flat trade move the ensemble aggregate?\n")
 
-    w_flat = make_world_from_csv(STATE, base_year=2026)
+    w_flat = make_world_from_csv(STATE, base_year=2023)
     name = {aid: a.name for aid, a in w_flat.agents.items()}
     corr_flat, sd_flat = _structure(w_flat, {}, name, geo)
     flat = _run(w_flat)
 
-    w_grav = make_world_from_csv(STATE, base_year=2026)
+    w_grav = make_world_from_csv(STATE, base_year=2023)
     raw, name = _set_gravity_trade(w_grav, geo)
     corr_grav, sd_grav = _structure(w_grav, raw, name, geo)
     grav = _run(w_grav)

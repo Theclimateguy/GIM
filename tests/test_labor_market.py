@@ -10,11 +10,11 @@ from gim.core.labor_market import (
 )
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _world(n=4):
-    return make_world_from_csv(STATE_CSV, max_agents=n, base_year=2026)
+    return make_world_from_csv(STATE_CSV, max_agents=n, base_year=2023)
 
 
 def _set_growth(agent, growth):

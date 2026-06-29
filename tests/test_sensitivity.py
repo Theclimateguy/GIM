@@ -57,7 +57,7 @@ class ModelSensitivityTests(unittest.TestCase):
         names = ["ECS_DEFAULT", "HEAT_CAP_SURFACE", "EMISSIONS_SCALE", "GAMMA_ENERGY"]
         fn = make_output_fn(
             "temperature",
-            "data/agent_states_operational_2026_calibrated.csv",
+            "data/agent_states_operational.csv",
             years=5,
             max_agents=8,
             seed=2026,

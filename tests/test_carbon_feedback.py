@@ -10,11 +10,11 @@ from gim.core.climate import update_global_climate
 from gim.core.params import default_params
 from gim.core.world_factory import make_world_from_csv
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 
 
 def _run(overrides, years=30, emit=35.0):
-    world = make_world_from_csv(STATE, max_agents=8, base_year=2026)
+    world = make_world_from_csv(STATE, max_agents=8, base_year=2023)
     world.params = default_params().with_overrides(overrides) if overrides else default_params()
     world.global_state._temperature_variability_sigma = 0.0  # deterministic
     # fixed annual emissions so the only difference is the channel under test

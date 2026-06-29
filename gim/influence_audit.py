@@ -20,7 +20,7 @@ from gim.core.policy import make_policy_map
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _aggregate_outputs(world) -> Dict[str, float]:
@@ -37,7 +37,7 @@ def _aggregate_outputs(world) -> Dict[str, float]:
 
 def _run(setter: Callable[[object], None] | None, years: int, max_agents: int, seed: int,
          culture_links: bool = False) -> Dict[str, float]:
-    world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2026)
+    world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2023)
     # Force the culture channel explicitly (the headline default is now ON, so an off-audit must
     # override it to False rather than rely on the default).
     from gim.core.params import default_params

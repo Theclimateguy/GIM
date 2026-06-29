@@ -10,7 +10,7 @@ from gim.core.policy import make_policy_map
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 
 
 def _annualized(start, end, years):
@@ -20,7 +20,7 @@ def _annualized(start, end, years):
 class ForwardStabilityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        world = make_world_from_csv(STATE, max_agents=40, base_year=2026)
+        world = make_world_from_csv(STATE, max_agents=40, base_year=2023)
         pol = make_policy_map(world.agents.keys(), mode="simple")
         cls.g0 = sum(a.economy.gdp for a in world.agents.values())
         cls.e0 = sum(a.resources["energy"].consumption for a in world.agents.values() if a.resources.get("energy"))

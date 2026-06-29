@@ -24,13 +24,13 @@ if _HAVE:
     from gim.core.world_factory import make_world_from_csv
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE = os.path.join(_REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(_REPO, "data", "agent_states_operational.csv")
 
 
 @unittest.skipUnless(_HAVE, "shapely + world_countries.geojson required")
 class GeoTensionTests(unittest.TestCase):
     def _delta_with_hot_neighbours(self, links: bool) -> float:
-        w = make_world_from_csv(STATE, base_year=2026)
+        w = make_world_from_csv(STATE, base_year=2023)
         w.params = default_params().with_overrides({"GEOGRAPHY_TENSION_LINKS": links})
         adj = adjacency(w)
         target = next(aid for aid, n in adj.items() if n)   # first agent with a neighbour (deterministic)

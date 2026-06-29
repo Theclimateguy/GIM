@@ -5,7 +5,7 @@ import unittest
 
 from gim.ensemble import DEFAULT_PERCENTILES, METRICS, EnsembleConfig, run_ensemble
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _cfg(**kw):
