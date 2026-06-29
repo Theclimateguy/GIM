@@ -13,10 +13,29 @@ struct CompareView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                PageHeader(
-                    kicker: "Сравнение сценариев",
-                    title: "Сравнение сценариев",
-                    subtitle: "Сверху — базовый сценарий: инерционный мир без новых шоков. Все прогоны ниже измеряются как Δ к нему.")
+                HStack(alignment: .top, spacing: 12) {
+                    PageHeader(
+                        kicker: "Сравнение сценариев",
+                        title: "Сравнение сценариев",
+                        subtitle: "Сверху — базовый сценарий: инерционный мир без новых шоков. Все прогоны ниже измеряются как Δ к нему.")
+                    Button {
+                        exportReportPDF(ReportDoc(
+                            date: Date(),
+                            baseline: app.baselineEnsemble,
+                            backtest: app.backtest,
+                            auc: app.auc,
+                            scc: app.scc,
+                            records: selectedRecords.isEmpty ? Array(app.history.prefix(3)) : selectedRecords))
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.down.doc").font(.system(size: 12))
+                            Text("Экспорт в PDF").font(Theme.ui(12.5, .medium))
+                        }
+                    }
+                    .buttonStyle(GhostButtonStyle())
+                    .help("Сохранить отчёт: базовый сценарий, валидация, сравнение прогонов")
+                    .fixedSize()
+                }
 
                 baselineScenarioPanel
                 baselineCharts
