@@ -30,7 +30,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from gim.core.params import ParameterSet, default_params
 from gim.core.policy import make_policy_map
 from gim.core.priors import all_priors, key_priors, sample_parameter_set
-from gim.core.resources import normalize_energy_reserves_to_physical
+from gim.core.resources import normalize_resource_scales_forward
 from gim.core.rng import seed_world
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
@@ -512,7 +512,7 @@ def run_member(
     world = make_world_from_csv(config.state_csv, max_agents=config.max_agents, base_year=config.base_year)
     world.params = sampled
     seed_world(world, seed)
-    normalize_energy_reserves_to_physical(world)
+    normalize_resource_scales_forward(world)
     policies = make_policy_map(world.agents.keys(), mode="simple")
     actor_ids = resolve_actors(world, selection.actors) if not selection.is_empty else []
 
