@@ -107,15 +107,21 @@ struct SituationRoom: View {
     private var cascade: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Цепочка последствий по доменам").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 6)], alignment: .leading, spacing: 6) {
+            // Uniform chips: each fills its grid cell (equal width), a min height keeps 1- and
+            // 2-line labels the same box size, and the value is pinned right via a Spacer so the
+            // labels can't shove it around or wrap mid-word.
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 215), spacing: 8)], alignment: .leading, spacing: 8) {
                 ForEach(result.cascade.nodes) { n in
-                    HStack(spacing: 5) {
+                    HStack(spacing: 6) {
                         Text(n.direction == "up" ? "▲" : n.direction == "down" ? "▼" : "■")
                             .font(Theme.ui(9)).foregroundStyle(n.direction == "flat" ? Theme.faint : Theme.accent)
                         Text(n.label).font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                        Text(n.shown).font(Theme.mono(11)).foregroundStyle(Theme.text)
+                            .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 6)
+                        Text(n.shown).font(Theme.mono(11)).foregroundStyle(Theme.text).lineLimit(1)
                     }
-                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
+                    .padding(.horizontal, 10).padding(.vertical, 8)
                     .background(Theme.surface2).clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
