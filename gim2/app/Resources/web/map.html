@@ -53,12 +53,37 @@ function styleFeature(f){
   return {fillColor:colorFor(val,(META[DOMAIN]||{}).good||1,MAXABS[DOMAIN]||1),
           weight:.6, color:"#2E2C28", fillOpacity:c?0.92:0.18};
 }
+function bar(val,good,mx){
+  const t=mx>0?Math.min(1,Math.abs(val||0)/mx):0;
+  const col=(good*(val||0))>=0?'rgb(79,191,134)':'rgb(224,122,95)';
+  return `<span style="display:inline-block;vertical-align:middle;width:64px;height:5px;border-radius:3px;background:#0E0F12;margin-left:6px">`
+        +`<span style="display:block;height:5px;border-radius:3px;background:${col};width:${(t*64).toFixed(0)}px"></span></span>`;
+}
+function mrow(label,val,good,key,fmt){
+  if(val===undefined||val===null) return '';
+  return `<tr><td style="color:#9A948A;padding:1px 8px 1px 0">${label}</td>`
+       +`<td style="color:#ECE6DD;text-align:right;font-variant-numeric:tabular-nums">${fmt(val)}</td>`
+       +`<td>${bar(val,good,MAXABS[key]||1)}</td></tr>`;
+}
 function popup(f){
   const c=BY[f.properties.name];
   if(!c) return `<b>${f.properties.name}</b><br><span style="color:#9A948A">нет в модели</span>`;
-  return `<b>${c.name}</b><br>ВВП ${c.gdp_pct.toFixed(2)}% · напряж. ${(c.tension*100).toFixed(2)} пп`
-        +`<br>долг ${c.debt_pct.toFixed(2)}% · кризис ${(c.crisis_years||0).toFixed(1)} лет`
-        +`<br>итог ${c.score.toFixed(2)}`;
+  const sgn=c.score>=0?'#4FBF86':'#E07A5F';
+  let h=`<div style="min-width:214px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">`
+       +`<b style="font-size:13px">${c.name}</b>`
+       +`<span style="color:${sgn};font-weight:600">итог ${c.score.toFixed(2)}</span></div>`
+       +`<table style="border-collapse:collapse;width:100%;font-size:11px">`;
+  h+=mrow('ВВП',c.gdp_pct,1,'gdp_pct',v=>v.toFixed(2)+'%');
+  h+=mrow('Напряжённость',c.tension,-1,'tension',v=>(v*100).toFixed(2)+' пп');
+  h+=mrow('Долг',c.debt_pct,-1,'debt_pct',v=>v.toFixed(2)+'%');
+  h+=mrow('Инфляция',c.inflation_pp,-1,'inflation_pp',v=>v.toFixed(2)+' пп');
+  h+=mrow('Безработица',c.unemployment_pp,-1,'unemployment_pp',v=>v.toFixed(2)+' пп');
+  h+=mrow('Кризис, лет',c.crisis_years||0,-1,'crisis_years',v=>v.toFixed(1));
+  h+=`</table>`;
+  if(c.crisis_added!==undefined&&c.crisis_added!==null)
+    h+=`<div style="color:#9A948A;font-size:10px;margin-top:5px">Δ кризисных лет к базе: `
+      +`<b style="color:#ECE6DD">${(c.crisis_added>=0?'+':'')+c.crisis_added.toFixed(1)}</b></div>`;
+  return h+`</div>`;
 }
 function draw(){
   if(LAYER){LAYER.remove();}
@@ -84,7 +109,8 @@ window.renderGeo=function(geo){
   document.getElementById("empty").style.display="none";
   BY={}; (geo.countries||[]).forEach(c=>{BY[c.geo_name]=c;});
   DOMAINS=["score"].concat((geo.domains||[]).filter(d=>d!=="score"));
-  MAXABS={}; DOMAINS.forEach(k=>{MAXABS[k]=Math.max(1e-9,...(geo.countries||[]).map(c=>Math.abs(c[k]||0)));});
+  const MK=["score","gdp_pct","tension","debt_pct","crisis_years","inflation_pp","unemployment_pp"];
+  MAXABS={}; MK.forEach(k=>{MAXABS[k]=Math.max(1e-9,...(geo.countries||[]).map(c=>Math.abs(c[k]||0)));});
   if(!DOMAINS.includes(DOMAIN)) DOMAIN="score";
   buildBar(); draw();
 };

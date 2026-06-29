@@ -85,6 +85,7 @@ struct AnswerResult: Decodable {
     let cascade: CascadeBlock
     let actors: ActorsBlock
     let archetype: AnswerArchetype?
+    let projection: DeltaProjection?   // delta fans over time (kind=scenario_delta)
     let equivCli: String?
 }
 

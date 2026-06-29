@@ -34,7 +34,7 @@ struct ChatView: View {
                         ForEach(app.chat) { ChatRow(message: $0) }
                         if app.chatStreaming {
                             VStack(alignment: .leading, spacing: 7) {
-                                Text("Считаю на детерминированном движке… ~15–20 с")
+                                Text("Считаю на движке… ~15–20 с")
                                     .font(Theme.ui(12)).foregroundStyle(Theme.muted)
                                 ProgressBarView().frame(maxWidth: 320)
                             }
@@ -52,7 +52,7 @@ struct ChatView: View {
 
             HStack(spacing: 10) {
                 TextField("Опишите сценарий или вопрос…", text: $draft, axis: .vertical)
-                    .textFieldStyle(.plain).lineLimit(1...4).padding(11)
+                    .textFieldStyle(.plain).lineLimit(1...12).padding(11)
                     .background(Theme.surface2)
                     .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.line, lineWidth: 1))
                     .clipShape(RoundedRectangle(cornerRadius: 9))
@@ -76,14 +76,14 @@ struct ChatView: View {
         switch app.llmProvider {
         case "ollama": return "локально: " + (app.llmModel.isEmpty ? "ollama" : app.llmModel)
         case "openai": return "ключ: " + (app.llmModel.isEmpty ? "openai" : app.llmModel)
-        default: return "без LLM (детерминированный)"
+        default: return "без LLM"
         }
     }
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Спросите про сценарий").font(Theme.ui(16, .medium)).foregroundStyle(Theme.text)
-            Text("Опишите стратегический вопрос — ассистент соберёт сценарий из заземлённых рычагов, прогонит детерминированный движок и вернёт карту ответа (вердикт, пороги, каскад, состояния стран). Примеры: «что если энергетическая война и санкции против крупного экспортёра?», «десятилетие стагфляции», «шок зелёного перехода». Числа — всегда из прогона.")
+            Text("Опишите стратегический вопрос — ассистент соберёт сценарий из заземлённых рычагов, прогонит движок и вернёт карту ответа (вердикт, точка перелома, цепочка последствий, состояния стран). Примеры: «что если энергетическая война и санкции против крупного экспортёра?», «десятилетие стагфляции», «шок зелёного перехода». Числа — всегда из прогона.")
                 .font(Theme.ui(12)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
         }.padding(.bottom, 6)
     }
@@ -96,6 +96,7 @@ struct ChatRow: View {
         case .user:
             HStack(spacing: 6) {
                 Spacer(minLength: 48)
+                CopyButton(text: message.text)
                 Text(message.text).font(Theme.ui(13)).foregroundStyle(Theme.accentInk)
                     .textSelection(.enabled).padding(.horizontal, 12).padding(.vertical, 9)
                     .background(Theme.accent).clipShape(RoundedRectangle(cornerRadius: 11))
@@ -109,13 +110,14 @@ struct ChatRow: View {
             if let r = message.result {
                 SituationRoom(result: r).card()
             } else {
-                HStack {
+                HStack(alignment: .bottom, spacing: 6) {
                     Text(message.text).font(Theme.ui(13)).foregroundStyle(Theme.text)
                         .textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 12).padding(.vertical, 9)
                         .background(Theme.surface)
                         .overlay(RoundedRectangle(cornerRadius: 11).stroke(Theme.line, lineWidth: 1))
                         .clipShape(RoundedRectangle(cornerRadius: 11))
+                    CopyButton(text: message.text)
                     Spacer(minLength: 48)
                 }
             }
@@ -133,7 +135,7 @@ struct LLMSettingsView: View {
 
             field("Провайдер", help: "deterministic — без LLM; ollama — локальная модель; OpenAI-совместимый — по ключу (OpenAI/DeepSeek через Base URL)") {
                 Picker("", selection: $app.llmProvider) {
-                    Text("Без LLM (детерминированный)").tag("deterministic")
+                    Text("Без LLM").tag("deterministic")
                     Text("Локально (Ollama)").tag("ollama")
                     Text("OpenAI-совместимый (по ключу)").tag("openai")
                 }.labelsHidden().pickerStyle(.menu).fixedSize()

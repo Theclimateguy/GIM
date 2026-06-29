@@ -31,6 +31,7 @@ private func darkAxes<V: View>(_ chart: V) -> some View {
 struct FanChartView: View {
     let fan: FanSeries
     var color: Color = Theme.accent
+    var height: CGFloat = 150
     var body: some View {
         let pts = fanPoints(fan)
         darkAxes(Chart(pts) { p in
@@ -41,13 +42,14 @@ struct FanChartView: View {
             LineMark(x: .value("Год", p.t), y: .value("медиана", p.p50))
                 .foregroundStyle(color).lineStyle(.init(lineWidth: 2))
         })
-        .frame(height: 150)
+        .frame(height: height)
     }
 }
 
 /// Delta: scenario − baseline with a zero reference line (Fig. 6–9 / E6).
 struct DeltaChartView: View {
     let delta: FanSeries
+    var height: CGFloat = 150
     var body: some View {
         let pts = fanPoints(delta)
         darkAxes(Chart(pts) { p in
@@ -60,7 +62,7 @@ struct DeltaChartView: View {
             RuleMark(y: .value("0", 0.0))
                 .foregroundStyle(Theme.faint).lineStyle(.init(lineWidth: 1, dash: [4, 3]))
         })
-        .frame(height: 150)
+        .frame(height: height)
     }
 }
 
@@ -69,6 +71,7 @@ private struct DosePoint: Identifiable { let id = UUID(); let x: Double; let y: 
 /// Dose-response: terminal delta vs lever magnitude (Fig. 6–9).
 struct DoseChartView: View {
     let dose: DoseProjection
+    var height: CGFloat = 170
     var body: some View {
         let pts = (0..<min(dose.x.count, dose.delta.count)).map { DosePoint(x: dose.x[$0], y: dose.delta[$0]) }
         darkAxes(Chart(pts) { p in
@@ -79,20 +82,85 @@ struct DoseChartView: View {
             RuleMark(y: .value("0", 0.0))
                 .foregroundStyle(Theme.faint).lineStyle(.init(lineWidth: 1, dash: [4, 3]))
         })
-        .frame(height: 170)
+        .frame(height: height)
     }
 }
 
 /// Morris tornado: parameter ranking (Fig. 3).
 struct TornadoChartView: View {
     let params: [TornadoParam]
+    var height: CGFloat? = nil
     var body: some View {
         let top = Array(params.prefix(8))
         darkAxes(Chart(top) { p in
             BarMark(x: .value("μ*", p.muStar), y: .value("параметр", p.name))
                 .foregroundStyle(Theme.accent.opacity(0.85))
         })
-        .frame(height: CGFloat(max(120, top.count * 26)))
+        .frame(height: height ?? CGFloat(max(120, top.count * 26)))
+    }
+}
+
+// A chart inside a Panel that expands to a full-screen sheet on click. The same
+// chart view is re-rendered larger in the sheet (the `chart` closure takes a
+// height), with an explanatory note. Self-contained — owns its sheet state.
+struct ExpandableChartCard<C: View>: View {
+    let title: String
+    var icon: String? = nil
+    var caption: String? = nil
+    var note: String? = nil
+    var inlineHeight: CGFloat = 150
+    var fullHeight: CGFloat = 420
+    @ViewBuilder let chart: (CGFloat) -> C
+    @State private var open = false
+
+    var body: some View {
+        Panel(title: title, icon: icon, caption: caption) {
+            Button { open = true } label: {
+                ZStack(alignment: .topTrailing) {
+                    chart(inlineHeight)
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 10)).foregroundStyle(Theme.faint)
+                        .padding(5).background(Theme.surface.opacity(0.7))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .help("Открыть на весь экран")
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+        .sheet(isPresented: $open) {
+            ChartSheet(title: title, note: note) { chart(fullHeight) }
+        }
+    }
+}
+
+/// Full-screen chart detail: larger chart + explanatory note, on the app bg.
+struct ChartSheet<C: View>: View {
+    let title: String
+    var note: String? = nil
+    @ViewBuilder let content: () -> C
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text(title).font(Theme.ui(18, .semibold)).foregroundStyle(Theme.text)
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill").font(.system(size: 18)).foregroundStyle(Theme.muted)
+                }.buttonStyle(.plain).help("Закрыть")
+            }
+            content()
+            if let note {
+                Text(note).font(Theme.ui(12.5)).foregroundStyle(Theme.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(24)
+        .frame(minWidth: 760, minHeight: 540)
+        .background(Theme.bg)
+        .environment(\.colorScheme, .dark)
     }
 }
 

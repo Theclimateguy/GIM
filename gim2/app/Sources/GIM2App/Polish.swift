@@ -26,7 +26,9 @@ struct ProgressBarView: View {
     }
 }
 
-/// Boot splash: the wordmark logo on the app background + a progress bar + status.
+/// Boot splash: the app mark + a text wordmark on the app background + a progress
+/// bar + status. Rendered as a clean tile + type (not the baked-background
+/// `logo.png`, whose warm panel clashed with the cold app background).
 struct SplashView: View {
     let status: String
 
@@ -35,11 +37,17 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             Theme.bg.ignoresSafeArea()
-            VStack(spacing: 24) {
-                if let logo = Brand.logo {
-                    logo.resizable().scaledToFit().frame(maxWidth: 380)
-                } else {
-                    Text("GIM17 v2").font(Theme.ui(34, .bold)).foregroundStyle(Theme.text)
+            VStack(spacing: 22) {
+                HStack(spacing: 16) {
+                    BrandMark(size: 62)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 0) {
+                            Text("GIM").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.text)
+                            Text("17").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.accent)
+                        }
+                        Text("DETERMINISTIC WORLD SIMULATOR")
+                            .font(.system(size: 9, weight: .semibold)).tracking(2.5).foregroundStyle(Theme.accent)
+                    }
                 }
                 if isError {
                     Text(status).font(Theme.ui(12)).foregroundStyle(Theme.deltaDown)
@@ -48,7 +56,7 @@ struct SplashView: View {
                 } else {
                     ProgressBarView().frame(width: 240)
                     Text(status.isEmpty ? "запуск движка…" : status)
-                        .font(Theme.ui(12)).foregroundStyle(Theme.muted)
+                        .font(Theme.mono(11)).foregroundStyle(Theme.muted)
                 }
             }
             .padding(40)

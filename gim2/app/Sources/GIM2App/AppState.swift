@@ -8,6 +8,16 @@ final class AppState: ObservableObject {
     @Published var ontology: Ontology?
     @Published var archetypes: [ArchetypeInfo] = []
 
+    // Run history + comparison selection (Compare screen).
+    @Published var history: [ScenarioRecord] = []
+    @Published var compareSelection: [UUID] = []
+
+    // Validated model-trust metrics, pinned as the Compare baseline.
+    @Published var scc: SccResult?
+    @Published var auc: ConflictMetaResult?
+    @Published var backtest: BacktestResult?
+    @Published var backtestLoading = false
+
     // Assistant chat + LLM config (key in Keychain; rest in UserDefaults).
     @Published var chat: [ChatMessage] = []
     @Published var chatStreaming = false
@@ -69,6 +79,29 @@ final class AppState: ObservableObject {
     func runAnswer(_ req: AnswerRequest) async throws -> AnswerResult {
         try await require().post("/run/answer", req, as: AnswerResult.self)
     }
+    func runWeak(_ req: WeakRequest) async throws -> WeakResult {
+        try await require().post("/run/weak_signals", req, as: WeakResult.self)
+    }
+
+    func record(_ rec: ScenarioRecord) {
+        history.insert(rec, at: 0)
+        if history.count > 8 { history.removeLast() }
+    }
+
+    // Pinned-baseline trust metrics. AUC is fast; SCC + backtest are slow (they
+    // run ensembles), so they load lazily together behind a button.
+    func loadValidation() async {
+        if auc == nil { auc = try? await meta("conflict_auc", as: ConflictMetaResult.self) }
+    }
+    func loadBacktest() async {
+        guard backtest == nil, !backtestLoading else { return }
+        backtestLoading = true
+        defer { backtestLoading = false }
+        async let btTask = meta("backtest", as: BacktestResult.self)
+        async let sccTask = meta("scc", as: SccResult.self)
+        backtest = try? await btTask
+        scc = try? await sccTask
+    }
 
     func saveLLM() {
         let d = UserDefaults.standard
@@ -101,6 +134,7 @@ final class AppState: ObservableObject {
                 case "run_result":
                     if let r = try? EngineClient.decoder.decode(AnswerResult.self, from: data) {
                         chat.append(ChatMessage(role: .assistant, text: "", result: r))
+                        record(ScenarioRecord(answer: r, label: r.archetype?.nameRu ?? "Ассистент"))
                     }
                 case "assistant_delta":
                     if let txt = obj?["text"] as? String, !txt.isEmpty {

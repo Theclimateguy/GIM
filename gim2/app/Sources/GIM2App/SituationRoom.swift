@@ -13,6 +13,21 @@ struct SituationRoom: View {
         return Double(c.filter { $0.score < -0.25 }.count) / Double(c.count)
     }
 
+    // Plain-text summary for the copy button: verdict + cards + brief.
+    private var summaryText: String {
+        var lines: [String] = []
+        if let a = result.archetype { lines.append(a.nameRu) }
+        lines.append(result.verdict)
+        if !result.cards.isEmpty {
+            lines.append("")
+            for c in result.cards {
+                lines.append(String(format: "• %@: %+.3g [%+.2g … %+.2g]", c.label, c.deltaP50, c.p5, c.p95))
+            }
+        }
+        if !result.brief.isEmpty { lines.append(""); lines.append(result.brief) }
+        return lines.joined(separator: "\n")
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top, spacing: 14) {
@@ -22,9 +37,11 @@ struct SituationRoom: View {
                         Text(a.nameRu).font(Theme.ui(13, .semibold)).foregroundStyle(Theme.accent)
                     }
                     Text(result.verdict).font(Theme.ui(14, .medium)).foregroundStyle(Theme.text)
+                        .textSelection(.enabled)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)
+                CopyButton(text: summaryText)
             }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8)], spacing: 8) {
@@ -42,11 +59,25 @@ struct SituationRoom: View {
                 }
             }
 
+            if let proj = result.projection, !proj.metrics.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Динамика по годам").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
+                    ForEach(proj.metrics) { m in
+                        ExpandableChartCard(
+                            title: "Δ \(MetricLabel.of(m.metric))", icon: "chart.xyaxis.line",
+                            caption: "сценарий − база · нажмите, чтобы развернуть",
+                            note: "Отклонение «\(MetricLabel.of(m.metric))» от базовой траектории по годам: медиана с интервалами 25–75 и 5–95 по ансамблю. Пунктир — нулевая линия.") { h in
+                            DeltaChartView(delta: m.delta, height: h)
+                        }
+                    }
+                }
+            }
+
             cascade
 
             if let t = result.threshold {
                 HStack(spacing: 8) {
-                    Text("Порог").font(Theme.ui(11, .semibold)).foregroundStyle(Theme.accent)
+                    Text("Точка перелома").font(Theme.ui(11, .semibold)).foregroundStyle(Theme.accent)
                     Text(t.note).font(Theme.ui(11)).foregroundStyle(Theme.text)
                 }
                 .padding(10).frame(maxWidth: .infinity, alignment: .leading)
@@ -72,7 +103,7 @@ struct SituationRoom: View {
 
     private var cascade: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Каскад между доменами").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
+            Text("Цепочка последствий по доменам").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 6)], alignment: .leading, spacing: 6) {
                 ForEach(result.cascade.nodes) { n in
                     HStack(spacing: 5) {

@@ -138,6 +138,29 @@ struct ConflictMetaResult: Decodable {
     let projection: ConflictAUCProjection
 }
 
+// MARK: weak signals
+
+struct WeakRequest: Encodable {
+    var levers: [String]
+    var years: Int
+    var maxAgents: Int
+}
+
+struct WeakResult: Decodable {
+    struct Maha: Decodable {
+        let anomaly: [Bool]?
+        let distanceSq: [Double]?
+        let nAnomalies: Int?
+        let threshold: Double?
+    }
+    struct Signals: Decodable {
+        let mahalanobis: Maha?
+        let dimensions: [String]?
+    }
+    let schema: String
+    let weakSignals: Signals
+}
+
 // MARK: ontology (lever menu)
 
 struct LeverInfo: Decodable, Identifiable {
@@ -208,4 +231,32 @@ enum MetricLabel {
         "n_wars": "Войны",
     ]
     static func of(_ key: String) -> String { ru[key] ?? key }
+}
+
+// A comparable run summary for the Compare screen: terminal Δ (scenario − base)
+// per metric. Both /run/scenario and the assistant's /run/answer reduce to this.
+struct ScenarioRecord: Identifiable {
+    let id = UUID()
+    let label: String
+    let kind: String                 // "scenario" | "answer"
+    let metrics: [(key: String, delta: Double)]
+    let cli: String?
+
+    init(label: String, kind: String, metrics: [(key: String, delta: Double)], cli: String?) {
+        self.label = label; self.kind = kind; self.metrics = metrics; self.cli = cli
+    }
+
+    init(scenario r: ScenarioResult, label: String) {
+        self.init(label: label, kind: "scenario",
+                  metrics: r.projection.metrics.map { ($0.metric, $0.delta.p50.last ?? 0) },
+                  cli: r.equivCli)
+    }
+
+    init(answer r: AnswerResult, label: String) {
+        self.init(label: label, kind: "answer",
+                  metrics: r.cards.map { ($0.metric, $0.deltaP50) },
+                  cli: r.equivCli)
+    }
+
+    func delta(of key: String) -> Double? { metrics.first { $0.key == key }?.delta }
 }

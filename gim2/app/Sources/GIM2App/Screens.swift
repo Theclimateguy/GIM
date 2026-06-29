@@ -1,8 +1,14 @@
 import SwiftUI
 
-// Shared UI atoms ----------------------------------------------------------- //
+// Экспертный режим — one console over the validated deterministic modes:
+// сценарий vs база / ансамбли / дозовая кривая / чувствительность / слабые сигналы.
+// (Replaces the former Сценарий + Ансамбли·Доза + Эксперт sidebar sections.)
 
 private let METRIC_OPTIONS = ["world_gdp", "temperature", "co2", "mean_social_tension"]
+
+enum ExpertMode: Hashable { case scenario, ensemble, dose, sensitivity, weak }
+
+// Shared atoms ------------------------------------------------------------- //
 
 struct Chip: View {
     let text: String
@@ -11,8 +17,8 @@ struct Chip: View {
     var body: some View {
         Text(text)
             .font(Theme.ui(12, on ? .semibold : .regular))
-            .padding(.horizontal, 10).padding(.vertical, 6)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 10).padding(.vertical, 7)
+            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
             .background(on ? Theme.accent.opacity(0.16) : Theme.surface2)
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(on ? Theme.accent : Theme.line, lineWidth: 1))
             .foregroundStyle(on ? Theme.text : Theme.muted)
@@ -26,50 +32,104 @@ struct RunButton: View {
     let title: String
     let running: Bool
     let action: () -> Void
+    var enabled: Bool = true
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 7) {
                 if running { ProgressView().controlSize(.small).tint(Theme.accentInk) }
-                Text(running ? "Считаю…" : title).font(Theme.ui(13, .semibold))
+                Text(running ? "Выполняется…" : title)
             }
-            .foregroundStyle(Theme.accentInk)
-            .padding(.horizontal, 16).padding(.vertical, 9)
-            .background(Theme.accent).clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .buttonStyle(.plain)
-        .disabled(running)
-        .opacity(running ? 0.7 : 1)
+        .buttonStyle(PrimaryButtonStyle(enabled: enabled && !running))
+        .disabled(running || !enabled)
     }
 }
 
-private struct ErrorLine: View {
+struct ErrorLine: View {
     let text: String?
     var body: some View {
-        if let text { Text(text).font(Theme.ui(11)).foregroundStyle(Theme.deltaDown) }
+        if let text {
+            Label(text, systemImage: "exclamationmark.triangle.fill")
+                .font(Theme.mono(11)).foregroundStyle(Theme.deltaDown)
+                .lineLimit(3).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 
-// E6 — Scenario vs baseline (primary screen) -------------------------------- //
+// A small fixed-width labeled stepper used across the params panels.
+private struct ParamStepper: View {
+    let label: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    var step: Int = 1
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(label).font(Theme.ui(11)).foregroundStyle(Theme.muted)
+            Stepper("\(value)", value: $value, in: range, step: step).fixedSize().font(Theme.ui(12))
+        }
+    }
+}
 
-struct ScenarioView: View {
+// Console ------------------------------------------------------------------ //
+
+struct ExpertView: View {
+    @State private var mode: ExpertMode = .scenario
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                PageHeader(
+                    kicker: "Экспертный режим",
+                    title: "Конфигурация прогона",
+                    subtitle: "Полный пульт движка. Все выходы относительны: сценарий измеряется как Δ к валидированной базовой линии.")
+
+                SegTabs(items: [
+                    (ExpertMode.scenario,    "Сценарий", "bolt.fill"),
+                    (ExpertMode.ensemble,    "Ансамбли", "chart.line.uptrend.xyaxis"),
+                    (ExpertMode.dose,        "Отклик",   "function"),
+                    (ExpertMode.sensitivity, "Чувствит.", "tornado"),
+                    (ExpertMode.weak,        "Сигналы",  "waveform.path.ecg"),
+                ], selection: $mode)
+
+                switch mode {
+                case .scenario:    ScenarioPane()
+                case .ensemble:    EnsemblePane()
+                case .dose:        DosePane()
+                case .sensitivity: SensitivityPane()
+                case .weak:        WeakPane()
+                }
+            }
+            .padding(28)
+            .frame(maxWidth: 1040, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+// Сценарий vs база --------------------------------------------------------- //
+
+private struct ScenarioPane: View {
     @EnvironmentObject var app: AppState
     @State private var selected: Set<String> = ["decarbonization"]
+    @State private var actors: Set<String> = []
     @State private var magnitude: Double = 0.6
     @State private var horizon: Int = 10
     @State private var members: Int = 120
-    @State private var actorsText: String = ""
     @State private var result: ScenarioResult?
     @State private var running = false
     @State private var error: String?
 
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionTitle(title: "Сценарий vs база",
-                             subtitle: "дельта-веера (сценарий − база) по валидированным метрикам")
+    private let leverCols = [GridItem(.adaptive(minimum: 178), spacing: 8)]
+    private var needsActors: Bool {
+        (app.ontology?.levers ?? []).contains { selected.contains($0.id) && $0.needsActors }
+    }
 
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Panel(title: "Рычаги сценария", icon: "bolt.fill",
+                  caption: "выбрано \(selected.count) · заземлённые каналы движка") {
                 if let levers = app.ontology?.levers {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 8)], alignment: .leading, spacing: 8) {
+                    LazyVGrid(columns: leverCols, alignment: .leading, spacing: 8) {
                         ForEach(levers) { lever in
                             Chip(text: lever.labelRu, on: selected.contains(lever.id)) {
                                 if selected.contains(lever.id) { selected.remove(lever.id) }
@@ -80,74 +140,64 @@ struct ScenarioView: View {
                 } else {
                     Text("загрузка онтологии рычагов…").font(Theme.ui(12)).foregroundStyle(Theme.muted)
                 }
-
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Интенсивность: \(String(format: "%.2f", magnitude))")
-                            .font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                        Slider(value: $magnitude, in: 0.15...1.25).frame(width: 200).tint(Theme.accent)
-                    }
-                    Stepper("Горизонт: \(horizon) лет", value: $horizon, in: 3...30)
-                        .font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                }
-
-                TextField("акторы через запятую (для торговли/санкций), напр. United States, China",
-                          text: $actorsText)
-                    .textFieldStyle(.plain).font(Theme.ui(12)).foregroundStyle(Theme.text)
-                    .padding(8).background(Theme.surface2)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line))
-
-                HStack {
-                    RunButton(title: "Сравнить со сценарием", running: running, action: run)
-                    ErrorLine(text: error)
-                }
-
-                if let result {
-                    BriefView(text: result.brief)
-                    ForEach(result.projection.metrics) { m in
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(MetricLabel.of(m.metric)).font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                            DeltaChartView(delta: m.delta)
-                        }
-                        .card()
-                    }
-                    TraceLine(cli: result.equivCli)
+                if needsActors {
+                    ActorPicker(actors: app.ontology?.actors ?? [], selected: $actors)
                 }
             }
-            .padding(18)
+
+            Panel(title: "Параметры", icon: "slider.horizontal.3") {
+                HStack(alignment: .top, spacing: 26) {
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text("Интенсивность").font(Theme.ui(11)).foregroundStyle(Theme.muted)
+                        SliderControl(value: $magnitude, range: 0.15...1.25).frame(width: 220)
+                    }
+                    ParamStepper(label: "Горизонт, лет", value: $horizon, range: 3...30)
+                    ParamStepper(label: "Членов ансамбля", value: $members, range: 40...500, step: 40)
+                    Spacer(minLength: 0)
+                }
+            }
+
+            HStack(spacing: 14) {
+                RunButton(title: "Прогнать сценарий", running: running, action: run, enabled: !selected.isEmpty)
+                ErrorLine(text: error)
+                Spacer(minLength: 0)
+            }
+
+            if let result {
+                Panel(title: "Аналитическая записка", icon: "text.alignleft") {
+                    BriefView(text: result.brief)
+                }
+                ForEach(result.projection.metrics) { m in
+                    ExpandableChartCard(
+                        title: "Δ \(MetricLabel.of(m.metric))", icon: "chart.xyaxis.line",
+                        caption: "сценарий − база, 5–95 / IQR / медиана · нажмите, чтобы развернуть",
+                        note: "Отклонение «\(MetricLabel.of(m.metric))» от базовой траектории по годам: медиана с интервалами 25–75 и 5–95 по ансамблю. Пунктир — нулевая линия (нет эффекта).") { h in
+                        DeltaChartView(delta: m.delta, height: h)
+                    }
+                }
+                TraceLine(cli: result.equivCli)
+            }
         }
     }
 
     private func run() {
         running = true; error = nil
-        let actors = actorsText.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         let req = ScenarioRequest(levers: Array(selected), magnitude: magnitude,
-                                  actors: actors.isEmpty ? nil : actors, members: members,
+                                  actors: actors.isEmpty ? nil : Array(actors), members: members,
                                   years: horizon, maxAgents: 57)
         Task {
             defer { running = false }
-            do { result = try await app.runScenario(req) }
-            catch { self.error = "\(error)" }
+            do {
+                let r = try await app.runScenario(req)
+                result = r
+                let names = (app.ontology?.levers ?? []).filter { selected.contains($0.id) }.map { $0.labelRu }
+                app.record(ScenarioRecord(scenario: r, label: "Сценарий: " + names.joined(separator: " + ")))
+            } catch { self.error = "\(error)" }
         }
     }
 }
 
-// E7 — Ensembles + dose-response ------------------------------------------- //
-
-struct EnsembleDoseView: View {
-    @EnvironmentObject var app: AppState
-    @State private var tab = 0
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Picker("", selection: $tab) {
-                Text("Ансамбли").tag(0); Text("Дозовая кривая").tag(1)
-            }
-            .pickerStyle(.segmented).labelsHidden().tint(Theme.accent).padding([.horizontal, .top], 18)
-            if tab == 0 { EnsemblePane() } else { DosePane() }
-        }
-    }
-}
+// Ансамбли ----------------------------------------------------------------- //
 
 private struct EnsemblePane: View {
     @EnvironmentObject var app: AppState
@@ -158,26 +208,30 @@ private struct EnsemblePane: View {
     @State private var error: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionTitle(title: "Ансамблевые веера", subtitle: "median / IQR / 5–95 по приорам (Рис. 4)")
-                HStack(spacing: 16) {
-                    Stepper("Члены: \(members)", value: $members, in: 40...500, step: 40)
-                        .font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                    Stepper("Годы: \(years)", value: $years, in: 5...20)
-                        .font(Theme.ui(11)).foregroundStyle(Theme.muted)
+        VStack(alignment: .leading, spacing: 14) {
+            Panel(title: "Параметры ансамбля", icon: "chart.line.uptrend.xyaxis",
+                  caption: "медиана / IQR / 5–95 по приорам (Рис. 4)") {
+                HStack(alignment: .top, spacing: 26) {
+                    ParamStepper(label: "Членов", value: $members, range: 40...500, step: 40)
+                    ParamStepper(label: "Годы", value: $years, range: 5...20)
+                    Spacer(minLength: 0)
                 }
-                HStack { RunButton(title: "Прогнать ансамбль", running: running, action: run); ErrorLine(text: error) }
-                if let result {
-                    ForEach(result.projection.metrics) { fan in
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(MetricLabel.of(fan.metric)).font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                            FanChartView(fan: fan)
-                        }.card()
+            }
+            HStack(spacing: 14) {
+                RunButton(title: "Прогнать ансамбль", running: running, action: run)
+                ErrorLine(text: error); Spacer(minLength: 0)
+            }
+            if let result {
+                ForEach(result.projection.metrics) { fan in
+                    ExpandableChartCard(
+                        title: MetricLabel.of(fan.metric), icon: "chart.line.uptrend.xyaxis",
+                        caption: "медиана · IQR · 5–95 · нажмите, чтобы развернуть",
+                        note: "Ансамблевый веер «\(MetricLabel.of(fan.metric))»: медианная траектория с интервалами неопределённости (25–75 и 5–95 перцентили по приорам).") { h in
+                        FanChartView(fan: fan, height: h)
                     }
-                    TraceLine(cli: result.equivCli)
                 }
-            }.padding(18)
+                TraceLine(cli: result.equivCli)
+            }
         }
     }
 
@@ -189,6 +243,8 @@ private struct EnsemblePane: View {
     }
 }
 
+// Дозовая кривая ----------------------------------------------------------- //
+
 private struct DosePane: View {
     @EnvironmentObject var app: AppState
     @State private var lever = "growth"
@@ -198,30 +254,37 @@ private struct DosePane: View {
     @State private var error: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionTitle(title: "Дозовая кривая",
-                             subtitle: "терминальная Δ vs величина рычага — ненулевой наклон (Рис. 6–9)")
-                HStack(spacing: 16) {
-                    Picker("Рычаг", selection: $lever) {
-                        ForEach(app.ontology?.levers ?? []) { Text($0.labelRu).tag($0.id) }
-                    }.frame(width: 240)
-                    Picker("Метрика", selection: $metric) {
-                        ForEach(METRIC_OPTIONS, id: \.self) { Text(MetricLabel.of($0)).tag($0) }
-                    }.frame(width: 200)
-                }.font(Theme.ui(12))
-                HStack { RunButton(title: "Построить кривую", running: running, action: run); ErrorLine(text: error) }
-                if let result {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("\(result.lever) → Δ \(MetricLabel.of(result.projection.metric))")
-                            .font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                        DoseChartView(dose: result.projection)
-                        Text(String(format: "база (терминал): %.4g", result.projection.baseline))
-                            .font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                    }.card()
-                    TraceLine(cli: result.equivCli)
+        VStack(alignment: .leading, spacing: 14) {
+            Panel(title: "Кривая отклика", icon: "function",
+                  caption: "как итог меняется с ростом силы рычага") {
+                HStack(alignment: .top, spacing: 26) {
+                    Field(label: "Рычаг") {
+                        Picker("", selection: $lever) {
+                            ForEach(app.ontology?.levers ?? []) { Text($0.labelRu).tag($0.id) }
+                        }.labelsHidden().pickerStyle(.menu).frame(width: 240)
+                    }
+                    Field(label: "Метрика") {
+                        Picker("", selection: $metric) {
+                            ForEach(METRIC_OPTIONS, id: \.self) { Text(MetricLabel.of($0)).tag($0) }
+                        }.labelsHidden().pickerStyle(.menu).frame(width: 200)
+                    }
+                    Spacer(minLength: 0)
                 }
-            }.padding(18)
+            }
+            HStack(spacing: 14) {
+                RunButton(title: "Построить кривую", running: running, action: run)
+                ErrorLine(text: error); Spacer(minLength: 0)
+            }
+            if let result {
+                ExpandableChartCard(
+                    title: "\(result.lever) → Δ \(MetricLabel.of(result.projection.metric))", icon: "function",
+                    caption: String(format: "база (терминал): %.4g · нажмите, чтобы развернуть", result.projection.baseline),
+                    note: "Терминальная Δ метрики при росте величины рычага. Ненулевой наклон означает, что рычаг реально двигает выход модели.",
+                    inlineHeight: 170, fullHeight: 440) { h in
+                    DoseChartView(dose: result.projection, height: h)
+                }
+                TraceLine(cli: result.equivCli)
+            }
         }
     }
 
@@ -234,39 +297,7 @@ private struct DosePane: View {
     }
 }
 
-// E8 — Sensitivity + weak signals + About ---------------------------------- //
-
-struct WeakResult: Decodable {
-    struct Maha: Decodable {
-        let anomaly: [Bool]?
-        let distanceSq: [Double]?
-        let nAnomalies: Int?
-        let threshold: Double?
-    }
-    struct Signals: Decodable {
-        let mahalanobis: Maha?
-        let dimensions: [String]?
-    }
-    let schema: String
-    let weakSignals: Signals
-}
-
-struct ExpertView: View {
-    @State private var tab = 0
-    var body: some View {
-        VStack(spacing: 0) {
-            Picker("", selection: $tab) {
-                Text("Чувствительность").tag(0); Text("Слабые сигналы").tag(1); Text("О модели").tag(2)
-            }
-            .pickerStyle(.segmented).labelsHidden().tint(Theme.accent).padding([.horizontal, .top], 18)
-            switch tab {
-            case 0: SensitivityPane()
-            case 1: WeakPane()
-            default: AboutPane()
-            }
-        }
-    }
-}
+// Чувствительность --------------------------------------------------------- //
 
 private struct SensitivityPane: View {
     @EnvironmentObject var app: AppState
@@ -274,24 +305,34 @@ private struct SensitivityPane: View {
     @State private var result: SensitivityResult?
     @State private var running = false
     @State private var error: String?
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionTitle(title: "Чувствительность (Morris)", subtitle: "какие параметры правят выходом (Рис. 3)")
-                Picker("Метрика", selection: $metric) {
-                    ForEach(METRIC_OPTIONS, id: \.self) { Text(MetricLabel.of($0)).tag($0) }
-                }.frame(width: 220).font(Theme.ui(12))
-                HStack { RunButton(title: "Скрининг параметров", running: running, action: run); ErrorLine(text: error) }
-                if let result {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("μ* по \(MetricLabel.of(result.metric))").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                        TornadoChartView(params: result.projection.params)
-                    }.card()
-                    TraceLine(cli: result.equivCli)
+        VStack(alignment: .leading, spacing: 14) {
+            Panel(title: "Скрининг параметров (Morris)", icon: "tornado",
+                  caption: "какие параметры правят выходом (Рис. 3)") {
+                Field(label: "Метрика") {
+                    Picker("", selection: $metric) {
+                        ForEach(METRIC_OPTIONS, id: \.self) { Text(MetricLabel.of($0)).tag($0) }
+                    }.labelsHidden().pickerStyle(.menu).frame(width: 220)
                 }
-            }.padding(18)
+            }
+            HStack(spacing: 14) {
+                RunButton(title: "Запустить скрининг", running: running, action: run)
+                ErrorLine(text: error); Spacer(minLength: 0)
+            }
+            if let result {
+                ExpandableChartCard(
+                    title: "μ* по \(MetricLabel.of(result.metric))", icon: "tornado",
+                    caption: "Morris · топ-параметры · нажмите, чтобы развернуть",
+                    note: "Скрининг Морриса: μ* — средний модуль элементарного эффекта параметра на метрику. Чем длиннее столбец, тем сильнее параметр правит выходом.",
+                    inlineHeight: 220, fullHeight: 460) { h in
+                    TornadoChartView(params: result.projection.params, height: h)
+                }
+                TraceLine(cli: result.equivCli)
+            }
         }
     }
+
     private func run() {
         running = true; error = nil
         Task { defer { running = false }
@@ -300,111 +341,49 @@ private struct SensitivityPane: View {
     }
 }
 
+// Слабые сигналы ----------------------------------------------------------- //
+
 private struct WeakPane: View {
     @EnvironmentObject var app: AppState
     @State private var lever = "energy_shock"
     @State private var result: WeakResult?
     @State private var running = false
     @State private var error: String?
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionTitle(title: "Слабые сигналы (сценарий vs база)",
-                             subtitle: "Махаланобис-аномалии в динамике состояния")
-                Picker("Рычаг", selection: $lever) {
-                    ForEach(app.ontology?.levers ?? []) { Text($0.labelRu).tag($0.id) }
-                }.frame(width: 260).font(Theme.ui(12))
-                HStack { RunButton(title: "Сканировать", running: running, action: run); ErrorLine(text: error) }
-                if let m = result?.weakSignals.mahalanobis {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Аномалии: \(m.nAnomalies ?? 0) шагов")
-                            .font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                        if let t = m.threshold {
-                            Text(String(format: "порог χ²: %.2f", t)).font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                        }
-                        if let d = result?.weakSignals.dimensions {
-                            Text("измерения: " + d.joined(separator: ", "))
-                                .font(Theme.ui(11)).foregroundStyle(Theme.muted)
-                        }
-                        Text("(вероятность разладки и критическое замедление — в сыром payload weak_signals)")
-                            .font(Theme.ui(10)).foregroundStyle(Theme.faint)
-                    }.card()
+        VStack(alignment: .leading, spacing: 14) {
+            Panel(title: "Слабые сигналы (сценарий vs база)", icon: "waveform.path.ecg",
+                  caption: "Махаланобис-аномалии в динамике состояния") {
+                Field(label: "Рычаг") {
+                    Picker("", selection: $lever) {
+                        ForEach(app.ontology?.levers ?? []) { Text($0.labelRu).tag($0.id) }
+                    }.labelsHidden().pickerStyle(.menu).frame(width: 260)
                 }
-            }.padding(18)
+            }
+            HStack(spacing: 14) {
+                RunButton(title: "Сканировать динамику", running: running, action: run)
+                ErrorLine(text: error); Spacer(minLength: 0)
+            }
+            if let m = result?.weakSignals.mahalanobis {
+                Panel(title: "Аномалии: \(m.nAnomalies ?? 0) шагов", icon: "waveform.path.ecg") {
+                    if let t = m.threshold {
+                        Text(String(format: "порог χ²: %.2f", t)).font(Theme.ui(12)).foregroundStyle(Theme.muted)
+                    }
+                    if let d = result?.weakSignals.dimensions {
+                        Text("измерения: " + d.joined(separator: ", "))
+                            .font(Theme.ui(11)).foregroundStyle(Theme.muted)
+                    }
+                    Text("Вероятность разладки и критическое замедление — в сыром payload weak_signals.")
+                        .font(Theme.ui(10.5)).foregroundStyle(Theme.faint)
+                }
+            }
         }
     }
+
     private func run() {
         running = true; error = nil
-        struct Req: Encodable { var levers: [String]; var years: Int; var maxAgents: Int }
         Task { defer { running = false }
-            do {
-                result = try await app.client?.post("/run/weak_signals",
-                    Req(levers: [lever], years: 12, maxAgents: 30), as: WeakResult.self)
-            } catch { self.error = "\(error)" }
-        }
-    }
-}
-
-private struct AboutPane: View {
-    @EnvironmentObject var app: AppState
-    @State private var scc: SccResult?
-    @State private var auc: ConflictMetaResult?
-    @State private var backtest: BacktestResult?
-    @State private var loadingBacktest = false
-    @State private var error: String?
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionTitle(title: "О модели", subtitle: "валидированные показатели доверия из статьи")
-
-                if let auc {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Относительный риск конфликта").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                        AUCView(proj: auc.projection)
-                        Text("воспроизвести: " + auc.reproduce).font(Theme.mono(10)).foregroundStyle(Theme.faint)
-                    }.card()
-                }
-
-                if let scc {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("SCC ($/тCO₂) по горизонтам").font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                        ForEach(scc.centralUsdPerTco2.sorted(by: { (Int($0.key) ?? 0) < (Int($1.key) ?? 0) }), id: \.key) { kv in
-                            Text("\(kv.key) лет: \(String(format: "%.0f", kv.value)) $/т")
-                                .font(Theme.mono(12)).foregroundStyle(Theme.muted)
-                        }
-                    }.card()
-                }
-
-                if let backtest {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Ретро-валидация \(backtest.startYear)–\(backtest.endYear)")
-                            .font(Theme.ui(13, .semibold)).foregroundStyle(Theme.text)
-                        Text(String(format: "RMSE: ВВП %.2f трлн · CO₂ %.2f Гт · T %.3f°C (смещение %.3f)",
-                                    backtest.gdpRmseTrillions, backtest.globalCo2RmseGtco2,
-                                    backtest.temperatureRmseC, backtest.temperatureBiasC))
-                            .font(Theme.mono(11)).foregroundStyle(Theme.muted)
-                    }.card()
-                } else {
-                    Button(action: loadBacktest) {
-                        Text(loadingBacktest ? "Гружу ретро-прогон…" : "Загрузить ретро-валидацию (медленно)")
-                            .font(Theme.ui(12)).foregroundStyle(Theme.accent)
-                    }.buttonStyle(.plain).disabled(loadingBacktest)
-                }
-                ErrorLine(text: error)
-            }.padding(18)
-        }
-        .task { await loadFast() }
-    }
-
-    private func loadFast() async {
-        auc = try? await app.meta("conflict_auc", as: ConflictMetaResult.self)
-        scc = try? await app.meta("scc", as: SccResult.self)
-    }
-    private func loadBacktest() {
-        loadingBacktest = true; error = nil
-        Task { defer { loadingBacktest = false }
-            do { backtest = try await app.meta("backtest", as: BacktestResult.self) }
+            do { result = try await app.runWeak(WeakRequest(levers: [lever], years: 12, maxAgents: 30)) }
             catch { self.error = "\(error)" } }
     }
 }
