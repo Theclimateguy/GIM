@@ -26,6 +26,7 @@ python3 -m PyInstaller \
   --collect-all shapely \
   --add-data "$REPO/data:data" \
   --add-data "$REPO/scenarios:scenarios" \
+  --add-data "$REPO/tests/fixtures:tests/fixtures" \
   "$HERE/engine_main.py"
 
 echo "[freeze] done → $HERE/dist/gim-engine"
