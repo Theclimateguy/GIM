@@ -43,6 +43,8 @@ The three forward-path corrections are confined to a single member-runner init s
 (`normalize_resource_scales_forward`, called only on the forward projection path and only ever scaling
 *up*), so the historical backtest, geo calibration, and game modes remain byte-identical.
 
+[17.2.1]: https://github.com/Theclimateguy/GIM/releases/tag/v17.2.1
+
 ## [17.2.0] — 2026-06-26
 
 **The final release of the 17.x family.** It completes the model's distinctive cross-domain story: the
