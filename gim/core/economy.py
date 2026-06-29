@@ -1,0 +1,406 @@
+from . import calibration_params as cal
+from .params import resolve_params
+from .climate import effective_damage_multiplier
+from .critical_pending import get_transition_pending, record_debt_flow
+from .core import AgentState, WorldState, clamp01, effective_trade_intensity
+from .country_params import get_savings_rate, get_social_spend_share, get_tax_rate
+from .metrics import update_tfp_endogenous
+from .expectations import expected_growth
+
+_ECONOMY_CRITICAL_PENDING_ATTR = "_economy_critical_pending"
+
+
+def _get_economy_pending(world: WorldState) -> dict[str, dict[str, float]]:
+    pending = getattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, None)
+    if pending is None:
+        pending = {}
+        setattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, pending)
+    return pending
+
+
+def _effective_critical(agent: AgentState, world: WorldState, field: str) -> float:
+    pending = _get_economy_pending(world).get(agent.id, {})
+    transition_pending = get_transition_pending(world).get(agent.id, {})
+    base = {
+        "gdp": float(agent.economy.gdp),
+        "capital": float(agent.economy.capital),
+        "public_debt": float(agent.economy.public_debt),
+    }[field]
+    return base + float(transition_pending.get(field, 0.0)) + float(pending.get(field, 0.0))
+
+
+def _add_critical_delta(
+    world: WorldState,
+    agent: AgentState,
+    *,
+    gdp: float = 0.0,
+    capital: float = 0.0,
+    public_debt: float = 0.0,
+) -> None:
+    pending = _get_economy_pending(world)
+    values = pending.setdefault(
+        agent.id,
+        {
+            "gdp": 0.0,
+            "capital": 0.0,
+            "public_debt": 0.0,
+        },
+    )
+    values["gdp"] += float(gdp)
+    values["capital"] += float(capital)
+    values["public_debt"] += float(public_debt)
+    record_debt_flow(world, agent.id, "fiscal", public_debt)
+
+
+def _set_critical_effective(world: WorldState, agent: AgentState, field: str, target: float) -> None:
+    current = _effective_critical(agent, world, field)
+    delta = float(target) - current
+    if delta == 0.0:
+        return
+    _add_critical_delta(world, agent, **{field: delta})
+
+
+def pop_economy_critical_deltas(world: WorldState) -> dict[str, dict[str, float]]:
+    pending = getattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, None)
+    if not pending:
+        return {}
+    setattr(world.global_state, _ECONOMY_CRITICAL_PENDING_ATTR, {})
+    return {
+        agent_id: {
+            "gdp": float(values.get("gdp", 0.0)),
+            "capital": float(values.get("capital", 0.0)),
+            "public_debt": float(values.get("public_debt", 0.0)),
+        }
+        for agent_id, values in pending.items()
+    }
+
+
+def _flush_economy_pending_for_agent(world: WorldState, agent: AgentState) -> None:
+    pending = _get_economy_pending(world)
+    values = pending.pop(agent.id, None)
+    if not values:
+        return
+    economy = agent.economy
+    setattr(economy, "gdp", max(0.0, float(economy.gdp) + float(values.get("gdp", 0.0))))
+    setattr(economy, "capital", max(0.0, float(economy.capital) + float(values.get("capital", 0.0))))
+    setattr(
+        economy,
+        "public_debt",
+        max(0.0, float(economy.public_debt) + float(values.get("public_debt", 0.0))),
+    )
+
+
+def _channel_disabled(world: WorldState | None, channel_name: str) -> bool:
+    if world is None:
+        return False
+    disabled = getattr(world.global_state, "_ablation_disabled_channels", set())
+    return channel_name in disabled
+
+
+def _credit_zone_premium(zone: str) -> float:
+    premiums = {
+        "prime": 0.0,
+        "investment": 0.0,
+        "sub_investment": 0.020,
+        "distressed": 0.060,
+        "default": 0.150,
+        "green": 0.0,
+        "yellow": 0.020,
+        "red": 0.060,
+    }
+    return float(premiums.get(zone, 0.0))
+
+
+def update_capital_endogenous(agent: AgentState, world: WorldState) -> None:
+    cal = resolve_params(world)
+    economy = agent.economy
+    risk = agent.risk
+
+    # WRITES: economy.capital
+    gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
+    capital = max(_effective_critical(agent, world, "capital"), 1e-6)
+    depreciation = cal.CAPITAL_DEPRECIATION
+
+    base_savings = get_savings_rate(agent.name, cal)
+    stability = clamp01(risk.regime_stability)
+    tension = clamp01(agent.society.social_tension)
+
+    savings_rate = base_savings * (
+        cal.SAVINGS_BASELINE_OFFSET
+        + cal.SAVINGS_STABILITY_SENS * stability
+        - cal.SAVINGS_TENSION_SENS * tension
+    )
+    savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
+
+    # [F2.5] Limited-foresight investment: blend an expected-return signal into the (otherwise
+    # adaptive) savings rate. Default EXPECTATIONS_FORESIGHT=0 -> pure adaptive expectations -> golden
+    # bit-identical. >0 tilts investment pro-cyclically toward expected returns (bounded).
+    foresight = getattr(cal, "EXPECTATIONS_FORESIGHT", 0.0)
+    if foresight > 0.0:
+        g_prev = getattr(economy, "_gdp_prev_foresight", None)
+        backward = (gdp - g_prev) / g_prev if (g_prev and g_prev > 0) else 0.0
+        # [E4.3] Near-rational: when EXPECTATIONS_HORIZON>0 and a forward forecast has been cached for
+        # this agent, use the model-consistent expected growth instead of the backward Delta-gdp proxy.
+        # Falls back to the backward proxy when off, or when no forecast is available (e.g. inside the
+        # projection itself, where the recursion guard suppresses the operator) -> golden-safe.
+        exp_growth = backward
+        if int(getattr(cal, "EXPECTATIONS_HORIZON", 0)) > 0:
+            forward = expected_growth(world, agent.id)
+            if forward is not None:
+                exp_growth = forward
+        savings_rate *= 1.0 + foresight * max(-0.5, min(0.5, exp_growth))
+        savings_rate = max(cal.SAVINGS_MIN, min(cal.SAVINGS_MAX, savings_rate))
+        economy._gdp_prev_foresight = gdp
+
+    investment = savings_rate * gdp
+
+    # [E3.2] Capital-market clearing: investment responds to the price of capital -- the gap between
+    # the marginal product of capital (return) and its cost (interest rate + depreciation), anchored
+    # at the baseline gap so the steady state is unchanged (golden-safe). Switchable (default off).
+    if getattr(cal, "CAPITAL_MARKET_CLEARING", False):
+        mpk = cal.ALPHA_CAPITAL * gdp / capital
+        cost_of_capital = compute_effective_interest_rate(agent, world) + depreciation
+        gap = mpk - cost_of_capital
+        gap0 = getattr(economy, "_capital_gap0", None)
+        if gap0 is None:
+            economy._capital_gap0 = gap
+            gap0 = gap
+        mult = 1.0 + cal.CAPITAL_CLEARING_SENS * (gap - gap0)
+        mult = max(cal.CAPITAL_CLEARING_MIN, min(cal.CAPITAL_CLEARING_MAX, mult))
+        investment = investment * mult
+
+    _set_critical_effective(
+        world,
+        agent,
+        "capital",
+        max(1e-6, (1.0 - depreciation) * capital + investment),
+    )
+
+
+def _nested_ces_core(capital, labor, energy_input, alpha, beta, gamma, sigma_ke,
+                     base_capital=None, base_energy=None):
+    """KLE nested production core (E3.1): inner CES on (capital, energy), outer Cobb-Douglas vs labour.
+
+    Inner capital-energy bundle uses the capital/energy income shares within (alpha, gamma) and the
+    substitution elasticity `sigma_ke`; the outer nest keeps the Cobb-Douglas exponents (alpha+gamma)
+    on the bundle and beta on labour, preserving the model's mildly-decreasing returns.
+
+    **Calibrated (normalized) CES.** When base values are given, the bundle is referenced to each
+    country's base-year capital/energy so that AT THE BASE POINT it equals the Cobb-Douglas core
+    exactly (level and first derivatives) for ANY sigma_ke. This makes turning the nested core on
+    golden-preserving by construction: at the calibration year it reproduces Cobb-Douglas, and it
+    diverges only as the capital-energy mix moves away from base -- i.e. genuine substitution.
+    At sigma_ke == 1 it is identical to capital**alpha * energy**gamma * labour**beta everywhere.
+    """
+    ag = alpha + gamma
+    if ag <= 0:
+        return (capital ** alpha) * (labor ** beta) * (energy_input ** gamma)
+    a_k, a_e = alpha / ag, gamma / ag
+    if abs(sigma_ke - 1.0) < 1e-9:
+        ke = (capital ** a_k) * (energy_input ** a_e)
+    else:
+        rho = (sigma_ke - 1.0) / sigma_ke
+        if base_capital and base_energy and base_capital > 0 and base_energy > 0:
+            # normalized form: equals the Cobb-Douglas bundle at (base_capital, base_energy)
+            ke0 = (base_capital ** a_k) * (base_energy ** a_e)
+            bracket = a_k * (capital / base_capital) ** rho + a_e * (energy_input / base_energy) ** rho
+            ke = ke0 * bracket ** (1.0 / rho)
+        else:
+            ke = (a_k * capital ** rho + a_e * energy_input ** rho) ** (1.0 / rho)
+    return (ke ** ag) * (labor ** beta)
+
+
+def update_economy_output(
+    agent: AgentState,
+    world: WorldState,
+    *,
+    defer_critical_writes: bool = False,
+) -> None:
+    cal = resolve_params(world)
+    economy = agent.economy
+    update_tfp_endogenous(agent, world)
+
+    alpha = cal.ALPHA_CAPITAL
+    beta = cal.BETA_LABOR
+    gamma = cal.GAMMA_ENERGY
+
+    capital = max(economy.capital, 1e-6)
+    labor = max(economy.population / 1e9, 1e-3)
+
+    energy = agent.resources.get("energy")
+    if energy:
+        efficiency = max(0.5, energy.efficiency)
+        energy_input = max((energy.consumption / 1000.0) * efficiency, 1e-3)
+    else:
+        energy_input = 1.0
+
+    tfp = getattr(economy, "tfp", getattr(economy, "_tfp", 1.0))
+    tech_level = max(0.5, agent.technology.tech_level)
+    tech_factor = 1.0 + cal.TECH_OUTPUT_SENS * max(0.0, tech_level - 1.0)
+
+    # [F2.1/E3.1] Production function: Cobb-Douglas (default) or calibrated nested CES (KLE).
+    if getattr(cal, "NESTED_CES", False):
+        # Capture each country's base-year capital/energy once, so the calibrated CES equals
+        # Cobb-Douglas at the base point (golden-preserving on activation) and substitutes off-base.
+        if getattr(economy, "_ces_base_capital", None) is None:
+            economy._ces_base_capital = capital
+            economy._ces_base_energy = energy_input
+        core = _nested_ces_core(
+            capital, labor, energy_input, alpha, beta, gamma,
+            getattr(cal, "CES_SIGMA_KE", 1.0),
+            base_capital=economy._ces_base_capital, base_energy=economy._ces_base_energy,
+        )
+    else:
+        core = (capital**alpha) * (labor**beta) * (energy_input**gamma)
+    gdp_potential = tfp * tech_factor * core
+
+    if (not hasattr(economy, "_scale_factor")) or getattr(economy, "_scale_factor", None) is None:
+        economy._scale_factor = economy.gdp / gdp_potential if gdp_potential > 0 else 1.0
+
+    # WRITES: economy.gdp, economy.gdp_per_capita, economy.climate_damage_factor
+    damage_multiplier = effective_damage_multiplier(agent, world)
+    economy.climate_damage_factor = min(1.0, damage_multiplier)
+    gdp_target = gdp_potential * economy._scale_factor * damage_multiplier
+    if economy.climate_shock_years > 0:
+        gdp_target *= max(0.0, 1.0 - economy.climate_shock_penalty)
+        economy.climate_shock_years -= 1
+        if economy.climate_shock_years <= 0:
+            economy.climate_shock_penalty = 0.0
+
+    # Endogenous catch-up: faster when realized GDP is below potential,
+    # slower when above. No exogenous growth term is introduced.
+    gdp_now = max(_effective_critical(agent, world, "gdp"), 1e-6)
+    gap = (gdp_target - gdp_now) / gdp_now
+    adjust_speed = cal.GDP_ADJUST_SPEED_BASE + cal.GDP_ADJUST_SPEED_GAP_SENS * clamp01(max(0.0, gap))
+    _set_critical_effective(
+        world,
+        agent,
+        "gdp",
+        (1.0 - adjust_speed) * gdp_now + adjust_speed * gdp_target,
+    )
+
+    update_capital_endogenous(agent, world)
+
+    if economy.population > 0:
+        economy.gdp_per_capita = _effective_critical(agent, world, "gdp") * 1e12 / economy.population
+    if not defer_critical_writes:
+        _flush_economy_pending_for_agent(world, agent)
+
+
+def compute_effective_interest_rate(agent: AgentState, world: WorldState | None = None) -> float:
+    cal = resolve_params(world)
+    economy = agent.economy
+    risk = agent.risk
+
+    # Taylor-rule policy base rate (P4-C): the central bank moves the rate above/below its
+    # neutral level in response to the inflation gap and the output gap (proxied by the
+    # unemployment gap). Zero deviation at inflation==target and u==NAIRU, so the calibration
+    # steady state is preserved. Disable-able via the `monetary_policy_feedback` channel.
+    base_rate = cal.BASE_INTEREST_RATE
+    if not _channel_disabled(world, "monetary_policy_feedback"):
+        infl_gap = economy.inflation - cal.INFLATION_TARGET
+        slack_gap = cal.NAIRU - economy.unemployment  # >0 when the economy runs hot
+        taylor_dev = cal.TAYLOR_PHI_PI * infl_gap + cal.TAYLOR_PHI_Y * slack_gap
+        taylor_dev = max(-cal.TAYLOR_DEVIATION_CAP, min(cal.TAYLOR_DEVIATION_CAP, taylor_dev))
+        base_rate = max(0.0, cal.BASE_INTEREST_RATE + taylor_dev)
+
+    gdp = max(economy.gdp, 1e-6)
+    debt_gdp = economy.public_debt / gdp
+
+    excess = max(0.0, debt_gdp - cal.DEBT_SPREAD_THRESHOLD)
+    if _channel_disabled(world, "debt_spread_feedback"):
+        spread_raw = 0.0
+    else:
+        spread_raw = cal.DEBT_SPREAD_LINEAR * excess + cal.DEBT_SPREAD_QUADRATIC * (excess**2)
+
+    fragility = 1.0 - risk.regime_stability
+    spread = spread_raw * (
+        cal.DEBT_SPREAD_RISK_BASE + cal.DEBT_SPREAD_RISK_SENS * risk.debt_crisis_prone
+    ) * (
+        cal.DEBT_SPREAD_FRAGILITY_BASE + cal.DEBT_SPREAD_FRAGILITY_SENS * fragility
+    )
+
+    contagion_spread = 0.0
+    if world is not None:
+        if _channel_disabled(world, "debt_spread_feedback"):
+            total_weight = 0.0
+            stress_sum = 0.0
+        else:
+            total_weight = 0.0
+            stress_sum = 0.0
+            for partner_id, rel in world.relations.get(agent.id, {}).items():
+                partner = world.agents.get(partner_id)
+                if partner is None:
+                    continue
+                partner_gdp = max(partner.economy.gdp, 1e-6)
+                partner_debt_gdp = partner.economy.public_debt / partner_gdp
+                partner_excess = max(0.0, partner_debt_gdp - cal.CONTAGION_DEBT_THRESHOLD)
+                partner_stress = partner_excess * partner.risk.debt_crisis_prone
+                weight = max(0.0, effective_trade_intensity(rel))
+                stress_sum += weight * partner_stress
+                total_weight += weight
+            if total_weight > 0.0:
+                avg_partner_stress = stress_sum / total_weight
+                contagion_spread = min(cal.CONTAGION_SPREAD_CAP, cal.CONTAGION_SPREAD_SENS * avg_partner_stress)
+
+    zone = str(getattr(agent, "credit_zone", "investment"))
+    if _channel_disabled(world, "credit_zone_premium"):
+        zone_premium = 0.0
+    else:
+        zone_premium = _credit_zone_premium(zone)
+    # [F2.3] SFC financial accelerator: a leverage-driven private-credit premium (0 unless enabled).
+    credit_premium = getattr(economy, "_credit_premium", 0.0)
+    rate = base_rate + min(spread, cal.RATE_SPREAD_CAP) + contagion_spread + zone_premium + credit_premium
+    return float(max(0.0, min(rate, cal.RATE_MAX)))
+
+
+def update_public_finances(
+    agent: AgentState,
+    world: WorldState,
+    *,
+    defer_critical_writes: bool = False,
+) -> None:
+    cal = resolve_params(world)
+    economy = agent.economy
+
+    gdp = max(_effective_critical(agent, world, "gdp"), 1e-6)
+
+    # Baseline fiscal drivers to avoid mechanical debt repayment.
+    base_social_share = get_social_spend_share(agent.name, cal)
+    base_military_share = cal.MILITARY_SPEND_BASE
+    climate_adaptation_share = cal.CLIMATE_ADAPT_BASE + cal.CLIMATE_ADAPT_RISK_SENS * max(
+        0.0,
+        agent.climate.climate_risk,
+    )
+    economy.climate_adaptation_spending = gdp * climate_adaptation_share
+
+    baseline_spending = gdp * (base_social_share + base_military_share + climate_adaptation_share)
+    policy_spending = economy.social_spending + economy.military_spending + economy.rd_spending
+    economy.gov_spending = max(0.0, baseline_spending + policy_spending)
+
+    economy.taxes = get_tax_rate(agent.name, cal) * gdp
+    effective_rate = compute_effective_interest_rate(agent, world)
+    debt_effective = _effective_critical(agent, world, "public_debt")
+    economy.interest_payments = effective_rate * debt_effective
+
+    primary_deficit = economy.gov_spending - economy.taxes
+    total_deficit = primary_deficit + economy.interest_payments
+
+    max_new_debt = cal.MAX_NEW_DEBT_GDP * gdp
+    if total_deficit > 0:
+        new_borrowing = min(total_deficit, max_new_debt)
+    else:
+        new_borrowing = 0.0
+        _set_critical_effective(
+            world,
+            agent,
+            "public_debt",
+            max(0.0, debt_effective + total_deficit),
+        )
+        debt_effective = _effective_critical(agent, world, "public_debt")
+
+    _set_critical_effective(world, agent, "public_debt", max(0.0, debt_effective + new_borrowing))
+
+    economy.rd_spending *= cal.RD_SPENDING_DECAY
+    if not defer_critical_writes:
+        _flush_economy_pending_for_agent(world, agent)

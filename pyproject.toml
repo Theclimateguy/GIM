@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gim17"
+version = "17.2.0"
+description = "Unified local GIM17 simulator package"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+# Core runtime is standard-library only EXCEPT shapely: the headline model activates geographic coupling
+# (conflict / trade / tension / climate), which needs the spatial graph. Without shapely the geo channels
+# degrade gracefully to off (a reproducibility footgun for the headline), so it is a hard dependency.
+dependencies = ["shapely>=2.0"]
+
+[project.optional-dependencies]
+llm = ["requests>=2.31"]          # LLM / orchestration policy path
+analysis = ["numpy>=1.26", "pandas>=2.0"]  # game theory + data scripts
+viz = ["matplotlib>=3.8"]         # credit maps / plotting scripts
+mcp = ["mcp>=1.2", "numpy>=1.26"] # MCP server (gim-mcp): all 6 tools incl. sensitivity
+dev = ["requests>=2.31", "numpy>=1.26", "pandas>=2.0", "matplotlib>=3.8", "shapely>=2.0"]
+
+[project.scripts]
+gim-mcp = "gim.mcp_server:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["gim*"]

@@ -1,0 +1,8 @@
+# Bundle runtime data (priors, state snapshots, world geometry) and docs into the sdist.
+# The engine resolves these relative to the repo root, so they must travel with the package.
+recursive-include data *.csv *.json *.geojson
+include docs/*.md
+include paper/*.pdf
+include LICENSE NOTICE requirements-lock.txt README.md
+global-exclude __pycache__/*
+global-exclude *.pyc
