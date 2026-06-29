@@ -30,6 +30,11 @@ struct RootView: View {
         }
         .frame(minWidth: 920, minHeight: 660)
         .foregroundStyle(Theme.text)
+        // Force the whole window dark — including the titlebar/background chrome,
+        // which `environment(colorScheme:)` alone does not affect. Without this the
+        // native titlebar renders light (the "white around the top-left" + the
+        // loading-screen colour mismatch).
+        .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
         .tint(Theme.accent)
     }
@@ -42,7 +47,7 @@ struct RootView: View {
             BootView(text: "Движок не запустился:\n\(err)", spinning: false)
         case .ready:
             switch app.route {
-            case .home: HomeView()
+            case .home: ChatView()
             case .chat: ChatView()
             case .whatif: WhatIfView()
             case .play: PlaySetupView()
@@ -61,16 +66,14 @@ struct TopBar: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Button(action: { app.route = .home }) {
+            Button(action: { app.route = .chat }) {
                 HStack(spacing: 8) {
-                    if let icon = Brand.appIcon {
-                        icon.resizable().interpolation(.high).frame(width: 22, height: 22)
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
-                    }
+                    BrandMark(size: 22)
                     Text("GIM17").font(Theme.ui(13, .medium)).foregroundStyle(Theme.text)
                 }
             }
             .buttonStyle(.plain)
+            .help("На главный экран — Ассистент")
 
             Spacer()
 
@@ -166,10 +169,7 @@ struct BootView: View {
     var body: some View {
         VStack(spacing: 22) {
             HStack(spacing: 14) {
-                if let icon = Brand.appIcon {
-                    icon.resizable().interpolation(.high).frame(width: 60, height: 60)
-                        .clipShape(RoundedRectangle(cornerRadius: 13))
-                }
+                BrandMark(size: 60)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 0) {
                         Text("GIM").font(.system(size: 32, weight: .bold)).foregroundStyle(Theme.text)
@@ -194,91 +194,6 @@ struct BootView: View {
     }
 }
 
-struct HomeView: View {
-    @EnvironmentObject var app: AppState
-
-    private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Глобальная интегрированная модель · v17.2.0")
-                    .font(Theme.ui(12)).foregroundStyle(Theme.muted)
-                Text("Как будем работать?").font(Theme.ui(20, .medium))
-
-                LazyVGrid(columns: columns, spacing: 12) {
-                    PathCard(route: .chat, icon: "message", title: "Ассистент",
-                             desc: "Опишите задачу словами — ассистент соберёт сценарий, прогонит его и предложит варианты. Здесь же «что если» и игра за страну.",
-                             featured: true)
-                    PathCard(route: .expert, icon: "slider.horizontal.3", title: "Экспертный режим",
-                             desc: "Полный пульт: все рычаги, state-CSV, рантайм-флаги, прямой контроль над прогоном.")
-                }
-                .frame(maxWidth: 640)
-
-                Text("\(app.actors.count) акторов · \(app.personas.count) персон · мир загружен")
-                    .font(Theme.mono(11)).foregroundStyle(Theme.faint)
-                    .padding(.top, 4)
-            }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-}
-
-struct PathCard: View {
-    @EnvironmentObject var app: AppState
-    let route: Route
-    let icon: String
-    let title: String
-    let desc: String
-    var featured: Bool = false
-
-    var body: some View {
-        Button(action: { app.route = route }) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: icon).font(.system(size: 26)).foregroundStyle(Theme.accent)
-                    Spacer()
-                    if featured {
-                        Text("флагман").font(Theme.ui(10))
-                            .foregroundStyle(Theme.accentInk)
-                            .padding(.horizontal, 7).padding(.vertical, 2)
-                            .background(Theme.accent).clipShape(RoundedRectangle(cornerRadius: 5))
-                    }
-                }
-                Spacer(minLength: 6)
-                Text(title).font(Theme.ui(16, .medium))
-                Text(desc).font(Theme.ui(12)).foregroundStyle(Theme.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
-            .padding(18)
-            .background(Theme.surface)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(featured ? Theme.accent : Theme.line, lineWidth: featured ? 2 : 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-struct PlaceholderView: View {
-    @EnvironmentObject var app: AppState
-    let title: String
-    let icon: String
-
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon).font(.system(size: 30)).foregroundStyle(Theme.accent)
-            Text(title).font(Theme.ui(18, .medium))
-            Text("экран в работе").font(Theme.ui(12)).foregroundStyle(Theme.muted)
-            Button(action: { app.route = .home }) {
-                Text("← на главную").font(Theme.ui(12)).foregroundStyle(Theme.accent)
-            }
-            .buttonStyle(.plain)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
+// Home, the standalone What-if/Play screens and the placeholder were retired when
+// the app collapsed to three destinations: Assistant, Expert, Compare. Structured
+// runs now live in Expert; results render in the Situation room.

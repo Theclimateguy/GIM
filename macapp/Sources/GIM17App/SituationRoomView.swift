@@ -8,6 +8,17 @@ struct SituationRoomView: View {
         ScrollView {
             if let r {
                 VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 10) {
+                        Button { app.route = .expert } label: {
+                            Label("К конфигурации", systemImage: "chevron.left")
+                        }
+                        .buttonStyle(GhostButtonStyle())
+                        Button { app.route = .compare } label: {
+                            Label("В сравнение", systemImage: "arrow.left.arrow.right")
+                        }
+                        .buttonStyle(GhostButtonStyle())
+                        Spacer()
+                    }
                     header(r)
                     if let o = r.outcomes, !o.isEmpty {
                         VStack(alignment: .leading, spacing: 9) {

@@ -66,13 +66,33 @@ struct GameRequest: Encodable {
     var description: String?
     var horizon: Int = 3
     var equilibrium: Bool = true
+    var episodes: Int = 50
     var maxCombinations: Int = 256
+    var backgroundPolicy: String = "compiled-llm"
     var seed: Int? = 2026
 
     enum CodingKeys: String, CodingKey {
-        case worldKey, description, horizon, equilibrium, maxCombinations, seed
+        case worldKey, description, horizon, equilibrium, episodes, maxCombinations, backgroundPolicy, seed
         case casePath = "case"
     }
+}
+
+// Composed scenario: an explicit set of calibrated shock levers (the ontology in
+// gim/scenario_ontology.py). The engine reads each item's `lever` + `magnitude`.
+struct LeverChoice: Encodable {
+    let lever: String
+    let magnitude: Double
+}
+
+struct ComposedRequest: Encodable {
+    var worldKey: String
+    var question: String
+    var levers: [LeverChoice]
+    var actors: [String]?
+    var horizon: Int
+    var backgroundPolicy: String = "compiled-llm"
+    var llmRefresh: String = "trigger"
+    var seed: Int? = 2026
 }
 
 // --- responses --------------------------------------------------------------
@@ -255,4 +275,42 @@ let doctrineDims: [(key: String, label: String)] = [
     ("reserve_protection", "Защита резервов"),
     ("finance_defensiveness", "Фин. оборонительность"),
     ("climate_pragmatism", "Климат-прагматизм"),
+]
+
+// MARK: - Shock-lever ontology (mirror of gim/scenario_ontology.py)
+
+// Magnitude is an intensity multiplier on the calibrated prior shift. The band
+// keeps a composed scenario comparable to the hand-tuned templates.
+enum Magnitude {
+    static let min: Double = 0.15
+    static let max: Double = 1.25
+    static let `default`: Double = 0.60
+}
+
+// One human-meaningful pressure → one engine channel. Labels and defaults track
+// the Python ontology (the single source of truth on the engine side).
+struct ShockLever: Identifiable, Hashable {
+    let id: String
+    let label: String      // RU label
+    let icon: String       // SF Symbol
+    let note: String       // one-line rationale (RU)
+}
+
+let shockLevers: [ShockLever] = [
+    ShockLever(id: "sanctions",  label: "Санкции / фин. давление",        icon: "creditcard.trianglebadge.exclamationmark",
+               note: "Сужается доступ к внешнему финансированию и импорту."),
+    ShockLever(id: "maritime",   label: "Давление в морском узле",        icon: "ferry",
+               note: "Перекрытие пролива бьёт по торговле и энергопотокам."),
+    ShockLever(id: "resource",   label: "Ресурсный / энерго- / продшок",  icon: "fuelpump",
+               note: "Дефицит поставок давит на домохозяйства и бюджет."),
+    ShockLever(id: "technology", label: "Технологии / экспортконтроль",   icon: "cpu",
+               note: "Отказ в технологиях фрагментирует цепочки поставок."),
+    ShockLever(id: "alliance",   label: "Альянс / мобилизация блока",     icon: "shield.lefthalf.filled",
+               note: "Блоковое выравнивание расширяет конфликтный конверт."),
+    ShockLever(id: "proxy",      label: "Прокси-эскалация",               icon: "figure.2",
+               note: "Поддержка прокси повышает давление ограниченной эскалации."),
+    ShockLever(id: "domestic",   label: "Внутренняя дестабилизация",      icon: "person.3.sequence",
+               note: "Внутреннее недовольство поднимает протест и репрессии."),
+    ShockLever(id: "cyber",      label: "Кибероперации",                  icon: "bolt.horizontal.circle",
+               note: "Киберсрыв может перетечь в прямой обмен ударами."),
 ]

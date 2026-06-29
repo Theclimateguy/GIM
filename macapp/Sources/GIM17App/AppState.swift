@@ -13,7 +13,7 @@ enum EngineStatus: Equatable {
 @MainActor
 final class AppState: ObservableObject {
     @Published var engineStatus: EngineStatus = .launching
-    @Published var route: Route = .home
+    @Published var route: Route = .chat
     @Published var actors: [ActorOption] = []
     @Published var personas: [Persona] = []
     @Published var worldKey: String = ""
@@ -30,6 +30,9 @@ final class AppState: ObservableObject {
     @Published var doctrineLoading = false
     @Published var streamedIntents: [IntentFeedItem] = []
     @Published var history: [RunRecord] = []
+    @Published var baseline: RunRecord?
+    @Published var baselineLoading = false
+    @Published var compareSelection: [UUID] = []
     @Published var chat: [ChatMessage] = []
     @Published var chatStreaming = false
     @Published var llmProvider = "deterministic"
@@ -123,14 +126,105 @@ final class AppState: ObservableObject {
                     route = .situation
                 case "error":
                     runError = (try? EngineClient.decoder.decode(SSEError.self, from: data))?.message ?? "run failed"
-                    route = .whatif
+                    route = .expert
                 default:
                     break
                 }
             }
         } catch {
             runError = String(describing: error)
-            route = .whatif
+            route = .expert
+        }
+    }
+
+    // Shared streaming driver for the structured Expert run-types. Navigates to
+    // the Running screen, then to the Situation room on a result; routes errors
+    // back to Expert. `collectsIntents` is only used by Play.
+    private func streamStructured<B: Encodable>(
+        path: String, body: B, label: String, collectsIntents: Bool = false
+    ) async {
+        guard let client else { return }
+        runError = nil
+        progress = nil
+        currentRunId = nil
+        runMode = label
+        if collectsIntents { streamedIntents = [] }
+        route = .running
+        do {
+            for try await (event, data) in client.stream(path, body) {
+                switch event {
+                case "progress":
+                    if let p = try? EngineClient.decoder.decode(ProgressEvent.self, from: data) {
+                        progress = p
+                        if currentRunId == nil { currentRunId = p.runId }
+                    }
+                case "intent" where collectsIntents:
+                    if let it = try? EngineClient.decoder.decode(IntentFeedItem.self, from: data) {
+                        streamedIntents.append(it)
+                    }
+                case "result":
+                    if let r = try? EngineClient.decoder.decode(RunResult.self, from: data) {
+                        lastResult = r
+                        record(r, label: label)
+                    }
+                    route = .situation
+                case "error":
+                    runError = (try? EngineClient.decoder.decode(SSEError.self, from: data))?.message ?? "прогон не выполнен"
+                    route = .expert
+                default:
+                    break
+                }
+            }
+        } catch {
+            runError = String(describing: error)
+            route = .expert
+        }
+    }
+
+    func runComposed(question: String, levers: [LeverChoice], actors: [String], label: String,
+                     horizon: Int = 5, backgroundPolicy: String = "compiled-llm",
+                     llmRefresh: String = "trigger", seed: Int = 2026) async {
+        guard !levers.isEmpty else { return }
+        let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        let req = ComposedRequest(
+            worldKey: worldKey,
+            question: q.isEmpty ? "Композитный сценарий из выбранных возмущений" : q,
+            levers: levers, actors: actors.isEmpty ? nil : actors, horizon: horizon,
+            backgroundPolicy: backgroundPolicy, llmRefresh: llmRefresh, seed: seed)
+        await streamStructured(path: "/run/composed", body: req, label: label)
+    }
+
+    func runGame(description: String, label: String, horizon: Int = 4,
+                 equilibrium: Bool = true, episodes: Int = 50, maxCombinations: Int = 256,
+                 backgroundPolicy: String = "compiled-llm", seed: Int = 2026) async {
+        let d = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !d.isEmpty else { return }
+        let req = GameRequest(
+            worldKey: worldKey, casePath: nil, description: d, horizon: horizon,
+            equilibrium: equilibrium, episodes: episodes, maxCombinations: maxCombinations,
+            backgroundPolicy: backgroundPolicy, seed: seed)
+        await streamStructured(path: "/run/game", body: req, label: label)
+    }
+
+    // The pinned reference for Compare: the model's inertial trajectory with no
+    // new shocks. A real engine run (not a stored constant), computed once.
+    func loadBaseline() async {
+        guard let client, baseline == nil, !baselineLoading else { return }
+        baselineLoading = true
+        defer { baselineLoading = false }
+        let req = WhatIfRequest(
+            worldKey: worldKey,
+            question: "Baseline: inertial world trajectory, no new shocks.",
+            actors: nil, template: nil, horizon: 5,
+            backgroundPolicy: "compiled-llm", llmRefresh: "never", seed: 2026)
+        do {
+            for try await (event, data) in client.stream("/run/whatif", req) {
+                if event == "result", let r = try? EngineClient.decoder.decode(RunResult.self, from: data) {
+                    baseline = RunRecord(label: "Базовая линия", result: r)
+                }
+            }
+        } catch {
+            // Baseline is best-effort; Compare degrades to scenario-vs-scenario.
         }
     }
 
@@ -168,18 +262,20 @@ final class AppState: ObservableObject {
         }
     }
 
-    func runPlay() async {
+    func runPlay(roundYears: Int = 4, ensembleSize: Int = 3, seed: Int = 2026,
+                 backgroundPolicy: String = "compiled-llm") async {
         guard let client, !playCountry.isEmpty, !playPersona.isEmpty else { return }
         runError = nil
         progress = nil
         currentRunId = nil
         streamedIntents = []
-        runMode = "Играть · \(playCountry)"
+        runMode = "Игра за страну · \(playCountry)"
         route = .running
         let goal = playGoal.trimmingCharacters(in: .whitespacesAndNewlines)
         let req = PlayRequest(
             worldKey: worldKey, country: playCountry, persona: playPersona,
-            goal: goal.isEmpty ? "Hold current course." : goal
+            goal: goal.isEmpty ? "Hold current course." : goal,
+            roundYears: roundYears, ensembleSize: ensembleSize, seed: seed
         )
         do {
             for try await (event, data) in client.stream("/run/play", req) {
@@ -201,14 +297,14 @@ final class AppState: ObservableObject {
                     route = .situation
                 case "error":
                     runError = (try? EngineClient.decoder.decode(SSEError.self, from: data))?.message ?? "run failed"
-                    route = .play
+                    route = .expert
                 default:
                     break
                 }
             }
         } catch {
             runError = String(describing: error)
-            route = .play
+            route = .expert
         }
     }
 

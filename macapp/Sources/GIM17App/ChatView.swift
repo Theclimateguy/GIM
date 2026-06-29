@@ -17,8 +17,7 @@ struct ChatView: View {
                     .padding(.horizontal, 8).padding(.vertical, 3)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line, lineWidth: 1))
                 Spacer()
-                optionChip(title: "Что если", icon: "bolt.fill") { app.route = .whatif }
-                optionChip(title: "Играть", icon: "play.fill") { app.route = .play }
+                optionChip(title: "Экспертный режим", icon: "slider.horizontal.3") { app.route = .expert }
             }
             .padding(.horizontal, 20).padding(.top, 14).padding(.bottom, 8)
 
@@ -91,7 +90,7 @@ struct ChatView: View {
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Поговорите с моделью").font(Theme.ui(16, .medium))
-            Text("Опишите сценарий — ассистент соберёт его из рычагов и прогонит. Примеры: «энергошок плюс экспортный контроль по Китаю», «что если закроют Ормуз?», «играть за Германию как технократ». Числа всегда из прогона движка. Структурированные режимы — кнопками «Что если» и «Играть» выше.")
+            Text("Опишите сценарий — ассистент соберёт его из рычагов и прогонит. Примеры: «энергошок плюс экспортный контроль по Китаю», «что если закроют Ормуз?», «играть за Германию как технократ». Числа всегда из прогона движка. Для ручной настройки всех параметров откройте Экспертный режим.")
                 .font(Theme.ui(12)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
         }
         .padding(.bottom, 6)
