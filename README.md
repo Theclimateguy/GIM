@@ -41,9 +41,18 @@ The calibrated state snapshots, priors, and world geometry ship **inside the pac
 (`gim/data/`), so the engine finds them after a plain install — no source tree required.
 This registers the `gim-mcp` console script.
 
-## Connect (Claude Desktop)
+## Connect (any MCP client)
 
-Add to `claude_desktop_config.json`, then restart the client:
+`gim-mcp` is a standard **stdio MCP server**, so any MCP-capable host — LLM desktop apps,
+IDE plugins, agent frameworks, or your own client — can use it. The connection contract is
+the same everywhere:
+
+- **command:** `gim-mcp` (use its absolute path, e.g. `$(which gim-mcp)`, if the host runs
+  without your shell `PATH`)
+- **transport:** stdio
+- **args:** none
+
+Most hosts accept this as a small JSON entry; the common shape is:
 
 ```jsonc
 {
@@ -53,7 +62,8 @@ Add to `claude_desktop_config.json`, then restart the client:
 }
 ```
 
-See **[docs/mcp_server.md](docs/mcp_server.md)** for the full tool/resource reference, the
+Refer to your host's documentation for where this config lives. See
+**[docs/mcp_server.md](docs/mcp_server.md)** for the full tool/resource reference, the
 provenance-envelope contract (determinism, anti-drift, fidelity), and snapshot selection.
 
 ## License

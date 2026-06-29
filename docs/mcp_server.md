@@ -17,21 +17,27 @@ This registers the `gim-mcp` console script (stdio MCP server). State snapshots,
 world geometry are bundled inside the package (`gim/data/`), so the server works out of the box
 on a clean machine — no source checkout or data download required.
 
-## Connect (Claude Desktop)
+## Connect (any MCP client)
 
-Add to `claude_desktop_config.json`:
+`gim-mcp` is a standard stdio MCP server. Any MCP-capable host — LLM desktop apps, IDE
+plugins, agent frameworks, or a custom client — connects with the same contract:
+
+- **command:** `gim-mcp` (or its absolute path if the host runs without your shell `PATH`)
+- **transport:** stdio
+- **args:** none
+
+Most hosts accept this as a small JSON entry; the common shape is:
 
 ```jsonc
 {
   "mcpServers": {
-    "gim": {
-      "command": "gim-mcp"
-    }
+    "gim": { "command": "gim-mcp" }
   }
 }
 ```
 
-Restart the client. The `gim` server then exposes 3 resources + 6 tools.
+Consult your host's documentation for where this config lives. Once connected, the `gim`
+server exposes 3 resources + 6 tools.
 
 ## Resources (read-only grounding)
 
