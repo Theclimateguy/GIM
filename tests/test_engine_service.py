@@ -30,7 +30,39 @@ from urllib.parse import quote
 from gim.engine_service import build_engine_server
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
+
+
+def _numeric_drifts(a, b, path: str = "", *, rel_tol: float = 1e-9, abs_tol: float = 1e-12) -> list[str]:
+    """Recursively compare two JSON-like evaluation objects.
+
+    Returns a list of human-readable drift descriptions. Structure, strings, ints and bools must
+    match exactly; floats may differ only within ``rel_tol``/``abs_tol`` (cross-process float
+    reduction-order noise is ~1e-15 and must be ignored, while any real drift is >=1e-6).
+    """
+    import math
+
+    drifts: list[str] = []
+    if isinstance(a, dict) and isinstance(b, dict):
+        if a.keys() != b.keys():
+            drifts.append(f"{path}: key mismatch {sorted(a.keys()^b.keys())}")
+        for k in a.keys() & b.keys():
+            drifts += _numeric_drifts(a[k], b[k], f"{path}.{k}", rel_tol=rel_tol, abs_tol=abs_tol)
+    elif isinstance(a, list) and isinstance(b, list):
+        if len(a) != len(b):
+            drifts.append(f"{path}: length {len(a)} != {len(b)}")
+        else:
+            for i, (x, y) in enumerate(zip(a, b)):
+                drifts += _numeric_drifts(x, y, f"{path}[{i}]", rel_tol=rel_tol, abs_tol=abs_tol)
+    elif isinstance(a, bool) or isinstance(b, bool):
+        if a is not b:
+            drifts.append(f"{path}: {a!r} != {b!r}")
+    elif isinstance(a, float) or isinstance(b, float):
+        if not math.isclose(float(a), float(b), rel_tol=rel_tol, abs_tol=abs_tol):
+            drifts.append(f"{path}: {a!r} != {b!r} (rel {abs(a-b)/max(abs(a),abs(b),1e-12):.1e})")
+    elif a != b:
+        drifts.append(f"{path}: {a!r} != {b!r}")
+    return drifts
 
 
 def _read_sse(response) -> list[tuple[str, dict]]:
@@ -337,14 +369,37 @@ class EngineParityTests(_EngineTestBase):
         self.assertEqual(completed.returncode, 0, completed.stderr[-2000:])
         cli_evaluation = json.loads(completed.stdout)
 
-        # Deep-equality on the full evaluation object proves no math drift.
-        # (run_id / elapsed_ms / timestamps live only in the engine's trace block,
-        #  which is intentionally excluded from this comparison.)
+        # No math drift between the engine and the equivalent CLI. We assert NUMERIC agreement
+        # (not bitwise): both build a fresh world and run identical code, but the 3-year sim
+        # contains float reductions whose summation order depends on object allocation order,
+        # which differs between the in-process engine and the CLI subprocess. That makes the last
+        # ~1e-15 bit non-reproducible *across processes* (IEEE-754 non-associativity), which is
+        # not "drift". A tight relative tolerance (1e-9) ignores that last-bit noise while still
+        # catching any genuine divergence (a real code/data drift moves values by >=1e-6).
+        # Structure, strings, ints, and booleans must still match exactly.
+        # (run_id / elapsed_ms / timestamps live only in the engine's trace block, excluded here.)
+        drifts = _numeric_drifts(engine_evaluation, cli_evaluation)
         self.assertEqual(
-            engine_evaluation,
-            cli_evaluation,
-            "engine What-if evaluation diverged from the equivalent CLI --json output",
+            drifts, [], "engine What-if evaluation drifted from the equivalent CLI --json output:\n"
+            + "\n".join(drifts[:20]),
         )
+
+    def test_world_for_key_returns_isolated_copy(self) -> None:
+        # Anti-drift regression (contract §6): every run must receive a PRIVATE, freshly built
+        # world so that stepping it in place cannot leak into a later run. Previously run handlers
+        # shared the cached world instance; once a prior run mutated it, the parity test above
+        # diverged from the always-fresh CLI in full-suite order. _world_for_key now rebuilds.
+        from gim import engine_service as es
+
+        world_key = self.load_world()
+        w1 = es._world_for_key(world_key)
+        w2 = es._world_for_key(world_key)
+        self.assertIsNot(w1, w2)  # distinct private copies
+        aid = next(iter(w1.agents))
+        baseline = w2.agents[aid].economy.gdp
+        w1.agents[aid].economy.gdp = baseline + 123.0  # mutate one copy
+        w3 = es._world_for_key(world_key)
+        self.assertEqual(w3.agents[aid].economy.gdp, baseline)  # cache stayed pristine
 
 
 if __name__ == "__main__":

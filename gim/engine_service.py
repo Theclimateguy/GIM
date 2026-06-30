@@ -158,8 +158,15 @@ def _resolve_world_key(world_key: str) -> tuple[str | None, int | None, int | No
 
 
 def _world_for_key(world_key: str):
+    # Anti-drift (contract §6): run handlers step the world in place, so each run must get a
+    # FRESHLY BUILT world — never the shared `_load_world_cached` instance (a prior run would
+    # leave it dirty) and never a deepcopy (the sim has id-order-dependent float reductions, so
+    # a copy diverges at ~1e-15 and breaks exact parity with the `gim question` CLI). A fresh
+    # build (~8 ms) is bit-identical to the CLI's load and immune to prior-run mutation.
+    from .runtime import load_world
+
     state_csv, state_year, max_countries = _resolve_world_key(world_key)
-    return _load_world_cached(state_csv, state_year, max_countries)
+    return load_world(state_csv=state_csv, max_agents=max_countries, state_year=state_year)
 
 
 # --------------------------------------------------------------------------- #
