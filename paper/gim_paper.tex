@@ -738,7 +738,7 @@ Equilibrium climate sensitivity, $^\circ$C & $3.0$ & $1.5$--$6.0$ & IPCC AR6 WG1
 Surface heat capacity & $8.0$ & $6.0$--$18.0$ & Geoffroy et al.\ 2013 (two-layer EBM) \\
 Ocean heat exchange & $1.0$ & $0.4$--$1.3$ & Geoffroy et al.\ 2013 \\
 Emissions scale & $0.98$ & $0.90$--$1.05$ & Global Carbon Project 2023 \\
-Structural decarbonization rate & $0.052$ & $0.040$--$0.066$ & Calibration to 2015--2023 backtest \\
+Structural decarbonization rate & $0.016$ & $0.010$--$0.030$ & GCP\,/\,WDI carbon-intensity trend 2000--2023; GIM 2015--2023 backtest \\
 Capital share $\alpha$ & $0.30$ & $0.22$--$0.40$ & Penn World Table 10; Gollin 2002 \\
 Labor share $\beta$ & $0.60$ & $0.50$--$0.72$ & Penn World Table 10; Gollin 2002 \\
 Energy elasticity $\gamma$ & $0.042$ & $0.015$--$0.080$ & 2015--2023 backtest; energy literature \\
@@ -787,19 +787,20 @@ inflated.
 
 DICE-2016R \citep{nordhaus2017} finds a welfare-optimal carbon price (about \$31/tCO$_2$ in 2015,
 rising) whose only first-order effect is lower emissions; it contains no labour market and no
-political economy. Fed the same \$50/tCO$_2$ tax, GIM reproduces the emissions decline (about $6\%$
+political economy. Fed the same \$50/tCO$_2$ tax, GIM reproduces the emissions decline (about $5.5\%$
 over ten years) and, in addition, raises social tension and lowers government trust as the tax's
 pass-through to energy prices feeds inflation and unemployment --- the political-economy channel
 behind the reversals of the French carbon and fuel tax (2018) and the Australian carbon price (2014).
-As the rate increases, the tension response rises monotonically (Fig.~\ref{fig:bench-carbon}), while
-DICE's response on that axis is zero.
+This is a channel DICE lacks by construction: across the rate sweep the tension response stays
+non-zero (Fig.~\ref{fig:bench-carbon}) --- small and non-monotonic at this scale, but distinct from
+DICE's identically zero response.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig6_integration_carbon.pdf}
 \caption{Carbon-tax scenario. Left: GIM reproduces the emissions decline that DICE models. Middle:
-GIM adds the social-tension response DICE cannot represent. Right: the response of tension to the tax
-rate has a non-zero GIM slope against DICE's zero response.}
+GIM adds the social-tension response DICE cannot represent. Right: the tension response to the tax
+rate is non-zero (though small and non-monotonic) against DICE's identically zero response.}
 \label{fig:bench-carbon}
 \end{figure}
 
@@ -812,7 +813,7 @@ fiscally fragile importers to their debt-crisis thresholds, and which countries 
 model's own debt and interest-rate triggers, not by hand. At a realistic shock (a $20\%$ supply cut,
 a burden of about $3\%$ of GDP) the effect is marginal: one additional importer enters crisis. Under a
 severe shock (a burden of about $15\%$ of GDP, comparable to the worst historical oil episodes) the
-mean importer debt-crisis duration rises about $2.7$-fold and four further countries enter sovereign
+mean importer debt-crisis duration rises about $2.5$-fold and four further countries enter sovereign
 crisis (Fig.~\ref{fig:bench-oil}). The response is threshold-stepped, and the energy-system model
 produces no sovereign crises at any magnitude. This is the mechanism behind episodes such as
 Sri Lanka's 2022 default.
@@ -834,7 +835,7 @@ production and reserves of the most income-vulnerable importers opens a food-sup
 protest pressure, and the escalation accelerates as the loss deepens. This is the nonlinear
 ``crossing into high impact'' documented for food prices and the Arab Spring \citep{lagi2011food}
 (a threshold FAO food-price index of $210$). At a severe $50\%$ regional yield loss, food-affordability
-stress rises by about $0.09$ and protest pressure by about $0.014$ on the vulnerable subset
+stress rises by about $0.09$ and protest pressure by about $0.013$ on the vulnerable subset
 (Fig.~\ref{fig:bench-crop}); further along the chain the response attenuates toward regime fragility,
 and the endpoint is domestic instability rather than interstate conflict.
 
