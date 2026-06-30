@@ -3,7 +3,9 @@ from typing import Dict
 
 from .core import (
     AgentState,
+    CARBON_POOL_INIT_FRACTIONS_2023,
     ClimateSubState,
+    CO2_PREINDUSTRIAL_GT,
     CO2_STOCK_2023_GT,
     CulturalState,
     EconomyState,
@@ -13,6 +15,7 @@ from .core import (
     RiskState,
     SocietyState,
     TGLOBAL_2023_C,
+    TOCEAN_2023_C,
     TechnologyState,
     WorldState,
     BIODIVERSITY_2023,
@@ -396,9 +399,14 @@ def make_world_from_csv(
         co2=CO2_STOCK_2023_GT,
         temperature_global=TGLOBAL_2023_C,
         biodiversity_index=biodiversity_init,
-        temperature_ocean=TGLOBAL_2023_C - 0.4,
+        temperature_ocean=TOCEAN_2023_C,
         baseline_gdp_pc=baseline_gdp_pc,
     )
+    # [FIX #1] Seed the carbon-cycle pools with the *aged* 2023 partition (spin-up derived) rather
+    # than letting update_global_climate fall back to a flow-fraction split of the whole excess,
+    # which over-loaded the fast 4.3-yr pool and made the no-policy baseline CO2 concentration fall.
+    _co2_excess = max(0.0, CO2_STOCK_2023_GT - CO2_PREINDUSTRIAL_GT)
+    global_state.carbon_pools = [_co2_excess * frac for frac in CARBON_POOL_INIT_FRACTIONS_2023]
     global_state._calendar_year_base = int(base_year)
     global_state._enable_temperature_variability = True
     global_state._temperature_variability_seed = 0

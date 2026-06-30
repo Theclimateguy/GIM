@@ -232,6 +232,22 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     avg_gap = tech_gap_weighted / tech_weight if tech_weight > 0 else 0.0
     diffusion = cal.TFP_DIFFUSION_SENS * avg_gap
 
+    # [GROWTH] Conditional convergence: catch-up TFP growth proportional to the log GDP-per-capita gap
+    # to the frontier (richest agent). Calibrated to the 2015-2023 real PPP cross-section. Frontier
+    # countries (gap~0) get nothing; poorer fast-growers (China/India) get the catch-up slope.
+    convergence = 0.0
+    if getattr(cal, "TFP_CONVERGENCE_SENS", 0.0) > 0.0 and economy.population > 0:
+        own_pc = gdp * 1e12 / economy.population
+        frontier_pc = own_pc
+        for other in world.agents.values():
+            if other.economy.population > 0:
+                opc = max(other.economy.gdp, 1e-6) * 1e12 / other.economy.population
+                if opc > frontier_pc:
+                    frontier_pc = opc
+        if frontier_pc > own_pc:
+            loggap = min(math.log(frontier_pc / own_pc), cal.TFP_CONVERGENCE_GAP_CAP)
+            convergence = cal.TFP_CONVERGENCE_SENS * loggap
+
     # Growth-effect climate damage (F4): warming above the 2023 baseline persistently lowers
     # TFP growth (Burke 2015 / Kotz 2024), separate from the level-effect output multiplier.
     # Switchable via GROWTH_DAMAGE_TFP_COEFF (default 0.0 -> off, golden backtest preserved).
@@ -247,7 +263,7 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     # to a recognised scenario rather than the lower emergent rate. Endogenous R&D/diffusion unchanged.
     drift = cal.TFP_DRIFT
     if getattr(cal, "SSP_FORWARD_GROWTH", False):
-        base_year = getattr(world.global_state, "_calendar_year_base", 2026)
+        base_year = getattr(world.global_state, "_calendar_year_base", 2023)
         year = base_year + int(getattr(world, "time", 0))
         if year > getattr(cal, "SSP_FORWARD_FROM_YEAR", 2024):
             # [E4.2] SSP1-5 preset selection; default SSP2 reproduces the prior single forward drift.
@@ -258,7 +274,7 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
             else:
                 drift = getattr(cal, "SSP_FORWARD_TFP_DRIFT", 0.018)
 
-    tfp_growth = drift + tfp_growth + diffusion - growth_drag
+    tfp_growth = drift + tfp_growth + diffusion + convergence - growth_drag
     tfp_growth = max(cal.TFP_GROWTH_MIN, min(tfp_growth, cal.TFP_GROWTH_MAX))
 
     economy.tfp *= 1.0 + tfp_growth

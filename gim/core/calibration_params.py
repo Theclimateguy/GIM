@@ -181,6 +181,14 @@ SSP_TFP_DRIFT_PRESETS = {
     "SSP5": 0.024,  # Fossil-fueled development — highest growth (2.80%/yr GDP-pc).
 }
 TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
+# [GROWTH 2026-06] Conditional convergence (Barro-Sala-i-Martin catch-up): TFP growth rises with the
+# log gap in GDP-per-capita to the frontier (the richest agent). Calibrated to the 2015-2023 real PPP
+# cross-section (World Bank NY.GDP.MKTP.PP.KD): realgrowth = 0.0106 + 0.0093*log(frontier_pc/own_pc),
+# R2=0.38; the frontier intercept ~1% is already TFP_DRIFT, so this term only adds the catch-up slope.
+# Without it the model grew every country at the ~frontier ~1%/yr, badly under-shooting China/India
+# (~5.7% real). The earlier 2015-state capital bug (cap/GDP 0.23x) masked this by ramping capital.
+TFP_CONVERGENCE_SENS = 0.0093  # [DATA] catch-up slope per log-unit of GDP-per-capita gap to frontier.
+TFP_CONVERGENCE_GAP_CAP = 4.0  # cap the log gap so the poorest agents don't get an unbounded boost.
 TFP_GROWTH_MIN = -0.05
 TFP_GROWTH_MAX = 0.05
 # Growth-effect climate damage (F4): warming above the 2023 baseline persistently lowers TFP
@@ -252,7 +260,9 @@ RD_SPENDING_DECAY = 0.85  # [PRIOR]
 # Climate and carbon-cycle block.
 CARBON_POOL_FRACTIONS = (0.2173, 0.2240, 0.2824, 0.2763)  # [IPCC_AR6]
 CARBON_POOL_TIMESCALES = (math.inf, 394.4, 36.54, 4.304)  # [IPCC_AR6]
-ECS_DEFAULT = 3.0  # [IPCC_AR6]
+ECS_DEFAULT = 3.0  # [IPCC_AR6] best estimate; the 1990-2023 climate backtest (sweep_ecs/best_ecs) has a
+# clear temperature-RMSE minimum at 3.0 (0.096 vs 0.135 at 3.5). The ~0.16 C under-warming at the 2023
+# endpoint is the El-Nino spike above the forced trend, not evidence for higher ECS (#3b investigated 2026-06).
 ECS_MIN = 1.5  # [IPCC_AR6]
 ECS_MAX = 4.0  # [IPCC_AR6]
 F_NONCO2_DEFAULT = 0.40  # [IPCC_AR6]
@@ -299,12 +309,31 @@ TECH_DECARB_K = 0.12  # [PRIOR]
 DECARB_RATE_OBSERVED_REFERENCE = (
     ACTIVE_STATE_ARTIFACT.decarb_reference_rate or ACTIVE_STATE_ARTIFACT.decarb_rate
 )  # [DATA] GCP fossil CO2 / World Bank PPP GDP fit over 2000-2023 excluding 2020-2021; see calibration/decarb_rate_calibration.json.
-DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] Pipeline-bound residual structural energy-transition rate.
-# NOTE: Empirical CO2/GDP intensity decline is 0.016 (see calibration/decarb_rate_calibration.json).
-# The gap between the active 0.052 artifact rate and the empirical fit implicitly absorbs
-# energy-mix shift and efficiency gains encoded in the 2015 base state. Decompose this
-# compound parameter when the model gets an explicit energy sector / fossil phase-out layer.
+DECARB_RATE_STRUCTURAL = ACTIVE_STATE_ARTIFACT.decarb_rate  # [ARTIFACT] now stamped from the observed prior.
+# [FIX #2 2026-06] The manifest decarb_rate was re-stamped from the legacy 0.052 to the data-derived
+# observed prior (0.016/yr; DECARB_RATE_OBSERVED_REFERENCE). At 0.052 the no-policy baseline decarbonized
+# ~3.3x faster than observed (emissions fell ~3%/yr, CO2 *declined* with zero policy). The 0.052 was a
+# fudge cancelling the broken 2015-state capital ramp (cap/GDP 0.23x -> ~5%/yr GDP growth); once that
+# capital is fixed and TFP convergence added, 0.016 (the real CO2/GDP-PPP intensity decline) fits both
+# the 2015-2023 backtest and the forward +2.4 ppm/yr growth. Policy levers accelerate decarbonisation on
+# top via the structural multiplier.
 DECARB_RATE = DECARB_RATE_STRUCTURAL  # Backward-compatible alias pending a full rename across the legacy layer.
+
+# [DECARB/DEV 2026-06] Development-dependent structural decarbonisation: a country's CO2/GDP-intensity
+# decline rises with income (renewables + post-industrial shift + offshoring of heavy industry). Mirror
+# image of TFP_CONVERGENCE (poor grow fast; rich decarbonise fast). Calibrated to the 2015-2023 per-country
+# cross-section (WB CO2 EN.GHG.CO2.MT.CE.AR5 / real PPP GDP NY.GDP.MKTP.PP.KD):
+#   decarb_i = DECARB_DEV_BASE + DECARB_DEV_SLOPE*ln(gdp_per_capita_$),  R2=0.46.
+# The single global DECARB_RATE_STRUCTURAL (0.016) is the emissions-weighted aggregate; it understates
+# the per-country median (~0.031) because the global figure is dominated by the still-industrialising
+# developing world. China sits ~+0.013 above the development line (its renewable build-out). When this
+# switch is off, the legacy single global rate is used (and the decarb sensitivity sweep still applies).
+DECARB_DEVELOPMENT_DEPENDENT = True
+DECARB_DEV_BASE = -0.0779
+DECARB_DEV_SLOPE = 0.0107
+DECARB_DEV_MIN = 0.0    # floor: no structural *rise* in intensity (industrialisers held at 0, not negative).
+DECARB_DEV_MAX = 0.060  # cap at the fastest observed decarboniser (Netherlands).
+
 STRUCTURAL_TRANSITION_POLICY_SENS = 0.50  # [PRIOR]
 STRUCTURAL_TRANSITION_TAX_SENS = 0.05  # [PRIOR]
 STRUCTURAL_TRANSITION_MULT_MIN = 1.0

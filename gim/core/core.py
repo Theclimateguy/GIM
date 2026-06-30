@@ -4,11 +4,30 @@ from typing import Any, Dict, List, Literal, Optional
 # Climate baselines (2023).
 CO2_PREINDUSTRIAL_GT = 2184.0
 CO2_STOCK_2023_GT = 3270.0
-TGLOBAL_2023_C = 1.2
+# [FIX #3a 2026-06] 2023 surface-temperature anomaly above pre-industrial AND the zero point for
+# incremental climate damage (start == damage reference, so warming damages begin at 0 in 2023).
+# Was 1.2 (a decadal-mean-style value that left the forward run starting ~0.13 C below the model's
+# own 1750->2023 spin-up and ~0.25 C below observed 2023). Re-anchored to the self-consistent
+# spin-up value (gim/climate_backtest.py); the residual gap to observed ~1.47 is closed by the
+# ECS bump (#3b), so the model *generates* observed warming rather than being pinned to it.
+TGLOBAL_2023_C = 1.333
+# [FIX #3a] Self-consistent 2023 deep-ocean anomaly from the same spin-up (surface-ocean gap ~0.93 C,
+# i.e. real warming-in-the-pipeline). The legacy 0.4-C gap under-stated ocean heat uptake.
+TOCEAN_2023_C = 0.404
 BIODIVERSITY_2023 = 0.72
 WATER_STRESS_2023 = 0.55
 GTCO2_PER_PPM = 7.81
 F2XCO2_W_M2 = 3.71
+
+# Partition of the 2023 atmospheric CO2 excess across the 4 IPCC-AR6 impulse-response pools
+# (timescales [inf, 394, 36.5, 4.3] yr), for initialising the *forward* world at 2023. Derived
+# from a 1750->2023 spin-up driven by observed emissions (gim/climate_backtest.py): the historical
+# excess is aged, so it sits mostly in the long-lived pools. Initialising it by the *flow*
+# fractions (CARBON_POOL_FRACTIONS) instead over-loads the fast 4.3-yr pool (~0.28 vs the aged
+# ~0.044) and creates a phantom ~50 GtCO2/yr sink that made the no-policy baseline CO2 *fall*.
+# Reproduce: spin up update_global_climate from pre-industrial on data/global_co2_emissions_owid.csv
+# and read the normalised carbon_pools at 2023.
+CARBON_POOL_INIT_FRACTIONS_2023 = (0.3800, 0.3519, 0.2243, 0.0437)
 
 # Global energy constraints.
 WORLD_URR_FOSSIL_ENERGY_ZJ = 35.0
