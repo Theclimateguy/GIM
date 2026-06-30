@@ -12,6 +12,10 @@ every layer, what it can do, and its limits. For where the model stands and what
 
 ## Status (version 17, finalized)
 
+- All runs start from a single **validated 2023 canon** compiled state
+  (`data/agent_states_operational.csv`): 57 actors covering essentially all of world output
+  (GDP ≈ $107T, population ≈ 8.06B, CO₂ ≈ 38 Gt), reconciled against World Bank / UN / Global
+  Carbon Project to within ~1%. See [`docs/agent_state_data_contract.md`](docs/agent_state_data_contract.md).
 - Economy reproduces 2015–2023 national-income history; climate matches the mainstream scientific
   assessment (temperature sensitivity and the 1990–2023 warming/carbon record).
 - Headline regression ("golden") backtest: GDP error ≈ 0.59, global CO₂ error ≈ 1.15, temperature

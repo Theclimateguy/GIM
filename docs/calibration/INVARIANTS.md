@@ -26,7 +26,7 @@ Set via `GIM17_INVARIANT_MODE` (or the `invariant_mode=` argument to `step_world
    `net_exports` must be ~0: `|Σ net_exports| / world_gdp ≤ TRADE_BALANCE_TOL` (1e-6).
    (`apply_trade_deals` already redistributes any residual; this guards the closure.)
 
-Under the default 2026 calibrated scenario all four are clean
+Under the default validated 2023 canon state all four are clean
 (`enforceable.clean = true`), so `strict` is safe to enable in CI.
 
 5. **debt_identity** (T1.1) — every public_debt write is recorded by source in a per-step
