@@ -1,5 +1,11 @@
 # Re-validation of paper headline numbers under the geo-on headline (2026-06-26)
 
+> **17.3.0 note.** This is a point-in-time record of the geo-on activation, run on the *pre-17.3.0*
+> golden (GDP 0.5917 / CO₂ 1.1467 / T 0.1349). The 17.3.0 development-structured recalibration later
+> moved the golden to **0.621 / 0.933 / 0.135** on a corrected 2015 state (see `CHANGELOG.md`); the
+> conflict, integration-benchmark, and Morris-structure findings below are unchanged. The numbers in
+> this note are retained as-run for provenance.
+
 The geographic-coupling channels were activated by default in S6 (`TRADE_GRAVITY_INIT`,
 `GEOGRAPHY_CONFLICT_LINKS`, `GEOGRAPHY_TENSION_LINKS`, `GEOGRAPHY_CLIMATE_LINKS` all `True`). This note
 records a re-run of the paper's headline quantities under that configuration, to confirm none drifted.

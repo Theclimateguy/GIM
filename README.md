@@ -18,15 +18,20 @@ every layer, what it can do, and its limits. For where the model stands and what
   Carbon Project to within ~1%. See [`docs/agent_state_data_contract.md`](docs/agent_state_data_contract.md).
 - Economy reproduces 2015–2023 national-income history; climate matches the mainstream scientific
   assessment (temperature sensitivity and the 1990–2023 warming/carbon record).
-- Headline regression ("golden") backtest: GDP error ≈ 0.59, global CO₂ error ≈ 1.15, temperature
-  error ≈ 0.135 — improved by the objective economic core and held stable since.
+- Headline regression ("golden") backtest: GDP error ≈ 0.62, global CO₂ error ≈ 0.93, temperature
+  error ≈ 0.135. The 17.3.0 development-structured recalibration grounds two growth/decarbonisation
+  mechanisms in data (so the no-policy forward path is realistic — CO₂ rises, temperature warms) and
+  re-derives the golden on the corrected state.
 - The headline economic core is **objective and fully closed**: a calibrated capital–energy
   substitution (nested-CES) production function, cost-minimising energy demand, energy/resource and
   capital markets that clear by price, a closed stock-flow-consistent bank balance sheet
-  (money = deposits = loans), and SSP2-anchored forward growth.
-- Cost of carbon in the modern consensus range (~$140/tCO₂ at modern 2% discounting, with a
-  documented growth/discounting sensitivity); conflict-risk validated against the standard
-  armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
+  (money = deposits = loans), and SSP2-anchored forward growth. Long-run growth and emissions are
+  **development-structured**: TFP conditional convergence (poorer economies catch up) and
+  development-dependent decarbonisation (richer economies cut CO₂/GDP faster), both fit to the
+  2015–2023 World Bank panel.
+- Cost of carbon in the modern consensus range (~$95/tCO₂ at modern near-zero-ρ Ramsey discounting,
+  range ~$95–280, with a documented growth/discounting sensitivity); conflict-risk validated against
+  the standard armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
 - Geographic coupling grounds shock propagation in a real spatial graph: literature-anchored trade
   gravity plus switchable conflict/tension/climate spatial contagion, checked by an
   emergent-spatial-autocorrelation reproduction benchmark (the payoff is concentrated in trade).
@@ -104,14 +109,25 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
-`17.2.0` — **the final release of the 17.x family.** It completes the cross-domain story: the
-geographic-coupling layer is activated in the headline and grounded in the literature with a delivered
-reproduction benchmark (emergent Moran's I + a dyadic neighbour-conflict premium of 1.0×→1.5×, matching
-the +44–52% empirical record); the social/political layers (S1–S6) are put on a reproducible numeric
-footing; the economic core is deepened (money→prices, growth foundations, near-rational expectations —
-the last two off by default); and the integration claim is made computational (Appendix B: carbon/DICE,
-oil/MESSAGEix, crop/AgMIP). Every headline number is calibrated, literature-anchored, and statistically
-validated, with the objective 17.0.0 core and the golden backtest preserved under the geo-on default.
+`17.3.0` — **development-structured recalibration.** Fixes the no-policy forward baseline (carbon
+pools were seeded with flow fractions, creating a phantom sink that made CO₂ *fall*; the 2015
+backtest capital was ~0.23× GDP instead of ~3×, an error the legacy decarb rate was silently
+cancelling) and re-grounds two structural mechanisms in the 2015–2023 World Bank panel: **TFP
+conditional convergence** and **development-dependent decarbonisation**. The golden backtest is
+re-derived on the corrected state (GDP 0.62 / CO₂ 0.93 / T 0.135) and the SCC refreshed for the
+faster empirical growth (~$95/t modern Ramsey; ~$20 under DICE's own damages — so DICE
+underestimates damages). The objective economic core, the geo-on default, and the conflict
+validation are unchanged. See [`CHANGELOG.md`](CHANGELOG.md) and
+[`docs/GIM17_UNIFIED_MODEL_SPEC.md`](docs/GIM17_UNIFIED_MODEL_SPEC.md).
+
+`17.2.x` completed the cross-domain story: the geographic-coupling layer is activated in the headline
+and grounded in the literature with a delivered reproduction benchmark (emergent Moran's I + a dyadic
+neighbour-conflict premium of 1.0×→1.5×, matching the +44–52% empirical record); the social/political
+layers (S1–S6) are put on a reproducible numeric footing; the economic core is deepened (money→prices,
+growth foundations, near-rational expectations — the last two off by default); and the integration
+claim is made computational (Appendix B: carbon/DICE, oil/MESSAGEix, crop/AgMIP). Every headline number
+is calibrated, literature-anchored, and statistically validated, with the objective 17.0.0 core and the
+golden backtest preserved under the geo-on default.
 Earlier in the family, 17.1.x added the statistical-rigor layer (conflict-AUC inference, Morris
 robustness, ensemble convergence) on the unchanged 17.0.0 objective core.
 Highlights of the 17.0.0 core: Python 3.10+ and lean repo; enforceable

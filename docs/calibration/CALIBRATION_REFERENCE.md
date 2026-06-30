@@ -86,28 +86,33 @@ Source: `gim/core/calibration_params.py`, provenance in `calibration/crisis_pers
 
 ### 3.1 Historical backtest
 
-Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`):
+Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`), **17.3.0
+development-structured recalibration** (re-pinned to the recalibrated headline):
 
-- GDP RMSE: `1.0743145212488447`
-- global CO2 RMSE: `1.6319623035587012`
-- temperature RMSE: `0.1362784326304756`
-- temperature bias: `-0.005237543190706324`
-- temperature std (predicted/observed): `0.09308561945984438 / 0.1030600790014023`
-- ensemble size: `8`
+- GDP RMSE: `0.62061758080248`
+- global CO2 RMSE: `0.9326386833407672`
+- temperature RMSE: `0.13500704173336117`
+- temperature bias: `0.016279130918871433`
 
-Current golden regression target (`tests/test_historical_backtest.py`), **post E3 full price/balance
-closure** (headline = calibrated nested-CES production + cost-minimizing energy demand + resource &
-capital-market clearing + full SFC bank balance sheet):
+Current golden regression target (`tests/test_historical_backtest.py`):
 
-- GDP RMSE `0.590 ± 0.01`
-- global CO2 RMSE `1.146 ± 0.01`
+- GDP RMSE `0.621 ± 0.01`
+- global CO2 RMSE `0.933 ± 0.01`
 - temperature RMSE `0.135 ± 0.01`
 
-The objective + fully-closed economic core improved the fit vs the prior Cobb-Douglas golden
-(`1.026 / 1.606 / 0.134`): GDP 1.026→0.590, CO2 1.606→1.146. Emissions were re-anchored via
-`NESTED_CES_EMISSIONS_NORM` (1.056), leaving the data-derived `EMISSIONS_SCALE` (0.9755) artifact-bound
-and unchanged. Capital-clearing sensitivity calibrated to 0.3. Deep-uncertainty climate/risk channels
-remain ensemble-only (off in the headline).
+**Calibration history.** The objective + fully-closed economic core (nested-CES production +
+cost-minimizing energy demand + resource & capital-market clearing + full SFC bank balance sheet)
+first improved the fit vs the prior Cobb-Douglas golden (`1.026 / 1.606 / 0.134`) to `0.590 / 1.146 /
+0.135`. The **17.3.0** recalibration then corrected a broken 2015-state capital init (~0.23× → ~3.0×
+GDP, an error the legacy decarb rate 0.052 was silently cancelling), re-based the observed GDP series
+to real-PPP growth (`NY.GDP.MKTP.PP.KD`), and added two development-structured mechanisms — TFP
+conditional convergence (`TFP_CONVERGENCE_SENS = 0.0093`) and development-dependent decarbonisation
+(`DECARB_RATE_STRUCTURAL` re-centred to `0.016`). Net effect on the golden: GDP 0.590→**0.621**, CO2
+1.146→**0.933**, temperature ~unchanged. The capital-init fix lifts both production functions
+equally, so the nested-CES advantage now shows in emissions (CO2 0.93 vs Cobb-Douglas ~1.87) rather
+than in GDP. Emissions remain re-anchored via `NESTED_CES_EMISSIONS_NORM` (1.056) with the
+data-derived `EMISSIONS_SCALE` (0.9755) artifact-bound; capital-clearing sensitivity 0.3.
+Deep-uncertainty climate/risk channels remain ensemble-only (off in the headline).
 
 ### 3.2 Operational suites
 

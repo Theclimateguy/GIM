@@ -133,20 +133,23 @@ credible model reliably beats naïve baselines at multi-year horizons — "indus
   (`scripts/run_expectations_ensemble.py`) finds its effect on aggregate GDP-2100 is **within noise**
   (an earlier single-seed "stress-response" reading did not replicate), so it is a *structural option,
   off by default* — not a demonstrated effect and not a paper/headline claim. See `docs/EXPECTATIONS.md`.
-- **D6 — DICE reproduction (THE-16, the keystone check). [DONE — reproduced.]** GIM's independent
-  marginal-pulse SCC engine recovers Nordhaus's DICE-2016R ~\$31/tCO₂ when fed DICE's damage
-  coefficient (a₂=0.00236) and discounting (η=1.45, ρ=1.5%, already GIM defaults) at a DICE-comparable
-  multi-century horizon: **\$29 (100 y) → \$32–33 (200–300 y)**. So the valuation core is sound, and
-  GIM's higher *headline* SCC is attributable to its higher (literature-based, ~2.5× DICE) damage
-  function, not the engine. Reproducible via `scripts/run_d6_dice_scc.py`; see
+- **D6 — DICE reproduction (THE-16, the keystone check). [DONE; 17.3.0 reading.]** GIM's independent
+  marginal-pulse SCC engine, fed DICE's damage coefficient (a₂=0.00236) and discounting (η=1.45,
+  ρ=1.5%, already GIM defaults), reproduced DICE-2016R's ~\$31/tCO₂ on the pre-17.3.0 model. After the
+  17.3.0 development-structured recalibration (faster, empirically-calibrated growth), the engine
+  returns **~\$20** under DICE's own lower damages — i.e. **DICE underestimates damages** relative to
+  GIM's calibrated growth/damage function. Either way the valuation core is sound (the difference is
+  the forward growth path, not the SCC machinery), and GIM's higher *headline* SCC reflects its higher
+  (literature-based, ~2.5× DICE) damage function. Reproducible via `scripts/run_d6_dice_scc.py`; see
   `docs/climate/WELFARE_SCC.md`.
 
 ## 6. Self-critique of this benchmark
 
 - This is a **structural/parametric** comparison, not a head-to-head output run. The decisive
-  numeric test, D6 (reproduce DICE's SCC), is **now done** — GIM's SCC engine recovers DICE-2016R's
-  ~\$31/tCO₂ under DICE's inputs (see D6 above), so "competitive economics" is no longer only a
-  structural claim on the SCC axis. A full head-to-head on output paths (welfare-optimal mitigation)
+  numeric test, D6 (DICE-SCC cross-check), is **now done** — GIM's SCC engine reproduced DICE-2016R's
+  ~\$31/tCO₂ under DICE's inputs on the pre-17.3.0 model, and returns ~\$20 under the 17.3.0
+  faster-growth recalibration (DICE underestimates damages; see D6 above), so "competitive economics"
+  is no longer only a structural claim on the SCC axis. A full head-to-head on output paths (welfare-optimal mitigation)
   remains future work.
 - "Behind the GE class" assumes the GE paradigm is the target. There is **no unified theory of
   second best** (Pollitt-Mercure; IOP 2021 review), and demand-led non-equilibrium models (E3ME)

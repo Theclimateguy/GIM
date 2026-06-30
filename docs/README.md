@@ -3,6 +3,14 @@
 Source-of-truth documentation for version 17. (Engineering change-history and superseded planning
 notes have been moved out of the repository to keep it clean.)
 
+> **Canon: 17.3.0 (development-structured recalibration).** The current golden backtest is **GDP 0.62 /
+> CO₂ 0.93 / temperature 0.135** and the modern-Ramsey SCC is **~$95/tCO₂** (range ~$95–280). Some
+> dated calibration/ablation ledgers below were written against the earlier 0.590 / 1.146 golden and
+> quote it as their as-run baseline; those are retained for provenance and carry a 17.3.0 note where
+> the number would otherwise read as current. See [`../CHANGELOG.md`](../CHANGELOG.md) for the full
+> recalibration and [`GIM17_UNIFIED_MODEL_SPEC.md`](GIM17_UNIFIED_MODEL_SPEC.md) for the two new
+> development-structured equations.
+
 ## Start here
 
 - [`MODEL_LAYERS.md`](MODEL_LAYERS.md) — plain-language tour of every layer: what it does + limits.

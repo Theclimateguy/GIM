@@ -2,6 +2,68 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [17.3.0] — 2026-06-30
+
+**Development-structured recalibration: a realistic no-policy forward baseline.** The app's
+no-policy forward projection had CO₂ *falling* and temperature reaching only ~1.49 °C by 2033 —
+contradicting observation. Root-causing it exposed a chain of compounding defects, two of which
+silently cancelled in the historical backtest, so the headline fit looked fine while the forward
+path was wrong. Fixing them required re-grounding two structural mechanisms in data, which moved the
+golden backtest and the SCC. The objective economic core, the geo-on default, the conflict
+validation, and the uncertainty machinery are all unchanged; this is a *calibration* release, not an
+architecture change.
+
+### Fixed
+
+- **Carbon-cycle initialization.** The 2023 forward carbon pools were seeded with the *flow*
+  partition fractions, which over-loaded the fast (4.3-yr) pool and created a phantom ~50 GtCO₂/yr
+  sink — the source of the falling-CO₂ baseline. They are now seeded with the aged 1750→2023 spin-up
+  partition (`CARBON_POOL_INIT_FRACTIONS_2023`), so atmospheric CO₂ rises realistically (+2.5 ppm/yr)
+  on the no-policy path.
+- **2015 backtest state capital.** The historical-backtest 2015 state carried capital at ~0.23×
+  GDP (vs a realistic ~3.0×). The legacy decarbonisation rate of 0.052 had been silently
+  compensating this broken capital init — the two errors cancelled in-sample. The 2015 capital is
+  corrected to ~3.0× GDP and the observed GDP series is re-based from nominal (`NY.GDP.MKTP.CD`) to
+  real-PPP growth (`NY.GDP.MKTP.PP.KD`).
+
+### Added
+
+- **TFP conditional convergence** (EQ-ECO-003). Catch-up TFP growth proportional to the log
+  GDP-per-capita gap to the frontier (`TFP_CONVERGENCE_SENS = 0.0093`, cap 4), fit to the 2015–2023
+  real-PPP cross-section (R² = 0.38). Lifts China/India toward their observed growth instead of the
+  old uniform drift.
+- **Development-dependent decarbonisation** (EQ-CLI-001). Per-country CO₂/GDP intensity decline now
+  scales with income (renewables + post-industrial shift) — the mirror image of the convergence
+  term, fit to the same panel (R² = 0.46). Improves the backtest CO₂ RMSE from 1.26 to 0.93.
+- **`calibration/growth_decarb_calibration.py`** + committed World Bank inputs
+  (`data/worldbank_growth_decarb_2015_2023.csv`) fitting both new development terms, and the four
+  development-structured equations added to `docs/GIM17_UNIFIED_MODEL_SPEC.md`.
+
+### Changed
+
+- **Golden 2015–2023 backtest re-derived** on the corrected state and the two new mechanisms:
+  **GDP RMSE 0.59 → 0.62, CO₂ RMSE 1.15 → 0.93, temperature 0.135** (unchanged). Note the
+  capital-init fix lifts *both* production functions, so plain Cobb-Douglas now also reaches GDP 0.62 —
+  the nested-CES advantage now shows in emissions (CO₂ 0.93 vs CD ~1.87) rather than in GDP.
+- **Climate anchor** made self-consistent with the spin-up: `TGLOBAL_2023_C` 1.2 → 1.333 and
+  `TOCEAN_2023_C` = 0.404 (the old 0.4 °C ocean gap under-stated heat uptake). **ECS stays 3.0**
+  (backtest-optimal).
+- **Manifest decarb rate re-stamped 0.052 → 0.016**, the data-derived observed prior; the `DECARB`
+  parameter prior is re-centred accordingly.
+- **Social cost of carbon refreshed** for the faster, empirically-calibrated growth path: modern
+  Ramsey (near-zero ρ) ≈ **$95/tCO₂** (was ~$140; range ≈ $95–280), Nordhaus-style ≈ $42. Under
+  DICE-2016R2's own lower damages the marginal-pulse engine now returns ≈ **$20** (was ~$31) — i.e.
+  the development-convergence growth discounts future damages more, so DICE *underestimates* damages
+  relative to GIM's empirically-calibrated function.
+- **Paper (RU + EN)** updated: validation table, SCC narrative, and the two new
+  development-structured mechanisms; figures `fig2`–`fig5` regenerated on the recalibrated model.
+
+Tests: **546 passed + 627 subtests**; golden/provenance assertions updated to the recalibrated
+values. Conflict-risk validation (AUC 0.736 [0.59; 0.86], BSS +0.143, p ≈ 0.001) and the geo
+calibration are unchanged.
+
+[17.3.0]: https://github.com/Theclimateguy/GIM/releases/tag/v17.3.0
+
 ## [17.2.2] — 2026-06-30
 
 **Validated 2023-canon data unification + paper refresh.** Establishes a single validated source of

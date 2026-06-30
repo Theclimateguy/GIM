@@ -39,13 +39,20 @@ forward growth + CINC-grounded capabilities):
 
 | discounting | 200-yr SCC |
 |---|---|
-| modern RFF-SP/EPA 2% Ramsey (ρ≈0.2%, η≈1.24) | **~$140 / tCO₂** |
-| Nordhaus-native (ρ=1.5%, η=1.45) | ~$43 / tCO₂ |
+| modern RFF-SP/EPA Ramsey (near-zero ρ, η≈1.24) | **~$95 / tCO₂** |
+| Nordhaus-native (ρ=1.5%, η=1.45) | ~$42 / tCO₂ |
 
-**Decision: report the value; document the sensitivity; do not tune to a target.** GIM's modern-2%
-SCC (~$140) lands within the broad modern consensus range, a little below the EPA-2023 ($190) /
+> **17.3.0 update.** The development-structured recalibration (TFP conditional convergence +
+> development-dependent decarbonisation) gives a faster, empirically-calibrated forward growth path,
+> which discounts future damages more and lowers the SCC: modern Ramsey ~$140 → **~$95**, range
+> ~$140–380 → **~$95–280**, Nordhaus ~$43 → ~$42. Under DICE-2016R2's own lower damages the
+> marginal-pulse engine now returns **~$20** (was ~$31) — i.e. DICE *underestimates* damages relative
+> to GIM's empirically-calibrated function and faster growth.
+
+**Decision: report the value; document the sensitivity; do not tune to a target.** GIM's modern
+SCC (~$95) lands within the broad modern consensus range, below the EPA-2023 ($190) /
 RFF-SP ($185) central. Crucially, the SCC is **genuinely sensitive to the forward economic
-structure** — it ranged ~$140–380 across the objective-core variants (production form, price
+structure** — it ranges ~$95–280 across the objective-core variants (production form, price
 closure, SSP-anchored growth), which is the well-known growth/discounting sensitivity of the SCC
 amplified by GIM's integrated structure. Rather than tune any single variant to hit $190 (which
 would mean detuning the cross-validated damages, 5.4%/3 °C in T1.4), we report the headline value and
@@ -59,4 +66,4 @@ paper. (See `docs/WELFARE_SCC.md`, `docs/BENCHMARK_ALIGNMENT.md`.)
 |---|---|---|
 | AR6 net non-CO₂ | retain calibrated net (headline); AR6 components as scenario levers | AR6 central over-warms the validated 1990–2023 record; gap within AR6 uncertainty |
 | Carbon-cycle feedbacks | ensemble-only | deterministic feedback explodes the SCC; deep uncertainty belongs in the tail |
-| Social cost of carbon | report ~$140 (modern 2%), within the broad modern range; document the ~$140–380 sensitivity | report the value and its growth/discounting sensitivity rather than detune to hit a target |
+| Social cost of carbon | report ~$95 (modern near-zero-ρ Ramsey; 17.3.0), within the broad modern range; document the ~$95–280 sensitivity | report the value and its growth/discounting sensitivity rather than detune to hit a target |

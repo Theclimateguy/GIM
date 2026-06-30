@@ -6,13 +6,17 @@ limitations are, whether they block using the model, and the priority order for 
 ## Current standing
 
 **Solid and validated.**
-- Economy reproduces 2015–2023 national-income history; the headline now uses the objective
-  capital–energy-substitution (nested-CES) production core with full price/balance closure, which
-  improved the fit (GDP error 1.03→0.59, CO₂ 1.61→1.15, temperature 0.135).
+- Economy reproduces 2015–2023 national-income history; the headline uses the objective
+  capital–energy-substitution (nested-CES) production core with full price/balance closure. The
+  17.3.0 development-structured recalibration (TFP conditional convergence + development-dependent
+  decarbonisation, both fit to the World Bank 2015–2023 panel) re-derived the golden on a corrected
+  2015 state: **GDP error 0.62, CO₂ 0.93, temperature 0.135**, with a realistic no-policy forward
+  baseline (CO₂ rises, temperature warms).
 - Climate matches the mainstream scientific assessment (temperature sensitivity, the 1990–2023
   warming and carbon record).
-- Cost of carbon is in the modern consensus range (~$140/tCO₂ at modern 2% discounting), with the
-  growth/discounting sensitivity carried and documented explicitly.
+- Cost of carbon is in the modern consensus range (~$95/tCO₂ at modern near-zero-ρ Ramsey
+  discounting, range ~$95–280), with the growth/discounting sensitivity carried and documented
+  explicitly.
 - Government finance is strictly accounting-consistent, including through debt crises; the private
   side now carries a closed stock-flow-consistent bank balance sheet (money = deposits = loans).
 - The distinctive social / political / geopolitical / cultural layers are validated to the honest
@@ -89,6 +93,8 @@ to be brought fully up to the level of the rest of the model, the production sid
    derived from cost minimisation. It reduces exactly to the old core at the base point, so
    activation preserved the calibration — and it *improved* the historical fit (GDP RMSE 1.03→0.63,
    CO₂ 1.61→1.11). The "too simple production core" critique is closed at the structural level.
+   (These are the original activation figures; 17.3.0 later re-derived the golden to 0.62 / 0.93 on a
+   corrected 2015 state — see `CHANGELOG.md`.)
 2. **[DONE] Market clearing for the energy and capital markets.** Both now clear by price in the
    headline (energy demand and investment respond to the energy price and the cost of capital);
    activated as base with the capital-clearing sensitivity calibrated so the fit is preserved/improved

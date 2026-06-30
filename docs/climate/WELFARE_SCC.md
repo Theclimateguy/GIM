@@ -53,6 +53,15 @@ SCC distributions (cf. RFF-SP / Rennert et al. 2022).
 
 ## D6 — DICE reproduction (keystone cross-model check)
 
+> **17.3.0 update.** The table below was run on the pre-17.3.0 model, when GIM's forward growth was
+> slower and the engine reproduced DICE's ~$31 under DICE's inputs. The development-structured
+> recalibration (TFP conditional convergence + development-dependent decarbonisation) gives a faster,
+> empirically-calibrated growth path that discounts the multi-century damage tail more, so under
+> DICE's *own* lower damages the engine now returns **~$20** (not ~$32). The reading flips: rather
+> than "GIM recovers DICE," the result is that **DICE-2016R2 underestimates damages** relative to
+> GIM's empirically-calibrated growth and damage function. The historical table is retained as-run for
+> provenance; see `CHANGELOG.md` and the paper for the 17.3.0 numbers.
+
 The decisive economic-core validation: does GIM's *independently built* marginal-pulse SCC engine
 recover Nordhaus's DICE-2016R number (~$31/tCO₂) when fed DICE's inputs? GIM already shares DICE's
 discounting (η=1.45, ρ=1.5%) and ECS (~3.0); the only material difference is the damage **coefficient**
