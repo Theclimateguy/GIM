@@ -131,6 +131,22 @@ Y^*_{i,t}=TFP_{i,t}\cdot(1+TECH\_OUTPUT\_SENS\cdot\max(0,tech_i-1))\cdot K_{i,t}
 K_{i,t+1}=(1-\delta)K_{i,t}+s_{i,t}Y_{i,t}
 \]
 
+## EQ-ECO-003 TFP growth (R&D + diffusion + conditional convergence)
+
+\[
+\frac{\Delta TFP_{i,t}}{TFP_{i,t}}=\underbrace{g^{drift}_t}_{\text{baseline}}
++\underbrace{\eta\,\frac{RD_{i,t}}{Y_{i,t}}(1+\sigma\,\overline{trade}_i)}_{\text{R\&D}}
++\underbrace{\theta\,\overline{gap}^{tech}_i}_{\text{diffusion}}
++\underbrace{\nu\,\min\!\Big(\ln\tfrac{y^{frontier}_t}{y_{i,t}},\,\bar g\Big)}_{\text{conditional convergence}}
+-growthDrag_{i,t}
+\]
+
+with per-capita output \(y_{i,t}=Y_{i,t}/Pop_{i,t}\), frontier \(y^{frontier}_t=\max_j y_{j,t}\), and
+\(\nu=\) `TFP_CONVERGENCE_SENS` \(=0.0093\), cap \(\bar g=\) `TFP_CONVERGENCE_GAP_CAP` \(=4\). The
+convergence slope is fit to the 2015--2023 real-PPP-GDP growth cross-section (World Bank
+`NY.GDP.MKTP.PP.KD`; \(R^2=0.38\), see `calibration/growth_decarb_calibration.py`): poorer economies
+catch up faster, so the model reproduces the China/India growth gap that a single drift misses.
+
 ## EQ-FIN-001 Public finance / debt
 
 \[
@@ -152,22 +168,47 @@ r_{i,t}=r_0+\min(Spread_{i,t},RATE\_SPREAD\_CAP)+Contagion_{i,t}+ZonePremium_{i,
 Pop_{i,t+1}=Pop_{i,t}(1+b_{i,t}-d_{i,t})+Mig_{i,t}
 \]
 
-## EQ-CLI-001 Emissions
+## EQ-CLI-001 Emissions (development-dependent decarbonisation)
 
 \[
 Em_{i,t}=Y_{i,t}\cdot Intensity_{i,t}\cdot(1-policyReduction_{i,t})\cdot EMISSIONS\_SCALE
 \]
-
-## EQ-CLI-002 Carbon cycle
-
 \[
-Pool_{m,t+1}=Pool_{m,t}e^{-1/\tau_m}+\phi_m\sum_iEm_{i,t}
+Intensity_{i,t}=Intensity^{base}_i\cdot e^{-DECARB_i\cdot t}\cdot \text{(tech, efficiency, tax terms)}
 \]
 \[
+DECARB_i=\operatorname{clip}\!\big(b_{0}+b_{1}\ln y_{i,t},\;0,\;0.06\big),\qquad
+b_{0}=-0.0779,\; b_{1}=0.0107
+\]
+
+The structural decarbonisation rate \(DECARB_i\) scales with development (per-capita output
+\(y_{i,t}\)): richer/post-industrial economies decarbonise faster (renewables, offshoring of heavy
+industry). It is the mirror image of the TFP convergence term (EQ-ECO-003) and is fit to the
+2015--2023 per-country CO\(_2\)/real-PPP-GDP intensity-decline cross-section (World Bank CO\(_2\)
+`EN.GHG.CO2.MT.CE.AR5`; \(R^2=0.46\), `calibration/growth_decarb_calibration.py`). The single global
+`DECARB_RATE_STRUCTURAL`\(=0.016\) is the emissions-weighted aggregate (used when the per-country
+switch is off); the per-country median is \(\approx 0.031\).
+
+## EQ-CLI-002 Carbon cycle (impulse-response pools, aged 2023 initialisation)
+
+\[
+Pool_{m,t+1}=Pool_{m,t}e^{-1/\tau_m}+\phi_m\sum_iEm_{i,t},\qquad
 CO2_t=CO2_{pre}+\sum_mPool_{m,t}
 \]
 
-## EQ-CLI-003 Forcing and temperature
+The four IPCC-AR6 pools use *flow* fractions \(\phi_m\) for newly emitted CO\(_2\). The 2023 forward
+state, however, initialises the pools from the *aged* partition of the historical excess (mostly in
+the long-lived pools), obtained from a 1750\(\to\)2023 spin-up on observed emissions:
+\[
+Pool_{m,2023}=\psi_m\,(CO2_{2023}-CO2_{pre}),\quad
+\boldsymbol{\psi}=(0.380,0.352,0.224,0.044)\;\text{for}\;\tau=(\infty,394,36.5,4.3)\,\text{yr}.
+\]
+Partitioning the excess by the flow fractions instead over-loads the fast 4.3-yr pool (\(0.28\) vs the
+aged \(0.044\)) and produces a phantom \(\sim\!50\) GtCO\(_2\)/yr sink that makes the no-policy
+baseline concentration *fall*; the aged initialisation reproduces the observed \(\approx+2.4\)
+ppm/yr growth.
+
+## EQ-CLI-003 Forcing and temperature (self-consistent 2023 anchor)
 
 \[
 F_t=5.35\ln(C_t/C_0)+F^{nonCO2}_t
@@ -177,6 +218,12 @@ F_t=5.35\ln(C_t/C_0)+F^{nonCO2}_t
 \quad
 \Delta T_d=\frac{\kappa(T_s-T_d)}{C_d}
 \]
+
+The 2023 initial conditions are taken from the same spin-up so the two-box EBM starts in
+self-consistent disequilibrium: surface \(T_s^{2023}=1.333\,^\circ\text{C}\) (which is also the zero
+point for incremental damage), deep ocean \(T_d^{2023}=0.404\,^\circ\text{C}\) (gap \(\approx0.93\),
+the warming-in-the-pipeline). \(\lambda=F_{2\times}/ECS\) with \(ECS=3.0\) (the 1990--2023 backtest
+RMSE minimum).
 
 ## EQ-RSK-001 Climate risk response
 
