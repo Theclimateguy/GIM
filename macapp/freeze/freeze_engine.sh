@@ -11,7 +11,15 @@ cd "$REPO"
 echo "[freeze] ensuring pyinstaller…"
 python3 -m pip install --quiet --upgrade pyinstaller >/dev/null
 
-rm -rf "$HERE/build" "$HERE/dist" "$HERE/gim-engine.spec"
+rm -rf "$HERE/build" "$HERE/dist" "$HERE/gim-engine.spec" "$HERE/_data_stage"
+
+# Stage a pruned copy of data/ for bundling: ship the validated canon + runtime inputs,
+# but NOT data/archive/ (retired forward-2026 artifacts have no place in the shipped app).
+echo "[freeze] staging data/ without archive/…"
+mkdir -p "$HERE/_data_stage/data"
+cp -R "$REPO/data/." "$HERE/_data_stage/data/"
+rm -rf "$HERE/_data_stage/data/archive"
+
 echo "[freeze] running PyInstaller (this takes a minute)…"
 python3 -m PyInstaller \
   --name gim-engine \
@@ -23,8 +31,9 @@ python3 -m PyInstaller \
   --specpath "$HERE" \
   --collect-submodules gim \
   --collect-all shapely \
-  --add-data "$REPO/data:data" \
+  --add-data "$HERE/_data_stage/data:data" \
   --add-data "$REPO/scenarios:scenarios" \
   "$HERE/engine_main.py"
 
+rm -rf "$HERE/_data_stage"
 echo "[freeze] done → $HERE/dist/gim-engine"
