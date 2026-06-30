@@ -1,6 +1,6 @@
 """Unified GIM17 package with world simulation and scenario gaming layers."""
 
-__version__ = "17.2.2"
+__version__ = "17.3.0"
 
 from .core import *  # noqa: F401,F403
 from .crisis_metrics import CrisisMetricsEngine
