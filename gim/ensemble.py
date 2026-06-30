@@ -45,7 +45,7 @@ class EnsembleConfig:
     state_csv: str
     n_members: int = 500
     years: int = 10
-    base_year: int = 2026
+    base_year: int = 2023
     max_agents: int = 100
     master_seed: int = 2026
     prior_set: str = "key"  # "key" (literature core) or "all" (adds long tail)

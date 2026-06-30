@@ -121,7 +121,7 @@ def make_output_fn(
     state_csv: str,
     years: int = 10,
     max_agents: int = 100,
-    base_year: int = 2026,
+    base_year: int = 2023,
     seed: int = 2026,
 ) -> OutputFn:
     """Wrap the model as a deterministic scalar function of a parameter-override vector."""

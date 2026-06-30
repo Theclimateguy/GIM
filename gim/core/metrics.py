@@ -247,7 +247,7 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
     # to a recognised scenario rather than the lower emergent rate. Endogenous R&D/diffusion unchanged.
     drift = cal.TFP_DRIFT
     if getattr(cal, "SSP_FORWARD_GROWTH", False):
-        base_year = getattr(world.global_state, "_calendar_year_base", 2026)
+        base_year = getattr(world.global_state, "_calendar_year_base", 2023)
         year = base_year + int(getattr(world, "time", 0))
         if year > getattr(cal, "SSP_FORWARD_FROM_YEAR", 2024):
             # [E4.2] SSP1-5 preset selection; default SSP2 reproduces the prior single forward drift.

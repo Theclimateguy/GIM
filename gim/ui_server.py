@@ -577,7 +577,7 @@ def _analytics_payload_from_evaluation_path(
         trajectory = []
 
     years: list[int] = []
-    base_year = int(data.get("scenario", {}).get("base_year", 2026))
+    base_year = int(data.get("scenario", {}).get("base_year", 2023))
     years = [base_year + i for i in range(len(trajectory))] if trajectory else [base_year]
 
     risk_probs = evaluation.get("risk_probabilities", {})
