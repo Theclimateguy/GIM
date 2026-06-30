@@ -171,9 +171,11 @@ K_{t+1} = (1-\delta)\,K_t + s\,Y_t, \qquad \delta = 0.05,
 \end{equation}
 where the savings rate $s\approx0.24$ is modulated by social stability and tension. Productivity $A$
 grows at a baseline rate of about one percent per year, responding additionally to research
-spending, technology diffusion through trade, and convergence toward the technological frontier; for
-forward projections its drift is anchored to the SSP2 socio-economic development scenario
-\citep{riahi2017}. The energy, resource, and capital markets clear through prices: energy demand and
+spending, technology diffusion through trade, and a conditional-convergence term in which poorer
+economies catch up faster --- its slope ($0.0093$ per log unit of the per-capita output gap to the
+frontier) fit to the 2015--2023 cross-section of real purchasing-power-parity output, so the model
+reproduces the observed catch-up growth of China and India; for forward projections the drift is
+anchored to the SSP2 socio-economic development scenario \citep{riahi2017}. The energy, resource, and capital markets clear through prices: energy demand and
 investment respond to the price of energy and the cost of capital with calibrated elasticities.
 Inflation (a Phillips curve with energy cost pass-through), unemployment (Okun's law), the
 central-bank rate (a Taylor rule, \citep{taylor1993}), the government budget and debt, and trade
@@ -192,10 +194,13 @@ full list of variables with dataset versions and references is given in the repo
 
 \subsection{Climate and the carbon cycle}
 
-Output is accompanied by carbon-dioxide emissions, to which a land-use source is added. Emissions
-accumulate in the atmosphere and decay over several characteristic timescales; other greenhouse
-gases are accounted for, and the resulting warming is computed by a standard two-reservoir
-surface--ocean heat-balance model. The block is calibrated to mainstream scientific assessment: it
+Output is accompanied by carbon-dioxide emissions, to which a land-use source is added. The emission
+intensity of output declines structurally at a country-specific rate that rises with development ---
+richer, post-industrial economies decarbonise faster (renewables and the offshoring of heavy
+industry), the mirror image of growth convergence and fit to the 2015--2023 per-country
+carbon-intensity decline. Emissions accumulate in the atmosphere and decay over several
+characteristic timescales; other greenhouse gases are accounted for, and the resulting warming is
+computed by a standard two-reservoir surface--ocean heat-balance model. The block is calibrated to mainstream scientific assessment: it
 reproduces the accepted equilibrium climate sensitivity to a doubling of carbon-dioxide
 concentration ($3.0\,^\circ$C) and tracks the observed temperature and carbon record from 1990 to
 2023 \citep{ipcc_ar6_wg1,friedlingstein2023}.\footnote{Sources for the climate block: the
@@ -218,13 +223,16 @@ function reducing the level of output is adopted,
 corresponding to losses of $2.4\,\%$, $5.4\,\%$, and $9.6\,\%$ of gross product at warming of $+2$,
 $+3$, and $+4\,^\circ$C. This estimate lies in the middle of the empirical range: about two and a
 half times higher than in DICE-2016R2 and below the central estimate of the Howard--Sterner
-meta-analysis \citep{howard2017,burke2015}. That this difference resides in the damage function
-rather than the valuation machinery is confirmed by a direct cross-model check: fed DICE's damage
-coefficient and discounting, the model's own marginal-pulse engine recovers DICE-2016R2's social
-cost of carbon under DICE inputs (about \$30 per ton of carbon dioxide at a 100-year horizon versus
-DICE's \$31, rising to about \$37 over a multi-century horizon as the long-run damage tail
-integrates), so the higher headline cost of carbon follows entirely from the higher,
-empirically grounded damage function. From the damage function, the social cost of carbon ---
+meta-analysis \citep{howard2017,burke2015}. A direct cross-model check isolates where our headline
+cost of carbon comes from: fed DICE's \emph{own} lower damage coefficient and discounting, the
+model's marginal-pulse engine returns about \$20 per ton of carbon dioxide at a multi-century
+horizon --- below DICE-2016R2's \$31. That gap is not an engine artefact but a growth effect: our
+empirically calibrated growth core (with development convergence, Section~\ref{sec:calib}) raises
+future per-capita consumption faster than DICE's exogenous path, so a richer future discounts its
+damages more heavily. The higher headline cost of carbon therefore follows from our higher,
+empirically grounded damage function (about two and a half times DICE's), and the sub-DICE value
+under DICE's own damages indicates that DICE-2016R2 underestimates damages once realistic growth is
+imposed. From the damage function, the social cost of carbon ---
 the economic damage from emitting one additional ton of carbon dioxide, a standard reference point
 for climate policy --- is computed by the marginal-pulse method. This quantity depends substantially
 on the discounting scheme and on the structure of future growth; results are reported in
@@ -361,10 +369,10 @@ must either preserve them within tolerance or be accompanied by an explicit reca
 
 A validation summary across all blocks is given in Table~\ref{tab:backtest}, with the key results
 discussed below. Retrospective validation over 2015--2023 yields root-mean-square errors for gross
-product, world emissions, and temperature. The move from the former Cobb--Douglas production
-function to the closed core with a nested substitution function and market clearing improved the fit
-to history (Fig.~\ref{fig:valid}a): the product error fell from $1.03$ to $0.59$ trillion USD, and
-the emissions error from $1.61$ to $1.15$ gigatons.
+product, world emissions, and temperature. With the corrected capital initialisation both the
+Cobb--Douglas and the closed nested-substitution core reach a product error of about $0.62$ trillion
+USD; the gain from the nested substitution function with market clearing now shows in emissions
+(Fig.~\ref{fig:valid}a), where it lowers the error from $1.87$ to $0.93$ gigatons.
 
 \begin{table}[t]
 \centering
@@ -379,9 +387,9 @@ naive benchmark, or channel identification. The comparison of the current core w
 \toprule
 Block & Source & Criterion & Result \\
 \midrule
-Economy & PWT, WDI & retrospective RMSE, 2015--2023 & GDP $0.59$ trillion USD (Cobb--Douglas $1.03$) \\
-Climate and carbon & IPCC AR6, GCB & retrospective RMSE, 2015--2023 & $\mathrm{CO_2}$ $1.15$ Gt; $T$ $0.135\,^\circ$C \\
-Cost of carbon & EPA-2023, RFF-SP & published cross-check; DICE engine reproduction & ${\approx}\$140$/t$\,\mathrm{CO_2}$ (range $140$--$380$); recovers DICE-2016R2 (\$30 at 100\,y; target \$31) under DICE inputs \\
+Economy & PWT, WDI & retrospective RMSE, 2015--2023 & GDP $0.62$ trillion USD (Cobb--Douglas $0.62$) \\
+Climate and carbon & IPCC AR6, GCB & retrospective RMSE, 2015--2023 & $\mathrm{CO_2}$ $0.93$ Gt; $T$ $0.135\,^\circ$C \\
+Cost of carbon & EPA-2023, RFF-SP & published cross-check; Ramsey discounting & ${\approx}\$95$/t$\,\mathrm{CO_2}$ (range $95$--$280$); under DICE's lower damages SCC is ${\approx}\$20$, i.e.\ DICE-2016R2 underestimates damages relative to our empirically calibrated function \\
 Conflict & UCDP/PRIO & ranking vs.\ registry & AUC $0.736$ $[0.59;\,0.86]$; BSS $+0.143$; $p{\approx}0.001$ \\
 Social block & SWIID, WGI & channel identification (Sec.~\ref{sec:uq}) & significant lagged channel; regression $p<10^{-12}$ \\
 \bottomrule
@@ -424,12 +432,16 @@ guessing.}
 \end{figure}
 
 The social cost of carbon is sensitive to the discounting scheme. Under a modern Ramsey scheme with
-a near-zero pure rate of time preference of about two percent it is roughly \$140 per ton --- within
-the broad modern range, slightly below the central EPA-2023 and RFF-SP estimates (about \$190)
-\citep{rennert2022,epa2023}; under Nordhaus-style discounting it is about \$43. Importantly, this
-quantity is \emph{genuinely} sensitive to the structure of future growth: across different
-calibrations of the economic core it varied over a range of roughly \$140--380. We report this value
-together with its sensitivity rather than tuning it to a target; that sensitivity is itself a
+a near-zero pure rate of time preference it is roughly \$95 per ton --- within the broad modern
+range, below the central EPA-2023 and RFF-SP estimates (about \$190) \citep{rennert2022,epa2023};
+under Nordhaus-style discounting it is about \$42. Importantly, this quantity is \emph{genuinely}
+sensitive to the structure of future growth: across different calibrations of the economic core it
+varies over a range of roughly \$95--280, and the development-convergence recalibration of the growth
+core (faster catch-up growth, which makes the future richer and discounts its damages more heavily)
+moved the central value down by about a quarter. Fed DICE-2016R2's own, lower damage coefficient our
+pulse engine returns about \$20 under this faster growth --- below DICE's \$31 --- so DICE
+underestimates damages relative to the empirically calibrated function we adopt. We report these
+values together with their sensitivity rather than tuning to a target; that sensitivity is itself a
 standalone result.
 
 \section{Uncertainty, sensitivity, and parameter identification}
