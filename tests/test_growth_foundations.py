@@ -31,8 +31,8 @@ class GrowthFoundationsTests(unittest.TestCase):
     def test_default_golden_preserved(self):
         with contextlib.redirect_stdout(io.StringIO()):
             g = run_historical_backtest()
-        self.assertAlmostEqual(g.gdp_rmse_trillions, 0.590, places=2)
-        self.assertAlmostEqual(g.global_co2_rmse_gtco2, 1.146, places=2)
+        self.assertAlmostEqual(g.gdp_rmse_trillions, 0.621, places=2)
+        self.assertAlmostEqual(g.global_co2_rmse_gtco2, 0.933, places=2)
 
     def test_ssp_preset_ordering(self):
         p = cal.SSP_TFP_DRIFT_PRESETS

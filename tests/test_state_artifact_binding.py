@@ -45,7 +45,7 @@ class StateArtifactBindingTests(unittest.TestCase):
             binding.emissions_reference_state_csv,
             (REPO_ROOT / "tests" / "fixtures" / "historical_backtest_state_2015.csv").resolve(),
         )
-        self.assertAlmostEqual(binding.decarb_rate, 0.052)
+        self.assertAlmostEqual(binding.decarb_rate, 0.016025082589816386)  # [RECAL 2026-06] re-stamped from the observed prior
         self.assertEqual(binding.decarb_source, "observed")
         self.assertAlmostEqual(binding.decarb_reference_rate, 0.016025082589816386)
         self.assertEqual(binding.decarb_reference_start_year, 2000)

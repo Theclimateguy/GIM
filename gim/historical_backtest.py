@@ -211,17 +211,22 @@ class _temporary_decarb_rate:
         self._value = value
         self._original_structural = cal.DECARB_RATE_STRUCTURAL
         self._original_alias = cal.DECARB_RATE
+        self._original_dev = getattr(cal, "DECARB_DEVELOPMENT_DEPENDENT", False)
 
     def __enter__(self) -> None:
         if self._value is not None:
             override = float(self._value)
             cal.DECARB_RATE_STRUCTURAL = override
             cal.DECARB_RATE = override
+            # An explicit global override (sensitivity sweep / single-rate diagnostic) supersedes the
+            # per-country development-dependent decarb, so the swept rate is actually applied.
+            cal.DECARB_DEVELOPMENT_DEPENDENT = False
         return None
 
     def __exit__(self, exc_type, exc, tb) -> None:
         cal.DECARB_RATE_STRUCTURAL = self._original_structural
         cal.DECARB_RATE = self._original_alias
+        cal.DECARB_DEVELOPMENT_DEPENDENT = self._original_dev
 
 
 def _run_historical_backtest_member(

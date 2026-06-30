@@ -125,7 +125,16 @@ def update_emissions_from_economy(
         structural_progress = max(max(0.0, float(time)), float(stored_progress))
 
     structural_multiplier = _structural_transition_multiplier(policy_reduction, fuel_tax_change, cal)
-    structural_transition = math.exp(-cal.DECARB_RATE_STRUCTURAL * structural_progress)
+    # [DECARB/DEV] Per-country structural decarbonisation rate scaling with development (income), mirroring
+    # TFP convergence. Falls back to the single global rate when the switch is off or an explicit override
+    # is active (e.g. the decarb sensitivity sweep / historical-backtest decarb override).
+    decarb_rate = cal.DECARB_RATE_STRUCTURAL
+    if getattr(cal, "DECARB_DEVELOPMENT_DEPENDENT", False) and agent.economy.population > 0:
+        gdp_pc = gdp * 1e12 / agent.economy.population
+        if gdp_pc > 0.0:
+            dev_rate = cal.DECARB_DEV_BASE + cal.DECARB_DEV_SLOPE * math.log(gdp_pc)
+            decarb_rate = min(cal.DECARB_DEV_MAX, max(cal.DECARB_DEV_MIN, dev_rate))
+    structural_transition = math.exp(-decarb_rate * structural_progress)
     tax_effect = 1.0 - cal.FUEL_TAX_EMISSIONS_SENS * fuel_tax_change
     tax_effect = min(cal.FUEL_TAX_EFFECT_MAX, max(cal.FUEL_TAX_EFFECT_MIN, tax_effect))
 

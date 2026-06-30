@@ -23,9 +23,13 @@ class HistoricalBacktestTests(unittest.TestCase):
     # [E4.1] money->price transmission now in the headline (MONEY_INFLATION_PASS=0.027, data-calibrated
     # dynamic-panel pass-through). Golden re-anchored; the move is 4th-decimal (0.590/1.146/0.135
     # unchanged at this precision). See docs/MONEY_PRICES.md.
+    # [RECAL 2026-06] Re-derived after fixing the 2015 capital init (cap/GDP 0.23x -> 3.0x), switching
+    # to the data-derived decarb 0.016, adding TFP conditional convergence, and re-basing the observed
+    # GDP series from nominal (NY.GDP.MKTP.CD) to real PPP growth. The old golden held via error
+    # cancellation (broken capital + decarb 0.052 fudge); these values use physically-meaningful params.
     GOLDEN = {
-        "gdp_rmse_trillions": 0.590,
-        "global_co2_rmse_gtco2": 1.146,
+        "gdp_rmse_trillions": 0.621,
+        "global_co2_rmse_gtco2": 0.933,  # [DEV-DECARB 2026-06] per-country development-dependent decarb (was 1.258)
         "temperature_rmse_c": 0.135,
     }
     TOLERANCE = 0.01

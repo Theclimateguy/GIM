@@ -75,23 +75,45 @@
     ]
   },
   "active_rate_backtest": {
-    "active_artifact_rate": 0.052,
+    "active_artifact_rate": 0.016025082589816386,
     "observed_data_rate": 0.016025082589816386,
-    "recommended_active_rate": 0.052,
+    "recommended_active_rate": 0.016025082589816386,
+    "note": "Re-stamped 2026-06: the manifest decarb_rate now carries the data-derived observed prior (0.016). After fixing the 2015-state capital init and adding TFP convergence, the honest low rate fits the 2015-2023 CO2 backtest; the legacy 0.049-0.056 fudge values are now rejected.",
     "comparisons": [
       {
         "rate": 0.016025,
-        "label": "observed_data_fit",
-        "gdp_rmse_trillions": 1.0502051826408079,
-        "global_co2_rmse_gtco2": 6.25780770739925,
-        "temperature_rmse_c": 0.13594501667355902
+        "label": "active",
+        "gdp_rmse_trillions": 0.6206428004320206,
+        "global_co2_rmse_gtco2": 1.2577091510401381,
+        "temperature_rmse_c": 0.13501681629069645
       },
       {
-        "rate": 0.052,
-        "label": "active_artifact",
-        "gdp_rmse_trillions": 1.0503297852341267,
-        "global_co2_rmse_gtco2": 1.6302959855506234,
-        "temperature_rmse_c": 0.1362822319376967
+        "rate": 0.049,
+        "label": "candidate_0.049",
+        "gdp_rmse_trillions": 0.6205025960618982,
+        "global_co2_rmse_gtco2": 3.827523410696533,
+        "temperature_rmse_c": 0.1350018152178828
+      },
+      {
+        "rate": 0.056,
+        "label": "candidate_0.056",
+        "gdp_rmse_trillions": 0.6204751325553525,
+        "global_co2_rmse_gtco2": 4.670051286065178,
+        "temperature_rmse_c": 0.13502126869582443
+      },
+      {
+        "rate": 0.021023,
+        "label": "observed_fixture",
+        "gdp_rmse_trillions": 0.6206203303265438,
+        "global_co2_rmse_gtco2": 0.9382960696603033,
+        "temperature_rmse_c": 0.13500151131076368
+      },
+      {
+        "rate": 0.035506,
+        "label": "candidate_0.036",
+        "gdp_rmse_trillions": 0.6205577338550791,
+        "global_co2_rmse_gtco2": 2.16088169479257,
+        "temperature_rmse_c": 0.13498485909899333
       }
     ]
   },

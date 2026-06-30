@@ -6,7 +6,7 @@
   "compiled_target_year": 2023,
   "artifact_parameters": {
     "emissions_scale": 0.9755424434247171,
-    "decarb_rate": 0.052
+    "decarb_rate": 0.016025082589816386
   },
   "change_requires_pipeline_rebuild": true,
   "builder_reference": "GIM17/scripts/build_gim13_agent_states.py",
@@ -21,7 +21,8 @@
     "source": "observed",
     "rate": 0.016025082589816386,
     "start_year": 2000,
-    "end_year": 2023
+    "end_year": 2023,
+    "stamped_into_active": true
   },
   "refresh_notes": [
     "F3 culture trim (removed inert mas/ind/traditional_secular/survival_self_expression); emissions_scale/decarb unchanged (derived from separate 2015 fixture/observed prior)."

@@ -33,7 +33,7 @@ class StateArtifactManifestTests(unittest.TestCase):
         binding = state_artifact.PRIMARY_STATE_ARTIFACT
         self.assertEqual(binding.rebuild_source, "data")
         self.assertAlmostEqual(binding.emissions_scale, derived, delta=1e-9)
-        self.assertAlmostEqual(binding.decarb_rate, 0.052)
+        self.assertAlmostEqual(binding.decarb_rate, 0.016025082589816386)  # [RECAL 2026-06] re-stamped from the observed prior
         self.assertEqual(binding.decarb_source, "observed")
         self.assertAlmostEqual(binding.decarb_reference_rate, 0.016025082589816386)
         self.assertEqual(binding.decarb_reference_start_year, 2000)
