@@ -32,7 +32,7 @@ from gim.influence_audit import STATE_CSV, _aggregate_outputs, _rel_change
 
 def build_stressed_world(max_agents: int = 12, *, debt: bool = True, wars: int = 3):
     """A stressed world: elevated debt/conflict risk + `wars` injected active war dyads."""
-    world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2026)
+    world = make_world_from_csv(STATE_CSV, max_agents=max_agents, base_year=2023)
     world.global_state._temperature_variability_sigma = 0.0  # deterministic
     ids = list(world.agents.keys())
     for a in world.agents.values():
@@ -72,11 +72,17 @@ def _run(setter, years: int, max_agents: int, single_agent: bool):
 
 def run_stress_audit(*, years: int = 10, max_agents: int = 12) -> Dict[str, dict]:
     """Influence of the threshold-gated inputs under stress, each with its appropriate probe."""
+    # NOTE: the stressed world already lifts debt_crisis_prone / conflict_proneness by +0.6,
+    # which saturates most actors at 1.0 on the validated 2023 base (raw values are higher
+    # there than in the retired 2026 forward projection). An upward +0.2 probe would clamp to
+    # 1.0 and register no signal — a saturation artefact, not inertness. We therefore probe
+    # *downward* (-0.2) from the stressed operating point, which measures the marginal
+    # influence of these threshold-gated inputs without a clamp artefact.
     probes = {
         "risk.debt_crisis_prone": (False, lambda a: setattr(
-            a.risk, "debt_crisis_prone", min(1.0, a.risk.debt_crisis_prone + 0.2))),
+            a.risk, "debt_crisis_prone", max(0.0, a.risk.debt_crisis_prone - 0.2))),
         "risk.conflict_proneness": (False, lambda a: setattr(
-            a.risk, "conflict_proneness", min(1.0, a.risk.conflict_proneness + 0.2))),
+            a.risk, "conflict_proneness", max(0.0, a.risk.conflict_proneness - 0.2))),
         "technology.military_power": (True, lambda a: setattr(
             a.technology, "military_power", a.technology.military_power * 1.3)),
         "technology.security_index": (True, lambda a: setattr(

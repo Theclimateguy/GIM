@@ -7,7 +7,7 @@ from gim.core.climate import _sample_temperature_variability
 from gim.core.params import build_params
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _series(rho, seed, n=600, sigma=0.08):

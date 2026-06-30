@@ -31,8 +31,8 @@ if REPO not in sys.path:
 
 from gim.capability import capability_ranking, composite_capability_index, ground_military_power  # noqa: E402
 from gim.core.world_factory import make_world_from_csv  # noqa: E402
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
-OUT_CSV = os.path.join(REPO, "data", "agent_states_operational_2026_anchored.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
+OUT_CSV = os.path.join(REPO, "data", "archive", "agent_states_operational_2026_anchored.csv")
 REPORT = os.path.join(REPO, "results", "calibration", "f3_anchoring_report.json")
 
 
@@ -57,7 +57,7 @@ def _load_external(pattern: str, variable: str) -> Dict[str, float]:
 
 def main() -> int:
     os.makedirs(os.path.dirname(REPORT), exist_ok=True)
-    world = make_world_from_csv(STATE, max_agents=100, base_year=2026)
+    world = make_world_from_csv(STATE, max_agents=100, base_year=2023)
 
     # 1) CINC grounding (always available)
     before = {aid: a.technology.military_power for aid, a in world.agents.items()}

@@ -59,7 +59,7 @@ def _run_trajectory(
 
 
 def social_cost_of_carbon(
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = "data/agent_states_operational.csv",
     *,
     years: int = 30,
     pulse_year: int = 1,
@@ -67,7 +67,7 @@ def social_cost_of_carbon(
     params: Optional[ParameterSet] = None,
     seed: int = 2026,
     max_agents: int = 100,
-    base_year: int = 2026,
+    base_year: int = 2023,
 ) -> Dict[str, float]:
     """Compute the social cost of carbon ($ / tCO2) via a marginal pulse experiment."""
     p = params or default_params()
@@ -101,7 +101,7 @@ def social_cost_of_carbon(
 
 
 def scc_multi_horizon(
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = "data/agent_states_operational.csv",
     *,
     horizons: tuple = (30, 100, 200),
     pulse_year: int = 1,
@@ -109,7 +109,7 @@ def scc_multi_horizon(
     params: Optional[ParameterSet] = None,
     seed: int = 2026,
     max_agents: int = 100,
-    base_year: int = 2026,
+    base_year: int = 2023,
 ) -> Dict[int, float]:
     """Central SCC at several integration horizons ($/tCO2).
 
@@ -138,14 +138,14 @@ SCC_PRIOR_PARAMS = [
 
 
 def scc_distribution(
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = "data/agent_states_operational.csv",
     *,
     names: Optional[List[str]] = None,
     n_samples: int = 50,
     years: int = 30,
     pulse_gtco2: float = 10.0,
     max_agents: int = 100,
-    base_year: int = 2026,
+    base_year: int = 2023,
     master_seed: int = 2026,
 ) -> Dict[str, object]:
     """Propagate the climate-economy + discounting priors through the SCC pulse experiment.

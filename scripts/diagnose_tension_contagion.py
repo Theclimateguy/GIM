@@ -28,7 +28,7 @@ from gim.core.params import default_params                       # noqa: E402
 from gim.core.policy import simple_rule_based_policy             # noqa: E402
 from gim.core.simulation import step_world                       # noqa: E402
 
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
 ORIGINS = ["Germany", "China", "United States", "India", "Brazil"]
 YEARS = 6
 
@@ -43,7 +43,7 @@ def _corr(xs, ys):
 
 
 def _final_tension(links: bool, origin_name: str):
-    w = make_world_from_csv(STATE, base_year=2026)
+    w = make_world_from_csv(STATE, base_year=2023)
     w.params = default_params().with_overrides({"GEOGRAPHY_TENSION_LINKS": links})
     by_name = {a.name: aid for aid, a in w.agents.items()}
     if origin_name not in by_name:
@@ -86,7 +86,7 @@ def _gradient(geo, origin_name: str, id2name: dict):
 
 def main() -> int:
     geo = build_geography()
-    id2name = {aid: a.name for aid, a in make_world_from_csv(STATE, base_year=2026).agents.items()}
+    id2name = {aid: a.name for aid, a in make_world_from_csv(STATE, base_year=2023).agents.items()}
     print("Tension contagion — does unrest cascade to geographic neighbours? (channel ON vs OFF)\n")
     print(f"hubs shocked (averaged): {ORIGINS}; horizon {YEARS}y\n")
     rows = [r for o in ORIGINS if (r := _gradient(geo, o, id2name))]

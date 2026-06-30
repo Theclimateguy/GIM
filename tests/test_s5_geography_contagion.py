@@ -23,7 +23,7 @@ if _HAVE:
     from gim.core.world_factory import make_world_from_csv
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE = os.path.join(_REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(_REPO, "data", "agent_states_operational.csv")
 
 
 def _mean_adjacent_conflict(world):
@@ -37,13 +37,13 @@ def _mean_adjacent_conflict(world):
 @unittest.skipUnless(_HAVE, "shapely + world_countries.geojson required")
 class GeoContagionTests(unittest.TestCase):
     def test_adjacency_populates_real_neighbours(self):
-        world = make_world_from_csv(STATE, base_year=2026)
+        world = make_world_from_csv(STATE, base_year=2023)
         adj = _geo_adjacency(world)
         self.assertTrue(any(neigh for neigh in adj.values()), "no adjacency built")
 
     def test_flag_on_raises_adjacent_conflict(self):
         def run(geo_on):
-            world = make_world_from_csv(STATE, base_year=2026)
+            world = make_world_from_csv(STATE, base_year=2023)
             # override explicitly for both cases — the headline default is now ON, so "off" must be forced
             world.params = default_params().with_overrides({"GEOGRAPHY_CONFLICT_LINKS": geo_on})
             pol = {aid: simple_rule_based_policy for aid in world.agents}

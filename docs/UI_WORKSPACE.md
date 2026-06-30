@@ -20,7 +20,7 @@ Purpose: build and launch a real local `python3 -m gim <command>` invocation wit
 Current control model:
 
 - command selector: `question | game | metrics | calibrate | brief | world | console`
-- actors: dropdown checklist sourced from `data/agent_states_operational_2026_calibrated.csv`
+- actors: dropdown checklist sourced from `data/agent_states_operational.csv`
 - template: optional; blank means backend auto-detect
 - state CSV selector: repository CSV picker
 - numeric runtime fields: `state_year`, `horizon`, `max_countries`, `llm_refresh_years`

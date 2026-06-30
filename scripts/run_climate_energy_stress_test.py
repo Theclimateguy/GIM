@@ -41,7 +41,7 @@ from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
 
-DEFAULT_STATE_CSV = ROOT / "data" / "agent_states_operational_2026_calibrated.csv"
+DEFAULT_STATE_CSV = ROOT / "data" / "agent_states_operational.csv"
 DEFAULT_OUTPUT_ROOT = ROOT / "results"
 FOCUS_ACTORS = ("USA", "CHN", "IND", "DEU", "BRA", "RUS", "SAU", "NGA")
 

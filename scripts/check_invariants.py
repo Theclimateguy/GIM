@@ -19,13 +19,13 @@ from gim.core.policy import make_policy_map
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+STATE_CSV = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
 YEARS = int(os.getenv("CHECK_YEARS", "10"))
 MAX_AGENTS = int(os.getenv("CHECK_MAX_AGENTS", "100"))
 
 
 def main() -> int:
-    world = make_world_from_csv(STATE_CSV, max_agents=MAX_AGENTS, base_year=2026)
+    world = make_world_from_csv(STATE_CSV, max_agents=MAX_AGENTS, base_year=2023)
     policies = make_policy_map(world.agents.keys(), mode="simple")
     log: list[dict] = []
     try:

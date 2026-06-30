@@ -54,7 +54,7 @@ def main() -> int:
     topk = int(os.getenv("TOPK", "5"))
     years = int(os.getenv("SENS_YEARS", "10"))
     max_agents = int(os.getenv("SENS_MAX_AGENTS", "25"))
-    state_csv = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+    state_csv = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
     model_seed = int(os.getenv("SENS_SEED", "2026"))
 
     priors = key_priors()

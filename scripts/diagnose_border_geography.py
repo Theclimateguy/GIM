@@ -32,7 +32,7 @@ from gim.core.world_factory import make_world_from_csv          # noqa: E402
 from gim.core.simulation import step_world                      # noqa: E402
 from gim.core.policy import simple_rule_based_policy            # noqa: E402
 
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
 UCDP = os.path.join(REPO, "data", "external", "raw", "ucdp-prio-acd-241.csv")
 WINDOW = (1990, 2023)
 RUN_YEARS = 20
@@ -81,7 +81,7 @@ def real_conflict_locality(geo):
 
 
 def gim_escalation_locality(geo, geo_links=False):
-    world = make_world_from_csv(STATE, base_year=2026)
+    world = make_world_from_csv(STATE, base_year=2023)
     if geo_links:  # turn on the switchable adjacency contagion (default-off in the core)
         from gim.core.params import default_params
         world.params = default_params().with_overrides({"GEOGRAPHY_CONFLICT_LINKS": True})

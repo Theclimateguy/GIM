@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from gim.core.params import default_params  # noqa: E402
 from gim.scc import social_cost_of_carbon    # noqa: E402
 
-STATE = os.getenv("STATE_CSV", "data/agent_states_operational_2026_calibrated.csv")
+STATE = os.getenv("STATE_CSV", "data/agent_states_operational.csv")
 DICE_DAMAGE_A2 = 0.00236   # DICE-2016R quadratic damage coefficient (~2.12% of output at 3C)
 GIM_DAMAGE_A2 = 0.006      # GIM default prior (~5.4% at 3C)
 HORIZONS = (30, 100, 200, 300)
@@ -34,7 +34,7 @@ DICE_TARGET = 31.0         # Nordhaus DICE-2016R central SCC, ~$31/tCO2 (2015, 2
 def _scc(coeff: float, years: int) -> float:
     ps = default_params().with_overrides({"DAMAGE_QUAD_COEFF": coeff})
     return social_cost_of_carbon(
-        STATE, years=years, pulse_gtco2=10.0, params=ps, seed=2026, max_agents=100, base_year=2026,
+        STATE, years=years, pulse_gtco2=10.0, params=ps, seed=2026, max_agents=100, base_year=2023,
     )["scc_usd_per_tco2"]
 
 

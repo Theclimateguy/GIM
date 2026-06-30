@@ -10,7 +10,7 @@ class FanChartTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cfg = EnsembleConfig(
-            state_csv="data/agent_states_operational_2026_calibrated.csv",
+            state_csv="data/agent_states_operational.csv",
             n_members=10, years=3, max_agents=8, master_seed=2026, prior_set="key", n_jobs=1,
         )
         cls.result = run_ensemble(cfg)

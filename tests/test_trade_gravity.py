@@ -22,13 +22,13 @@ if _HAVE:
     from gim.core.world_factory import make_world_from_csv
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE = os.path.join(_REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(_REPO, "data", "agent_states_operational.csv")
 
 
 @unittest.skipUnless(_HAVE, "shapely + world_countries.geojson required")
 class TradeGravityTests(unittest.TestCase):
     def _gravity_world(self):
-        w = make_world_from_csv(STATE, base_year=2026)
+        w = make_world_from_csv(STATE, base_year=2023)
         w.params = default_params().with_overrides({"TRADE_GRAVITY_INIT": True})
         _apply_trade_gravity_once(w, w.params)
         return w

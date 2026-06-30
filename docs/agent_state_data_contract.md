@@ -4,6 +4,15 @@ This document separates the real-world source layer from the model-ready `agent_
 In `GIM17`, it is the working contract for both the compact runtime state and the larger
 operational state build.
 
+> **Canonical state (single source of truth).** All blocks — the GIM17 engine, the `gim2`
+> library, and the GIM2.app — start from one validated compiled state, **`data/agent_states_operational.csv`**,
+> the **2023 base year** (57 actors: the 50 largest economies, residual regional aggregates, and
+> Taiwan, together covering essentially all of world output: GDP ≈ $107T, population ≈ 8.06B,
+> CO₂ ≈ 38 Gt). Its aggregates are validated against World Bank / UN / Global Carbon Project to
+> within ~1%. Code resolves it via `gim.runtime.default_state_csv()` / `gim.paths.CANONICAL_STATE_CSV`;
+> never hardcode a dated forward-projection filename. Retired forward projections live in
+> `data/archive/` (see its README).
+
 ## 1. Design Rules
 
 - The model CSV must contain only fields that are actually used by the loader or simulation logic.

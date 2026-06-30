@@ -6,11 +6,11 @@ from gim.core import calibration_params as cal
 from gim.core.economy import compute_effective_interest_rate
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 def _agent_world():
-    w = make_world_from_csv(STATE_CSV, max_agents=4, base_year=2026)
+    w = make_world_from_csv(STATE_CSV, max_agents=4, base_year=2023)
     a = next(iter(w.agents.values()))
     # Neutralise the debt spread so we isolate the Taylor term: low debt/GDP.
     a.economy.public_debt = 0.1 * a.economy.gdp

@@ -15,7 +15,7 @@ from gim.core.policy import make_policy_map
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 class ReferenceTests(unittest.TestCase):
@@ -66,7 +66,7 @@ class LeverTests(unittest.TestCase):
 class IntegrationTests(unittest.TestCase):
     def test_methane_scenario_runs_cooler_than_baseline(self):
         def final_temp(scales):
-            w = make_world_from_csv(STATE_CSV, max_agents=6, base_year=2026)
+            w = make_world_from_csv(STATE_CSV, max_agents=6, base_year=2023)
             set_nonco2_component_scales(w, scales)
             pol = make_policy_map(w.agents.keys(), mode="simple")
             for _ in range(8):
@@ -79,7 +79,7 @@ class IntegrationTests(unittest.TestCase):
 
     def test_default_world_unchanged_by_empty_scales(self):
         def run(set_scales):
-            w = make_world_from_csv(STATE_CSV, max_agents=6, base_year=2026)
+            w = make_world_from_csv(STATE_CSV, max_agents=6, base_year=2023)
             if set_scales:
                 set_nonco2_component_scales(w, None)
             pol = make_policy_map(w.agents.keys(), mode="simple")

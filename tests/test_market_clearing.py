@@ -6,11 +6,11 @@ from gim.core.params import default_params
 from gim.core.resources import update_global_resource_prices
 from gim.core.world_factory import make_world_from_csv
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 
 
 def _prices_after(overrides):
-    world = make_world_from_csv(STATE, max_agents=12, base_year=2026)
+    world = make_world_from_csv(STATE, max_agents=12, base_year=2023)
     if overrides:
         world.params = default_params().with_overrides(overrides)
     update_global_resource_prices(world)
@@ -35,7 +35,7 @@ class MarketClearingTests(unittest.TestCase):
 
     def test_clearing_raises_price_under_excess_demand(self):
         # build a world with global excess demand for energy, then clear
-        world = make_world_from_csv(STATE, max_agents=12, base_year=2026)
+        world = make_world_from_csv(STATE, max_agents=12, base_year=2023)
         world.params = default_params().with_overrides({"MARKET_CLEARING": True})
         for a in world.agents.values():
             e = a.resources.get("energy")

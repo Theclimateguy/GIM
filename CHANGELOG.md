@@ -2,6 +2,28 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [17.2.2] — 2026-06-30
+
+**Validated 2023-canon data unification + paper refresh.** Establishes a single validated source of
+truth for the compiled actor state and refreshes the paper to it.
+
+- **Canon:** all runs start from `data/agent_states_operational.csv` (2023 base year, 57 actors —
+  the 50 largest economies + residual regional aggregates + Taiwan, covering essentially all world
+  output: world GDP ≈ $107T, population ≈ 8.06B, CO₂ ≈ 38 Gt), reconciled against World Bank / UN /
+  Global Carbon Project to within ~1%. Resolved everywhere via `runtime.default_state_csv()` /
+  `paths.CANONICAL_STATE_CSV`; the retired forward-2026 projection is archived in `data/archive/`.
+- **Engine:** adopts the per-agent forward energy-reserve normalization (supersedes 17.2.1's global
+  factor — fixes a mid-horizon importer depletion that spuriously spiked the energy price and cooled
+  the forward temperature fan). Forward-path only; **golden backtest RMSE byte-identical** (GDP
+  0.5917 / CO₂ 1.1467 / T 0.1349). `base_year` defaults corrected to 2023 across ensemble/SCC/
+  sensitivity/metrics.
+- **Paper (RU+EN):** forward ensemble refreshed to the canon (base 2023 ≈ $107T; 10-yr median ≈
+  $127T, IQR 125–130, 5–95% 121–133; temperature 1.0–2.0 °C); fixed the "57 = subset" framing
+  (it covers essentially all output); regenerated fig3 (Morris) and fig4 (ensemble); Morris
+  robustness re-verified on canon (r=8→32 Spearman ρ ≈ 0.99 for the three physical quantities,
+  0.986–0.995; social tension ρ ≈ 0.93 at the noise floor). SCC headline holds (low-discount Ramsey
+  ≈ $147 @100y; DICE reproduction $30.1 @300y, target $31). Conflict/backtest validation unchanged.
+
 ## [17.2.1] — 2026-06-29
 
 **Resource-block units & data reconciliation (patch).** A forward-projection patch correcting three

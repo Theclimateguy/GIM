@@ -26,7 +26,7 @@ from .core.core import CO2_PREINDUSTRIAL_GT
 from .core.params import build_params
 from .core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 # --- AR6 WG1 reference values (Forster et al. 2021; SPM.1 / Ch.7) -----------------------
 AR6_ECS = (3.0, 2.5, 4.0)   # best, likely-low, likely-high

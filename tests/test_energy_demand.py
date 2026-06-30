@@ -6,12 +6,12 @@ from gim.core.params import default_params
 from gim.core.resources import update_resource_stocks
 from gim.core.world_factory import make_world_from_csv
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 
 
 def _energy_consumption_after_price_change(p0, p1, on):
     """Establish baseline price p0 (one step), then change to p1 and return demand before/after."""
-    world = make_world_from_csv(STATE, max_agents=6, base_year=2026)
+    world = make_world_from_csv(STATE, max_agents=6, base_year=2023)
     world.params = default_params().with_overrides({"ENERGY_DEMAND_PRICE_RESPONSE": bool(on)})
     world.global_state.prices["energy"] = p0
     update_resource_stocks(world)  # anchors the previous price at p0

@@ -24,7 +24,7 @@ UI_HTML = ROOT / "ui_prototype" / "gim17_dashboard_prototype.html"
 APP_HTML = ROOT / "ui_prototype" / "gim17_app.html"
 RESULTS_DIR = ROOT / "results"
 DATA_DIR = ROOT / "data"
-DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational_2026_calibrated.csv"
+DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational.csv"
 
 DOC_PATHS = [
     "README.md",
@@ -577,7 +577,7 @@ def _analytics_payload_from_evaluation_path(
         trajectory = []
 
     years: list[int] = []
-    base_year = int(data.get("scenario", {}).get("base_year", 2026))
+    base_year = int(data.get("scenario", {}).get("base_year", 2023))
     years = [base_year + i for i in range(len(trajectory))] if trajectory else [base_year]
 
     risk_probs = evaluation.get("risk_probabilities", {})
@@ -941,6 +941,14 @@ _WORLD_CACHE: dict[tuple[str, int, int], Any] = {}
 
 
 def _load_world_cached(state_csv: str | None, state_year: int | None, max_agents: int | None):
+    """Shared cached world for fast, READ-ONLY light calls (catalogs, doctrine previews).
+
+    NOTE: callers that step the world in place (whatif/game/compare run handlers) must NOT use
+    this — they go through ``engine_service._world_for_key`` which builds a FRESH world per run.
+    A fresh build is bit-identical to the ``gim question`` CLI's load and immune to prior-run
+    mutation; a ``deepcopy`` of a cached world is NOT bit-identical (the sim has id-order-
+    dependent float reductions), so it would break the exact-equality parity guarantee.
+    """
     from .runtime import load_world
 
     key = (state_csv or "", int(state_year or 0), int(max_agents or 0))

@@ -42,7 +42,7 @@ from gim.core.params import default_params                 # noqa: E402
 from gim.core.policy import simple_rule_based_policy       # noqa: E402
 from gim.core.simulation import step_world                 # noqa: E402
 
-STATE = os.path.join(REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(REPO, "data", "agent_states_operational.csv")
 YEARS = 10
 N_PERM = 999
 SEED = 12345
@@ -113,7 +113,7 @@ def neighbour_lag_corr(names: Sequence[str], val: Dict[str, float],
 
 def run_world(years: int, geo_on: bool) -> Dict[str, Dict[str, float]]:
     """Run the world geo-ON or geo-OFF; return per-country {conflict, tension, climate} by name."""
-    w = make_world_from_csv(STATE, base_year=2026)
+    w = make_world_from_csv(STATE, base_year=2023)
     overrides = {} if geo_on else {f: False for f in GEO_FLAGS}
     w.params = default_params().with_overrides(overrides)
     pol = {aid: simple_rule_based_policy for aid in w.agents}

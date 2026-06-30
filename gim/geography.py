@@ -25,7 +25,7 @@ from shapely.geometry import shape
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GEOJSON = os.path.join(_REPO, "data", "world_countries.geojson")
-STATE = os.path.join(_REPO, "data", "agent_states_operational_2026_calibrated.csv")
+STATE = os.path.join(_REPO, "data", "agent_states_operational.csv")
 
 # GIM agent `name` -> geojson `name` (only where they differ).
 _AGENT_TO_GEO = {

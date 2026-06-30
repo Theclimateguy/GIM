@@ -9,13 +9,13 @@ from gim.capability import (
 )
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 class CapabilityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.world = make_world_from_csv(STATE_CSV, max_agents=57, base_year=2026)
+        cls.world = make_world_from_csv(STATE_CSV, max_agents=57, base_year=2023)
         cls.cinc = composite_capability_index(cls.world)
 
     def test_shares_sum_to_one(self):

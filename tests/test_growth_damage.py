@@ -9,7 +9,7 @@ from gim.core.policy import make_policy_map
 from gim.core.simulation import step_world
 from gim.core.world_factory import make_world_from_csv
 
-STATE_CSV = "data/agent_states_operational_2026_calibrated.csv"
+STATE_CSV = "data/agent_states_operational.csv"
 
 
 class GrowthDamageTests(unittest.TestCase):
@@ -20,7 +20,7 @@ class GrowthDamageTests(unittest.TestCase):
         # Same agent/world, two coefficients: with the growth-effect on and warming above
         # baseline, the realised TFP must be lower than with it off.
         def tfp_after(coeff, temp):
-            w = make_world_from_csv(STATE_CSV, max_agents=2, base_year=2026)
+            w = make_world_from_csv(STATE_CSV, max_agents=2, base_year=2023)
             w.params = build_params().with_overrides({"GROWTH_DAMAGE_TFP_COEFF": coeff})
             w.global_state.temperature_global = temp
             a = next(iter(w.agents.values()))
@@ -36,7 +36,7 @@ class GrowthDamageTests(unittest.TestCase):
         from gim.core.core import TGLOBAL_2023_C
 
         def tfp_after(coeff):
-            w = make_world_from_csv(STATE_CSV, max_agents=2, base_year=2026)
+            w = make_world_from_csv(STATE_CSV, max_agents=2, base_year=2023)
             w.params = build_params().with_overrides({"GROWTH_DAMAGE_TFP_COEFF": coeff})
             w.global_state.temperature_global = TGLOBAL_2023_C
             a = next(iter(w.agents.values()))
@@ -48,7 +48,7 @@ class GrowthDamageTests(unittest.TestCase):
 
     def test_enabled_channel_lowers_longrun_gdp(self):
         def world_gdp(coeff, years=30):
-            w = make_world_from_csv(STATE_CSV, max_agents=8, base_year=2026)
+            w = make_world_from_csv(STATE_CSV, max_agents=8, base_year=2023)
             w.params = build_params().with_overrides({"GROWTH_DAMAGE_TFP_COEFF": coeff})
             pol = make_policy_map(w.agents.keys(), mode="simple")
             for _ in range(years):

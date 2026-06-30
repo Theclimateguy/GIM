@@ -34,8 +34,8 @@ class ClimateEnergyStressRunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="gim17-climate-energy-") as tmp:
             args = argparse.Namespace(
                 years=1,
-                base_year=2026,
-                state_csv=str(ROOT / "data" / "agent_states_operational_2026_calibrated.csv"),
+                base_year=2023,
+                state_csv=str(ROOT / "data" / "agent_states_operational.csv"),
                 max_countries=6,
                 seeds="2026",
                 focus_actors="USA,CHN,IND",

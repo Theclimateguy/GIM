@@ -10,11 +10,11 @@ from gim.core.params import default_params
 from gim.core.world_factory import make_world_from_csv
 from gim.historical_backtest import run_historical_backtest
 
-STATE = "data/agent_states_operational_2026_calibrated.csv"
+STATE = "data/agent_states_operational.csv"
 
 
 def _small_world(overrides):
-    world = make_world_from_csv(STATE, max_agents=6, base_year=2026)
+    world = make_world_from_csv(STATE, max_agents=6, base_year=2023)
     world.params = default_params().with_overrides(overrides)
     return world
 
