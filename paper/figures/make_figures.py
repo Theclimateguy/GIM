@@ -100,7 +100,7 @@ def fig2():
 
     # verified headline backtest RMSE (paper Table 3)
     labels = ["World\nproduct", "CO$_2$\nemissions", "Temperature"]
-    current = [0.59, 1.15, 0.135]
+    current = [0.62, 0.93, 0.135]  # [17.3.0] development-structured recalibration (was 0.59, 1.15, 0.135)
     baseline = [1.03, 1.61, 0.134]
 
     gim = load_gim_conflict_proneness()
