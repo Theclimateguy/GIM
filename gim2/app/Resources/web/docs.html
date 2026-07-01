@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<style>
+  :root{
+    --bg:#0E0F12; --surface:#17181D; --surface2:#121317; --line:#2E2C28;
+    --text:#ECE6DD; --muted:#9A948A; --faint:#5A554D; --accent:#E0A458;
+    --green:#4FBF86; --coral:#E07A5F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:980px;margin:0 auto;padding:34px 40px 80px;}
+  h1{font-size:24px;font-weight:600;margin:0 0 4px;}
+  .lead{color:var(--muted);font-size:13px;line-height:1.55;margin:0 0 26px;max-width:760px;}
+  h2{font-size:11px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;
+     color:var(--accent);margin:34px 0 12px;}
+  h3{font-size:14px;font-weight:600;margin:0 0 5px;}
+  p{font-size:12.5px;line-height:1.6;color:var(--text);margin:0 0 9px;}
+  .muted{color:var(--muted);}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(224,164,88,.35);}
+  a:hover{border-bottom-color:var(--accent);}
+  .repo{font-size:12px;color:var(--muted);margin:-14px 0 22px;}
+  .toc{display:grid;grid-template-columns:1fr 1fr;gap:5px 22px;background:var(--surface);
+       border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 30px;max-width:600px;}
+  .toc a{color:var(--text);border-bottom:none;font-size:12.5px;padding:3px 0;display:flex;
+         align-items:center;gap:8px;}
+  .toc a:before{content:"\203A";color:var(--accent);font-weight:700;}
+  .toc a:hover{color:var(--accent);}
+  .cap{margin:0 0 22px;}
+  .cap h3{color:var(--text);font-size:15px;margin:22px 0 7px;}
+  .cap h4{color:var(--accent);font-size:11px;font-weight:600;letter-spacing:.6px;
+          text-transform:uppercase;margin:14px 0 7px;}
+  .cap p{font-size:12.5px;line-height:1.6;margin:0 0 8px;max-width:860px;}
+  ol.howto{margin:4px 0 12px;padding:0;list-style:none;counter-reset:step;max-width:860px;}
+  ol.howto li{position:relative;padding:5px 0 5px 28px;font-size:12.5px;line-height:1.55;margin:0;}
+  ol.howto li:before{counter-increment:step;content:counter(step);position:absolute;left:0;top:3px;
+     width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--bg);
+     font-size:10.5px;font-weight:700;text-align:center;line-height:18px;}
+  ul.menu{margin:2px 0 12px;padding-left:17px;}
+  ul.menu li{font-size:12.5px;line-height:1.55;color:var(--text);margin:0 0 6px;}
+  table.cap-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin:4px 0 14px;}
+  table.cap-tbl th{text-align:left;color:var(--muted);font-size:9.5px;letter-spacing:.4px;
+     text-transform:uppercase;padding:8px 14px 6px 0;border-bottom:1px solid var(--line);font-weight:600;}
+  table.cap-tbl td{padding:9px 14px 9px 0;border-bottom:1px solid #1f1e1b;color:var(--text);
+     vertical-align:top;line-height:1.5;}
+  table.cap-tbl td.k{color:var(--accent);font-weight:600;}
+  table.cap-tbl td .eg{color:var(--muted);}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .mod{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+  .mod h3{color:var(--text);}
+  .mod .algo{font-size:11px;color:var(--muted);margin:6px 0 0;line-height:1.5;}
+  .mod .data{font-size:10.5px;color:var(--faint);margin:6px 0 0;}
+  .tag{display:inline-block;font-size:9.5px;color:var(--accent);border:1px solid var(--line);
+    border-radius:6px;padding:1px 6px;margin-bottom:7px;letter-spacing:.4px;}
+  figure{margin:0;background:#fbfbf9;border:1px solid var(--line);border-radius:10px;padding:12px;}
+  figure img{width:100%;display:block;border-radius:4px;}
+  figcaption{font-size:10.5px;color:#5b5750;margin-top:8px;line-height:1.45;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 14px;}
+  .kpi{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+  .kpi .v{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;}
+  .kpi .l{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.4;}
+  .note{font-size:11px;color:var(--muted);line-height:1.55;}
+  svg{display:block;width:100%;height:auto;}
+  .svgwrap{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:14px;margin:4px 0 6px;}
+  .legend{font-size:10.5px;color:var(--muted);margin-top:4px;}
+  .legend b.g{color:var(--green);} .legend b.c{color:var(--coral);} .legend b.a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Модель GIM18 — как она устроена</h1>
+  <p class="lead">GIM18 — детерминированная имитационная модель мира (57 стран и страновых агрегатов,
+  образующих весь мир), объединяющая экономику, климат, ресурсы и общественно-политический контур
+  в едином годовом шаге. Все количественные результаты получены прогоном валидированного движка;
+  языковой ассистент лишь направляет запрос и описывает результат. Ниже — возможности и рабочие
+  вкладки, архитектура, описание модулей, путь обращения к языковой модели и результаты валидации.</p>
+  <p class="repo">Исходный код, данные и история версий (ветка GIM17, последний опубликованный релиз;
+  GIM18 — локальное развитие поверх неё):
+  <a href="https://github.com/Theclimateguy/GIM/tree/GIM17">github.com/Theclimateguy/GIM</a></p>
+
+  <nav class="toc">
+    <a href="#capabilities">Возможности модели</a>
+    <a href="#arch">Архитектура</a>
+    <a href="#modules">Модули</a>
+    <a href="#data">Данные и источники</a>
+    <a href="#llm">Обращение к языковой модели</a>
+    <a href="#validation">Валидация</a>
+  </nav>
+
+  <h2 id="capabilities">Возможности модели</h2>
+  <p class="muted" style="max-width:820px;margin-bottom:8px">Три рабочие вкладки в боковом меню.
+  В любой из них числа — результат прогона детерминированного движка, а не оценка языковой модели.</p>
+
+  <div class="cap">
+    <h3>1. Ассистент</h3>
+    <p>Естественно-языковой интерфейс к движку. Пользователь формулирует стратегический вопрос
+    словами; ассистент сопоставляет его с заземлёнными рычагами, выполняет детерминированный прогон
+    и возвращает структурированную «карту ответа»: вердикт, точку перелома, цепочку последствий по
+    доменам и итоговые состояния стран. Все числовые величины вычисляются движком, а не языковой
+    моделью — ассистент лишь маршрутизирует запрос и интерпретирует результат.</p>
+    <h4>Как пользоваться</h4>
+    <ol class="howto">
+      <li>Сформулируйте вопрос или описание сценария в поле ввода в нижней части экрана.</li>
+      <li>Отправьте запрос золотой кнопкой со стрелкой вверх либо клавишей Enter.</li>
+      <li>Дождитесь завершения прогона (порядка 15–20&nbsp;секунд). Результат отображается карточкой,
+      текст которой доступен для копирования.</li>
+    </ol>
+    <h4>Кнопки и меню</h4>
+    <ul class="menu">
+      <li>Значок шестерёнки в правом верхнем углу открывает выбор модели ассистента: «Без&nbsp;LLM»
+      (распознавание сценария по ключевым словам, полностью офлайн), «Локально (Ollama)» и
+      «OpenAI-совместимый (по&nbsp;ключу)». Здесь же задаются модель, API-ключ и Base&nbsp;URL, а
+      кнопка «Проверить» выполняет тест соединения.</li>
+      <li>Текстовый бейдж слева от шестерёнки указывает активный режим распознавания.</li>
+    </ul>
+  </div>
+
+  <div class="cap">
+    <h3>2. Экспертный режим</h3>
+    <p>Прямое управление движком без посредника. Результаты выражаются относительно валидированной
+    базовой линии: сценарий измеряется как отклонение&nbsp;(Δ) от инерционного прогона. Переключатель
+    в верхней части содержит пять режимов; в каждом задаются параметры и запускается прогон. Любой
+    график разворачивается на весь экран по нажатию, а внизу приводится эквивалентная команда
+    командной строки для воспроизводимости.</p>
+
+    <h4>Режимы</h4>
+    <table class="cap-tbl">
+      <thead><tr><th style="width:18%">Режим</th><th style="width:34%">Что выполняет</th><th>Результат и пример</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Сценарий</td>
+            <td>Прогон с выбранными рычагами против базовой линии.</td>
+            <td>Аналитическая записка и графики отклонения&nbsp;(Δ) по метрикам с интервалами неопределённости. <span class="eg">(Например, «Декарбонизация» при интенсивности&nbsp;0,6 даёт снижение выбросов и температуры относительно базы.)</span></td></tr>
+        <tr><td class="k">Ансамбли</td>
+            <td>Монте-Карло-прогон по диапазонам априорных параметров.</td>
+            <td>Веера неопределённости — медиана, межквартильный размах и интервал&nbsp;5–95 — для каждой метрики. <span class="eg">(Например, разброс мирового продукта на десятилетнем горизонте.)</span></td></tr>
+        <tr><td class="k">Отклик</td>
+            <td>Серия прогонов при возрастающей силе одного рычага.</td>
+            <td>Кривая «сила рычага — итог»; ненулевой наклон подтверждает, что рычаг действительно влияет на выбранную метрику. <span class="eg">(Например, отклик мирового продукта на «Пакет роста».)</span></td></tr>
+        <tr><td class="k">Чувствительность</td>
+            <td>Скрининг параметров методом Морриса.</td>
+            <td>Диаграмма&nbsp;μ* — ранжирование параметров по силе влияния на метрику. <span class="eg">(Например, температуру определяет прежде всего равновесная чувствительность климата.)</span></td></tr>
+        <tr><td class="k">Сигналы</td>
+            <td>Поиск аномалий в траектории по расстоянию Махаланобиса.</td>
+            <td>Число аномальных шагов и порог&nbsp;χ² — индикатор приближения структурного сдвига. <span class="eg">(Например, накопление неустойчивости перед кризисом.)</span></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Параметры прогона</h4>
+    <p>Интенсивность воздействия (0,15–1,25; значение&nbsp;1,0 — откалиброванная опорная точка),
+    горизонт (3–30&nbsp;лет) и число членов ансамбля (40–500). Для части рычагов появляется выбор
+    стран, к которым применяется воздействие.</p>
+
+    <h4>Рычаги сценария</h4>
+    <table class="cap-tbl">
+      <thead><tr><th style="width:22%">Рычаг</th><th style="width:30%">На что влияет</th><th>Результат и пример</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Цена углерода</td>
+            <td>Цена энергии, инфляция, выбросы, температура.</td>
+            <td>Вводит углеродный сбор уровня высокой амбициозности (около&nbsp;130&nbsp;$/тCO₂): энергия дорожает примерно на&nbsp;39&nbsp;%, выбросы и потепление снижаются.</td></tr>
+        <tr><td class="k">Декарбонизация</td>
+            <td>Выбросы, температура, мировой продукт.</td>
+            <td>Ускоряет структурный энергопереход — повышает темп декарбонизации и снижает масштаб эмиссий; итог — более низкие&nbsp;CO₂ и температура.</td></tr>
+        <tr><td class="k">Пакет роста</td>
+            <td>Мировой продукт, население.</td>
+            <td>Сдвигает производительность, норму сбережений и отдачу НИОКР к верхней границе калибровки; итог — более высокий ВВП.</td></tr>
+        <tr><td class="k">Шок поставок энергии</td>
+            <td>Цена энергии, инфляция, продукт, долговые кризисы.</td>
+            <td>Воспроизводит кризис масштаба 2022&nbsp;года (цена энергии&nbsp;+60&nbsp;%, добыча&nbsp;−15&nbsp;% в течение двух лет): рост инфляции и долгового стресса.</td></tr>
+        <tr><td class="k">Продовольственный шок</td>
+            <td>Цена продовольствия, социальное напряжение, продукт.</td>
+            <td>Неурожай масштаба 2007–2008&nbsp;/&nbsp;2010–2011&nbsp;годов (цена&nbsp;+60&nbsp;%, предложение&nbsp;−20&nbsp;%): рост социального напряжения.</td></tr>
+        <tr><td class="k">Торговля и санкции</td>
+            <td>Мировой продукт, число войн, социальное напряжение.</td>
+            <td>Полномасштабные санкции по выбранным странам (падение торговли около&nbsp;−30&nbsp;%) и сопутствующий рост конфликтного давления.</td></tr>
+        <tr><td class="k">Стагфляционный шок</td>
+            <td>Социальное напряжение, мировой продукт.</td>
+            <td>Экзогенная стагфляция масштаба 1973–1975&nbsp;годов (безработица&nbsp;+3&nbsp;п.п., инфляция&nbsp;+4&nbsp;п.п. в течение трёх лет).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cap">
+    <h3>3. Сравнение</h3>
+    <p>Сведение прогонов в единую систему отсчёта. Сверху закреплён базовый сценарий — инерционный
+    мир без новых шоков; все остальные прогоны измеряются как отклонение&nbsp;(Δ) от него.</p>
+    <h4>Как пользоваться</h4>
+    <ol class="howto">
+      <li>Прогоны из «Ассистента» и «Экспертного режима» автоматически попадают в список «История
+      прогонов» (до восьми последних).</li>
+      <li>Отметьте флажками до трёх прогонов.</li>
+      <li>Нажмите «Сравнить»: один отмеченный прогон сопоставляется с базой, два или три — между
+      собой и с базой. Ниже строится матрица «Δ к базовой линии» с терминальными отклонениями по
+      метрикам.</li>
+    </ol>
+    <h4>Кнопки и меню</h4>
+    <ul class="menu">
+      <li>Базовый сценарий рассчитывается автоматически (либо по кнопке «Построить базовый сценарий»)
+      как ансамбль из 120&nbsp;прогонов на 10&nbsp;лет; его веера разворачиваются по нажатию.</li>
+      <li>Кнопка «Экспорт в PDF» в правом верхнем углу сохраняет отчёт с базовым сценарием и
+      сравнением выбранных прогонов.</li>
+    </ul>
+  </div>
+
+  <h2 id="arch">Архитектура</h2>
+  <div class="svgwrap">
+    <svg viewBox="0 0 920 506" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#6E6A5E" fill-opacity="0.9"/>
+        </marker>
+      </defs>
+      <!-- inputs -->
+      <g>
+        <rect x="20"  y="14" width="270" height="46" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="155" y="34" fill="#ECE6DD" font-size="13" text-anchor="middle">Состояние стран</text>
+        <text x="155" y="50" fill="#9A948A" font-size="10.5" text-anchor="middle">CSV: ВВП, капитал, население, резервы</text>
+        <rect x="325" y="14" width="270" height="46" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="460" y="34" fill="#ECE6DD" font-size="13" text-anchor="middle">Литературные приоры</text>
+        <text x="460" y="50" fill="#9A948A" font-size="10.5" text-anchor="middle">33 ключевых параметра с источниками</text>
+        <rect x="630" y="14" width="270" height="46" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="765" y="34" fill="#ECE6DD" font-size="13" text-anchor="middle">Геометрия границ</text>
+        <text x="765" y="50" fill="#9A948A" font-size="10.5" text-anchor="middle">граф соседства стран</text>
+      </g>
+      <line x1="155" y1="60" x2="155" y2="92" stroke="#5A554D" marker-end="url(#arr)"/>
+      <line x1="460" y1="60" x2="460" y2="92" stroke="#5A554D" marker-end="url(#arr)"/>
+      <line x1="765" y1="60" x2="765" y2="92" stroke="#5A554D" marker-end="url(#arr)"/>
+
+      <!-- core -->
+      <rect x="20" y="94" width="880" height="232" rx="12" fill="#17181D" stroke="#2E2C28"/>
+      <text x="40" y="118" fill="#E0A458" font-size="12" font-weight="600">Детерминированное ядро — один шаг мира (1 год)</text>
+      <g font-size="12.5" text-anchor="middle">
+        <rect x="44"  y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="142" y="166" fill="#ECE6DD">Экономика</text>
+        <text x="142" y="184" fill="#9A948A" font-size="10.5">CES · деньги→цены · рост</text>
+        <rect x="256" y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="354" y="166" fill="#ECE6DD">Климат</text>
+        <text x="354" y="184" fill="#9A948A" font-size="10.5">выбросы→T (энергобаланс)</text>
+        <rect x="468" y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="566" y="166" fill="#ECE6DD">Ресурсы</text>
+        <text x="566" y="184" fill="#9A948A" font-size="10.5">энергия · еда · металлы</text>
+        <rect x="680" y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
+        <text x="778" y="162" fill="#ECE6DD">Общество и</text>
+        <text x="778" y="178" fill="#ECE6DD">геополитика</text>
+      </g>
+      <!-- coupling arrows between modules -->
+      <g stroke="#5A554D">
+        <line x1="240" y1="170" x2="256" y2="170" marker-end="url(#arr)"/>
+        <line x1="256" y1="182" x2="240" y2="182" marker-end="url(#arr)"/>
+        <line x1="452" y1="170" x2="468" y2="170" marker-end="url(#arr)"/>
+        <line x1="468" y1="182" x2="452" y2="182" marker-end="url(#arr)"/>
+        <line x1="664" y1="170" x2="680" y2="170" marker-end="url(#arr)"/>
+        <line x1="680" y1="182" x2="664" y2="182" marker-end="url(#arr)"/>
+      </g>
+      <!-- geo band -->
+      <rect x="44" y="246" width="832" height="40" rx="8" fill="#1b1a17" stroke="#2E2C28"/>
+      <text x="460" y="271" fill="#E0A458" font-size="11.5" text-anchor="middle">Географическая связность — торговля (гравитация), пространственное распространение конфликта · напряжённости · климата</text>
+      <text x="460" y="306" fill="#9A948A" font-size="10.5" text-anchor="middle">модули связаны двусторонне: цены ресурсов → экономика → выбросы → климат → урожай/стресс → общество → безопасность → торговля</text>
+
+      <line x1="460" y1="326" x2="460" y2="356" stroke="#5A554D" marker-end="url(#arr)"/>
+      <!-- ensemble -->
+      <rect x="250" y="358" width="420" height="44" rx="9" fill="#121317" stroke="#2E2C28"/>
+      <text x="460" y="378" fill="#ECE6DD" font-size="12.5" text-anchor="middle">Ансамбль Монте-Карло</text>
+      <text x="460" y="393" fill="#9A948A" font-size="10.5" text-anchor="middle">выборка приоров → распределения траекторий</text>
+      <line x1="460" y1="402" x2="460" y2="430" stroke="#5A554D" marker-end="url(#arr)"/>
+
+      <!-- outputs -->
+      <g font-size="11.5" text-anchor="middle">
+        <rect x="20"  y="432" width="210" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
+        <text x="125" y="458" fill="#ECE6DD">Веера</text>
+        <text x="125" y="474" fill="#9A948A" font-size="10">медиана · IQR · 5–95</text>
+        <rect x="243" y="432" width="210" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
+        <text x="348" y="458" fill="#ECE6DD">Каскад по доменам</text>
+        <text x="348" y="474" fill="#9A948A" font-size="10">цепочка последствий</text>
+        <rect x="466" y="432" width="210" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
+        <text x="571" y="458" fill="#ECE6DD">Карта стран</text>
+        <text x="571" y="474" fill="#9A948A" font-size="10">выигравшие / проигравшие</text>
+        <rect x="689" y="432" width="211" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
+        <text x="794" y="458" fill="#ECE6DD">Пороги</text>
+        <text x="794" y="474" fill="#9A948A" font-size="10">точки перелома</text>
+      </g>
+    </svg>
+    <div class="legend">Поток: входные данные → детерминированное ядро (связанные модули) → ансамбль неопределённости → выходные представления.</div>
+  </div>
+
+  <h2 id="modules">Модули</h2>
+  <div class="grid2">
+    <div class="mod">
+      <span class="tag">ЭКОНОМИКА</span>
+      <h3>Экономическое ядро (CES)</h3>
+      <p class="algo">Замкнутая объективно-калиброванная экономика: выпуск по CES от капитала, труда и энергии;
+      накопление капитала, передача «деньги→цены» (количественный член Филлипса, λ≈0.027), эндогенный рост
+      (TFP из запаса НИОКР, торговая диффузия и условная конвергенция — бедные экономики догоняют быстрее,
+      калибровка по реальному ВВП по ППС 2015–2023) и торговля по гравитационной модели (δ=0.9).</p>
+      <p class="data">Данные: базовый ВВП, капитал, население, производительность по странам.</p>
+    </div>
+    <div class="mod">
+      <span class="tag">КЛИМАТ</span>
+      <h3>Климатический блок</h3>
+      <p class="algo">Выбросы CO₂ из энергопотребления (интенсивность снижается с уровнем развития —
+      богатые декарбонизируются быстрее, зеркало конвергенции роста) → концентрация (углеродные пулы,
+      инициализированные из спинапа 1750→2023) → глобальная температура через энергобалансовую
+      динамику (отклик с инерцией океана). Температурный ансамбль с малой вариативностью для интервалов.</p>
+      <p class="data">Данные: интенсивность выбросов, чувствительность климата (ECS), обмен с океаном.</p>
+    </div>
+    <div class="mod">
+      <span class="tag">РЕСУРСЫ</span>
+      <h3>Ресурсные рынки</h3>
+      <p class="algo">Энергия, еда и металлы: производство, потребление, резервы и цены с рыночным
+      клирингом и реакцией спроса на цену (год-к-году, без накопления). Энергокап привязан к
+      физическому горизонту резервов.</p>
+      <p class="data">Данные: резервы, производство и потребление ресурсов по странам.</p>
+    </div>
+    <div class="mod">
+      <span class="tag">ОБЩЕСТВО И ГЕОПОЛИТИКА</span>
+      <h3>Социально-политический контур</h3>
+      <p class="algo">Социальная напряжённость, долговые и режимные кризисы, риск конфликта
+      (структурная склонность × напряжённость) и автоматические меры безопасности при ресурсном
+      стрессе; санкции и эскалация как рычаги.</p>
+      <p class="data">Данные: социальные приоры; конфликтный риск сверен с записью UCDP.</p>
+    </div>
+    <div class="mod">
+      <span class="tag">СВЯЗНОСТЬ</span>
+      <h3>Географическая связность</h3>
+      <p class="algo">Реальный пространственный граф (по границам стран) задаёт четыре переключаемых
+      канала: торговую гравитацию и пространственное распространение конфликта, напряжённости и
+      климатических эффектов между соседями.</p>
+      <p class="data">Данные: геометрия границ; якоря из литературы (Disdier–Head, PITF/ViEWS).</p>
+    </div>
+    <div class="mod">
+      <span class="tag">НЕОПРЕДЕЛЁННОСТЬ</span>
+      <h3>Ансамбль и чувствительность</h3>
+      <p class="algo">Монте-Карло по литературным приорам даёт веера (медиана, IQR, 5–95). Скрининг
+      Морриса ранжирует ведущие параметры; результаты проверены на устойчивость к числу траекторий.</p>
+      <p class="data">Данные: 33 ключевых приора с распределениями и источниками.</p>
+    </div>
+  </div>
+
+  <h2 id="data">Данные и источники</h2>
+  <p class="muted" style="margin-bottom:12px;max-width:820px">Все прогоны стартуют из единого
+  <b>валидированного канона на 2023&nbsp;год</b> — состояния 57 акторов (50 крупнейших экономик,
+  остаточные региональные агрегаты и Тайвань, вместе покрывающие практически весь мировой выпуск:
+  ВВП&nbsp;≈&nbsp;$107&nbsp;трлн, население&nbsp;≈&nbsp;8,06&nbsp;млрд, CO₂&nbsp;≈&nbsp;38&nbsp;Гт),
+  собранного из публичных рецензируемых наборов и сверенного с World&nbsp;Bank&nbsp;/&nbsp;UN&nbsp;/&nbsp;GCB;
+  калибровочные приоры взяты из литературы. Ниже — что лежит в модели и откуда.</p>
+  <div class="panel" style="padding:4px 16px 8px">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="text-align:left;color:#9A948A;font-size:10px;letter-spacing:.5px;text-transform:uppercase">
+          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2E2C28">Домен</th>
+          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2E2C28">Данные</th>
+          <th style="padding:9px 0 7px 0;border-bottom:1px solid #2E2C28">Источники</th>
+        </tr>
+      </thead>
+      <tbody style="color:#ECE6DD">
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Экономика</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">ВВП, население, капитал, производительность</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">World Bank (WDI), IMF, Penn World Table</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Климат</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">выбросы CO₂, наблюдаемая температура</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Global Carbon Project, NOAA / HadCRUT</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Ресурсы</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">продовольствие; энергетические и металлические балансы</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">FAO; публичная отраслевая статистика</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Общество и геополитика</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">вооружённые конфликты, бедствия, институты/режим, госдолг</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">UCDP GED, EM-DAT, V-Dem / Polity, World Bank</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Геометрия</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">границы стран (граф соседства)</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">общедоступный мировой GeoJSON</td></tr>
+        <tr><td style="padding:8px 10px 4px 0;vertical-align:top">Приоры (калибровка)</td>
+            <td style="padding:8px 10px 4px 0;color:#9A948A;vertical-align:top">33 ключевых параметра с распределениями</td>
+            <td style="padding:8px 0 4px 0;vertical-align:top">рецензируемая литература (см. Валидацию)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note" style="margin-top:9px">Все источники общедоступны. «Золотой» ретро-прогон 2015–2023 (раздел «Валидация»)
+  проверяет согласие модели с наблюдениями на исторических данных.</p>
+
+  <h2 id="llm">Обращение к языковой модели (LLM)</h2>
+  <p class="muted" style="margin-bottom:12px;max-width:820px">Ассистент — это <b>маршрутизатор инструментов</b>, а не генератор
+  чисел. Языковая модель сопоставляет вопрос с рычагами или типовым сценарием, вызывает движок и описывает результат; любые
+  величины приходят из детерминированного прогона. Последовательность одного ответа:</p>
+  <div class="svgwrap">
+    <svg viewBox="0 0 920 408" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <defs>
+        <marker id="ams" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a8472"/></marker>
+      </defs>
+      <!-- lane headers -->
+      <g text-anchor="middle">
+        <rect x="35"  y="6" width="150" height="40" rx="9" fill="#121317" stroke="#2E2C28"/><text x="110" y="31" fill="#ECE6DD" font-size="12.5">Пользователь</text>
+        <rect x="275" y="6" width="150" height="40" rx="9" fill="#17181D" stroke="#2E2C28"/><text x="350" y="31" fill="#ECE6DD" font-size="12.5">Приложение</text>
+        <rect x="515" y="6" width="150" height="40" rx="9" fill="#17181D" stroke="#2E2C28"/><text x="590" y="31" fill="#ECE6DD" font-size="12.5">Движок</text>
+        <rect x="730" y="6" width="190" height="40" rx="9" fill="#1b1a17" stroke="#2E2C28"/>
+        <text x="825" y="26" fill="#E0A458" font-size="12">Языковая модель</text><text x="825" y="39" fill="#9A948A" font-size="9">OpenAI / Ollama / без LLM</text>
+      </g>
+      <!-- lifelines -->
+      <g stroke="#2E2C28" stroke-dasharray="2 4">
+        <line x1="110" y1="46" x2="110" y2="398"/><line x1="350" y1="46" x2="350" y2="398"/>
+        <line x1="590" y1="46" x2="590" y2="398"/><line x1="825" y1="46" x2="825" y2="398"/>
+      </g>
+      <!-- messages -->
+      <g font-size="10" fill="#9A948A" text-anchor="middle">
+        <line x1="110" y1="80"  x2="350" y2="80"  stroke="#5A554D" marker-end="url(#ams)"/><text x="230" y="74">1 · вопрос</text>
+        <line x1="350" y1="112" x2="590" y2="112" stroke="#5A554D" marker-end="url(#ams)"/><text x="470" y="106">2 · POST /assistant</text>
+        <line x1="590" y1="150" x2="825" y2="150" stroke="#5A554D" marker-end="url(#ams)"/><text x="707" y="144">3 · промпт + вопрос + инструменты</text>
+        <line x1="825" y1="186" x2="590" y2="186" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="180">4 · tool_call: run_answer</text>
+        <line x1="590" y1="186" x2="590" y2="206" stroke="#5A554D"/>
+        <rect x="452" y="206" width="276" height="36" rx="8" fill="#121317" stroke="#2E2C28"/>
+        <text x="590" y="229" fill="#ECE6DD" font-size="11">5 · compute_answer — детерминированный прогон</text>
+        <line x1="590" y1="242" x2="590" y2="264" stroke="#5A554D"/>
+        <line x1="590" y1="266" x2="825" y2="266" stroke="#5A554D" marker-end="url(#ams)"/><text x="707" y="260">6 · результат прогона</text>
+        <line x1="825" y1="300" x2="590" y2="300" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="294">7 · интерпретация (язык польз.)</text>
+        <line x1="590" y1="334" x2="350" y2="334" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="470" y="328">8 · SSE: tool_call · run_result · текст</text>
+        <line x1="350" y1="368" x2="110" y2="368" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="230" y="362">9 · Ситуационная комната</text>
+      </g>
+    </svg>
+    <div class="legend">Числа — <b class="a">всегда из движка</b>. Шаги 3–7 — цикл инструментов: повторяются, пока модель не
+    вернёт текст вместо нового вызова. Режим «без LLM» проходит тот же путь правилами, без обращения к модели.</div>
+  </div>
+
+  <h2 id="validation">Валидация</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">0.60</div><div class="l">RMSE ВВП, трлн $ (бэктест 2015–2023)</div></div>
+    <div class="kpi"><div class="v">0.94</div><div class="l">RMSE CO₂, Гт</div></div>
+    <div class="kpi"><div class="v">0.145</div><div class="l">RMSE температуры, °C</div></div>
+    <div class="kpi"><div class="v">0.736</div><div class="l">AUC риска конфликта · 95% ДИ [0.59; 0.86]</div></div>
+  </div>
+  <p class="note" style="margin-bottom:14px">Ретро-прогон 2015–2023 на эмпирически калиброванной модели (18.0.0,
+  цикл ответа на замечания рецензентов #11–19): продукт одинаково ложится для обеих производственных
+  функций (~0.60 трлн), выигрыш вложенной CES — в выбросах (0.94 против 1.74 Гт). Функция ущерба
+  переоткалибрована на центральную оценку Howard&nbsp;&amp;&nbsp;Sterner (2017) и нормирована на базовый
+  2023&nbsp;год (без двойного счёта уже заложенного в ВВП ущерба); разброс внутренней изменчивости
+  температуры переоценён по наблюдаемым остаткам 1990–2023. Риск конфликта оценён против записи
+  вооружённых конфликтов (UCDP GED, 57 стран и страновых агрегатов, образующих весь мир) — модуль не
+  затронут циклом #11–19: AUC 0.736, прирост по Брайеру +0.143 над базовой частотой, p≈0.001.
+  Социальная цена углерода (постоянная ставка дисконтирования DICE, ρ=1.5%) — $22 / $42 / $45 за тCO₂
+  на горизонтах 30 / 100 / 200&nbsp;лет; при собственном, более низком коэффициенте ущерба DICE-2016R2
+  движок на том же горизонте даёт лишь ~$16 (200&nbsp;лет) — то есть DICE занижает ущербы относительно
+  нашей эмпирической функции.</p>
+
+  <p class="note">Графики валидации — ретро-RMSE, ансамблевые веера, риск конфликта и скрининг
+  Морриса — вынесены во вкладку <b>«Валидация»</b> (переключатель сверху) и отрисованы самим
+  приложением в его стилистике.</p>
+
+</div>
+</body>
+</html>

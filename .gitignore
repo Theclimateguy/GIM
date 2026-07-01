@@ -12,6 +12,14 @@ results/*
 htmlcov/
 build/
 dist/
+
+# macOS app build artifacts (SwiftPM .build, assembled .app bundles, PyInstaller freeze)
+.build/
+*.app/
+*.xcuserstate
+# frozen engine binary + generated spec (rebuild via freeze_engine.sh — ~190 MB)
+gim-engine
+gim-engine.spec
 .venv/
 venv/
 data/agent_state_pipeline/cache/

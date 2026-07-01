@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="leaflet.css"/>
+<script src="leaflet.js"></script>
+<script src="world_geojson.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#0E0F12;font-family:-apple-system,Inter,sans-serif;}
+  #map{position:absolute;top:40px;left:0;right:0;bottom:0;background:#0E0F12;}
+  .leaflet-container{background:#0E0F12;}
+  #bar{position:absolute;top:0;left:0;right:0;height:40px;display:flex;align-items:center;gap:6px;
+       padding:0 10px;box-sizing:border-box;overflow-x:auto;}
+  .b{font-size:12px;padding:5px 10px;border-radius:8px;background:#17181D;color:#9A948A;
+     border:1px solid #2E2C28;cursor:pointer;white-space:nowrap;}
+  .b.on{background:rgba(224,164,88,.16);border-color:#E0A458;color:#ECE6DD;font-weight:600;}
+  #leg{position:absolute;left:10px;bottom:10px;font-size:11px;color:#9A948A;background:rgba(14,15,18,.85);
+       padding:6px 9px;border-radius:8px;border:1px solid #2E2C28;}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 7px;}
+  .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#17181D;color:#ECE6DD;border:1px solid #2E2C28;}
+  .leaflet-popup-content{font-size:12px;line-height:1.5;margin:9px 11px;}
+  #empty{position:absolute;inset:40px 0 0 0;display:flex;align-items:center;justify-content:center;
+         color:#5A554D;font-size:13px;}
+  /* dark-styled leaflet zoom control (was a white box on the dark map) */
+  .leaflet-bar{border:1px solid #2E2C28 !important;box-shadow:none !important;}
+  .leaflet-control-zoom a{background:#17181D !important;color:#ECE6DD !important;border-bottom:1px solid #2E2C28 !important;}
+  .leaflet-control-zoom a:hover{background:#2E2C28 !important;}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="map"></div>
+<div id="leg" style="display:none"></div>
+<div id="empty">Запустите сценарий — карта раскрасит страны по доменам.</div>
+<script>
+const META={
+  score:{label:"Итог",good:1,fmt:v=>v.toFixed(2)},
+  gdp_pct:{label:"ВВП %",good:1,fmt:v=>v.toFixed(2)+"%"},
+  tension:{label:"Напряжённость",good:-1,fmt:v=>(v*100).toFixed(2)+" пп"},
+  debt_pct:{label:"Долг %",good:-1,fmt:v=>v.toFixed(2)+"%"},
+  crisis_years:{label:"Кризис, лет",good:-1,fmt:v=>v.toFixed(1)},
+};
+let MAP, LAYER, BY={}, DOMAIN="score", DOMAINS=["score"], MAXABS={};
+function colorFor(val,good,mx){
+  if(val===undefined||val===null) return "#1b1c21";
+  const t=mx>0?Math.min(1,Math.abs(val)/mx):0, gd=good*val;
+  // Visibility floor: low magnitudes used to fade to near-black. Modeled countries now
+  // show at least ~38% of the green/coral (same hues as the winners/losers bars).
+  const tt=0.38+0.62*t;
+  const base=[40,41,47], pos=[79,191,134], neg=[224,122,95];
+  const tg=gd>=0?pos:neg, m=base.map((b,i)=>Math.round(b+(tg[i]-b)*tt));
+  return `rgb(${m[0]},${m[1]},${m[2]})`;
+}
+function styleFeature(f){
+  const c=BY[f.properties.name], val=c?c[DOMAIN]:undefined;
+  return {fillColor:colorFor(val,(META[DOMAIN]||{}).good||1,MAXABS[DOMAIN]||1),
+          weight:.6, color:"#2E2C28", fillOpacity:c?0.92:0.18};
+}
+function bar(val,good,mx){
+  const t=mx>0?Math.min(1,Math.abs(val||0)/mx):0;
+  const col=(good*(val||0))>=0?'rgb(79,191,134)':'rgb(224,122,95)';
+  return `<span style="display:inline-block;vertical-align:middle;width:64px;height:5px;border-radius:3px;background:#0E0F12;margin-left:6px">`
+        +`<span style="display:block;height:5px;border-radius:3px;background:${col};width:${(t*64).toFixed(0)}px"></span></span>`;
+}
+function mrow(label,val,good,key,fmt){
+  if(val===undefined||val===null) return '';
+  return `<tr><td style="color:#9A948A;padding:1px 8px 1px 0">${label}</td>`
+       +`<td style="color:#ECE6DD;text-align:right;font-variant-numeric:tabular-nums">${fmt(val)}</td>`
+       +`<td>${bar(val,good,MAXABS[key]||1)}</td></tr>`;
+}
+function popup(f){
+  const c=BY[f.properties.name];
+  if(!c) return `<b>${f.properties.name}</b><br><span style="color:#9A948A">нет в модели</span>`;
+  const sgn=c.score>=0?'#4FBF86':'#E07A5F';
+  let h=`<div style="min-width:300px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">`
+       +`<b style="font-size:13px">${c.name}</b>`
+       +`<span style="color:${sgn};font-weight:600">итог ${c.score.toFixed(2)}</span></div>`
+       +`<table style="border-collapse:collapse;width:100%;font-size:11px">`;
+  h+=mrow('ВВП',c.gdp_pct,1,'gdp_pct',v=>v.toFixed(2)+'%');
+  h+=mrow('Напряжённость',c.tension,-1,'tension',v=>(v*100).toFixed(2)+' пп');
+  h+=mrow('Долг',c.debt_pct,-1,'debt_pct',v=>v.toFixed(2)+'%');
+  h+=mrow('Инфляция',c.inflation_pp,-1,'inflation_pp',v=>v.toFixed(2)+' пп');
+  h+=mrow('Безработица',c.unemployment_pp,-1,'unemployment_pp',v=>v.toFixed(2)+' пп');
+  h+=mrow('Кризис, лет',c.crisis_years||0,-1,'crisis_years',v=>v.toFixed(1));
+  h+=`</table>`;
+  if(c.crisis_added!==undefined&&c.crisis_added!==null)
+    h+=`<div style="color:#9A948A;font-size:10px;margin-top:5px">Δ кризисных лет к базе: `
+      +`<b style="color:#ECE6DD">${(c.crisis_added>=0?'+':'')+c.crisis_added.toFixed(1)}</b></div>`;
+  return h+`</div>`;
+}
+function draw(){
+  if(LAYER){LAYER.remove();}
+  LAYER=L.geoJSON(window.WORLD_GEOJSON,{style:styleFeature,
+    onEachFeature:(f,l)=>l.bindPopup(popup(f),{maxWidth:340,minWidth:300})}).addTo(MAP);
+  const meta=META[DOMAIN]||{label:DOMAIN};
+  document.getElementById("leg").style.display="block";
+  document.getElementById("leg").innerHTML=`Слой: <b style="color:#ECE6DD">${meta.label}</b>`
+    +` <span class="dot" style="background:rgb(79,191,134)"></span>лучше базы`
+    +` <span class="dot" style="background:rgb(224,122,95)"></span>хуже базы`;
+}
+function buildBar(){
+  const bar=document.getElementById("bar"); bar.innerHTML="";
+  DOMAINS.forEach((k,i)=>{const b=document.createElement("button");
+    b.className="b"+(k===DOMAIN?" on":""); b.textContent=(META[k]||{label:k}).label;
+    b.onclick=()=>{DOMAIN=k;document.querySelectorAll(".b").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on");draw();}; bar.appendChild(b);});
+}
+// Called by Swift with the engine's actors.geo payload.
+window.renderGeo=function(geo){
+  if(!MAP){MAP=L.map("map",{worldCopyJump:true,minZoom:1,maxZoom:6,attributionControl:false,
+    zoomControl:false,scrollWheelZoom:true,doubleClickZoom:true}).setView([25,12],1.4);
+    L.control.zoom({position:'topright'}).addTo(MAP);}
+  document.getElementById("empty").style.display="none";
+  BY={}; (geo.countries||[]).forEach(c=>{BY[c.geo_name]=c;});
+  DOMAINS=["score"].concat((geo.domains||[]).filter(d=>d!=="score"));
+  const MK=["score","gdp_pct","tension","debt_pct","crisis_years","inflation_pp","unemployment_pp"];
+  MAXABS={}; MK.forEach(k=>{MAXABS[k]=Math.max(1e-9,...(geo.countries||[]).map(c=>Math.abs(c[k]||0)));});
+  if(!DOMAINS.includes(DOMAIN)) DOMAIN="score";
+  buildBar(); draw();
+};
+</script>
+</body>
+</html>

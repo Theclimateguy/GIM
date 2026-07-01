@@ -36,6 +36,7 @@ from urllib.parse import parse_qs, urlparse
 from . import __version__
 from .paths import RESULTS_ROOT
 from .persona import augment_intent, get_persona, list_personas
+from .assistant import AssistantConfig, run_assistant_turn
 from .ui_server import (
     ROOT,
     _analytics_payload_from_evaluation_path,
@@ -157,8 +158,15 @@ def _resolve_world_key(world_key: str) -> tuple[str | None, int | None, int | No
 
 
 def _world_for_key(world_key: str):
+    # Anti-drift (contract §6): run handlers step the world in place, so each run must get a
+    # FRESHLY BUILT world — never the shared `_load_world_cached` instance (a prior run would
+    # leave it dirty) and never a deepcopy (the sim has id-order-dependent float reductions, so
+    # a copy diverges at ~1e-15 and breaks exact parity with the `gim question` CLI). A fresh
+    # build (~8 ms) is bit-identical to the CLI's load and immune to prior-run mutation.
+    from .runtime import load_world
+
     state_csv, state_year, max_countries = _resolve_world_key(world_key)
-    return _load_world_cached(state_csv, state_year, max_countries)
+    return load_world(state_csv=state_csv, max_agents=max_countries, state_year=state_year)
 
 
 # --------------------------------------------------------------------------- #
@@ -471,6 +479,147 @@ def run_whatif(
     return projection
 
 
+# Non-military readout: the engine's driver_scores carry economic/social/climate
+# dimensions alongside the security ones — surfaced so composed scenarios aren't
+# read only through the 10 conflict risk-classes.
+_DIMENSION_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
+    ("Экономика", [("debt_stress", "Долговой стресс"), ("resource_gap", "Ресурсный разрыв"),
+                   ("energy_dependence", "Энергозависимость")]),
+    ("Социум", [("social_stress", "Соц. напряжённость"), ("policy_space", "Простор политики")]),
+    ("Климат", [("climate_stress", "Климат-стресс")]),
+    ("Безопасность", [("conflict_stress", "Конфликт"), ("military_posture", "Воен. поза"),
+                      ("sanctions_pressure", "Санкц. давление")]),
+]
+
+
+def _dimensions_from_scores(driver_scores: dict[str, Any]) -> list[dict[str, Any]]:
+    groups: list[dict[str, Any]] = []
+    for group_name, items in _DIMENSION_GROUPS:
+        metrics = [
+            {"name": label, "value": round(float(driver_scores.get(key, 0.0)), 3)}
+            for key, label in items if key in driver_scores
+        ]
+        if metrics:
+            groups.append({"group": group_name, "metrics": metrics})
+    return groups
+
+
+def _composed_selector(levers: Any, actors: Any):
+    """Build a composer selector from an explicit LLM-authored lever choice, or
+    return None to fall back to deterministic keyword inference."""
+    if not levers:
+        return None
+    from .scenario_composer import LeverSelection
+    from .scenario_ontology import DEFAULT_MAGNITUDE
+
+    magnitudes: dict[str, float] = {}
+    for item in levers:
+        if isinstance(item, dict):
+            lever_id = str(item.get("lever") or item.get("id") or "").strip()
+            if lever_id:
+                magnitudes[lever_id] = float(item.get("magnitude", DEFAULT_MAGNITUDE))
+        elif isinstance(item, str) and item.strip():
+            magnitudes[item.strip()] = DEFAULT_MAGNITUDE
+    if not magnitudes:
+        return None
+    chosen_actors = [str(a) for a in actors] if isinstance(actors, list) else []
+
+    def _selector(_prompt: str, _spec: dict[str, Any]) -> "LeverSelection":
+        return LeverSelection(lever_magnitudes=magnitudes, actors=chosen_actors)
+
+    return _selector
+
+
+def run_composed(
+    run: EngineRun,
+    payload: dict[str, Any],
+    emit: Callable[[str, dict[str, Any]], None] | None,
+) -> dict[str, Any]:
+    """Composed mode: compose_scenario (lever ontology) -> evaluate/sim.
+
+    Same artifact + projection path as ``run_whatif`` but the scenario is *composed
+    on the fly* from the calibrated lever ontology instead of selecting a fixed
+    template, so the assistant can build arbitrary scenarios from free-form intent.
+    The composer validates its own output against the ontology before it is run.
+    Reproducible via ``python3 -m gim question --compose``.
+    """
+    from .game_runner import GameRunner
+    from .results import build_run_artifacts, write_json_artifact, write_run_manifest
+    from .scenario_composer import compose_scenario
+    from .sim_bridge import SimBridge
+
+    world_key = payload["world_key"]
+    world = _world_for_key(world_key)
+    question = str(payload.get("question") or "").strip()
+    if not question:
+        raise ValueError("composed requires a non-empty 'question'")
+    horizon = int(payload.get("horizon", 0) or 0)
+    background_policy = str(payload.get("background_policy", "compiled-llm"))
+    llm_refresh = str(payload.get("llm_refresh", "trigger"))
+    llm_refresh_years = int(payload.get("llm_refresh_years", 2) or 2)
+    use_sim = horizon > 0
+
+    run_artifacts = build_run_artifacts("question")
+    run.artifacts_dir = str(run_artifacts.run_dir.relative_to(ROOT)) if _under_root(run_artifacts.run_dir) else str(run_artifacts.run_dir)
+
+    # Optional LLM-authored lever selection; otherwise deterministic inference.
+    selector = _composed_selector(payload.get("levers"), payload.get("actors"))
+    scenario = compose_scenario(question, world, selector=selector)
+
+    trajectory = [world]
+    if use_sim:
+        bridge = SimBridge()
+        evaluation, trajectory = bridge.evaluate_scenario(
+            world,
+            scenario,
+            n_years=horizon,
+            default_mode=background_policy,
+            llm_refresh=llm_refresh,
+            llm_refresh_years=llm_refresh_years,
+            progress_callback=_make_progress_callback(run, emit),
+        )
+    else:
+        evaluation = GameRunner(world).evaluate_scenario(scenario)
+
+    evaluation_json_path = write_json_artifact(
+        {
+            "scenario": asdict(scenario),
+            "evaluation": asdict(evaluation),
+            "game_result": None,
+            "equilibrium_result": None,
+            "trajectory": [asdict(state) for state in trajectory],
+        },
+        run_artifacts.run_dir / "evaluation.json",
+    )
+    write_run_manifest(
+        {
+            "command": "question",
+            "run_id": run_artifacts.run_id,
+            "run_timestamp": run_artifacts.run_timestamp,
+            "artifacts_dir": str(run_artifacts.run_dir),
+            "outputs": {"evaluation_json": str(evaluation_json_path.resolve())},
+        },
+        run_artifacts.run_dir,
+    )
+
+    cli = ["python3", "-m", "gim", "question", "--question", question, "--compose"]
+    cli += _world_cli_flags(world_key)
+    if use_sim:
+        cli += ["--horizon", str(horizon), "--sim", "--background-policy", background_policy,
+                "--llm-refresh", llm_refresh, "--llm-refresh-years", str(llm_refresh_years)]
+    cli += ["--json"]
+    equiv_cli = " ".join(shlex.quote(part) for part in cli)
+
+    projection = _projection_from_evaluation("composed", evaluation_json_path)
+    projection["trace"] = _trace_block(run, equiv_cli, payload.get("seed"))
+    projection["evaluation"] = asdict(evaluation)
+    # Surface which levers/channels fired so the UI can show the composed recipe.
+    projection["scenario"] = asdict(scenario)
+    # Richer, non-military readout (economy / society / climate / security).
+    projection["dimensions"] = _dimensions_from_scores(evaluation.driver_scores)
+    return projection
+
+
 def run_play(
     run: EngineRun,
     payload: dict[str, Any],
@@ -731,6 +880,7 @@ def run_game(
 
 _RUN_DISPATCH: dict[str, Callable[[EngineRun, dict[str, Any], Any], dict[str, Any]]] = {
     "whatif": run_whatif,
+    "composed": run_composed,
     "play": run_play,
     "game": run_game,
 }
@@ -815,6 +965,76 @@ def _ready_payload(port: int, token: str) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # HTTP handler
 # --------------------------------------------------------------------------- #
+
+
+def _summarize_projection(result: dict[str, Any]) -> str:
+    """Compact, numbers-from-the-engine summary fed back to the assistant LLM."""
+    parts: list[str] = []
+    if result.get("verdict"):
+        parts.append(str(result["verdict"]))
+    crit = result.get("criticality")
+    if isinstance(crit, (int, float)):
+        parts.append(f"Критичность: {crit:.2f}.")
+    outcomes = result.get("outcomes") or []
+    if outcomes:
+        top = sorted(outcomes, key=lambda o: o.get("value", 0), reverse=True)[:3]
+        parts.append("Исходы: " + "; ".join(
+            f"{o.get('name')} {round(float(o.get('value', 0)) * 100)}%" for o in top))
+    trace = (result.get("trace") or {}).get("equiv_cli")
+    if trace:
+        parts.append("⎘ " + trace)
+    return "\n".join(parts)
+
+
+def _make_assistant_executor(world_key: str):
+    """Tool executor for the assistant — runs the *same* engine functions as the
+    typed endpoints, so every number the assistant reports is engine-produced."""
+    def executor(name: str, args: dict[str, Any]) -> dict[str, Any]:
+        try:
+            if name == "list_actors":
+                world = _world_for_key(world_key)
+                names = sorted(agent.name for agent in world.agents.values())
+                return {"summary": "Доступные страны: " + ", ".join(names), "result": {"actors": names}}
+            if name == "list_personas":
+                personas = [
+                    {"id": p.id, "name_ru": getattr(p, "name_ru", p.id), "name_en": getattr(p, "name_en", p.id)}
+                    for p in list_personas()
+                ]
+                summary = "Персоны: " + ", ".join(f"{p['id']} ({p['name_ru']})" for p in personas)
+                return {"summary": summary, "result": {"personas": personas}}
+            if name == "doctrine_preview":
+                state_csv, state_year, _m = _resolve_world_key(world_key)
+                preview, status = _doctrine_preview_payload(
+                    str(args.get("persona", "")), str(args.get("country", "")),
+                    str(state_csv) if state_csv else None, state_year, max_agents=None,
+                )
+                if status != 200:
+                    return {"summary": str(preview.get("error", "doctrine error")), "result": None}
+                deltas = preview.get("deltas") or {}
+                top = sorted(deltas.items(), key=lambda kv: abs(kv[1]), reverse=True)[:4]
+                summary = "Сдвиг доктрины: " + ", ".join(f"{k} {v:+.2f}" for k, v in top)
+                return {"summary": summary, "result": {"doctrine": preview}}
+            if name == "run_whatif":
+                body = {"world_key": world_key, "question": str(args.get("question", "")),
+                        "actors": args.get("actors") or None, "horizon": int(args.get("horizon") or 3)}
+                result = _RUN_DISPATCH["whatif"](_new_run("whatif"), body, None)
+                return {"summary": _summarize_projection(result), "result": result}
+            if name == "run_composed":
+                body = {"world_key": world_key, "question": str(args.get("question", "")),
+                        "horizon": int(args.get("horizon") or 0),
+                        "levers": args.get("levers") or None, "actors": args.get("actors") or None}
+                result = _RUN_DISPATCH["composed"](_new_run("composed"), body, None)
+                return {"summary": _summarize_projection(result), "result": result}
+            if name == "run_play":
+                body = {"world_key": world_key, "country": str(args.get("country", "")),
+                        "persona": str(args.get("persona", "")), "goal": str(args.get("goal", "")),
+                        "round_years": int(args.get("round_years") or 4)}
+                result = _RUN_DISPATCH["play"](_new_run("play"), body, None)
+                return {"summary": _summarize_projection(result), "result": result}
+        except Exception as exc:  # noqa: BLE001
+            return {"summary": f"Ошибка инструмента {name}: {exc}", "result": None}
+        return {"summary": f"unknown tool: {name}", "result": None}
+    return executor
 
 
 class EngineHandler(BaseHTTPRequestHandler):
@@ -933,8 +1153,12 @@ class EngineHandler(BaseHTTPRequestHandler):
                     self._send_error("bad_request", "country query param is required", 400)
                     return
                 state_csv, state_year, _max = _resolve_world_key(world_key)
+                # Resolve doctrine against the full world rather than the 24-economy
+                # cap baked into _doctrine_preview_payload's default — otherwise smaller
+                # countries that appear in the actor picker (e.g. Chile) fail to resolve.
                 preview, status = _doctrine_preview_payload(
                     persona_id, country, str(state_csv) if state_csv else None, state_year,
+                    max_agents=None,
                 )
                 preview["schema"] = SCHEMA
                 if status != 200:
@@ -980,7 +1204,11 @@ class EngineHandler(BaseHTTPRequestHandler):
             self._handle_world_load(body)
             return
 
-        if path in ("/run/whatif", "/run/play", "/run/game"):
+        if path == "/assistant":
+            self._handle_assistant(body)
+            return
+
+        if path in ("/run/whatif", "/run/composed", "/run/play", "/run/game"):
             mode = path.rsplit("/", 1)[-1]
             self._handle_run(mode, body)
             return
@@ -1035,6 +1263,27 @@ class EngineHandler(BaseHTTPRequestHandler):
                 "schema": SCHEMA,
             }
         )
+
+    def _handle_assistant(self, body: dict[str, Any]) -> None:
+        world_key = str(body.get("world_key", ""))
+        try:
+            _resolve_world_key(world_key)
+        except KeyError:
+            self._send_error("unknown_world", f"unknown world_key: {world_key}", 404)
+            return
+        config = AssistantConfig(
+            provider=str(body.get("provider", "deterministic")),
+            model=str(body.get("model", "")),
+            api_key=str(body.get("api_key", "")),
+            base_url=str(body.get("base_url", "")),
+        )
+        messages = body.get("messages") or []
+        self._sse_start()
+        executor = _make_assistant_executor(world_key)
+        try:
+            run_assistant_turn(messages, config, executor, lambda ev, data: self._sse_emit(ev, data))
+        except Exception as exc:  # noqa: BLE001
+            self._sse_emit("error", {"message": str(exc)})
 
     def _metrics_payload(self, world_key: str, agents_raw: str) -> dict[str, Any]:
         from .crisis_metrics import CrisisMetricsEngine
