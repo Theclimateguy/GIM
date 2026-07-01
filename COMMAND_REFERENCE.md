@@ -19,7 +19,10 @@ python3 -m gim --version
 - `python3 -m gim calibrate`
 - `python3 -m gim brief`
 - `python3 -m gim console`
-- `python3 -m gim ui`
+
+The native app (`gim2/`, see below) has its own reproducible CLI, `python3 -m gim2`:
+
+- `python3 -m gim2 ensemble` / `sensitivity` / `weak` / `scc` / `scenario` / `dose` / `answer` / `meta` / `engine`
 
 ## Quick Start Commands
 
@@ -204,44 +207,25 @@ Interactive menu wrapper for question/game flows.
 python3 -m gim console --state-csv data/agent_states_operational.csv --state-year 2026
 ```
 
-### `ui`
+### Native app (`gim2/`)
 
-Launch local analytical web UI bound to this repository and local runtime.
+The graphical shell is the native macOS app **GIM2** (SwiftUI), not a web UI. Build and run:
 
 ```bash
-python3 -m gim ui --host 127.0.0.1 --port 8090
+gim2/app/freeze/freeze_engine.sh   # PyInstaller-freeze the engine (one-time; needs pyinstaller)
+gim2/app/build_app.sh              # swift build -c release + assemble GIM2.app
+open gim2/app/GIM2.app
 ```
 
-Behavior:
+The app talks to a deterministic Python engine sidecar (`python3 -m gim2 engine`, loopback HTTP+SSE,
+schema `gim-engine/2`); every screen reports the equivalent `python3 -m gim2 …` CLI invocation for
+reproducibility. Five areas: **Ассистент** (natural-language front end, tool-calling over the engine),
+**Экспертный режим** (Сценарий / Ансамбли / Отклик / Чувствительность / Сигналы), **Сравнение**
+(up to 3 runs vs. baseline + PDF export), **Документация**, **Валидация** (live backtest/AUC/Morris).
+Persona archetypes (`gim/persona.py`) bias a country's compiled doctrine ("play as a country"); a
+local LLM backend is available via `GIM_LLM_BACKEND=ollama` + `OLLAMA_MODEL`.
 
-- `Simulation Modes` builds real `python3 -m gim <command>` invocations from UI controls.
-- `Game` builds real `python3 -m gim hybrid ...` runs for facilitator-led human-in-the-loop rounds.
-- actor selection is sourced from `data/agent_states_operational.csv`.
-- leaving `Template` blank enables backend auto-detection.
-- public templates currently exposed in UI: `general_tail_risk`, `sanctions_spiral`, `alliance_fragmentation`, `regional_pressure`, `maritime_deterrence`, `resource_competition`, `tech_blockade`, `trade_war`, `cyber_disruption`, `regime_stress`
-- `Run chosen modes` starts a real local run and tracks progress against the phase pipeline.
-- `Run game round` requires the configured number of distinct human tables to be fully specified.
-- each table submits a short natural-language command that is compiled into existing domestic/foreign policy levers before the unchanged yearly core runs.
-- export buttons map to actual run artifacts and only enable when the artifact exists.
-- `Game` artifact cards expose `Open` and `Download` actions for the actual run folder outputs.
-- `Analytics` reads the executed run's `evaluation.json`, `run_manifest.json`, and `decision_brief.md`.
-
-Primary UI-backed endpoints:
-
-- `GET /api/docs`
-- `GET /api/state-csvs`
-- `GET /api/actors`
-- `POST /api/run`
-- `GET /api/run/<id>/status`
-- `GET /api/run/<id>/artifacts`
-- `GET /api/run/<id>/analytics`
-- `GET /api/analytics/latest`
-- `GET /api/download?path=...`
-- `GET /api/personas` (persona archetype catalog)
-- `GET /api/personas/<id>/doctrine?country=...&state_year=...` (base→shift doctrine preview)
-- `GET /api/run/<id>/intents` (declared-posture → actions feed for hybrid runs)
-
-`gim ui` serves the decision-maker app (`ui_prototype/gim17_app.html`) at `/`; the legacy analyst panel stays at `/legacy`. Persona archetypes (`gim/persona.py`) bias compiled doctrine; a local LLM backend is available via `GIM_LLM_BACKEND=ollama` + `OLLAMA_MODEL`.
+Engine bridge contract (endpoints, JSON shapes): [`gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md`](gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md).
 
 ## Artifacts and Paths
 

@@ -73,4 +73,8 @@ notes have been moved out of the repository to keep it clean.)
 
 - [`RE_ANCHOR.md`](RE_ANCHOR.md) — the headline activation decision + the new golden.
 - [`OBJECTIVE_RELATIONSHIPS.md`](OBJECTIVE_RELATIONSHIPS.md) — objective definitions and linkage map.
-- [`UI_WORKSPACE.md`](UI_WORKSPACE.md) — local analytical dashboard layout and API surface.
+
+## Graphical interface
+
+- Native macOS app — [`../gim2/README.md`](../gim2/README.md), engine bridge:
+  [`../gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md`](../gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md).

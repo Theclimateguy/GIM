@@ -59,40 +59,50 @@ python3 -m gim question "Will Red Sea tensions escalate?"
 python3 -m gim game --case scenarios/maritime_pressure_game.json --dashboard
 python3 -m gim metrics --agents Iran "United States"
 python3 -m gim calibrate --suite operational_v1
-python3 -m gim ui --host 127.0.0.1 --port 8090   # local analytical dashboard
 ```
 
-Subcommands: `world`, `question`, `game`, `hybrid`, `metrics`, `calibrate`, `brief`, `console`, `ui`.
+Subcommands: `world`, `question`, `game`, `hybrid`, `metrics`, `calibrate`, `brief`, `console`.
 Full command reference: [`COMMAND_REFERENCE.md`](COMMAND_REFERENCE.md). Run artifacts are written to
 timestamped folders under `results/` (each with a `run_manifest.json`).
 
-## Decision-maker interface & LLM agents
+## Native app — GIM2 (`gim2/`)
 
-`python3 -m gim ui` serves a clean, bilingual (RU/EN) interface organized around *what you want to
-explore* rather than CLI flags — built for decision-makers, with the full analyst panel kept one
-click away at `/legacy`.
+The graphical shell is a **native macOS app** (SwiftUI, macOS 13+), not a browser page: a small,
+deterministic Python engine (`python3 -m gim2 engine`, HTTP+SSE over loopback, schema `gim-engine/2`)
+sits behind a Situation-Room-style interface with five areas —
 
-![GIM18 — four exploration modes](docs/ui_redesign/screenshots/home.png)
+- **Ассистент** — natural-language front end. Describe a scenario in words; the assistant maps it to
+  grounded levers or a composed scenario, runs the deterministic engine, and returns a verdict,
+  tipping point, per-domain cascade, and per-country outcomes. All numbers come from the engine, never
+  the language model.
+- **Экспертный режим** — direct control: Сценарий (levers vs. baseline), Ансамбли (Monte-Carlo fans),
+  Отклик (dose-response), Чувствительность (Morris screening), Сигналы (Mahalanobis anomaly scan).
+  Every chart shows the equivalent `python3 -m gim2 …` CLI command for reproducibility.
+- **Сравнение** — up to three runs side by side against the baseline, with a PDF export.
+- **Документация** — the model's architecture, modules, data sources, and the LLM tool-calling path,
+  rendered in-app.
+- **Валидация** — retro-backtest RMSE, ensemble fans, conflict AUC, and Morris sensitivity, drawn live
+  from the running engine (not static images).
 
-- **Play as a country** — pick a country and a behavioral *persona*, set a one-line goal, and let the
-  model play the round against AI-driven actors.
-- **What if…** — a preset shock (Hormuz closure, Taiwan blockade, sanctions spiral, …) or a free-text
-  question; the model selects actors and template itself.
-- **Compare** — two or three runs side by side, with the key tradeoff surfaced.
-- **Expert mode** — the full panel: every lever, state CSVs, runtime flags.
+**"Play as a country."** A persona (protectionist hawk, dove, technocrat, …) *biases* a country's
+machine-compiled **doctrine** — a 9-dimensional vector (escalation, trade openness, sanctions
+tolerance, mediation, …) the model otherwise derives from the country's own state. The app shows this
+as a read-only base → shift preview before you run. Doctrine compilation can use a hosted model or a
+local one (`GIM_LLM_BACKEND=ollama`); interactive runs default to a fast deterministic approximation.
 
-**LLM agents — "play as a country."** A persona is a neutral archetype (protectionist hawk, dove,
-technocrat) that *biases* the country's machine-compiled **doctrine** — a 9-dimensional vector
-(escalation, trade openness, sanctions tolerance, mediation, …) the model otherwise derives from the
-country's own state. The interface shows this honestly as a read-only **base → shift** preview, so you
-see exactly what the persona changes before running:
+### Build & run
 
-![Play as a country — persona and live doctrine preview](docs/ui_redesign/screenshots/setup.png)
+```bash
+gim2/app/freeze/freeze_engine.sh   # PyInstaller-freeze the engine (~3 min, one-time; needs pyinstaller)
+gim2/app/build_app.sh              # swift build -c release + assemble GIM2.app
+open gim2/app/GIM2.app
+```
 
-During a run, each AI actor declares its posture before acting (a CICERO-style "stated intent →
-actions" feed). Doctrine compilation can use a hosted model (DeepSeek) or a local one
-(`GIM_LLM_BACKEND=ollama`); interactive runs default to a fast deterministic approximation. Design
-notes and client journeys: [`docs/ui_redesign/`](docs/ui_redesign/).
+`build_app.sh` embeds the frozen engine for a self-contained, offline app if
+`gim2/app/Resources/gim-engine` exists (from the freeze step above); otherwise the app falls back to
+launching `python3 -m gim2 engine` from the repo (dev mode). Engine bridge contract and CLI reference:
+[`gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md`](gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md),
+[`gim2/README.md`](gim2/README.md).
 
 ## Documentation
 

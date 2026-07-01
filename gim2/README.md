@@ -1,4 +1,4 @@
-# GIM17 v2.0 — deterministic analytical line
+# GIM2 — deterministic analytical app line
 
 This directory is the **clean v2 line** (Linear project *GIM17 v2.0*, epics
 THE-63…71). It is a thin, validated surface over the frozen GIM17 math in
