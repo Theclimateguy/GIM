@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GIM17 Intelligence Workspace</title>
+  <title>GIM18 Intelligence Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600&display=swap" rel="stylesheet">
@@ -872,7 +872,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <h1>GIM17 Intelligence</h1>
+        <h1>GIM18 Intelligence</h1>
         <p>world simulation command</p>
       </div>
 
@@ -882,7 +882,7 @@
           <a class="doc-link" href="/docs/view?path=README.md" target="_blank">README.md<div class="doc-meta">project overview and run basics</div></a>
           <a class="doc-link" href="/docs/view?path=docs/README.md" target="_blank">docs/README.md<div class="doc-meta">documentation index</div></a>
           <a class="doc-link" href="/docs/view?path=docs/MODEL_METHODOLOGY.md" target="_blank">MODEL_METHODOLOGY.md<div class="doc-meta">runtime methodology</div></a>
-          <a class="doc-link" href="/docs/view?path=docs/GIM17_UNIFIED_MODEL_SPEC.md" target="_blank">GIM17_UNIFIED_MODEL_SPEC.md<div class="doc-meta">equations and state evolution</div></a>
+          <a class="doc-link" href="/docs/view?path=docs/GIM18_UNIFIED_MODEL_SPEC.md" target="_blank">GIM18_UNIFIED_MODEL_SPEC.md<div class="doc-meta">equations and state evolution</div></a>
           <a class="doc-link" href="/docs/view?path=docs/calibration/CALIBRATION_REFERENCE.md" target="_blank">CALIBRATION_REFERENCE.md<div class="doc-meta">baseline calibration values</div></a>
           <a class="doc-link" href="/docs/view?path=docs/calibration/CALIBRATION_LAYER.md" target="_blank">CALIBRATION_LAYER.md<div class="doc-meta">calibration workflow</div></a>
           <a class="doc-link" href="/docs/view?path=docs/SIMULATION_STEP_ORDER.md" target="_blank">SIMULATION_STEP_ORDER.md<div class="doc-meta">execution order contract</div></a>
@@ -903,7 +903,7 @@
       <header class="header">
         <div class="title">
           <h2>Personal Analytical Workspace</h2>
-          <p id="workspaceMeta">GIM17 global simulation • operator: Nazar</p>
+          <p id="workspaceMeta">GIM18 global simulation • operator: Nazar</p>
         </div>
         <div class="actions">
           <button id="btnExportPayload" class="btn">Export run_payload.json</button>
@@ -1368,7 +1368,7 @@
     function updateWorkspaceMeta(runId) {
       if (!q('workspaceMeta')) return;
       const suffix = runId ? ` • run_id #${runId}` : '';
-      q('workspaceMeta').textContent = `GIM17 global simulation • operator: Nazar${suffix}`;
+      q('workspaceMeta').textContent = `GIM18 global simulation • operator: Nazar${suffix}`;
     }
 
     function renderExecutionPipeline(hostId, stepIndex = 0, runStatus = 'queued') {

@@ -29,6 +29,7 @@ DEFAULT_ACTOR_STATE_CSV = DATA_DIR / "agent_states_operational.csv"
 DOC_PATHS = [
     "README.md",
     "docs/README.md",
+    "docs/GIM18_REVIEWER_RESPONSE.md",
     "docs/MODEL_METHODOLOGY.md",
     "docs/GIM18_UNIFIED_MODEL_SPEC.md",
     "docs/calibration/CALIBRATION_REFERENCE.md",
