@@ -1,0 +1,58 @@
+{
+  "scenario_id": "sanctions_spiral-2023",
+  "dominant_outcomes": [
+    "internal_destabilization",
+    "limited_proxy_escalation",
+    "direct_strike_exchange"
+  ],
+  "raw_risk_scores": {
+    "status_quo": 0.976853616942702,
+    "controlled_suppression": 1.2765671239047856,
+    "internal_destabilization": 1.6736516830467056,
+    "social_unrest_without_military": 0.8669022324382258,
+    "sovereign_financial_crisis": 1.229355841970951,
+    "limited_proxy_escalation": 1.3093455189271528,
+    "maritime_chokepoint_crisis": 0.7911812909423063,
+    "direct_strike_exchange": 1.2937487144300408,
+    "broad_regional_escalation": 0.9327197326540368,
+    "negotiated_deescalation": 0.29127930646356204
+  },
+  "risk_probabilities": {
+    "status_quo": 0.08621896119201734,
+    "controlled_suppression": 0.11635008588017019,
+    "internal_destabilization": 0.17306862411147372,
+    "social_unrest_without_military": 0.0772416435951167,
+    "sovereign_financial_crisis": 0.11098469910761823,
+    "limited_proxy_escalation": 0.12022704813758966,
+    "maritime_chokepoint_crisis": 0.07160878735835767,
+    "direct_strike_exchange": 0.11836643787732636,
+    "broad_regional_escalation": 0.08249653039321872,
+    "negotiated_deescalation": 0.043437182347111386
+  },
+  "driver_scores": {
+    "debt_stress": 0.6830907290278546,
+    "social_stress": 0.4713191884401653,
+    "resource_gap": 0.4313542373808676,
+    "energy_dependence": 0.23997620018041574,
+    "conflict_stress": 0.5113881700462981,
+    "sanctions_pressure": 0.3994077240307466,
+    "military_posture": 0.9776083464042209,
+    "climate_stress": 0.453705468037818,
+    "policy_space": 0.6464000024870132,
+    "negotiation_capacity": 0.5294941602346425,
+    "tail_pressure": 1.7780389810860366,
+    "multi_block_pressure": 0.3333333333333333,
+    "actor_count_pressure": 0.6666666666666666
+  },
+  "criticality_score": 0.664601232161089,
+  "calibration_score": 1.0,
+  "physical_consistency_score": 1.0,
+  "crisis_signal_summary": {
+    "net_crisis_shift": 0.0,
+    "macro_stress_shift": 0.0,
+    "stability_stress_shift": 0.0,
+    "geopolitical_stress_shift": 0.0,
+    "global_context_shift": 0.0,
+    "worst_actor_shift": 0.0
+  }
+}

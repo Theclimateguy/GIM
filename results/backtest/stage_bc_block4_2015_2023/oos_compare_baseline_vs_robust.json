@@ -1,0 +1,121 @@
+{
+  "n_windows": 8,
+  "objective_weights": {
+    "gdp": 0.1,
+    "co2": 1.0,
+    "temperature": 10.0
+  },
+  "robust_params": {
+    "TFP_RD_SHARE_SENS": 0.3,
+    "GAMMA_ENERGY": 0.042,
+    "DECARB_RATE_STRUCTURAL": 0.0312,
+    "HEAT_CAP_SURFACE": 18.0
+  },
+  "mean_baseline_objective": 1.8357287308046217,
+  "mean_robust_objective": 1.8124801216882485,
+  "mean_delta_objective": -0.02324860911637322,
+  "mean_baseline_gdp_rmse": 0.3107654532584674,
+  "mean_robust_gdp_rmse": 0.31085717115128286,
+  "mean_baseline_co2_rmse": 1.028612581045136,
+  "mean_robust_co2_rmse": 1.028612581045136,
+  "mean_baseline_temp_rmse": 0.07760396044336389,
+  "mean_robust_temp_rmse": 0.07527818235279841,
+  "per_window": [
+    {
+      "origin_year": 2015,
+      "baseline_obj": 1.3040167230697868,
+      "robust_obj": 1.2426239908765733,
+      "delta_obj": -0.061392732193213506,
+      "baseline_gdp": 0.19039805094863058,
+      "robust_gdp": 0.19044050410229693,
+      "baseline_co2": 0.6213963474398527,
+      "robust_co2": 0.6213963474398527,
+      "baseline_temp": 0.0663580570535071,
+      "robust_temp": 0.06021835930264907
+    },
+    {
+      "origin_year": 2016,
+      "baseline_obj": 1.7413865674164493,
+      "robust_obj": 1.7906667140718633,
+      "delta_obj": 0.049280146655414026,
+      "baseline_gdp": 0.23830706874966914,
+      "robust_gdp": 0.23838248165697554,
+      "baseline_co2": 1.0188302179432416,
+      "robust_co2": 1.0188302179432416,
+      "baseline_temp": 0.06987256425982406,
+      "robust_temp": 0.07479982479629242
+    },
+    {
+      "origin_year": 2017,
+      "baseline_obj": 1.8769599155674457,
+      "robust_obj": 1.9496472175325292,
+      "delta_obj": 0.07268730196508355,
+      "baseline_gdp": 0.3187210411522257,
+      "robust_gdp": 0.31881672488245055,
+      "baseline_co2": 1.1473465501275595,
+      "robust_co2": 1.1473465501275595,
+      "baseline_temp": 0.06977412613246635,
+      "robust_temp": 0.07704189949167246
+    },
+    {
+      "origin_year": 2018,
+      "baseline_obj": 1.722158167775927,
+      "robust_obj": 1.6265313416951372,
+      "delta_obj": -0.09562682608078976,
+      "baseline_gdp": 0.15568888190590677,
+      "robust_gdp": 0.15579527555557268,
+      "baseline_co2": 0.9014996317156863,
+      "robust_co2": 0.9014996317156863,
+      "baseline_temp": 0.08050896478696501,
+      "robust_temp": 0.07094521824238938
+    },
+    {
+      "origin_year": 2019,
+      "baseline_obj": 0.8589415886858018,
+      "robust_obj": 0.7826164568289591,
+      "delta_obj": -0.07632513185684275,
+      "baseline_gdp": 0.14480755054774047,
+      "robust_gdp": 0.14480054957167085,
+      "baseline_co2": 0.7545890253128902,
+      "robust_co2": 0.7545890253128902,
+      "baseline_temp": 0.008987180831813761,
+      "robust_temp": 0.0013547376558901807
+    },
+    {
+      "origin_year": 2020,
+      "baseline_obj": 3.166089966360678,
+      "robust_obj": 3.242741961856492,
+      "delta_obj": 0.07665199549581381,
+      "baseline_gdp": 0.6924033076569804,
+      "robust_gdp": 0.6925471765058846,
+      "baseline_co2": 1.9287909617294858,
+      "robust_co2": 1.9287909617294858,
+      "baseline_temp": 0.1168058673865494,
+      "robust_temp": 0.12446962824764178
+    },
+    {
+      "origin_year": 2021,
+      "baseline_obj": 0.9715471736509881,
+      "robust_obj": 0.9323444691152235,
+      "delta_obj": -0.039202704535764576,
+      "baseline_gdp": 0.395819518416411,
+      "robust_gdp": 0.395951908271182,
+      "baseline_co2": 0.8562171010544328,
+      "robust_co2": 0.8562171010544328,
+      "baseline_temp": 0.007574812075491413,
+      "robust_temp": 0.003653217723367253
+    },
+    {
+      "origin_year": 2022,
+      "baseline_obj": 3.0447297439098975,
+      "robust_obj": 2.932668821529211,
+      "delta_obj": -0.11206092238068655,
+      "baseline_gdp": 0.34997820669017493,
+      "robust_gdp": 0.35012274866422993,
+      "baseline_co2": 1.0002308130379398,
+      "robust_co2": 1.0002308130379398,
+      "baseline_temp": 0.20095011102029398,
+      "robust_temp": 0.18974257336248482
+    }
+  ]
+}

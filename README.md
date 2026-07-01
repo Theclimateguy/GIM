@@ -1,0 +1,138 @@
+# Global Integrated Model — version 17 (GIM18)
+
+A year-by-year simulation of the world as interacting countries (~50 countries plus regional
+groupings), integrating **economy, climate, climate damage, resources, society, politics,
+geopolitics, culture, risk/crises and finance** into one model. It is built for scenario
+exploration and uncertainty-aware analysis — "what tends to happen, and how confident can we be" —
+not pinpoint forecasting.
+
+**New here? Start with [`docs/MODEL_LAYERS.md`](docs/MODEL_LAYERS.md)** — a plain-language tour of
+every layer, what it can do, and its limits. For where the model stands and what comes next, see
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Status (version 17, finalized)
+
+- All runs start from a single **validated 2023 canon** compiled state
+  (`data/agent_states_operational.csv`): 57 actors covering essentially all of world output
+  (GDP ≈ $107T, population ≈ 8.06B, CO₂ ≈ 38 Gt), reconciled against World Bank / UN / Global
+  Carbon Project to within ~1%. See [`docs/agent_state_data_contract.md`](docs/agent_state_data_contract.md).
+- Economy reproduces 2015–2023 national-income history; climate matches the mainstream scientific
+  assessment (temperature sensitivity and the 1990–2023 warming/carbon record).
+- Headline regression ("golden") backtest: GDP error ≈ 0.62, global CO₂ error ≈ 0.93, temperature
+  error ≈ 0.135. The 17.3.0 development-structured recalibration grounds two growth/decarbonisation
+  mechanisms in data (so the no-policy forward path is realistic — CO₂ rises, temperature warms) and
+  re-derives the golden on the corrected state.
+- The headline economic core is **objective and fully closed**: a calibrated capital–energy
+  substitution (nested-CES) production function, cost-minimising energy demand, energy/resource and
+  capital markets that clear by price, a closed stock-flow-consistent bank balance sheet
+  (money = deposits = loans), and SSP2-anchored forward growth. Long-run growth and emissions are
+  **development-structured**: TFP conditional convergence (poorer economies catch up) and
+  development-dependent decarbonisation (richer economies cut CO₂/GDP faster), both fit to the
+  2015–2023 World Bank panel.
+- Cost of carbon in the modern consensus range (~$95/tCO₂ at modern near-zero-ρ Ramsey discounting,
+  range ~$95–280, with a documented growth/discounting sensitivity); conflict-risk validated against
+  the standard armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
+- Geographic coupling grounds shock propagation in a real spatial graph: literature-anchored trade
+  gravity plus switchable conflict/tension/climate spatial contagion, checked by an
+  emergent-spatial-autocorrelation reproduction benchmark (the payoff is concentrated in trade).
+- Strict, accounting-consistent government finance (including through debt crises).
+- A dedicated **weak-signal detection** module (Mahalanobis joint-state anomaly + structural-break
+  change-point + critical-slowing-down) for what-if / early-warning analysis (`gim/weak_signal.py`).
+- Deep-uncertainty mechanisms (carbon-cycle feedbacks, fat-tailed crisis severity, growth-effect
+  damages) remain **switches, off by default**, so the headline run stays anchored and they are
+  explored separately as uncertainty.
+
+## Install
+
+```bash
+pip install -e .          # Python 3.10+
+```
+
+## Quick start
+
+```bash
+python3 -m gim                                   # core multi-year world simulation
+python3 -m gim question "Will Red Sea tensions escalate?"
+python3 -m gim game --case scenarios/maritime_pressure_game.json --dashboard
+python3 -m gim metrics --agents Iran "United States"
+python3 -m gim calibrate --suite operational_v1
+python3 -m gim ui --host 127.0.0.1 --port 8090   # local analytical dashboard
+```
+
+Subcommands: `world`, `question`, `game`, `hybrid`, `metrics`, `calibrate`, `brief`, `console`, `ui`.
+Full command reference: [`COMMAND_REFERENCE.md`](COMMAND_REFERENCE.md). Run artifacts are written to
+timestamped folders under `results/` (each with a `run_manifest.json`).
+
+## Decision-maker interface & LLM agents
+
+`python3 -m gim ui` serves a clean, bilingual (RU/EN) interface organized around *what you want to
+explore* rather than CLI flags — built for decision-makers, with the full analyst panel kept one
+click away at `/legacy`.
+
+![GIM18 — four exploration modes](docs/ui_redesign/screenshots/home.png)
+
+- **Play as a country** — pick a country and a behavioral *persona*, set a one-line goal, and let the
+  model play the round against AI-driven actors.
+- **What if…** — a preset shock (Hormuz closure, Taiwan blockade, sanctions spiral, …) or a free-text
+  question; the model selects actors and template itself.
+- **Compare** — two or three runs side by side, with the key tradeoff surfaced.
+- **Expert mode** — the full panel: every lever, state CSVs, runtime flags.
+
+**LLM agents — "play as a country."** A persona is a neutral archetype (protectionist hawk, dove,
+technocrat) that *biases* the country's machine-compiled **doctrine** — a 9-dimensional vector
+(escalation, trade openness, sanctions tolerance, mediation, …) the model otherwise derives from the
+country's own state. The interface shows this honestly as a read-only **base → shift** preview, so you
+see exactly what the persona changes before running:
+
+![Play as a country — persona and live doctrine preview](docs/ui_redesign/screenshots/setup.png)
+
+During a run, each AI actor declares its posture before acting (a CICERO-style "stated intent →
+actions" feed). Doctrine compilation can use a hosted model (DeepSeek) or a local one
+(`GIM_LLM_BACKEND=ollama`); interactive runs default to a fast deterministic approximation. Design
+notes and client journeys: [`docs/ui_redesign/`](docs/ui_redesign/).
+
+## Documentation
+
+Full index: [`docs/README.md`](docs/README.md). Key entry points:
+
+- Plain-language overview — [`docs/MODEL_LAYERS.md`](docs/MODEL_LAYERS.md)
+- Where it stands / next steps — [`docs/ROADMAP.md`](docs/ROADMAP.md)
+- Model specification & methodology — [`docs/GIM18_UNIFIED_MODEL_SPEC.md`](docs/GIM18_UNIFIED_MODEL_SPEC.md), [`docs/MODEL_METHODOLOGY.md`](docs/MODEL_METHODOLOGY.md)
+- Calibration ledger — [`docs/CALIBRATION_REFERENCE.md`](docs/calibration/CALIBRATION_REFERENCE.md)
+
+## Tests
+
+```bash
+python3 -m unittest discover -s tests             # full suite
+./scripts/run_validation_package_gim17.sh         # release validation (non-LLM)
+```
+
+## Version
+
+`17.3.0` — **development-structured recalibration.** Fixes the no-policy forward baseline (carbon
+pools were seeded with flow fractions, creating a phantom sink that made CO₂ *fall*; the 2015
+backtest capital was ~0.23× GDP instead of ~3×, an error the legacy decarb rate was silently
+cancelling) and re-grounds two structural mechanisms in the 2015–2023 World Bank panel: **TFP
+conditional convergence** and **development-dependent decarbonisation**. The golden backtest is
+re-derived on the corrected state (GDP 0.62 / CO₂ 0.93 / T 0.135) and the SCC refreshed for the
+faster empirical growth (~$95/t modern Ramsey; ~$20 under DICE's own damages — so DICE
+underestimates damages). The objective economic core, the geo-on default, and the conflict
+validation are unchanged. See [`CHANGELOG.md`](CHANGELOG.md) and
+[`docs/GIM18_UNIFIED_MODEL_SPEC.md`](docs/GIM18_UNIFIED_MODEL_SPEC.md).
+
+`17.2.x` completed the cross-domain story: the geographic-coupling layer is activated in the headline
+and grounded in the literature with a delivered reproduction benchmark (emergent Moran's I + a dyadic
+neighbour-conflict premium of 1.0×→1.5×, matching the +44–52% empirical record); the social/political
+layers (S1–S6) are put on a reproducible numeric footing; the economic core is deepened (money→prices,
+growth foundations, near-rational expectations — the last two off by default); and the integration
+claim is made computational (Appendix B: carbon/DICE, oil/MESSAGEix, crop/AgMIP). Every headline number
+is calibrated, literature-anchored, and statistically validated, with the objective 17.0.0 core and the
+golden backtest preserved under the geo-on default.
+Earlier in the family, 17.1.x added the statistical-rigor layer (conflict-AUC inference, Morris
+robustness, ensemble convergence) on the unchanged 17.0.0 objective core.
+Highlights of the 17.0.0 core: Python 3.10+ and lean repo; enforceable
+accounting/integrity invariants; deterministic reproducible runs; full uncertainty machinery
+(evidence-based priors, Monte-Carlo ensembles, sensitivity analysis, history matching, skill
+scoring); an objective, fully-closed economic core (nested-CES production + market clearing + closed
+SFC bank balance sheet + SSP2 forward growth); a weak-signal detection module; and the version-17
+finalization across all layers. See [`CHANGELOG.md`](CHANGELOG.md).

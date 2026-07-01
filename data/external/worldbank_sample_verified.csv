@@ -1,0 +1,11 @@
+iso3,year,variable,wb_code,value,note
+USA,2023,gdp_usd,NY.GDP.MKTP.CD,27292170793214.4,"verified live via WB API 2026-06"
+USA,2022,gdp_usd,NY.GDP.MKTP.CD,25604848907611.0,"verified live via WB API 2026-06"
+USA,2023,milex_usd,MS.MIL.XPND.CD,916014700000.0,"SIPRI-sourced; verified live"
+USA,2022,milex_usd,MS.MIL.XPND.CD,860692200000.0,"SIPRI-sourced; verified live"
+USA,2021,milex_usd,MS.MIL.XPND.CD,806230200000.0,"SIPRI-sourced; verified live"
+USA,2020,milex_usd,MS.MIL.XPND.CD,778397200000.0,"SIPRI-sourced; verified live"
+RUS,2023,milex_usd,MS.MIL.XPND.CD,109203624738.4,"SIPRI-sourced; verified live"
+RUS,2022,milex_usd,MS.MIL.XPND.CD,102366636459.7,"SIPRI-sourced; verified live"
+RUS,2021,milex_usd,MS.MIL.XPND.CD,65907705047.1,"SIPRI-sourced; verified live"
+RUS,2020,milex_usd,MS.MIL.XPND.CD,61712537168.9,"SIPRI-sourced; verified live"

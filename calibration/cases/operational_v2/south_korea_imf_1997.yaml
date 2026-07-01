@@ -1,0 +1,54 @@
+{
+  "case_id": "south_korea_imf_1997",
+  "title": "South Korea IMF stabilization",
+  "description": "South Korea 1997-1998 crisis: full onset under FX depletion and import stress, followed by stabilization through IMF-backed adjustment.",
+  "reference_period": "1997-Q3 to 1998-Q2",
+  "tags": ["historical", "near_miss", "imf", "fx", "korea"],
+  "question": "Could FX depletion, corporate debt stress and contagion destabilize South Korea during the 1997 IMF crisis?",
+  "template": "generic_tail_risk",
+  "risk_bias_overrides": {
+    "status_quo": -0.20,
+    "internal_destabilization": 0.10,
+    "controlled_suppression": -0.10,
+    "negotiated_deescalation": 0.55
+  },
+  "scenario_year": 1997,
+  "horizon_months": 12,
+  "agents": ["Korea, Rep."],
+  "initial_state_overrides": {
+    "Korea, Rep.": {
+      "economy.public_debt_gdp": 0.14,
+      "economy.fx_reserves": 0.006,
+      "economy.unemployment": 0.024,
+      "risk.debt_crisis_prone": 0.68,
+      "society.trust_gov": 0.44,
+      "society.social_tension": 0.55,
+      "political.policy_space": 0.35,
+      "political.coalition_openness": 0.72
+    }
+  },
+  "observed_pressure": {
+    "conflict_stress": 0.08,
+    "social_stress": 0.55,
+    "debt_stress": 0.68,
+    "resource_gap": 0.31,
+    "policy_space": 0.35,
+    "negotiation_capacity": 0.72,
+    "sanctions_pressure": 0.02,
+    "actor_count_pressure": 0.06,
+    "military_posture": 0.32,
+    "energy_dependence": 0.18,
+    "tail_pressure": 1.22
+  },
+  "expected_outcomes": {
+    "dominant": "negotiated_deescalation",
+    "secondary": "internal_destabilization",
+    "excluded": ["direct_strike_exchange", "broad_regional_escalation", "controlled_suppression"]
+  },
+  "criticality": "high",
+  "discriminating_weights": [
+    "negotiated_deescalation:negotiation_capacity",
+    "outcome_driver:internal_destabilization:resource_gap"
+  ],
+  "notes": "Tests crisis persistence and reset: onset must be real, but resolution should still win if negotiation capacity remains open."
+}

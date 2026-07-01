@@ -1,0 +1,73 @@
+__pycache__/
+*.pyc
+.DS_Store
+.claude/
+logs/
+results/*
+!results/backtest/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+.venv/
+venv/
+data/agent_state_pipeline/cache/
+dashboard.html
+decision_brief.md
+*_dashboard.html
+*_brief.md
+*_evaluation.json
+ui/
+
+# Test fixtures must always be tracked, even if they match the artifact patterns above.
+!tests/fixtures/
+!tests/fixtures/**
+
+# stray sandbox lock files
+.lock
+
+# scratch experiment scripts (sandbox FUSE cannot unlink from worktree)
+_*.py
+
+# local archive of removed change-history / superseded docs (not tracked)
+_archive_local/
+
+# bulk external source data (re-fetch via scripts/ingest_external_data.py + download_ucdp.py)
+data/external/raw/
+
+# LaTeX build artifacts (keep .tex/.bib/.pdf)
+paper/*.aux
+paper/*.log
+paper/*.blg
+paper/*.bbl
+paper/*.out
+paper/*.toc
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.xdv
+paper/figures/*.aux
+paper/figures/*.log
+
+# Removed from version control for a cleaner remote, but kept on local disk:
+#   - misc/assets/credit_map: dead duplicate of vendor/leaflet + data/world_countries.geojson
+#   - process/meta docs not part of the published academic artifact
+misc/assets/
+paper/REVISION_PLAN.md
+docs/FINALIZATION_REPORT.md
+
+# Paper scratch screenshots / review markups (not part of the paper; keep fig2-fig5 sources)
+paper/chk-*.png
+paper/vchk-*.png
+paper/nv-*.png
+paper/pg-*.png
+paper/hi-*.png
+paper/sec-*.png
+paper/figures/fig1_test.*
+paper/figures/fig1_prev*.png
+
+# Manuscript backups (kept locally, out of the remote)
+paper/*_backup.tex
+paper/*_ORIGINAL*.tex

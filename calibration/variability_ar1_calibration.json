@@ -1,0 +1,30 @@
+{
+  "method": "AR(1) fit on observed-minus-forced GMST residuals, 1990-2023",
+  "n_years": 34,
+  "year_range": [
+    1990,
+    2023
+  ],
+  "sigma_estimate": 0.0968,
+  "ar1_rho_estimate": 0.1309,
+  "sigma_ci95": [
+    0.0736,
+    0.1202
+  ],
+  "rho_ci95": [
+    -0.2333,
+    0.4001
+  ],
+  "residual_std": 0.0968,
+  "cmip6_internal_variability_ref": "0.10-0.15 degC 1sigma (Deser et al. 2020, Nat. Clim. Change)",
+  "prior_values": {
+    "sigma": 0.08,
+    "rho": 0.65
+  },
+  "sources": [
+    "Hawkins & Sutton (2009) BAMS 90:1095",
+    "Frankcombe et al. (2015) J. Climate 28:8184",
+    "Deser et al. (2020) Nat. Clim. Change 10:277",
+    "Morice et al. (2021) JGR 126:e2019JD032361 (HadCRUT5)"
+  ]
+}

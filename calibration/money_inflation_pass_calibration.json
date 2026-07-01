@@ -1,0 +1,76 @@
+{
+  "parameter": "MONEY_INFLATION_PASS",
+  "calibrated_value": 0.027,
+  "preferred_spec": "E_dynamic_LSDV",
+  "lambda_interpretation": "short-run (conditional-on-lagged-inflation) per-period money pass-through; the model supplies persistence via INFLATION_EXPECTATION_ANCHOR (rho_model=0.5, empirically validated at rho~0.51 -> long-run multiplier ~2x -> long-run pass-through ~2*lambda~0.05)",
+  "method": "static FE (A-D) + dynamic LSDV (E, used) + Anderson-Hsiao IV (F, robustness); cluster-robust SE; modern low-inflation panel",
+  "window": [
+    2000,
+    2023
+  ],
+  "regime_gate_pct": {
+    "inflation_abs_max": 20.0,
+    "money_growth_min": -10.0,
+    "money_growth_max": 40.0
+  },
+  "specs": {
+    "A_pooled_bivariate": {
+      "lambda": 0.23520798454445435,
+      "se": 0.016335763546297333,
+      "r2": 0.2037843896780368,
+      "n": 812
+    },
+    "B_pooled_plus_output": {
+      "lambda": 0.22994328582961474,
+      "se": 0.017059854125378332,
+      "output_coef": 0.04155176463460852,
+      "r2": 0.20490868988951516,
+      "n": 812
+    },
+    "C_fe_bivariate": {
+      "lambda": 0.049674980614417864,
+      "se_cluster": 0.02050014111176579,
+      "r2_within": 0.011922480005152059,
+      "n": 812,
+      "n_countries": 38
+    },
+    "D_fe_plus_output_PREFERRED": {
+      "lambda": 0.04558596613594433,
+      "se_cluster": 0.020308632868195127,
+      "ci95_lo": 0.005781045714281882,
+      "ci95_hi": 0.08539088655760678,
+      "output_coef": 0.053525598898920404,
+      "r2_within": 0.015341103776449927,
+      "n": 812,
+      "n_countries": 38
+    },
+    "E_dynamic_LSDV": {
+      "lambda_short_run": 0.027016418959148223,
+      "se_cluster": 0.0145327336969687,
+      "rho_persistence": 0.5120083848715872,
+      "lambda_long_run": 0.055362465504738174,
+      "n": 721,
+      "n_countries": 38,
+      "note": "within w/ lagged dep var; Nickell bias ~1/T"
+    },
+    "F_anderson_hsiao_IV_robustness": {
+      "lambda_short_run": 0.002717875095265474,
+      "se_cluster": 0.022702671223237183,
+      "ci95_lo": -0.0417793605022794,
+      "ci95_hi": 0.047215110692810355,
+      "rho_persistence": 0.43559937101181956,
+      "lambda_long_run": 0.0048155068504050005,
+      "n": 721,
+      "n_countries": 38,
+      "note": "consistent FD+IV check: weak/insignificant (CI spans 0 and the LSDV point); imprecise (weak instrument)"
+    }
+  },
+  "indicators": {
+    "money": "FM.LBL.BMNY.ZG",
+    "inflation": "FP.CPI.TOTL.ZG",
+    "output": "NY.GDP.MKTP.KD.ZG"
+  },
+  "n_pairs_total": 858,
+  "missing": [],
+  "generated_utc": "2026-06-24T13:28:44.367967+00:00"
+}

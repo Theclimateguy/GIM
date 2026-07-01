@@ -1,0 +1,200 @@
+{
+  "created_at_utc": "2026-03-17T13:33:28Z",
+  "base_state_csv": "tests/fixtures/historical_backtest_state_2015.csv",
+  "observed_fixture": "tests/fixtures/historical_backtest_observed.json",
+  "origin_start_year": 2015,
+  "origin_end_year": 2022,
+  "parameter_grids": {
+    "TFP_RD_SHARE_SENS": [
+      0.18,
+      0.3,
+      0.42
+    ],
+    "GAMMA_ENERGY": [
+      0.0252,
+      0.041999999999999996,
+      0.0588
+    ],
+    "DECARB_RATE_STRUCTURAL": [
+      0.0312,
+      0.05199999999999999,
+      0.07279999999999999
+    ],
+    "HEAT_CAP_SURFACE": [
+      10.799999999999999,
+      18.0,
+      25.2
+    ]
+  },
+  "objective_weights": {
+    "gdp": 0.1,
+    "co2": 1.0,
+    "temperature": 10.0
+  },
+  "instability_penalty": 0.5,
+  "passes": [
+    {
+      "origin_year": 2015,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.18,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.0312,
+        "HEAT_CAP_SURFACE": 10.799999999999999
+      },
+      "train_objective": 0.8876264446927706,
+      "train_gdp_rmse_trillions": 1.0532500405730103e-16,
+      "train_global_co2_rmse_gtco2": 0.8876264446927706,
+      "train_temperature_rmse_c": 0.0,
+      "validation_objective": 1.1386334777851483,
+      "validation_gdp_rmse_trillions": 0.17331181264934886,
+      "validation_global_co2_rmse_gtco2": 0.6214469183852783,
+      "validation_temperature_rmse_c": 0.0499855378134935,
+      "validation_temperature_bias_c": -0.03534511274917784
+    },
+    {
+      "origin_year": 2016,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.18,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.0312,
+        "HEAT_CAP_SURFACE": 10.799999999999999
+      },
+      "train_objective": 1.14392030820059,
+      "train_gdp_rmse_trillions": 0.17331258457994558,
+      "train_global_co2_rmse_gtco2": 0.627713689887695,
+      "train_temperature_rmse_c": 0.04988753598549004,
+      "validation_objective": 1.872865976044199,
+      "validation_gdp_rmse_trillions": 0.2385114095594737,
+      "validation_global_co2_rmse_gtco2": 1.0188956821430475,
+      "validation_temperature_rmse_c": 0.08301191529452041,
+      "validation_temperature_bias_c": 0.058698288224038664
+    },
+    {
+      "origin_year": 2017,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.42,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.0312,
+        "HEAT_CAP_SURFACE": 10.799999999999999
+      },
+      "train_objective": 1.653981389957924,
+      "train_gdp_rmse_trillions": 0.19432503549775287,
+      "train_global_co2_rmse_gtco2": 1.1480161865421703,
+      "train_temperature_rmse_c": 0.04865326998659786,
+      "validation_objective": 2.070881204043161,
+      "validation_gdp_rmse_trillions": 0.3189831129943989,
+      "validation_global_co2_rmse_gtco2": 1.1474344807559185,
+      "validation_temperature_rmse_c": 0.08915484119878025,
+      "validation_temperature_bias_c": 0.0630419927872673
+    },
+    {
+      "origin_year": 2018,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.42,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.0312,
+        "HEAT_CAP_SURFACE": 25.2
+      },
+      "train_objective": 1.9935328750490142,
+      "train_gdp_rmse_trillions": 0.2672706579799394,
+      "train_global_co2_rmse_gtco2": 1.2629851908213139,
+      "train_temperature_rmse_c": 0.07038206184297065,
+      "validation_objective": 1.6949682105710404,
+      "validation_gdp_rmse_trillions": 0.1557199118802369,
+      "validation_global_co2_rmse_gtco2": 0.9016314728931311,
+      "validation_temperature_rmse_c": 0.07777647464898857,
+      "validation_temperature_bias_c": -0.05499627264108342
+    },
+    {
+      "origin_year": 2019,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.42,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.0312,
+        "HEAT_CAP_SURFACE": 25.2
+      },
+      "train_objective": 1.802240730860891,
+      "train_gdp_rmse_trillions": 0.391925637005983,
+      "train_global_co2_rmse_gtco2": 1.1297139720433267,
+      "train_temperature_rmse_c": 0.0633334195116966,
+      "validation_objective": 0.835950742249725,
+      "validation_gdp_rmse_trillions": 0.1345121254821404,
+      "validation_global_co2_rmse_gtco2": 0.7544345985354378,
+      "validation_temperature_rmse_c": 0.006806493116607319,
+      "validation_temperature_bias_c": -0.004812917438852593
+    },
+    {
+      "origin_year": 2020,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.42,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.05199999999999999,
+        "HEAT_CAP_SURFACE": 25.2
+      },
+      "train_objective": 2.5715874470057694,
+      "train_gdp_rmse_trillions": 0.6548143934412849,
+      "train_global_co2_rmse_gtco2": 1.9124930252174561,
+      "train_temperature_rmse_c": 0.059361298244418464,
+      "validation_objective": 3.1873633458288766,
+      "validation_gdp_rmse_trillions": 0.6844496005224032,
+      "validation_global_co2_rmse_gtco2": 1.9289633671371873,
+      "validation_temperature_rmse_c": 0.1189955018639449,
+      "validation_temperature_bias_c": 0.0841425262986919
+    },
+    {
+      "origin_year": 2021,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.42,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.05199999999999999,
+        "HEAT_CAP_SURFACE": 25.2
+      },
+      "train_objective": 2.5830888783657757,
+      "train_gdp_rmse_trillions": 0.8100036378378371,
+      "train_global_co2_rmse_gtco2": 1.7719348555689367,
+      "train_temperature_rmse_c": 0.07301536590130556,
+      "validation_objective": 0.9392397642321912,
+      "validation_gdp_rmse_trillions": 0.3914396091519212,
+      "validation_global_co2_rmse_gtco2": 0.8564276282828289,
+      "validation_temperature_rmse_c": 0.004366817503417021,
+      "validation_temperature_bias_c": -0.0030878062688702856
+    },
+    {
+      "origin_year": 2022,
+      "selected_params": {
+        "TFP_RD_SHARE_SENS": 0.18,
+        "GAMMA_ENERGY": 0.0252,
+        "DECARB_RATE_STRUCTURAL": 0.05199999999999999,
+        "HEAT_CAP_SURFACE": 25.2
+      },
+      "train_objective": 2.541419506856294,
+      "train_gdp_rmse_trillions": 0.9105105665313503,
+      "train_global_co2_rmse_gtco2": 1.6737643529907695,
+      "train_temperature_rmse_c": 0.07766040972123893,
+      "validation_objective": 3.0121528277810343,
+      "validation_gdp_rmse_trillions": 0.3419334444557687,
+      "validation_global_co2_rmse_gtco2": 1.0004797453489738,
+      "validation_temperature_rmse_c": 0.19774797379864836,
+      "validation_temperature_bias_c": -0.13982893323892398
+    }
+  ],
+  "robust_params": {
+    "TFP_RD_SHARE_SENS": 0.18,
+    "GAMMA_ENERGY": 0.0252,
+    "DECARB_RATE_STRUCTURAL": 0.0312,
+    "HEAT_CAP_SURFACE": 18.0
+  },
+  "robust_score": 2.2271629270085382,
+  "robust_mean_validation_objective": 1.811981830045483,
+  "robust_std_validation_objective": 0.8303621939261107,
+  "robust_window_validation_scores": {
+    "2015": 1.2409538656635488,
+    "2016": 1.7907321159384295,
+    "2017": 1.9497351054275505,
+    "2018": 1.6266634141379215,
+    "2019": 0.781432501392624,
+    "2020": 3.242114848532278,
+    "2021": 0.932113138568482,
+    "2022": 2.9321096507030306
+  }
+}

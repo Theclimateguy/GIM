@@ -1,0 +1,72 @@
+{
+  "start_year": 2020,
+  "end_year": 2021,
+  "gdp_trillions_by_year": {
+    "2020": {
+      "United States": 21.060473613,
+      "China": 14.9964141667151,
+      "Japan": 5.05406800537628,
+      "Germany": 3.94139895707394,
+      "India": 2.67485157858727,
+      "United Kingdom": 2.72400147830459,
+      "France": 2.64792605511005,
+      "Italy": 1.90748109407923,
+      "Brazil": 1.47610729215195,
+      "Canada": 1.65568473000019,
+      "South Korea": 1.74407027637334,
+      "Russia": 1.4930758943621398,
+      "Australia": 1.33333646164809,
+      "Spain": 1.28978383697121,
+      "Mexico": 1.12106476730842,
+      "Indonesia": 1.05905484269848,
+      "Netherlands": 0.93256086170117,
+      "Saudi Arabia": 0.7679512,
+      "Turkey": 0.733628247119077,
+      "Switzerland": 0.741999406005627
+    },
+    "2021": {
+      "United States": 23.31508056,
+      "China": 18.201698719564,
+      "Japan": 5.03914816886122,
+      "Germany": 4.35525195341078,
+      "India": 3.16727062326047,
+      "United Kingdom": 3.1945591889259304,
+      "France": 2.96643369200809,
+      "Italy": 2.17920777359609,
+      "Brazil": 1.67064746406296,
+      "Canada": 2.02237874842323,
+      "South Korea": 1.9423135609659,
+      "Russia": 1.8291867195751002,
+      "Australia": 1.56061749320269,
+      "Spain": 1.4612449018526898,
+      "Mexico": 1.31656946668595,
+      "Indonesia": 1.1865096910867299,
+      "Netherlands": 1.0544721234496,
+      "Saudi Arabia": 0.982661066666667,
+      "Turkey": 0.839938668172134,
+      "Switzerland": 0.815309330986719
+    }
+  },
+  "global_co2_gtco2": {
+    "2020": 35.126526123731026,
+    "2021": 36.991736275664024
+  },
+  "temperature_c_preindustrial": {
+    "2020": 1.273604718764706,
+    "2021": 1.1246735687647058
+  },
+  "atmospheric_co2_ppm": {
+    "2020": 412.44,
+    "2021": 414.7
+  },
+  "source_notes": {
+    "wdi_gdp": "World Bank WDI API, indicator NY.GDP.MKTP.CD, annual current USD for the 20-country legacy backtest surface.",
+    "wdi_population": "World Bank WDI API, indicator SP.POP.TOTL, used for 2015 initial-state alignment.",
+    "wdi_fx_reserves": "World Bank WDI API, indicator FI.RES.XGLD.CD, used for 2015 initial-state alignment.",
+    "wdi_public_debt": "World Bank WDI API, indicator GC.DOD.TOTL.GD.ZS, used for 2015 initial-state alignment.",
+    "wdi_country_co2": "World Bank WDI API, indicator EN.GHG.CO2.MT.CE.AR5, used for 2015 initial-state alignment.",
+    "gcp_global_co2": "Global Carbon Budget 2024 workbook, sheet 'Global Carbon Budget', column 'fossil emissions excluding carbonation', converted from GtC/yr to GtCO2/yr.",
+    "hadcrut5_temperature": "HadCRUT.5.1.0.0 annual global summary series from the Met Office, rebased to an 1850-1900 mean so the anomaly matches the model's preindustrial framing.",
+    "noaa_atmospheric_co2": "NOAA GML global annual mean atmospheric CO2 concentration, used to seed the 2015 atmospheric stock before the simulation starts."
+  }
+}

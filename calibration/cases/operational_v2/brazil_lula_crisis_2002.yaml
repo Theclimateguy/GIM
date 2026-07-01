@@ -1,0 +1,53 @@
+{
+  "case_id": "brazil_lula_crisis_2002",
+  "title": "Brazil Lula election near-miss",
+  "description": "Brazil 2002 election crisis: FX collapse and sovereign stress partly realized, but IMF support and fiscal commitment restored stability.",
+  "reference_period": "2002-Q2 to 2002-Q4",
+  "tags": ["historical", "near_miss", "debt", "fx", "brazil"],
+  "question": "Could debt stress, capital flight and an election shock destabilize Brazil during the 2002 Lula crisis?",
+  "template": "generic_tail_risk",
+  "risk_bias_overrides": {
+    "status_quo": -0.25,
+    "internal_destabilization": 0.05,
+    "controlled_suppression": -0.15,
+    "negotiated_deescalation": 0.65
+  },
+  "scenario_year": 2002,
+  "horizon_months": 12,
+  "agents": ["Brazil"],
+  "initial_state_overrides": {
+    "Brazil": {
+      "economy.public_debt_gdp": 0.82,
+      "economy.fx_reserves": 0.038,
+      "risk.debt_crisis_prone": 0.71,
+      "society.social_tension": 0.61,
+      "society.trust_gov": 0.38,
+      "political.policy_space": 0.42,
+      "political.hawkishness": 0.31
+    }
+  },
+  "observed_pressure": {
+    "conflict_stress": 0.18,
+    "social_stress": 0.61,
+    "debt_stress": 0.74,
+    "resource_gap": 0.12,
+    "policy_space": 0.42,
+    "negotiation_capacity": 0.58,
+    "sanctions_pressure": 0.05,
+    "actor_count_pressure": 0.08,
+    "military_posture": 0.28,
+    "energy_dependence": 0.14,
+    "tail_pressure": 1.24
+  },
+  "expected_outcomes": {
+    "dominant": "negotiated_deescalation",
+    "secondary": "internal_destabilization",
+    "excluded": ["direct_strike_exchange", "broad_regional_escalation"]
+  },
+  "criticality": "high",
+  "discriminating_weights": [
+    "negotiated_deescalation:negotiation_capacity",
+    "internal_destabilization:debt_stress"
+  ],
+  "notes": "Near-miss: outcome should flip toward internal destabilization if negotiation-capacity support weakens materially."
+}

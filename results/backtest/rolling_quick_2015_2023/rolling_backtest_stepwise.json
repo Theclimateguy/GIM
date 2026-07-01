@@ -1,0 +1,211 @@
+{
+  "created_at_utc": "2026-03-16T17:59:06Z",
+  "base_state_csv": "tests/fixtures/historical_backtest_state_2015.csv",
+  "observed_fixture": "tests/fixtures/historical_backtest_observed.json",
+  "origin_start_year": 2015,
+  "origin_end_year": 2022,
+  "decarb_grid": [
+    0.0312,
+    0.0338,
+    0.036399999999999995,
+    0.03899999999999999,
+    0.0416,
+    0.044199999999999996,
+    0.046799999999999994,
+    0.0494,
+    0.05199999999999999,
+    0.054599999999999996,
+    0.057199999999999994,
+    0.05979999999999999,
+    0.06239999999999999,
+    0.06499999999999999,
+    0.0676,
+    0.07019999999999998,
+    0.07279999999999999
+  ],
+  "objective_weights": {
+    "gdp": 0.1,
+    "co2": 1.0,
+    "temperature": 10.0
+  },
+  "windows": [
+    {
+      "origin_year": 2015,
+      "train_start_year": 2015,
+      "train_end_year": 2015,
+      "validation_start_year": 2015,
+      "validation_end_year": 2016,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2015.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2015.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2015_2016.json"
+    },
+    {
+      "origin_year": 2016,
+      "train_start_year": 2015,
+      "train_end_year": 2016,
+      "validation_start_year": 2016,
+      "validation_end_year": 2017,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2016.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2016.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2016_2017.json"
+    },
+    {
+      "origin_year": 2017,
+      "train_start_year": 2015,
+      "train_end_year": 2017,
+      "validation_start_year": 2017,
+      "validation_end_year": 2018,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2017.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2017.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2017_2018.json"
+    },
+    {
+      "origin_year": 2018,
+      "train_start_year": 2015,
+      "train_end_year": 2018,
+      "validation_start_year": 2018,
+      "validation_end_year": 2019,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2018.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2018.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2018_2019.json"
+    },
+    {
+      "origin_year": 2019,
+      "train_start_year": 2015,
+      "train_end_year": 2019,
+      "validation_start_year": 2019,
+      "validation_end_year": 2020,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2019.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2019.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2019_2020.json"
+    },
+    {
+      "origin_year": 2020,
+      "train_start_year": 2015,
+      "train_end_year": 2020,
+      "validation_start_year": 2020,
+      "validation_end_year": 2021,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2020.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2020.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2020_2021.json"
+    },
+    {
+      "origin_year": 2021,
+      "train_start_year": 2015,
+      "train_end_year": 2021,
+      "validation_start_year": 2021,
+      "validation_end_year": 2022,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2021.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2021.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2021_2022.json"
+    },
+    {
+      "origin_year": 2022,
+      "train_start_year": 2015,
+      "train_end_year": 2022,
+      "validation_start_year": 2022,
+      "validation_end_year": 2023,
+      "origin_state_csv": "results/backtest/rolling_quick_2015_2023/origin_states/historical_backtest_state_2022.csv",
+      "train_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_train_2015_2022.json",
+      "validation_observed_fixture": "results/backtest/rolling_quick_2015_2023/fixtures/observed_val_2022_2023.json"
+    }
+  ],
+  "passes": [
+    {
+      "origin_year": 2015,
+      "selected_decarb_rate": 0.05199999999999999,
+      "train_objective": 0.8876264446927706,
+      "train_gdp_rmse_trillions": 1.0532500405730103e-16,
+      "train_global_co2_rmse_gtco2": 0.8876264446927706,
+      "train_temperature_rmse_c": 0.0,
+      "validation_gdp_rmse_trillions": 0.19039805094863058,
+      "validation_global_co2_rmse_gtco2": 0.6213963474398527,
+      "validation_temperature_rmse_c": 0.0663580570535071,
+      "validation_temperature_bias_c": -0.04692223212889868
+    },
+    {
+      "origin_year": 2016,
+      "selected_decarb_rate": 0.05199999999999999,
+      "train_objective": 1.309980526983916,
+      "train_gdp_rmse_trillions": 0.1903982917213338,
+      "train_global_co2_rmse_gtco2": 0.6277129345798321,
+      "train_temperature_rmse_c": 0.06632277632319503,
+      "validation_gdp_rmse_trillions": 0.23830706874966914,
+      "validation_global_co2_rmse_gtco2": 1.0188302179432416,
+      "validation_temperature_rmse_c": 0.06987256425982406,
+      "validation_temperature_bias_c": 0.0494073640070144
+    },
+    {
+      "origin_year": 2017,
+      "selected_decarb_rate": 0.0312,
+      "train_objective": 1.728368966088469,
+      "train_gdp_rmse_trillions": 0.20663355287290758,
+      "train_global_co2_rmse_gtco2": 1.164983272442349,
+      "train_temperature_rmse_c": 0.05427223383588292,
+      "validation_gdp_rmse_trillions": 0.3187210411522257,
+      "validation_global_co2_rmse_gtco2": 1.1473465501275595,
+      "validation_temperature_rmse_c": 0.06977412613246635,
+      "validation_temperature_bias_c": 0.04933775773963245
+    },
+    {
+      "origin_year": 2018,
+      "selected_decarb_rate": 0.0312,
+      "train_objective": 1.9928337425957454,
+      "train_gdp_rmse_trillions": 0.27471555011084137,
+      "train_global_co2_rmse_gtco2": 1.277869452717712,
+      "train_temperature_rmse_c": 0.06874927348669492,
+      "validation_gdp_rmse_trillions": 0.15568888190590677,
+      "validation_global_co2_rmse_gtco2": 0.9014996317156863,
+      "validation_temperature_rmse_c": 0.08050896478696501,
+      "validation_temperature_bias_c": -0.056928434947171924
+    },
+    {
+      "origin_year": 2019,
+      "selected_decarb_rate": 0.0312,
+      "train_objective": 1.8064126199201196,
+      "train_gdp_rmse_trillions": 0.39742898976745156,
+      "train_global_co2_rmse_gtco2": 1.1429937935307137,
+      "train_temperature_rmse_c": 0.06236759274126606,
+      "validation_gdp_rmse_trillions": 0.14480755054774047,
+      "validation_global_co2_rmse_gtco2": 0.7545890253128902,
+      "validation_temperature_rmse_c": 0.008987180831813761,
+      "validation_temperature_bias_c": -0.0063548965099252674
+    },
+    {
+      "origin_year": 2020,
+      "selected_decarb_rate": 0.0416,
+      "train_objective": 2.4070483788017905,
+      "train_gdp_rmse_trillions": 0.6600739501425742,
+      "train_global_co2_rmse_gtco2": 1.746505249726693,
+      "train_temperature_rmse_c": 0.05945357340608398,
+      "validation_gdp_rmse_trillions": 0.6924033076569804,
+      "validation_global_co2_rmse_gtco2": 1.9287909617294858,
+      "validation_temperature_rmse_c": 0.1168058673865494,
+      "validation_temperature_bias_c": 0.08259422091140567
+    },
+    {
+      "origin_year": 2021,
+      "selected_decarb_rate": 0.046799999999999994,
+      "train_objective": 2.5041333766598965,
+      "train_gdp_rmse_trillions": 0.8158534415276683,
+      "train_global_co2_rmse_gtco2": 1.7158971677650996,
+      "train_temperature_rmse_c": 0.07066508647420301,
+      "validation_gdp_rmse_trillions": 0.395819518416411,
+      "validation_global_co2_rmse_gtco2": 0.8562171010544328,
+      "validation_temperature_rmse_c": 0.007574812075491413,
+      "validation_temperature_bias_c": -0.005356200984793724
+    },
+    {
+      "origin_year": 2022,
+      "selected_decarb_rate": 0.05199999999999999,
+      "train_objective": 2.52339012316065,
+      "train_gdp_rmse_trillions": 0.9401487181800481,
+      "train_global_co2_rmse_gtco2": 1.6915723841904002,
+      "train_temperature_rmse_c": 0.0737802867152245,
+      "validation_gdp_rmse_trillions": 0.34997820669017493,
+      "validation_global_co2_rmse_gtco2": 1.0002308130379398,
+      "validation_temperature_rmse_c": 0.20095011102029398,
+      "validation_temperature_bias_c": -0.14209318618263944
+    }
+  ]
+}

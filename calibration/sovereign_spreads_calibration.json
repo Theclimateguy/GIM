@@ -1,0 +1,46 @@
+{
+  "form": "spread_raw = LINEAR*excess + QUADRATIC*excess^2 ; excess = max(0, debt/GDP - THRESHOLD)",
+  "DEBT_SPREAD_THRESHOLD": 0.6,
+  "DEBT_SPREAD_LINEAR": 0.06,
+  "DEBT_SPREAD_QUADRATIC": 0.1,
+  "neutral_marginal_bp_per_pp_at_threshold": 2.1,
+  "hilscher_nosbusch_2010_target_bp_per_pp": 2.1,
+  "implied_schedule": [
+    {
+      "debt_gdp": 0.6,
+      "neutral_spread_bp": 0,
+      "stressed_spread_bp": 0
+    },
+    {
+      "debt_gdp": 0.75,
+      "neutral_spread_bp": 39,
+      "stressed_spread_bp": 146
+    },
+    {
+      "debt_gdp": 0.9,
+      "neutral_spread_bp": 94,
+      "stressed_spread_bp": 351
+    },
+    {
+      "debt_gdp": 1.2,
+      "neutral_spread_bp": 252,
+      "stressed_spread_bp": 936
+    },
+    {
+      "debt_gdp": 1.5,
+      "neutral_spread_bp": 472,
+      "stressed_spread_bp": 1755
+    }
+  ],
+  "anchors": {
+    "threshold": "Maastricht 60% reference + Reinhart & Rogoff (2010) EM debt threshold",
+    "linear": "Hilscher & Nosbusch (2010, JF 65:1639): ~2.1 bp/pp linear elasticity",
+    "quadratic": "Arora & Cerisola (2001, IMF Staff Papers 48:474): nonlinear acceleration"
+  },
+  "ci90_note": "Hilscher-Nosbusch linear elasticity 90% range ~1.5-3.0 bp/pp -> LINEAR in [0.043, 0.086].",
+  "sources": [
+    "Hilscher & Nosbusch (2010) Journal of Finance 65:1639",
+    "Arora & Cerisola (2001) IMF Staff Papers 48:474",
+    "Reinhart & Rogoff (2010) AER 100:573"
+  ]
+}

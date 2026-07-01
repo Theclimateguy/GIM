@@ -1,0 +1,30 @@
+{
+  "method": "Conditional beta-convergence OLS (HC1) on WB real-PPP 2015-2023 cross-section",
+  "n_countries": 20,
+  "slope_estimate": 0.0144,
+  "slope_se": 0.0039,
+  "slope_ci95": [
+    0.0068,
+    0.022
+  ],
+  "intercept": 0.0061,
+  "r_squared": 0.443,
+  "in_model_value": 0.0093,
+  "in_model_within_ci": true,
+  "literature_anchors": {
+    "Barro_SalaiMartin_1992_cross_section": 0.02,
+    "MankiwRomerWeil_1992": 0.018,
+    "Islam_1995_panel_within": 0.092,
+    "acceptance_band": [
+      0.005,
+      0.025
+    ]
+  },
+  "verdict": "in-model 0.0093 is inside the acceptance band [0.005,0.025] and within the cross-section convergence range; externally validated. SE now documented for uncertainty propagation.",
+  "sources": [
+    "Barro & Sala-i-Martin (1992) JPE 100:223",
+    "Mankiw, Romer & Weil (1992) QJE 107:407",
+    "Islam (1995) QJE 110:1127",
+    "Feenstra, Inklaar & Timmer (2015) AER 105:3150 (PWT)"
+  ]
+}
