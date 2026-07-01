@@ -71,6 +71,25 @@ The graphical shell is a **native macOS app** (SwiftUI, macOS 13+), not a browse
 deterministic Python engine (`python3 -m gim2 engine`, HTTP+SSE over loopback, schema `gim-engine/2`)
 sits behind a Situation-Room-style interface with five areas —
 
+<table>
+<tr>
+<td width="50%">
+
+**Ассистент** — describe a scenario in words; the map shows per-country winners/losers.
+
+![Ассистент — analytical result](gim2/docs/screenshots/assistant.png)
+
+</td>
+<td width="50%">
+
+**Экспертный режим** — direct control over every lever, horizon, and ensemble size.
+
+![Экспертный режим — run configuration](gim2/docs/screenshots/expert_mode.png)
+
+</td>
+</tr>
+</table>
+
 - **Ассистент** — natural-language front end. Describe a scenario in words; the assistant maps it to
   grounded levers or a composed scenario, runs the deterministic engine, and returns a verdict,
   tipping point, per-domain cascade, and per-country outcomes. All numbers come from the engine, never
