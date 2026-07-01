@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a polished HTML report for a GIM17 climate/energy stress-test run."""
+"""Build a polished HTML report for a GIM18 climate/energy stress-test run."""
 
 from __future__ import annotations
 
@@ -404,7 +404,7 @@ def render_html(run_dir: Path, data: dict[str, pd.DataFrame], assets: list[str])
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GIM17 Climate/Energy Stress Test</title>
+  <title>GIM18 Climate/Energy Stress Test</title>
   <style>
     :root {{
       --ink:#111827; --muted:#5b6472; --line:#e5e7eb; --paper:#fbfaf7; --card:#ffffff;
@@ -447,7 +447,7 @@ def render_html(run_dir: Path, data: dict[str, pd.DataFrame], assets: list[str])
 <body>
 <main class="page">
   <header>
-    <div class="eyebrow">GIM17 research note</div>
+    <div class="eyebrow">GIM18 research note</div>
     <h1>Climate and energy policy stress-test, 2026-2056</h1>
     <p class="lead">Thirty-year scenario experiment comparing five SSP-like policy regimes through GDP, emissions, temperature, social stability, migration pressure, resource stress and endogenous geopolitical risk. The experiment does not impose wars; conflicts emerge only from the model dynamics.</p>
     <div class="meta">
@@ -522,7 +522,7 @@ def render_html(run_dir: Path, data: dict[str, pd.DataFrame], assets: list[str])
   </section>
 
   <footer>
-    GIM17 climate/energy policy stress-test. HTML report generated from local artifacts in <code>{esc(str(run_dir))}</code>.
+    GIM18 climate/energy policy stress-test. HTML report generated from local artifacts in <code>{esc(str(run_dir))}</code>.
   </footer>
 </main>
 </body>
@@ -551,7 +551,7 @@ def build_report(run_dir: Path) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build polished HTML report for GIM17 climate/energy run.")
+    parser = argparse.ArgumentParser(description="Build polished HTML report for GIM18 climate/energy run.")
     parser.add_argument("run_dir", help="Path to results/climate_energy_stress-* directory")
     args = parser.parse_args()
     output = build_report(Path(args.run_dir))

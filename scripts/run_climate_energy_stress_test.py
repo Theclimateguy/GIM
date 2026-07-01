@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run 30-year climate/energy policy stress tests with the GIM17 core."""
+"""Run 30-year climate/energy policy stress tests with the GIM18 core."""
 
 from __future__ import annotations
 
@@ -741,7 +741,7 @@ def render_report(
 ) -> None:
     scenario_lookup = {spec.scenario_id: spec for spec in SCENARIOS}
     lines: list[str] = [
-        "# GIM17 Climate/Energy Policy Stress Test",
+        "# GIM18 Climate/Energy Policy Stress Test",
         "",
         f"Run timestamp: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}`",
         f"State CSV: `{state_csv}`",
@@ -751,7 +751,7 @@ def render_report(
         "",
         "## Formalization",
         "",
-        "Each scenario is an SSP-like policy mode mapped onto existing GIM17 levers. "
+        "Each scenario is an SSP-like policy mode mapped onto existing GIM18 levers. "
         "The yearly state transition is the unchanged `step_world` core:",
         "",
         r"\\[x_{t+1}=F(x_t, a_t^{scenario}, \\epsilon_t),\\quad t=0,\\ldots,30.\\]",
@@ -972,7 +972,7 @@ def run_experiment(args: argparse.Namespace) -> Path:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run GIM17 climate/energy policy stress tests.")
+    parser = argparse.ArgumentParser(description="Run GIM18 climate/energy policy stress tests.")
     parser.add_argument("--years", type=int, default=30)
     parser.add_argument("--base-year", type=int, default=2026)
     parser.add_argument("--state-csv", default=str(DEFAULT_STATE_CSV))

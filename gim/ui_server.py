@@ -30,7 +30,7 @@ DOC_PATHS = [
     "README.md",
     "docs/README.md",
     "docs/MODEL_METHODOLOGY.md",
-    "docs/GIM17_UNIFIED_MODEL_SPEC.md",
+    "docs/GIM18_UNIFIED_MODEL_SPEC.md",
     "docs/calibration/CALIBRATION_REFERENCE.md",
     "docs/calibration/CALIBRATION_LAYER.md",
     "docs/SIMULATION_STEP_ORDER.md",
@@ -1133,7 +1133,7 @@ def _compare_payload(run_ids: list[str]) -> dict[str, Any]:
 
 
 class UIHandler(BaseHTTPRequestHandler):
-    server_version = "GIM17UI/1.0"
+    server_version = "GIM18UI/1.0"
 
     def _send_json(self, payload: Any, status: int = 200) -> None:
         raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -1360,7 +1360,7 @@ class UIHandler(BaseHTTPRequestHandler):
 
 def run_ui_server(host: str = "127.0.0.1", port: int = 8090) -> None:
     server = ThreadingHTTPServer((host, port), UIHandler)
-    print(f"[ui] GIM17 UI server running at http://{host}:{port}")
+    print(f"[ui] GIM18 UI server running at http://{host}:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

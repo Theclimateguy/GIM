@@ -44,7 +44,7 @@ jobs:
           pip install .
       - name: Strict invariant gate (10y x full actor set)
         env:
-          GIM17_INVARIANT_MODE: strict
+          GIM18_INVARIANT_MODE: strict
         run: python scripts/check_invariants.py
       - name: Core unit tests (invariants, determinism, params, priors, ensemble, scoring, welfare)
         run: python -m unittest tests.test_invariants tests.test_determinism tests.test_params tests.test_priors tests.test_ensemble tests.test_scoring tests.test_welfare -v

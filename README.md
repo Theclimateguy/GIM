@@ -1,4 +1,4 @@
-# Global Integrated Model — version 17 (GIM18)
+# Global Integrated Model — GIM18 (v18.0.0)
 
 A year-by-year simulation of the world as interacting countries (~50 countries plus regional
 groupings), integrating **economy, climate, climate damage, resources, society, politics,
@@ -10,7 +10,7 @@ not pinpoint forecasting.
 every layer, what it can do, and its limits. For where the model stands and what comes next, see
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-## Status (version 17, finalized)
+## Status (v18.0.0)
 
 - All runs start from a single **validated 2023 canon** compiled state
   (`data/agent_states_operational.csv`): 57 actors covering essentially all of world output
@@ -18,10 +18,12 @@ every layer, what it can do, and its limits. For where the model stands and what
   Carbon Project to within ~1%. See [`docs/agent_state_data_contract.md`](docs/agent_state_data_contract.md).
 - Economy reproduces 2015–2023 national-income history; climate matches the mainstream scientific
   assessment (temperature sensitivity and the 1990–2023 warming/carbon record).
-- Headline regression ("golden") backtest: GDP error ≈ 0.62, global CO₂ error ≈ 0.93, temperature
-  error ≈ 0.135. The 17.3.0 development-structured recalibration grounds two growth/decarbonisation
-  mechanisms in data (so the no-policy forward path is realistic — CO₂ rises, temperature warms) and
-  re-derives the golden on the corrected state.
+- Headline regression ("golden") backtest: GDP error ≈ 0.60, global CO₂ error ≈ 0.94, temperature
+  error ≈ 0.145. The v18 reviewer-response cycle re-anchored the damage function to the Howard-Sterner
+  central estimate and normalised it to the 2023 baseline (removing a base-year double-count, which
+  *improved* the GDP fit from 0.62 to 0.60), and re-derived the internal-variability spread from the
+  observed record (curing ensemble under-dispersion). The 1990–2023 climate calibration (ECS ≈ 3.0,
+  temperature error ≈ 0.096) is unchanged.
 - The headline economic core is **objective and fully closed**: a calibrated capital–energy
   substitution (nested-CES) production function, cost-minimising energy demand, energy/resource and
   capital markets that clear by price, a closed stock-flow-consistent bank balance sheet
@@ -29,9 +31,10 @@ every layer, what it can do, and its limits. For where the model stands and what
   **development-structured**: TFP conditional convergence (poorer economies catch up) and
   development-dependent decarbonisation (richer economies cut CO₂/GDP faster), both fit to the
   2015–2023 World Bank panel.
-- Cost of carbon in the modern consensus range (~$95/tCO₂ at modern near-zero-ρ Ramsey discounting,
-  range ~$95–280, with a documented growth/discounting sensitivity); conflict-risk validated against
-  the standard armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
+- Cost of carbon is horizon- and discounting-sensitive and reported honestly: ~$22 / $42 / $45 per
+  tCO₂ at the 30 / 100 / 200-year horizons under DICE-2016 Ramsey discounting (ρ = 1.5%), rising to
+  ~$89/tCO₂ (200-yr) under modern near-zero-ρ Ramsey discounting (ρ = 0.1%). Conflict-risk validated
+  against the standard armed-conflict record (AUC ≈ 0.74, Brier skill ≈ +0.14 vs the base rate).
 - Geographic coupling grounds shock propagation in a real spatial graph: literature-anchored trade
   gravity plus switchable conflict/tension/climate spatial contagion, checked by an
   emergent-spatial-autocorrelation reproduction benchmark (the payoff is concentrated in trade).
@@ -104,35 +107,36 @@ Full index: [`docs/README.md`](docs/README.md). Key entry points:
 
 ```bash
 python3 -m unittest discover -s tests             # full suite
-./scripts/run_validation_package_gim17.sh         # release validation (non-LLM)
+./scripts/run_validation_package_gim18.sh         # release validation (non-LLM)
 ```
 
 ## Version
 
-`17.3.0` — **development-structured recalibration.** Fixes the no-policy forward baseline (carbon
-pools were seeded with flow fractions, creating a phantom sink that made CO₂ *fall*; the 2015
-backtest capital was ~0.23× GDP instead of ~3×, an error the legacy decarb rate was silently
-cancelling) and re-grounds two structural mechanisms in the 2015–2023 World Bank panel: **TFP
-conditional convergence** and **development-dependent decarbonisation**. The golden backtest is
-re-derived on the corrected state (GDP 0.62 / CO₂ 0.93 / T 0.135) and the SCC refreshed for the
-faster empirical growth (~$95/t modern Ramsey; ~$20 under DICE's own damages — so DICE
-underestimates damages). The objective economic core, the geo-on default, and the conflict
-validation are unchanged. See [`CHANGELOG.md`](CHANGELOG.md) and
-[`docs/GIM18_UNIFIED_MODEL_SPEC.md`](docs/GIM18_UNIFIED_MODEL_SPEC.md).
+**`18.0.0` — reviewer-response deepening + global sensitivity.** Closes reviewer issues #11–#19,
+deepening the climate, economy and social modules and adding a Sobol global sensitivity analysis, with
+golden discipline preserved (every change is bit-identical by default or a documented, backtest-in-band
+re-anchor). Headline changes: forward non-CO₂ forcing follows the SSP2-4.5 marker (plateau, not an
+unbounded linear trend), which lowers projected **2100 warming by ≈ 0.37 °C** and removes a forward
+over-forcing bias; the **damage function** is re-anchored to the Howard-Sterner central estimate and
+normalised to the 2023 baseline (no double-count — which *improved* the backtest); internal-variability
+σ/ρ, β-convergence, and sovereign-spread coefficients are re-derived from data with reported
+uncertainty. A Sobol analysis shows output variance is **concentrated and attributable** (climate
+sensitivity → temperature, catch-up convergence → GDP, sovereign spreads → inequality) and that ten
+priors are freezable. Golden backtest re-derived: **GDP 0.60 / CO₂ 0.94 / T 0.145** (climate ECS ≈ 3.0
+unchanged). Full write-up: [`docs/GIM18_REVIEWER_RESPONSE.md`](docs/GIM18_REVIEWER_RESPONSE.md).
 
-`17.2.x` completed the cross-domain story: the geographic-coupling layer is activated in the headline
-and grounded in the literature with a delivered reproduction benchmark (emergent Moran's I + a dyadic
-neighbour-conflict premium of 1.0×→1.5×, matching the +44–52% empirical record); the social/political
-layers (S1–S6) are put on a reproducible numeric footing; the economic core is deepened (money→prices,
-growth foundations, near-rational expectations — the last two off by default); and the integration
-claim is made computational (Appendix B: carbon/DICE, oil/MESSAGEix, crop/AgMIP). Every headline number
-is calibrated, literature-anchored, and statistically validated, with the objective 17.0.0 core and the
-golden backtest preserved under the geo-on default.
-Earlier in the family, 17.1.x added the statistical-rigor layer (conflict-AUC inference, Morris
-robustness, ensemble convergence) on the unchanged 17.0.0 objective core.
-Highlights of the 17.0.0 core: Python 3.10+ and lean repo; enforceable
-accounting/integrity invariants; deterministic reproducible runs; full uncertainty machinery
-(evidence-based priors, Monte-Carlo ensembles, sensitivity analysis, history matching, skill
-scoring); an objective, fully-closed economic core (nested-CES production + market clearing + closed
-SFC bank balance sheet + SSP2 forward growth); a weak-signal detection module; and the version-17
-finalization across all layers. See [`CHANGELOG.md`](CHANGELOG.md).
+### Lineage (v17 family — historical)
+
+- **`17.3.0`** — development-structured recalibration: fixed the no-policy forward baseline (carbon-pool
+  seeding + a 2015 capital-init error the legacy decarb rate was silently cancelling) and grounded TFP
+  conditional convergence and development-dependent decarbonisation in the 2015–2023 World Bank panel.
+- **`17.2.x`** — cross-domain story: geographic coupling activated in the headline with a reproduction
+  benchmark; social/political layers (S1–S6) on a reproducible numeric footing; economic core deepened
+  (money→prices, growth foundations, near-rational expectations); integration made computational
+  (carbon/DICE, oil/MESSAGEix, crop/AgMIP).
+- **`17.1.x`** — statistical-rigor layer (conflict-AUC inference, Morris robustness, ensemble convergence).
+- **`17.0.0`** — objective, fully-closed economic core (nested-CES production + market clearing + closed
+  SFC bank balance sheet + SSP2 forward growth), enforceable invariants, deterministic runs, the full
+  uncertainty machinery, and the weak-signal detection module.
+
+Full history in [`CHANGELOG.md`](CHANGELOG.md).

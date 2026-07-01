@@ -52,7 +52,7 @@ class ClimateEnergyStressRunnerTests(unittest.TestCase):
             self.assertTrue((output_dir / "country_summary.csv").exists())
             self.assertTrue((output_dir / "report.md").exists())
             report = (output_dir / "report.md").read_text(encoding="utf-8")
-            self.assertIn("GIM17 Climate/Energy Policy Stress Test", report)
+            self.assertIn("GIM18 Climate/Energy Policy Stress Test", report)
 
 
 if __name__ == "__main__":

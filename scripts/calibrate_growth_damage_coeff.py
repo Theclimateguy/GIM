@@ -3,7 +3,7 @@
 
 Self-contained, golden-preserving. Reproduces the level-vs-growth SCC "catastrophic
 spread" at modern (RFF-SP / EPA-2023) 2% Ramsey discounting and records the calibrated
-production stance. Run from the GIM17 repo root:
+production stance. Run from the GIM18 repo root:
 
     python3 scripts/calibrate_growth_damage_coeff.py
 

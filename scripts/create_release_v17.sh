@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Создаёт GitHub Release v17.0.0 для Theclimateguy/GIM из ветки GIM17.
-# Запуск из папки GIM17:
+# Создаёт GitHub Release v17.0.0 для Theclimateguy/GIM из ветки GIM18.
+# Запуск из папки GIM18:
 #   GH_TOKEN=твой_токен bash create_release_v17.sh
 set -euo pipefail
 
 REPO="Theclimateguy/GIM"
 TAG="v17.0.0"
-TARGET="GIM17"
-NAME="GIM17 v17.0.0"
+TARGET="GIM18"
+NAME="GIM18 v17.0.0"
 
 if [[ -z "${GH_TOKEN:-}" ]]; then
   echo "Укажи токен: GH_TOKEN=ghp_xxx bash create_release_v17.sh" >&2

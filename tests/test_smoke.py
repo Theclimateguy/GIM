@@ -52,7 +52,7 @@ class GIM17SmokeTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
-        self.assertIn("MODEL GIM17", result.stdout)
+        self.assertIn("MODEL GIM18", result.stdout)
         self.assertIn("Simulation complete", result.stdout)
 
 

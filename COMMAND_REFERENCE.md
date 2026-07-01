@@ -1,4 +1,4 @@
-# GIM17 Command Reference v17.0.0.dev0
+# GIM18 Command Reference v18.0.0
 
 Operational CLI reference for `python3 -m gim`.
 

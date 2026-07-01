@@ -53,7 +53,7 @@ EMPIRICAL_DAMAGE_ESTIMATES: List[DamageEstimate] = [
         "Predecessor coefficient (0.267%/C^2); revised down in 2016 after Tol-survey corrections.",
     ),
     DamageEstimate(
-        "gim", "GIM17 (this model)",
+        "gim", "GIM18 (this model)",
         "level", 7.0, 0.0078,
         "[#17] DAMAGE_QUAD_COEFF=0.0078 -> 7.0%/3C; re-anchored to the Howard & Sterner 2017 preferred "
         "central. ~3x DICE-2016R2. Engine applies it normalised to the 2023 baseline (incremental "

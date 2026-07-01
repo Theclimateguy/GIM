@@ -1,6 +1,6 @@
 # Where the model stands and where it should go next
 
-A candid assessment of the finished version 17: what is solid enough to use, what the real
+A candid assessment of GIM18 (v18.0.0): what is solid enough to use, what the real
 limitations are, whether they block using the model, and the priority order for further work.
 
 ## Current standing

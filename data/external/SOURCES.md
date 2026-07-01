@@ -1,4 +1,4 @@
-# GIM17 External Data Sources (F3 unique-layer grounding & validation)
+# GIM18 External Data Sources (F3 unique-layer grounding & validation)
 
 Maps each GIM unique-layer variable to its established external index, with the exact source
 and how to obtain it. See `docs/SOCIAL_GEO_METRICS.md` for the variable→metric rationale.

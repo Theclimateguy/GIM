@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage-1 (F3) external-data ingestion for GIM17 unique-layer grounding/validation.
+"""Stage-1 (F3) external-data ingestion for GIM18 unique-layer grounding/validation.
 
 Pulls the established external indices that ground GIM's social / geopolitical / military
 layers (see docs/SOCIAL_GEO_METRICS.md) into tidy long CSVs under data/external/.

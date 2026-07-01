@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Russian HTML and PDF reports for a GIM17 climate/energy stress-test run."""
+"""Build Russian HTML and PDF reports for a GIM18 climate/energy stress-test run."""
 
 from __future__ import annotations
 
@@ -552,7 +552,7 @@ def render_html(run_dir: Path, data: dict[str, pd.DataFrame], asset_names: dict[
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GIM17: климато-энергетический стресс-тест</title>
+  <title>GIM18: климато-энергетический стресс-тест</title>
   <style>
     :root {{ --ink:#111827; --muted:#5b6472; --line:#e5e7eb; --paper:#fbfaf7; --card:#ffffff; --green:#1f8a70; --gold:#b88a00; }}
     * {{ box-sizing:border-box; }}
@@ -590,7 +590,7 @@ def render_html(run_dir: Path, data: dict[str, pd.DataFrame], asset_names: dict[
 <body>
 <main class="page">
   <header>
-    <div class="eyebrow">GIM17 analytical report</div>
+    <div class="eyebrow">GIM18 analytical report</div>
     <h1>Климато-энергетический стресс-тест мировой модели, 2026-2056</h1>
     <p class="lead">Ансамбль из 5 SSP-подобных режимов и 5 сидов сравнивает траектории ВВП, выбросов, температуры, социального напряжения, доверия, миграционного давления, энергетического дефицита и эндогенного геополитического риска. Войны не задавались извне: конфликт появляется только через динамику модели.</p>
     <div class="meta">
@@ -653,11 +653,11 @@ def render_html(run_dir: Path, data: dict[str, pd.DataFrame], asset_names: dict[
 
   <section>
     <h2>Механика и ограничения</h2>
-    <p>Сценарии переводят SSP-нарративы в существующие рычаги GIM17: налог на топливо, интенсивность климатической политики, R&D, социальные расходы, военная позиция, торговые ограничения, рост спроса на энергию, эффективность и адаптация. Ядро перехода состояния остается прежним <code>step_world</code>.</p>
+    <p>Сценарии переводят SSP-нарративы в существующие рычаги GIM18: налог на топливо, интенсивность климатической политики, R&D, социальные расходы, военная позиция, торговые ограничения, рост спроса на энергию, эффективность и адаптация. Ядро перехода состояния остается прежним <code>step_world</code>.</p>
     <div class="callout">Энергетический стресс показан как log10(1+дефицит), потому что сырой дефицит очень велик в текущей калибровке блока ресурсов. Для сравнения сценариев используется лог-метрика; направление результата внутри эксперимента устойчиво.</div>
   </section>
 
-  <footer>GIM17, климато-энергетический стресс-тест. Источники: <code>final_summary.csv</code>, <code>trajectory_summary.csv</code>, <code>all_actor_trajectories.csv</code>, <code>country_summary.csv</code>, <code>region_summary.csv</code>.</footer>
+  <footer>GIM18, климато-энергетический стресс-тест. Источники: <code>final_summary.csv</code>, <code>trajectory_summary.csv</code>, <code>all_actor_trajectories.csv</code>, <code>country_summary.csv</code>, <code>region_summary.csv</code>.</footer>
 </main>
 </body>
 </html>
@@ -764,7 +764,7 @@ def render_pdf(run_dir: Path, data: dict[str, pd.DataFrame], asset_names: dict[s
 
     with PdfPages(output) as pdf:
         fig = plt.figure(figsize=page_size, facecolor="#fbfaf7")
-        fig.text(0.055, 0.925, "GIM17 analytical report", fontsize=8, color="#1f8a70", weight="bold")
+        fig.text(0.055, 0.925, "GIM18 analytical report", fontsize=8, color="#1f8a70", weight="bold")
         fig.text(0.055, 0.865, "Климато-энергетический стресс-тест, 2026-2056", fontsize=26, color="#111827", weight="bold")
         y = add_wrapped(
             fig,
@@ -891,10 +891,10 @@ def render_pdf(run_dir: Path, data: dict[str, pd.DataFrame], asset_names: dict[s
         fig.text(0.055, 0.925, "5. Метод и границы интерпретации", fontsize=17, weight="bold", color="#111827")
         y = 0.86
         method = [
-            "Сценарии задают не CMIP/IPCC forcing pathways, а сравнительные режимы политики внутри GIM17. SSP-нарративы переводятся в налог на топливо, климатическую политику, R&D, социальные расходы, военную позицию, торговые ограничения, спрос на энергию, эффективность и адаптацию.",
+            "Сценарии задают не CMIP/IPCC forcing pathways, а сравнительные режимы политики внутри GIM18. SSP-нарративы переводятся в налог на топливо, климатическую политику, R&D, социальные расходы, военную позицию, торговые ограничения, спрос на энергию, эффективность и адаптацию.",
             "Ядро динамики остается прежним step_world. Поэтому отчет проверяет эндогенные механизмы модели: выпуск, климатические потери, ресурсный стресс, миграционное давление, социальную стабильность, торговые барьеры и конфликтное давление.",
             f"Энергетический стресс дан как log10(1+дефицит). В финале он равен {fmt(ssp1['energy_gap_log_mean'],3)} в SSP1, {fmt(final.loc['ssp2_middle_road','energy_gap_log_mean'],3)} в SSP2, {fmt(final.loc['ssp3_fragmentation','energy_gap_log_mean'],3)} в SSP3, {fmt(ssp5['energy_gap_log_mean'],3)} в SSP5 и {fmt(delayed['energy_gap_log_mean'],3)} в отложенном переходе.",
-            "Главное ограничение: абсолютные уровни не следует читать как прогноз мирового ВВП или температуры. Это индексные и сравнительные результаты текущей калибровки GIM17.",
+            "Главное ограничение: абсолютные уровни не следует читать как прогноз мирового ВВП или температуры. Это индексные и сравнительные результаты текущей калибровки GIM18.",
         ]
         for paragraph in method:
             y = add_wrapped(fig, paragraph, 0.065, y, 125, size=10.5)
@@ -936,7 +936,7 @@ def build_report(run_dir: Path) -> tuple[Path, Path]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build Russian HTML and PDF report for GIM17 climate/energy run.")
+    parser = argparse.ArgumentParser(description="Build Russian HTML and PDF report for GIM18 climate/energy run.")
     parser.add_argument("run_dir", help="Path to results/climate_energy_stress-* directory")
     args = parser.parse_args()
     html_output, pdf_output = build_report(Path(args.run_dir))

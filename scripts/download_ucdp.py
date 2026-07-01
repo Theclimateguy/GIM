@@ -32,7 +32,7 @@ URLS = {
 
 def _try(url: str) -> bytes | None:
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (GIM17 data fetch)"})
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (GIM18 data fetch)"})
         with urllib.request.urlopen(req, timeout=60) as r:
             return r.read()
     except Exception as e:  # noqa: BLE001

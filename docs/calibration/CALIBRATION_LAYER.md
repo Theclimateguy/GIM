@@ -107,7 +107,7 @@ python3 -m unittest \
 ### Release validation package
 
 ```bash
-./scripts/run_validation_package_gim17.sh
+./scripts/run_validation_package_gim18.sh
 ```
 
 ### Operational suite checks

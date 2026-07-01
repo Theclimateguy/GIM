@@ -73,7 +73,7 @@ architecture change.
   term, fit to the same panel (R² = 0.46). Improves the backtest CO₂ RMSE from 1.26 to 0.93.
 - **`calibration/growth_decarb_calibration.py`** + committed World Bank inputs
   (`data/worldbank_growth_decarb_2015_2023.csv`) fitting both new development terms, and the four
-  development-structured equations added to `docs/GIM17_UNIFIED_MODEL_SPEC.md`.
+  development-structured equations added to `docs/GIM18_UNIFIED_MODEL_SPEC.md`.
 
 ### Changed
 

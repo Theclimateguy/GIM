@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integration benchmark: literature-anchored cross-sector contrast for GIM17.
+"""Integration benchmark: literature-anchored cross-sector contrast for GIM18.
 
 The argument is COMPUTATIONAL, not declarative. For each of three shocks we take a
 PUBLISHED conclusion from a named *sectoral* model, then run GIM on the SAME shock and

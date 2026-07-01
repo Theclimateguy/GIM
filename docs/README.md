@@ -1,15 +1,17 @@
 # GIM18 Documentation Index
 
-Source-of-truth documentation for version 17. (Engineering change-history and superseded planning
+Source-of-truth documentation for **v18.0.0**. (Engineering change-history and superseded planning
 notes have been moved out of the repository to keep it clean.)
 
-> **Canon: 17.3.0 (development-structured recalibration).** The current golden backtest is **GDP 0.62 /
-> CO₂ 0.93 / temperature 0.135** and the modern-Ramsey SCC is **~$95/tCO₂** (range ~$95–280). Some
-> dated calibration/ablation ledgers below were written against the earlier 0.590 / 1.146 golden and
-> quote it as their as-run baseline; those are retained for provenance and carry a 17.3.0 note where
-> the number would otherwise read as current. See [`../CHANGELOG.md`](../CHANGELOG.md) for the full
-> recalibration and [`GIM18_UNIFIED_MODEL_SPEC.md`](GIM18_UNIFIED_MODEL_SPEC.md) for the two new
-> development-structured equations.
+> **Canon: 18.0.0 (reviewer-response deepening + global sensitivity).** The current golden backtest is
+> **GDP 0.60 / CO₂ 0.94 / temperature 0.145** (climate ECS ≈ 3.0, 1990–2023 temperature error 0.096,
+> unchanged). SCC is **$22 / $42 / $45 per tCO₂** at the 30 / 100 / 200-yr horizons under DICE Ramsey
+> discounting (ρ = 1.5%), rising to **~$89/tCO₂** at 200 yr under near-zero-ρ Ramsey (ρ = 0.1%). Some
+> dated calibration/ablation ledgers below were written against earlier goldens (0.590 / 1.146, then the
+> 17.3.0 0.62 / 0.93) and quote them as their as-run baseline; those are retained for provenance and
+> carry a version note where the number would otherwise read as current. See
+> [`GIM18_REVIEWER_RESPONSE.md`](GIM18_REVIEWER_RESPONSE.md) for the v18 changes and
+> [`../CHANGELOG.md`](../CHANGELOG.md) for the full history.
 
 ## Start here
 
@@ -18,6 +20,7 @@ notes have been moved out of the repository to keep it clean.)
 
 ## Specification & methodology
 
+- [`GIM18_REVIEWER_RESPONSE.md`](GIM18_REVIEWER_RESPONSE.md) — **v18 changes**: issues #11–#19 (climate/economy/social deepening + Sobol GSA), conclusion-relevant findings, honesty ledger.
 - [`GIM18_UNIFIED_MODEL_SPEC.md`](GIM18_UNIFIED_MODEL_SPEC.md) — state vector, yearly equations, events, reconciliation.
 - [`MODEL_METHODOLOGY.md`](MODEL_METHODOLOGY.md) — runtime behaviour and module-level methodology.
 - [`CORE_TRANSITION_CONTRACT.md`](CORE_TRANSITION_CONTRACT.md) / [`SIMULATION_STEP_ORDER.md`](SIMULATION_STEP_ORDER.md) — phase contract and yearly order.
