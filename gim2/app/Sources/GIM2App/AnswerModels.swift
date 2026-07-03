@@ -87,6 +87,7 @@ struct AnswerResult: Decodable {
     let archetype: AnswerArchetype?
     let projection: DeltaProjection?   // delta fans over time (kind=scenario_delta)
     let equivCli: String?
+    let selection: SelectionInfo?
 }
 
 // /archetypes catalog

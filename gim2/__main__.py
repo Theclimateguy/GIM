@@ -135,9 +135,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--metric", default="world_gdp",
                    choices=["world_gdp", "temperature", "co2", "mean_social_tension"])
     p.add_argument("--years", type=int, default=10)
-    p.add_argument("--params", nargs="*", default=None, help="parameter names (default: key SCC/priors set)")
+    p.add_argument("--params", nargs="*", default=None, help="parameter names (default: full key-prior set)")
     p.add_argument("--r", type=int, default=10, help="Morris trajectories")
     p.add_argument("--levels", type=int, default=4)
+    p.add_argument("--lever", action="append", default=[],
+                   help="screen params around this scenario instead of the plain baseline (repeatable)")
+    p.add_argument("--magnitude", type=float, default=None, help="lever magnitude (default per-lever)")
+    p.add_argument("--actors", nargs="*", default=None)
     p.set_defaults(func=_cmd_sensitivity)
 
     # weak ----------------------------------------------------------------- #

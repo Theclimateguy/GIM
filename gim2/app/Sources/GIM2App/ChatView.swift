@@ -8,6 +8,7 @@ struct ChatView: View {
     @EnvironmentObject var app: AppState
     @State private var draft = ""
     @State private var settingsOpen = false
+    @State private var traceOpen = false
 
     private var canSend: Bool {
         !draft.trimmingCharacters(in: .whitespaces).isEmpty && !app.chatStreaming
@@ -21,6 +22,9 @@ struct ChatView: View {
                 Text(providerLabel).font(Theme.ui(11)).foregroundStyle(Theme.muted)
                     .padding(.horizontal, 8).padding(.vertical, 3)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line, lineWidth: 1))
+                Button { traceOpen = true } label: {
+                    Image(systemName: "list.bullet.rectangle").font(.system(size: 13)).foregroundStyle(Theme.muted)
+                }.buttonStyle(.plain).help("Трейс агента — что реально решил и вызвал движок")
                 Button { settingsOpen = true } label: {
                     Image(systemName: "gearshape").font(.system(size: 13)).foregroundStyle(Theme.muted)
                 }.buttonStyle(.plain).help("Модель ассистента")
@@ -48,6 +52,7 @@ struct ChatView: View {
                 .onChange(of: app.chat.count) { _ in
                     withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo("bottom", anchor: .bottom) }
                 }
+                .id(app.currentSessionID)
             }
 
             HStack(spacing: 10) {
@@ -65,6 +70,7 @@ struct ChatView: View {
             .padding(.horizontal, 20).padding(.vertical, 12)
         }
         .sheet(isPresented: $settingsOpen) { LLMSettingsView() }
+        .sheet(isPresented: $traceOpen) { TraceView() }
     }
 
     private func send() {
@@ -111,12 +117,19 @@ struct ChatRow: View {
                 SituationRoom(result: r).card()
             } else {
                 HStack(alignment: .bottom, spacing: 6) {
-                    Text(message.text).font(Theme.ui(13)).foregroundStyle(Theme.text)
-                        .textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, 12).padding(.vertical, 9)
-                        .background(Theme.surface)
-                        .overlay(RoundedRectangle(cornerRadius: 11).stroke(Theme.line, lineWidth: 1))
-                        .clipShape(RoundedRectangle(cornerRadius: 11))
+                    VStack(alignment: .leading, spacing: 10) {
+                        if let img = message.chartImage {
+                            Image(nsImage: img).resizable().aspectRatio(contentMode: .fit)
+                                .frame(maxWidth: 320)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line, lineWidth: 1))
+                        }
+                        MarkdownText(raw: message.text)
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 9)
+                    .background(Theme.surface)
+                    .overlay(RoundedRectangle(cornerRadius: 11).stroke(Theme.line, lineWidth: 1))
+                    .clipShape(RoundedRectangle(cornerRadius: 11))
                     CopyButton(text: message.text)
                     Spacer(minLength: 48)
                 }
@@ -208,7 +221,7 @@ struct LLMSettingsView: View {
 
     private var testColor: Color {
         switch app.llmTestState {
-        case .ok: return Color(hex: 0x4FBF86)
+        case .ok: return Theme.deltaUp
         case .fail: return Theme.deltaDown
         default: return Theme.faint
         }
@@ -226,7 +239,7 @@ struct LLMSettingsView: View {
     // Ollama: probe the local daemon, list installed models, and warm the choice.
     @ViewBuilder private var ollamaSection: some View {
         HStack(spacing: 7) {
-            Circle().fill(app.ollamaChecked ? (app.ollamaReachable ? Color(hex: 0x4FBF86) : Theme.deltaDown) : Theme.faint)
+            Circle().fill(app.ollamaChecked ? (app.ollamaReachable ? Theme.deltaUp : Theme.deltaDown) : Theme.faint)
                 .frame(width: 7, height: 7)
             Text(!app.ollamaChecked ? "проверяю Ollama…"
                  : app.ollamaReachable ? "Ollama найдена · \(app.ollamaModels.count) модел."

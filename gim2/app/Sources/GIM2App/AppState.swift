@@ -29,8 +29,11 @@ final class AppState: ObservableObject {
     @Published var ollamaWarming = false
     @Published var ollamaWarmMessage: String?
 
-    // Assistant chat + LLM config (key in Keychain; rest in UserDefaults).
-    @Published var chat: [ChatMessage] = []
+    // Assistant sessions (explicit, on-disk — see SessionStore) + LLM config (key in
+    // Keychain; rest in UserDefaults). `chat` is a thin view onto the active session's
+    // messages so the rest of the app (ChatView) is unchanged by the session refactor.
+    @Published var sessions: [ChatSession] = []
+    @Published var currentSessionID: UUID = UUID()
     @Published var chatStreaming = false
     @Published var llmProvider = "deterministic"
     @Published var llmModel = ""
@@ -51,6 +54,84 @@ final class AppState: ObservableObject {
         llmModel = d.string(forKey: "llmModel") ?? ""
         llmBaseURL = d.string(forKey: "llmBaseURL") ?? ""
         llmApiKey = Keychain.get(account: "llm_key")
+
+        sessions = SessionStore.loadAll()
+        if let first = sessions.first {
+            currentSessionID = first.id
+        } else {
+            let fresh = ChatSession()
+            sessions = [fresh]
+            currentSessionID = fresh.id
+            SessionStore.save(fresh)
+        }
+    }
+
+    // MARK: - Assistant sessions
+
+    private var currentSessionIndex: Int? { sessions.firstIndex(where: { $0.id == currentSessionID }) }
+
+    /// A thin view onto the active session's messages — everything else (ChatView, sendChat)
+    /// reads/writes `chat` exactly as before the session refactor.
+    var chat: [ChatMessage] {
+        get { currentSessionIndex.map { sessions[$0].messages } ?? [] }
+        set {
+            guard let i = currentSessionIndex else { return }
+            sessions[i].messages = newValue
+        }
+    }
+
+    func newSession() {
+        let fresh = ChatSession()
+        sessions.insert(fresh, at: 0)
+        currentSessionID = fresh.id
+        SessionStore.save(fresh)
+    }
+
+    /// A thin view onto the active session's trace log (see TraceEntry / "trace" SSE events).
+    var trace: [TraceEntry] {
+        get { currentSessionIndex.map { sessions[$0].trace } ?? [] }
+        set {
+            guard let i = currentSessionIndex else { return }
+            sessions[i].trace = newValue
+        }
+    }
+
+    /// The scenario (if any) already established in the current session — the most recent
+    /// run_answer/run_scenario tool call's lever recipe. Sent to the backend every turn so
+    /// the LLM can route follow-ups (sensitivity/weak-signals/dose) onto the SAME scenario
+    /// instead of re-inferring it from its own past narration (or defaulting to run_answer).
+    var activeSelection: SelectionInfo? {
+        for m in chat.reversed() {
+            guard let toolName = m.toolName, let json = m.resultJSON,
+                  let data = json.data(using: .utf8) else { continue }
+            switch toolName {
+            case "run_answer":
+                if let r = try? EngineClient.decoder.decode(AnswerResult.self, from: data),
+                   let sel = r.selection, !sel.levers.isEmpty { return sel }
+            case "run_scenario":
+                if let r = try? EngineClient.decoder.decode(ScenarioResult.self, from: data),
+                   let sel = r.selection, !sel.levers.isEmpty { return sel }
+            default: continue
+            }
+        }
+        return nil
+    }
+
+    func selectSession(_ id: UUID) {
+        guard sessions.contains(where: { $0.id == id }) else { return }
+        currentSessionID = id
+    }
+
+    func deleteSession(_ id: UUID) {
+        SessionStore.delete(id)
+        sessions.removeAll { $0.id == id }
+        if sessions.isEmpty { newSession() }
+        else if currentSessionID == id { currentSessionID = sessions[0].id }
+    }
+
+    private func persistCurrentSession() {
+        guard let i = currentSessionIndex else { return }
+        SessionStore.save(sessions[i])
     }
 
     func boot() async {
@@ -222,39 +303,79 @@ final class AppState: ObservableObject {
         let t = text.trimmingCharacters(in: .whitespaces)
         guard !t.isEmpty, let client else { return }
         chat.append(ChatMessage(role: .user, text: t))
+        persistCurrentSession()
         chatStreaming = true
-        let history: [AssistantMsg] = chat.compactMap { m in
-            if m.role == .user { return AssistantMsg(role: "user", content: m.text) }
-            if m.role == .assistant, m.result == nil, !m.text.isEmpty {
-                return AssistantMsg(role: "assistant", content: m.text)
+
+        // Compact history sent to the LLM: user turns as-is; past tool outcomes are folded
+        // into the assistant's own text (not resent as separate tool-role messages — strict
+        // OpenAI-style APIs reject a "tool" message without a matching live tool_call in the
+        // SAME turn) so the model has continuity across turns without the full raw payload.
+        let history: [AssistantMsg] = chat.compactMap { m -> AssistantMsg? in
+            switch m.role {
+            case .user:
+                return AssistantMsg(role: "user", content: m.text)
+            case .tool:
+                return nil
+            case .assistant:
+                var content = m.text
+                if let s = m.toolSummary, !s.isEmpty {
+                    let prefix = m.toolName.map { "[\($0)] " } ?? ""
+                    content = content.isEmpty ? prefix + s : prefix + s + "\n" + content
+                }
+                return content.isEmpty ? nil : AssistantMsg(role: "assistant", content: content)
             }
-            return nil
         }
+        let active = activeSelection
         let req = AssistantRequest(provider: llmProvider, model: llmModel,
-                                   apiKey: llmApiKey, baseURL: llmBaseURL, messages: history)
+                                   apiKey: llmApiKey, baseURL: llmBaseURL, messages: history,
+                                   activeLevers: active?.levers,
+                                   activeActors: active?.actors.isEmpty == false ? active?.actors : nil)
+
+        // Tracks the most recent tool_call/run_result pair until the model's narration
+        // (assistant_delta) arrives, so the final chat bubble carries what was computed.
+        var pendingToolName: String? = nil
+        var pendingResultJSON: String? = nil
         do {
             for try await (event, data) in client.stream("/assistant", req) {
                 let obj = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
                 switch event {
                 case "tool_call":
-                    chat.append(ChatMessage(role: .tool, text: "запуск: \(obj?["name"] as? String ?? "движок")…"))
+                    let name = obj?["name"] as? String ?? "движок"
+                    pendingToolName = name
+                    chat.append(ChatMessage(role: .tool, text: "запуск: \(name)…"))
                 case "run_result":
-                    if let r = try? EngineClient.decoder.decode(AnswerResult.self, from: data) {
-                        chat.append(ChatMessage(role: .assistant, text: "", result: r))
+                    pendingResultJSON = String(data: data, encoding: .utf8)
+                    if pendingToolName == "run_answer",
+                       let r = try? EngineClient.decoder.decode(AnswerResult.self, from: data) {
+                        chat.append(ChatMessage(role: .assistant, text: "", toolName: "run_answer",
+                                                toolSummary: r.verdict, resultJSON: pendingResultJSON))
                         record(ScenarioRecord(answer: r, label: r.archetype?.nameRu ?? "Ассистент"))
+                        pendingToolName = nil; pendingResultJSON = nil
                     }
                 case "assistant_delta":
                     if let txt = obj?["text"] as? String, !txt.isEmpty {
-                        chat.append(ChatMessage(role: .assistant, text: txt))
+                        let chartImage = (pendingToolName != nil && pendingResultJSON != nil)
+                            ? ChartSnapshot.render(toolName: pendingToolName!, resultJSON: pendingResultJSON!)
+                            : nil
+                        chat.append(ChatMessage(role: .assistant, text: txt, toolName: pendingToolName,
+                                                toolSummary: pendingToolName == nil ? nil : txt,
+                                                resultJSON: pendingResultJSON, chartImageBase64: chartImage))
+                        pendingToolName = nil; pendingResultJSON = nil
                     }
                 case "error":
                     chat.append(ChatMessage(role: .assistant, text: "Ошибка: \(obj?["message"] as? String ?? "сбой")"))
+                case "trace":
+                    let kind = obj?["kind"] as? String ?? "?"
+                    let text = obj?["text"] as? String ?? ""
+                    trace.append(TraceEntry(kind: kind, text: text))
                 default:
                     break
                 }
+                persistCurrentSession()
             }
         } catch {
             chat.append(ChatMessage(role: .assistant, text: "Сбой связи с движком: \(error.localizedDescription)"))
+            persistCurrentSession()
         }
         chatStreaming = false
     }

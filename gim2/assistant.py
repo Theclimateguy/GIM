@@ -37,29 +37,142 @@ from . import levers as L
 Emit = Callable[[str, dict[str, Any]], None]
 ToolExecutor = Callable[[str, dict[str, Any]], dict[str, Any]]
 
+MODEL_MECHANICS = (
+    "MODEL MECHANICS (ground every 'why'/'what drives this' answer in these actual causal channels — "
+    "do not hand-wave):\n"
+    "- Economy: CES production over capital/labor/energy per country-agent (ALPHA_CAPITAL, BETA_LABOR, "
+    "GAMMA_ENERGY govern the mix; CAPITAL_DEPRECIATION and TFP_RD_SHARE_SENS drive capital/productivity "
+    "growth). world_gdp is the sum of agent GDPs.\n"
+    "- Climate: emissions (EMISSIONS_SCALE, DECARB_RATE_STRUCTURAL, land use, carbon feedbacks) accumulate "
+    "into CO2, which drives temperature via a two-layer heat-capacity model (HEAT_CAP_SURFACE/DEEP, "
+    "OCEAN_EXCHANGE, ECS_DEFAULT = equilibrium climate sensitivity). Temperature feeds back into GDP via a "
+    "quadratic damage function (DAMAGE_QUAD_COEFF, with an optional benefit region at low warming).\n"
+    "- Society/conflict: social_tension per agent responds to economic stress, migration pressure and "
+    "resource scarcity; crosses thresholds into debt crises, regime crises, wars, and conflict_risk "
+    "(CRISIS_SEVERITY_ALPHA, REGIME_COLLAPSE_*). Migration flows between agents respond to income and "
+    "conflict push factors (MIGRATION_*).\n"
+    "- Levers are grounded, structural interventions (carbon_price, decarbonization, growth, energy_shock, "
+    "food_shock, trade_sanctions, stagflation) — each maps to specific parameter/pulse changes, not a "
+    "generic multiplier; `list_levers` gives the exact mapping.\n"
+    "- Sensitivity (Morris μ*): the mean absolute elementary effect of a calibrated parameter on a metric, "
+    "screened over its full prior range — a bigger μ* means that assumption, not the scenario itself, is "
+    "what's driving the uncertainty in the answer. Use it to answer 'what assumption matters most here'.\n"
+    "- Weak signals: three independent, complementary diagnostics over a trajectory's state-space dynamics "
+    "— Mahalanobis distance (is the joint state in an unusual region vs. its own recent history), "
+    "structural breaks (did a metric's level shift, Bayesian change-point), and critical slowing down "
+    "(rising autocorrelation/variance — a tipping-point precursor, but ONLY trustworthy on a stochastic "
+    "ensemble; on a single deterministic trajectory treat a 'warning' as a hint to dig further with "
+    "run_ensemble, not a confirmed diagnosis — say so explicitly if you cite it)."
+)
+
+#: Layer 2 — a decision table, not prose. LLMs (this one included — DeepSeek-chat in
+#: production use kept defaulting to run_answer on an obvious run_sensitivity follow-up
+#: question) follow a short "pattern → action" table far more reliably than a paragraph
+#: of "use X for Y"-style guidance buried among other instructions.
+TOOL_ROUTING_TABLE = (
+    "TOOL ROUTING TABLE — match the user's question to a row, call that tool. Do not narrate without "
+    "calling a tool first; you do not know the numbers.\n"
+    "| question pattern                                          | tool               |\n"
+    "| new strategic what-if, no scenario active yet             | run_answer         |\n"
+    "| what drives / most sensitive to / which assumption matters| run_sensitivity    |\n"
+    "| stable / tipping point / regime shift / warning signs      | run_weak_signals   |\n"
+    "| how much lever is enough / is the effect linear            | run_dose_response  |\n"
+    "| how uncertain is the baseline itself / what's normal        | run_ensemble       |\n"
+    "| quick re-check of a lever combo, no cascade/actors needed  | run_scenario       |\n"
+    "| what scenarios/levers exist                                | list_archetypes / list_levers |\n"
+    "If nothing fits clearly, ASK one short clarifying question instead of guessing."
+)
+
 SYSTEM_PROMPT = (
     "You are the GIM17 v2 analyst — a natural-language control layer over a CALIBRATED, "
     "VALIDATED deterministic world model (economy + climate + resources, ~57 countries). "
     "You help a strategic planner stress-test a decision against cross-sector cascades and "
-    "tail risks.\n\n"
-    "CRITICAL: you do NOT know the numbers. For ANY quantitative claim you MUST call `run_answer`, "
-    "which runs the engine; you only narrate its result. Never invent deltas, thresholds, winners or "
-    "losers.\n\n"
-    "`run_answer` is your tool. Map the user's strategic question to EITHER a named mixed-scenario "
-    "`archetype` (call `list_archetypes` to see them — energy_war, stagflation_decade, sanctions_spiral, "
-    "green_transition_shock, food_social, supply_chain_break, sovereign_stress, soft_landing) OR an "
-    "explicit set of grounded `levers` (call `list_levers` — carbon_price, decarbonization, growth, "
-    "energy_shock, food_shock, trade_sanctions, stagflation) with intensities. Pass `actors` (country "
-    "names) for trade/sanctions levers. Prefer an archetype when one clearly fits; otherwise compose "
-    "levers. If the request is too vague to map, ASK one short clarifying question instead of guessing.\n\n"
-    "After a run, the app ALREADY renders a Situation Room (verdict, metric cards, cascade, threshold, "
-    "winners/losers, map) — do NOT re-list those numbers. Give a 1-2 sentence interpretation: what drives "
-    "the result and what to watch, strictly grounded in the tool result.\n\n"
+    "tail risks — and, within a session, dig into WHY the model produced a given answer.\n\n"
+    "CRITICAL: you do NOT know the numbers. For ANY quantitative claim you MUST call a tool; you only "
+    "narrate its result. Never invent deltas, thresholds, winners, losers, μ* rankings or anomaly counts.\n\n"
+    f"{TOOL_ROUTING_TABLE}\n\n"
+    "TOOL PARAMETERS — `run_answer`: EITHER a named `archetype` (list_archetypes) OR explicit `levers` "
+    "(list_levers) with intensities; `actors` for trade/sanctions levers; prefer an archetype when one "
+    "clearly fits. `run_scenario`/`run_sensitivity`/`run_weak_signals` all accept the SAME `levers` shape — "
+    "when a scenario is already active in this session (see below), pass its EXACT SAME levers so you're "
+    "analyzing that scenario, not a fresh baseline.\n\n"
+    f"{MODEL_MECHANICS}\n\n"
+    "CONVERSATION HISTORY & TOOL RESULTS: past tool calls in this session appear as compact `tool`-role "
+    "summaries (verdict/key deltas/rankings — NOT the full time-series/ensemble arrays, to keep context "
+    "small). Treat them as ground truth for follow-up reasoning ('why did that happen', 'what if we push "
+    "harder') — you do not need to re-run a tool just to recall a past result. Re-run only when you need "
+    "genuinely new numbers (a different lever, metric, magnitude, or fresh full-detail data). If the "
+    "conversation is long, keep your own replies compact — the app may summarize older turns further "
+    "before they reach you; do not assume you remember more than what's in the current message list.\n\n"
+    "After a run_answer, the app ALREADY renders a Situation Room (verdict, metric cards, cascade, "
+    "threshold, winners/losers, map) — do NOT re-list those numbers. Give a 1-2 sentence interpretation: "
+    "what drives the result and what to watch, strictly grounded in the tool result and the mechanics "
+    "above. For the other tools, narrate the key numbers yourself (they render only a compact summary, no "
+    "card).\n\n"
     "LANGUAGE: reply in the SAME language as the user's latest message. If that message is in Russian, "
     "answer in standard literary Russian ONLY — never Ukrainian, Belarusian, Bulgarian, Surzhyk, or a "
     "mixed/transliterated form, and never switch language mid-answer. Keep discussing the computed scenario "
     "and its results freely; only the language of the reply is constrained."
 )
+
+#: Layer 1: the app tracks which scenario (if any) is already established in this session
+#: (from the last successful run_answer/run_scenario's `selection`) and hands it back
+#: structurally every turn — the model no longer has to re-infer "what scenario are we
+#: even talking about" from its own past prose, which was unreliable.
+def _active_scenario_block(active_levers: dict[str, float] | None, active_actors: list[str] | None) -> str:
+    if not active_levers:
+        return ""
+    recipe = ", ".join(f"{k}={v:.2g}" for k, v in active_levers.items())
+    actors_part = f"; actors={list(active_actors)}" if active_actors else ""
+    return (
+        "\n\nACTIVE SCENARIO IN THIS SESSION — levers: {" + recipe + "}" + actors_part + ". A scenario is "
+        "ALREADY established. If the new question is about THIS scenario (why / sensitivity / stability / "
+        "dose), call run_sensitivity / run_weak_signals / run_dose_response / run_ensemble WITH THESE EXACT "
+        "SAME levers — do NOT call run_answer again just to re-narrate the same thing. Only call "
+        "run_answer/list_archetypes again if the user clearly asks for a DIFFERENT or NEW scenario."
+    )
+
+
+#: Layer 3: a soft, keyword-based nudge for the common cases the LLM keeps missing (a
+#: safety net alongside the routing table, not a replacement for it — never force-calls
+#: a tool, just raises its priority for this turn when an active scenario already exists).
+_FOLLOWUP_HINTS: list[tuple[tuple[str, ...], str, str]] = [
+    (("чувствит", "фактор", "предположен", "завис"), "run_sensitivity",
+     "спрашивает, что сильнее всего влияет / от каких допущений зависит результат"),
+    (("устойч", "переломн", "тревожн", "срыв", "разладк", "аномал", "критическ", "режим"), "run_weak_signals",
+     "спрашивает про устойчивость / риск срыва в другой режим / предвестники"),
+    (("sensitiv", "assumption", "what drives", "most affect"), "run_sensitivity",
+     "asks what drives the result / which assumption matters most"),
+    (("tipping", "regime shift", "stabilit", "warning sign"), "run_weak_signals",
+     "asks about stability / tipping risk / early warnings"),
+    (("сколько нужно", "линейн", "порог", "насколько сильно"), "run_dose_response",
+     "спрашивает, сколько рычага нужно и линеен ли эффект"),
+    (("how much", "is it linear", "threshold"), "run_dose_response",
+     "asks how much lever is enough / whether the effect is linear"),
+]
+
+
+def _suggest_followup_tool(text: str, has_active_scenario: bool) -> tuple[str, str] | None:
+    if not has_active_scenario or not text:
+        return None
+    low = text.lower()
+    for stems, tool, reason in _FOLLOWUP_HINTS:
+        if any(stem in low for stem in stems):
+            return tool, reason
+    return None
+
+_LEVER_ITEM_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "lever": {"type": "string", "enum": list(L.GROUNDED_LEVERS.keys())},
+        "magnitude": {"type": "number", "description": "Intensity 0.15-1.25 (default 0.6)."},
+    },
+    "required": ["lever"],
+}
+
+_METRIC_ENUM_ALL = ["world_gdp", "world_population", "temperature", "co2", "n_debt_crises",
+                    "n_regime_crises", "n_wars", "mean_social_tension", "conflict_risk"]
+_METRIC_ENUM_SENSITIVITY = ["world_gdp", "temperature", "co2", "mean_social_tension"]
 
 TOOLS: list[dict[str, Any]] = [
     {
@@ -83,23 +196,114 @@ TOOLS: list[dict[str, Any]] = [
                     "levers": {
                         "type": "array",
                         "description": "Explicit grounded levers when no archetype fits.",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "lever": {
-                                    "type": "string",
-                                    "enum": list(L.GROUNDED_LEVERS.keys()),
-                                },
-                                "magnitude": {"type": "number", "description": "Intensity 0.15-1.25 (default 0.6)."},
-                            },
-                            "required": ["lever"],
-                        },
+                        "items": _LEVER_ITEM_SCHEMA,
                     },
                     "actors": {
                         "type": "array",
                         "items": {"type": "string"},
                         "description": "Country names for trade/sanctions levers (optional).",
                     },
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_scenario",
+            "description": (
+                "Focused scenario-vs-baseline delta run: explicit grounded `levers` only, no cascade/"
+                "actors/threshold. Returns per-metric delta fans (median, IQR, 5-95) vs the validated "
+                "baseline. Cheaper and narrower than run_answer — use for a quick re-check or to set up a "
+                "sensitivity/weak-signals follow-up on the same scenario."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "levers": {"type": "array", "items": _LEVER_ITEM_SCHEMA},
+                    "actors": {"type": "array", "items": {"type": "string"}},
+                    "years": {"type": "integer", "description": "Horizon in years (default 10)."},
+                },
+                "required": ["levers"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_ensemble",
+            "description": (
+                "Pure baseline ensemble (no levers): per-metric uncertainty fans (median, IQR, 5-95) over "
+                "the priors. Use for 'how uncertain is the baseline' or to contrast against a scenario."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "years": {"type": "integer", "description": "Horizon in years (default 10)."},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_dose_response",
+            "description": (
+                "Sweeps ONE grounded lever's magnitude over a grid (0, 0.25, 0.5, 0.75, 1.0, 1.25) and "
+                "reports the terminal delta of one metric at each point. Use for 'how much of X is enough "
+                "to matter' or 'is the effect linear/threshold-like' questions."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "lever": {"type": "string", "enum": list(L.GROUNDED_LEVERS.keys())},
+                    "metric": {"type": "string", "enum": _METRIC_ENUM_ALL},
+                    "actors": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["lever"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_sensitivity",
+            "description": (
+                "Morris screening of the 33 calibrated parameters against one metric: returns mu* ranking "
+                "(which assumptions drive the output most). Optionally pass `levers` to screen AROUND an "
+                "already-established scenario instead of the plain baseline. Use for 'what assumption "
+                "matters most' / 'what are we uncertain about' questions."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "metric": {"type": "string", "enum": _METRIC_ENUM_SENSITIVITY},
+                    "levers": {"type": "array", "items": _LEVER_ITEM_SCHEMA,
+                              "description": "Optional: screen around this scenario instead of the baseline."},
+                    "actors": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["metric"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_weak_signals",
+            "description": (
+                "Scans a scenario's trajectory (or the baseline, if no levers) for early-warning signs: "
+                "Mahalanobis joint-state anomalies, per-metric structural breaks, and critical-slowing-down "
+                "trends. Use for 'is this scenario nearing a regime shift / tipping point' questions."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "levers": {"type": "array", "items": _LEVER_ITEM_SCHEMA,
+                              "description": "Optional: scan this scenario instead of the plain baseline."},
+                    "actors": {"type": "array", "items": {"type": "string"}},
+                    "years": {"type": "integer", "description": "Horizon in years, min 12 (default 20)."},
                 },
                 "required": [],
             },
@@ -134,19 +338,90 @@ class AssistantConfig:
     max_steps: int = 5
 
 
+_METRIC_SNIFF: list[tuple[tuple[str, ...], str]] = [
+    (("температур", "temperature", "потепл", "warming"), "temperature"),
+    (("co2", "выброс", "эмисс", "emission"), "co2"),
+    (("напряж", "tension", "конфликт", "conflict"), "mean_social_tension"),
+]
+
+
+def _sniff_metric(text: str) -> str:
+    low = text.lower()
+    for stems, metric in _METRIC_SNIFF:
+        if any(stem in low for stem in stems):
+            return metric
+    return "world_gdp"
+
+
 def run_assistant_turn(messages: list[dict[str, Any]], config: AssistantConfig,
-                       tool_executor: ToolExecutor, emit: Emit) -> None:
-    """Drive one assistant turn: tool-call loop until the model produces a text reply."""
+                       tool_executor: ToolExecutor, emit: Emit, *,
+                       active_levers: dict[str, float] | None = None,
+                       active_actors: list[str] | None = None) -> None:
+    """Drive one assistant turn: tool-call loop until the model produces a text reply.
+
+    `active_levers`/`active_actors` — the recipe of the last scenario successfully computed
+    in THIS session (the app tracks it; see AppState.activeSelection on the Swift side) — Layers
+    1+4: hands the model a structural fact ("a scenario is already established, and here it
+    is") instead of expecting it to infer that from its own past narration.
+
+    Emits a `trace` SSE event at each key decision point (system prompt actually sent,
+    forced-route decisions, each raw model step) — this is what the in-app "Трейс агента"
+    view renders; it exists because a soft "ROUTING HINT" system-prompt addition, even
+    layered on top of an explicit active-scenario block, was empirically NOT enough to make
+    DeepSeek-chat reliably switch off run_answer for an obvious run_sensitivity follow-up
+    (verified against real captured sessions) — hence Layer 3 below force-calls the matched
+    tool directly rather than just suggesting it, and the trace exists so this class of
+    "did the model even see the hint" question is answerable by looking, not re-guessing.
+    """
     if config.provider == "deterministic" or not REQUESTS_AVAILABLE:
         _deterministic_turn(messages, tool_executor, emit)
         return
 
-    convo: list[dict[str, Any]] = [{"role": "system", "content": SYSTEM_PROMPT}] + list(messages)
+    system_content = SYSTEM_PROMPT + _active_scenario_block(active_levers, active_actors)
+    emit("trace", {"kind": "system_prompt", "text": system_content})
+
+    last_user_text = _last_user(messages)
+    hint = _suggest_followup_tool(last_user_text, bool(active_levers))
+
+    if hint:
+        tool, reason = hint
+        emit("trace", {"kind": "forced_route",
+                       "text": f"forced {tool} — {reason} (active_levers={active_levers})"})
+        args: dict[str, Any] = {"levers": [f"{k}={v}" for k, v in (active_levers or {}).items()]}
+        if active_actors:
+            args["actors"] = list(active_actors)
+        if tool in ("run_sensitivity", "run_dose_response"):
+            args["metric"] = _sniff_metric(last_user_text)
+        if tool == "run_dose_response":
+            args["lever"] = next(iter((active_levers or {}).keys()), "growth")
+        emit("tool_call", {"name": tool, "args": args})
+        out = tool_executor(tool, args)
+        if out.get("result") is not None:
+            emit("run_result", out["result"])
+        # Ask the LLM to narrate the forced tool's result against the user's actual
+        # question — this keeps the reply natural-language while guaranteeing the RIGHT
+        # tool ran, rather than trusting the model to have chosen it itself.
+        convo = [{"role": "system", "content": system_content}] + list(messages) + [{
+            "role": "tool", "tool_call_id": tool, "name": tool, "content": str(out.get("summary", "")),
+        }]
+        try:
+            message = _chat(config, convo)
+            text = str(message.get("content") or "").strip() or str(out.get("summary", ""))
+        except Exception as exc:  # noqa: BLE001 — still deliver the forced tool's own summary
+            text = str(out.get("summary", "")) or f"(не удалось получить нарратив от модели: {exc})"
+        emit("trace", {"kind": "model_reply", "text": text})
+        emit("assistant_delta", {"text": text})
+        emit("done", {})
+        return
+
+    convo: list[dict[str, Any]] = [{"role": "system", "content": system_content}] + list(messages)
     last_summary = ""
     for _ in range(max(1, config.max_steps)):
         message = _chat(config, convo)
         content = str(message.get("content") or "")
         tool_calls = message.get("tool_calls") or []
+        emit("trace", {"kind": "model_step",
+                       "text": f"content={content!r} tool_calls={[c.get('function',{}).get('name') for c in tool_calls]}"})
         if not tool_calls:
             tool_calls = _extract_text_tool_calls(content)
         if not tool_calls:
@@ -163,6 +438,7 @@ def run_assistant_turn(messages: list[dict[str, Any]], config: AssistantConfig,
             out = tool_executor(name, args)
             if out.get("result") is not None:
                 emit("run_result", out["result"])
+            emit("trace", {"kind": "tool_result", "text": f"{name}: {str(out.get('summary',''))[:400]}"})
             last_summary = str(out.get("summary", "")) or last_summary
             convo.append({
                 "role": "tool",

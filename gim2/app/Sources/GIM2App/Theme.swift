@@ -1,26 +1,27 @@
 import SwiftUI
 
-// Locked visual language: direction B "Situation Amber", dark-only.
-// Reused verbatim from the v1 app (memory gim17-macos-app) — the v2 line keeps
-// the same design system.
+// Visual language: direction C "Steel Technocratic", dark-only. Replaces the
+// v1/v17 warm "Situation Amber" palette (gold on brown) with a near-monochrome
+// steel/white system — cool graphite surfaces, white text, a restrained
+// steel-blue accent used sparingly as a signal colour rather than a brand colour.
 enum Theme {
-    static let bg = Color(hex: 0x0E0F12)
-    static let surface = Color(hex: 0x17181D)
-    static let surface2 = Color(hex: 0x121317)
-    static let line = Color(hex: 0x2E2C28)
-    static let text = Color(hex: 0xECE6DD)
-    static let muted = Color(hex: 0x9A948A)
-    static let faint = Color(hex: 0x5A554D)
-    static let accent = Color(hex: 0xE0A458)
-    static let accentInk = Color(hex: 0x1A1407)
-    static let accentPress = Color(hex: 0xC98B3D)
-    static let ring = Color(hex: 0xE8B45A)
-    // Outcome bars — Variant 3: muted graphite ramp, gold only on the lead.
-    static let barRamp = [Color(hex: 0x736E64), Color(hex: 0x67625A), Color(hex: 0x5C5851), Color(hex: 0x524E48)]
+    static let bg = Color(hex: 0x0A0B0D)
+    static let surface = Color(hex: 0x15171B)
+    static let surface2 = Color(hex: 0x0F1013)
+    static let line = Color(hex: 0x2A2D33)
+    static let text = Color(hex: 0xF2F3F5)
+    static let muted = Color(hex: 0x9AA0AA)
+    static let faint = Color(hex: 0x5A5F68)
+    static let accent = Color(hex: 0x8FA8C9)
+    static let accentInk = Color(hex: 0x0A1420)
+    static let accentPress = Color(hex: 0x738DB0)
+    static let ring = Color(hex: 0xC9D2DC)
+    // Outcome bars — muted graphite ramp, steel-blue only on the lead.
+    static let barRamp = [Color(hex: 0x70747C), Color(hex: 0x656971), Color(hex: 0x5A5E66), Color(hex: 0x50545B)]
     // +/- outcome colours: clearly distinct green/coral, matched to the map legend
     // ("лучше базы" / "хуже базы") so bars and choropleth read the same.
-    static let deltaUp = Color(hex: 0x4FBF86)
-    static let deltaDown = Color(hex: 0xE07A5F)
+    static let deltaUp = Color(hex: 0x6FAE8C)
+    static let deltaDown = Color(hex: 0xC97D6E)
 
     static func ui(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight)

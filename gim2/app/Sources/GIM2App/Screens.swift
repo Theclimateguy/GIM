@@ -87,7 +87,7 @@ struct ExpertView: View {
                     (ExpertMode.scenario,    "Сценарий", "bolt.fill"),
                     (ExpertMode.ensemble,    "Ансамбли", "chart.line.uptrend.xyaxis"),
                     (ExpertMode.dose,        "Отклик",   "function"),
-                    (ExpertMode.sensitivity, "Чувствит.", "tornado"),
+                    (ExpertMode.sensitivity, "Чувствительность", "tornado"),
                     (ExpertMode.weak,        "Сигналы",  "waveform.path.ecg"),
                 ], selection: $mode)
 
@@ -296,11 +296,41 @@ private struct DosePane: View {
     }
 }
 
+// Shared: run Sensitivity/Weak signals against the plain baseline, or replay the exact lever
+// recipe behind a saved Compare-tab / Assistant run instead. --------------------------------- //
+
+private enum RunSource: Hashable {
+    case baseline
+    case saved(UUID)
+
+    /// Resolves to the "id=magnitude" lever items + affected actors compute_sensitivity/
+    /// compute_weak expect, or nil for the plain baseline (no lever overlay).
+    func resolve(in history: [ScenarioRecord]) -> (levers: [String], actors: [String]?)? {
+        guard case .saved(let id) = self, let rec = history.first(where: { $0.id == id }),
+              let sel = rec.selection, !sel.levers.isEmpty else { return nil }
+        return (sel.asLeverItems, sel.actors.isEmpty ? nil : sel.actors)
+    }
+}
+
+private struct SourceField: View {
+    @EnvironmentObject var app: AppState
+    @Binding var source: RunSource
+    var body: some View {
+        Field(label: "Источник", help: "Прогнать поверх базы или поверх уже сыгранного сценария (Сравнение / Ассистент)") {
+            Picker("", selection: $source) {
+                Text("База (без сценария)").tag(RunSource.baseline)
+                ForEach(app.history) { rec in Text(rec.label).tag(RunSource.saved(rec.id)) }
+            }.labelsHidden().pickerStyle(.menu).frame(width: 280)
+        }
+    }
+}
+
 // Чувствительность --------------------------------------------------------- //
 
 private struct SensitivityPane: View {
     @EnvironmentObject var app: AppState
     @State private var metric = "world_gdp"
+    @State private var source: RunSource = .baseline
     @State private var result: SensitivityResult?
     @State private var running = false
     @State private var error: String?
@@ -308,11 +338,15 @@ private struct SensitivityPane: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Panel(title: "Скрининг параметров (Morris)", icon: "tornado",
-                  caption: "какие параметры правят выходом (Рис. 3)") {
-                Field(label: "Метрика") {
-                    Picker("", selection: $metric) {
-                        ForEach(METRIC_OPTIONS, id: \.self) { Text(MetricLabel.of($0)).tag($0) }
-                    }.labelsHidden().pickerStyle(.menu).frame(width: 220)
+                  caption: "какие из 33 калиброванных параметров правят выходом (Рис. 3) · до ~1 мин") {
+                HStack(alignment: .top, spacing: 26) {
+                    Field(label: "Метрика") {
+                        Picker("", selection: $metric) {
+                            ForEach(METRIC_OPTIONS, id: \.self) { Text(MetricLabel.of($0)).tag($0) }
+                        }.labelsHidden().pickerStyle(.menu).frame(width: 220)
+                    }
+                    SourceField(source: $source)
+                    Spacer(minLength: 0)
                 }
             }
             HStack(spacing: 14) {
@@ -323,7 +357,8 @@ private struct SensitivityPane: View {
                 ExpandableChartCard(
                     title: "μ* по \(MetricLabel.of(result.metric))", icon: "tornado",
                     caption: "Morris · топ-параметры · нажмите, чтобы развернуть",
-                    note: "Скрининг Морриса: μ* — средний модуль элементарного эффекта параметра на метрику. Чем длиннее столбец, тем сильнее параметр правит выходом.",
+                    note: "Скрининг Морриса: μ* — средний модуль элементарного эффекта параметра на метрику. Чем длиннее столбец, тем сильнее параметр правит выходом."
+                        + (result.selection.map { " Наложен сценарий: " + $0.levers.map { "\($0.key)=\($0.value)" }.joined(separator: ", ") } ?? ""),
                     inlineHeight: 220, fullHeight: 460) { h in
                     TornadoChartView(params: result.projection.params, height: h)
                 }
@@ -334,9 +369,13 @@ private struct SensitivityPane: View {
 
     private func run() {
         running = true; error = nil
+        let resolved = source.resolve(in: app.history)
         Task { defer { running = false }
-            do { result = try await app.runSensitivity(.init(metric: metric, years: 10, r: 8, maxAgents: 30)) }
-            catch { self.error = "\(error)" } }
+            do {
+                result = try await app.runSensitivity(.init(
+                    metric: metric, years: 10, r: 8, maxAgents: 30,
+                    levers: resolved?.levers, actors: resolved?.actors))
+            } catch { self.error = "\(error)" } }
     }
 }
 
@@ -345,6 +384,8 @@ private struct SensitivityPane: View {
 private struct WeakPane: View {
     @EnvironmentObject var app: AppState
     @State private var lever = "energy_shock"
+    @State private var source: RunSource = .baseline
+    @State private var years = 20
     @State private var result: WeakResult?
     @State private var running = false
     @State private var error: String?
@@ -352,27 +393,67 @@ private struct WeakPane: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Panel(title: "Слабые сигналы (сценарий vs база)", icon: "waveform.path.ecg",
-                  caption: "Махаланобис-аномалии в динамике состояния") {
-                Field(label: "Рычаг") {
-                    Picker("", selection: $lever) {
-                        ForEach(app.ontology?.levers ?? []) { Text($0.labelRu).tag($0.id) }
-                    }.labelsHidden().pickerStyle(.menu).frame(width: 260)
+                  caption: "три метода раннего предупреждения на многомерной динамике состояния") {
+                HStack(alignment: .top, spacing: 26) {
+                    SourceField(source: $source)
+                    if case .baseline = source {
+                        Field(label: "Рычаг") {
+                            Picker("", selection: $lever) {
+                                ForEach(app.ontology?.levers ?? []) { Text($0.labelRu).tag($0.id) }
+                            }.labelsHidden().pickerStyle(.menu).frame(width: 260)
+                        }
+                    }
+                    ParamStepper(label: "Горизонт, лет", value: $years, range: 12...40)
+                    Spacer(minLength: 0)
+                }
+                if let resolved = source.resolve(in: app.history) {
+                    Text("Наложен сценарий: " + resolved.levers.joined(separator: ", "))
+                        .font(Theme.ui(11)).foregroundStyle(Theme.muted)
                 }
             }
             HStack(spacing: 14) {
                 RunButton(title: "Сканировать динамику", running: running, action: run)
                 ErrorLine(text: error); Spacer(minLength: 0)
             }
-            if let m = result?.weakSignals.mahalanobis {
-                Panel(title: "Аномалии: \(m.nAnomalies ?? 0) шагов", icon: "waveform.path.ecg") {
-                    if let t = m.threshold {
-                        Text(String(format: "порог χ²: %.2f", t)).font(Theme.ui(12)).foregroundStyle(Theme.muted)
+
+            if let signals = result?.weakSignals {
+                if let m = signals.mahalanobis, let d2 = m.distanceSq, let anomaly = m.anomaly, let t = m.threshold {
+                    ExpandableChartCard(
+                        title: "Махаланобис-аномалии — \(m.nAnomalies ?? 0) из \(d2.count) шагов", icon: "waveform.path.ecg",
+                        caption: "совместное отклонение состояния от базового периода · нажмите, чтобы развернуть",
+                        note: "Квадрат расстояния Махаланобиса между совместным состоянием \(m.dims ?? signals.dimensions?.count ?? 0) измерений на каждом шаге и распределением первой половины траектории (с учётом ковариации между измерениями). Пунктир — порог χ² на уровне 99%; точки над ним (красные) — шаги, где система вышла в необычную область многомерного пространства состояний относительно своей же истории.",
+                        inlineHeight: 170, fullHeight: 380) { h in
+                        MahalanobisChartView(distanceSq: d2, anomaly: anomaly, threshold: t, height: h)
                     }
-                    if let d = result?.weakSignals.dimensions {
-                        Text("измерения: " + d.joined(separator: ", "))
-                            .font(Theme.ui(11)).foregroundStyle(Theme.muted)
+                }
+
+                if let breaks = signals.structuralBreaks, !breaks.isEmpty {
+                    Panel(title: "Структурные сдвиги по измерениям", icon: "arrow.triangle.branch",
+                          caption: "вероятность смены уровня динамики (Байес, BIC-штраф) · где именно") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(breaks.sorted(by: { $0.value.breakProb > $1.value.breakProb }), id: \.key) { name, b in
+                                BreakRow(name: name, b: b)
+                            }
+                        }
                     }
-                    Text("Вероятность разладки и критическое замедление — в сыром payload weak_signals.")
+                }
+
+                if let ew = signals.earlyWarning, !ew.isEmpty {
+                    Panel(title: "Критическое замедление (экспериментально)", icon: "gauge.with.dots.needle.bottom.50percent",
+                          caption: "рост автокорреляции + дисперсии — предвестник смены режима") {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("На одиночной детерминированной траектории тренд может отражать динамику самого сценария, а не истинное критическое замедление — метод валиден в полную силу только на стохастическом ансамбле. Читайте «есть сигнал» как повод присмотреться, не как подтверждённый диагноз.")
+                                .font(Theme.ui(10.5)).foregroundStyle(Theme.faint)
+                                .fixedSize(horizontal: false, vertical: true)
+                            ForEach(ew.sorted(by: { abs($0.value.combined) > abs($1.value.combined) }), id: \.key) { name, w in
+                                EarlyWarningRow(name: name, w: w)
+                            }
+                        }
+                    }
+                }
+
+                if let dims = signals.dimensions, !dims.isEmpty {
+                    Text("Измерения состояния: " + dims.map { MetricLabel.of($0) }.joined(separator: ", "))
                         .font(Theme.ui(10.5)).foregroundStyle(Theme.faint)
                 }
             }
@@ -381,8 +462,55 @@ private struct WeakPane: View {
 
     private func run() {
         running = true; error = nil
+        let resolved = source.resolve(in: app.history)
+        let req = WeakRequest(levers: resolved?.levers ?? [lever], actors: resolved?.actors,
+                              years: years, maxAgents: 30)
         Task { defer { running = false }
-            do { result = try await app.runWeak(WeakRequest(levers: [lever], years: 12, maxAgents: 30)) }
+            do { result = try await app.runWeak(req) }
             catch { self.error = "\(error)" } }
+    }
+}
+
+private struct BreakRow: View {
+    let name: String
+    let b: WeakResult.StructuralBreak
+    var body: some View {
+        HStack(spacing: 10) {
+            Text(MetricLabel.of(name)).font(Theme.ui(12)).foregroundStyle(Theme.text)
+                .frame(width: 150, alignment: .leading)
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3).fill(Theme.surface2).frame(height: 6)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(b.breakProb > 0.5 ? Theme.deltaDown : Theme.accent)
+                        .frame(width: max(2, geo.size.width * CGFloat(min(max(b.breakProb, 0), 1))), height: 6)
+                }
+            }.frame(height: 6)
+            Text(String(format: "%.0f%%", b.breakProb * 100))
+                .font(Theme.mono(11.5)).foregroundStyle(Theme.text).frame(width: 42, alignment: .trailing)
+            Text(b.location.map { "год \($0)" } ?? "—")
+                .font(Theme.mono(10.5)).foregroundStyle(Theme.faint).frame(width: 50, alignment: .trailing)
+        }
+    }
+}
+
+private struct EarlyWarningRow: View {
+    let name: String
+    let w: WeakResult.EarlyWarning
+    private var arrow: String { w.combined > 0.15 ? "arrow.up.right" : (w.combined < -0.15 ? "arrow.down.right" : "arrow.right") }
+    private var color: Color { w.warning ? Theme.deltaDown : Theme.muted }
+    var body: some View {
+        HStack(spacing: 10) {
+            Text(MetricLabel.of(name)).font(Theme.ui(12)).foregroundStyle(Theme.text)
+                .frame(width: 150, alignment: .leading)
+            Image(systemName: arrow).font(.system(size: 11, weight: .semibold)).foregroundStyle(color)
+            Text(String(format: "%.2f", w.combined)).font(Theme.mono(11.5)).foregroundStyle(Theme.text)
+            if w.warning {
+                Text("сигнал").font(Theme.ui(10, .semibold)).foregroundStyle(Theme.accentInk)
+                    .padding(.horizontal, 7).padding(.vertical, 2)
+                    .background(Theme.deltaDown).clipShape(Capsule())
+            }
+            Spacer(minLength: 0)
+        }
     }
 }

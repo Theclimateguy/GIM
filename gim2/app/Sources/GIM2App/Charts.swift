@@ -215,17 +215,80 @@ struct DoseChartView: View {
     }
 }
 
-/// Morris tornado: parameter ranking (Fig. 3).
+/// Morris tornado: parameter ranking (Fig. 3). Bars are the RELATIVE share of the top
+/// driver's μ* (0–100%), not the raw μ* number — μ* is a unit-cube-normalized elementary
+/// effect with no intuitive scale on its own, so a bare "0.576" tells a reader nothing; "100%
+/// / 62% / 47%…" of the strongest driver does. Labels are human parameter names, not
+/// ECS_DEFAULT-style constants (ParamLabel — Models.swift).
+///
+/// Hand-laid-out rows (like BreakRow/EarlyWarningRow in Screens.swift), NOT a Swift Charts
+/// BarMark — Charts' y-axis category label and a leading bar annotation both want the same
+/// left column with no way to fine-tune their relative offset, so the label text and the "N%"
+/// number collided (overlapping when rows were packed tight enough for 8 params to fit). A
+/// plain VStack puts the label on its own line and the %/bar row right below it, so nothing
+/// competes for the same space.
 struct TornadoChartView: View {
     let params: [TornadoParam]
     var height: CGFloat? = nil
     var body: some View {
         let top = Array(params.prefix(8))
-        darkAxes(Chart(top) { p in
-            BarMark(x: .value("μ*", p.muStar), y: .value("параметр", p.name))
-                .foregroundStyle(Theme.accent.opacity(0.85))
-        })
-        .frame(height: height ?? CGFloat(max(120, top.count * 26)))
+        let maxMu = top.map(\.muStar).max() ?? 1
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(top) { p in
+                let pct = maxMu > 0 ? Int((p.muStar / maxMu * 100).rounded()) : 0
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(ParamLabel.of(p.name)).font(Theme.ui(11.5)).foregroundStyle(Theme.text)
+                        .lineLimit(1)
+                    HStack(spacing: 8) {
+                        Text("\(pct)%").font(Theme.mono(10)).foregroundStyle(Theme.muted)
+                            .frame(width: 32, alignment: .trailing)
+                        GeometryReader { geo in
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Theme.accent.opacity(0.85))
+                                .frame(width: max(2, geo.size.width * CGFloat(pct) / 100), height: 6)
+                        }.frame(height: 6)
+                    }
+                }
+            }
+        }
+        // minHeight, not height — this is a fixed-row-count list (8 rows of label+bar), not a
+        // continuously resizable chart; forcing it down to a caller's smaller inline/full
+        // height (tuned for the old Swift-Charts rendering) would just clip rows.
+        .frame(minHeight: height ?? 0, alignment: .top)
+    }
+}
+
+private struct MahaPoint: Identifiable {
+    let id = UUID(); let t: Int; let d2: Double; let anomaly: Bool
+}
+
+/// Weak signals: joint-state Mahalanobis distance over time vs the χ² anomaly threshold.
+/// Anomalous steps (distance above the threshold) are drawn as larger, coral points.
+struct MahalanobisChartView: View {
+    let distanceSq: [Double]
+    let anomaly: [Bool]
+    let threshold: Double
+    var height: CGFloat = 170
+    var body: some View {
+        let pts = distanceSq.indices.map { i in
+            MahaPoint(t: i, d2: distanceSq[i], anomaly: i < anomaly.count && anomaly[i])
+        }
+        let yHi = max(threshold, pts.map(\.d2).max() ?? threshold) * 1.12
+        darkAxes(
+            Chart(pts) { p in
+                LineMark(x: .value("шаг", p.t), y: .value("D²", p.d2))
+                    .foregroundStyle(Theme.accent).lineStyle(.init(lineWidth: 2))
+                    .interpolationMethod(.monotone)
+                PointMark(x: .value("шаг", p.t), y: .value("D²", p.d2))
+                    .foregroundStyle(p.anomaly ? Theme.deltaDown : Theme.accent.opacity(0.55))
+                    .symbolSize(p.anomaly ? 55 : 12)
+                RuleMark(y: .value("порог χ²", threshold))
+                    .foregroundStyle(Theme.deltaDown.opacity(0.75))
+                    .lineStyle(.init(lineWidth: 1, dash: [4, 3]))
+            }
+            .chartYScale(domain: 0...yHi)
+        )
+        .frame(height: height)
     }
 }
 

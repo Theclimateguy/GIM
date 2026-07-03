@@ -114,7 +114,8 @@ def _run_sensitivity(body, progress, cancel):
         state_csv=body.get("state_csv"), metric=str(body.get("metric", "world_gdp")),
         years=int(body.get("years", 10)), params=body.get("params"), r=int(body.get("r", 10)),
         levels=int(body.get("levels", 4)), max_agents=int(body.get("max_agents", 100)),
-        seed=int(body.get("seed", 2026)),
+        seed=int(body.get("seed", 2026)), levers=body.get("levers", []),
+        magnitude=body.get("magnitude"), actors=body.get("actors"),
     )
 
 
@@ -156,6 +157,64 @@ _HEAVY = {"ensemble", "scenario", "dose_response", "answer"}
 # --------------------------------------------------------------------------- #
 
 
+from .param_labels import label_ru as _param_label
+
+# name -> (label, unit suffix, is a 0-1 fraction that reads better as a percentage)
+_METRIC_RU: Dict[str, tuple] = {
+    "world_gdp": ("ВВП", "трлн $", False),
+    "world_population": ("население", "млрд чел.", False),
+    "temperature": ("температура", "°C", False),
+    "co2": ("CO2", "Гт/год", False),
+    "n_debt_crises": ("долговые кризисы", "случаев", False),
+    "n_regime_crises": ("кризисы режима", "случаев", False),
+    "n_wars": ("войны", "случаев", False),
+    "mean_social_tension": ("социальная напряжённость", "", True),
+    "conflict_risk": ("риск конфликта", "", True),
+}
+
+
+def _mlabel(metric: str) -> str:
+    return _METRIC_RU.get(metric, (metric, "", False))[0]
+
+
+def _lever_label(lever_id: str) -> str:
+    spec = L.GROUNDED_LEVERS.get(lever_id)
+    return getattr(spec, "label_ru", None) or lever_id
+
+
+def _recipe_ru(levers: Dict[str, float]) -> str:
+    return ", ".join(f"{_lever_label(k)} (уровень {v:.2g})" for k, v in levers.items())
+
+
+def _fmt_num(v: float) -> str:
+    """No scientific notation, no '0.000003' clutter — sensible decimals at every scale."""
+    av = abs(v)
+    if av < 0.005:
+        return "0"
+    if av >= 1000:
+        return f"{v:,.0f}".replace(",", " ")
+    if av >= 100:
+        return f"{v:.0f}"
+    if av >= 10:
+        return f"{v:.1f}"
+    return f"{v:.2f}"
+
+
+def _metric_value(metric: str, raw: float) -> str:
+    _, unit, is_pct = _METRIC_RU.get(metric, (metric, "", False))
+    v = raw * 100 if is_pct else raw
+    return f"{_fmt_num(v)}{'%' if is_pct else (' ' + unit if unit else '')}"
+
+
+def _metric_delta(metric: str, raw: float) -> str:
+    _, unit, is_pct = _METRIC_RU.get(metric, (metric, "", False))
+    v = raw * 100 if is_pct else raw
+    if abs(v) < (0.05 if is_pct else 0.005):
+        return "практически без изменений"
+    sign = "+" if v > 0 else "−"
+    return f"{sign}{_fmt_num(abs(v))}{'%' if is_pct else (' ' + unit if unit else '')}"
+
+
 def _summarize_answer(r: Dict[str, Any]) -> str:
     parts = [str(r.get("verdict", ""))]
     actors = r.get("actors", {}) or {}
@@ -167,6 +226,69 @@ def _summarize_answer(r: Dict[str, Any]) -> str:
     if th.get("note"):
         parts.append(str(th["note"]))
     return " · ".join(p for p in parts if p)
+
+
+def _summarize_scenario(r: Dict[str, Any]) -> str:
+    levers = (r.get("selection") or {}).get("levers") or {}
+    recipe = _recipe_ru(levers)
+    parts = []
+    for m in (r.get("projection") or {}).get("metrics", [])[:4]:
+        p50 = (m.get("delta") or {}).get("p50") or [0.0]
+        parts.append(f"{_mlabel(m['metric'])}: {_metric_delta(m['metric'], p50[-1])}")
+    return f"Сценарий «{recipe}» относительно базы — " + "; ".join(parts)
+
+
+def _summarize_ensemble(r: Dict[str, Any]) -> str:
+    parts = []
+    for m in (r.get("projection") or {}).get("metrics", [])[:4]:
+        metric = m["metric"]
+        p50 = (m.get("p50") or [0.0])[-1]
+        p5 = (m.get("p5") or [0.0])[-1]
+        p95 = (m.get("p95") or [0.0])[-1]
+        parts.append(f"{_mlabel(metric)}: {_metric_value(metric, p50)} "
+                     f"(разброс {_metric_value(metric, p5)}–{_metric_value(metric, p95)})")
+    return "База, без сценария (медиана и разброс 5–95%): " + "; ".join(parts)
+
+
+def _summarize_dose(r: Dict[str, Any]) -> str:
+    proj = r.get("projection") or {}
+    metric = proj.get("metric", "")
+    lever = _lever_label(str(r.get("lever", "")))
+    pts = list(zip(proj.get("x", []), proj.get("delta", [])))
+    lines = "; ".join(f"на уровне {x:.2f} — {_metric_delta(metric, d)}" for x, d in pts)
+    return f"Доза-отклик «{lever}» → {_mlabel(metric)}: {lines}"
+
+
+def _summarize_sensitivity(r: Dict[str, Any]) -> str:
+    params = (r.get("projection") or {}).get("params", [])[:5]
+    max_mu = max((p["mu_star"] for p in params), default=0) or 1
+    ranking = "; ".join(
+        f"{_param_label(p['name'])} — {round(p['mu_star'] / max_mu * 100)}%" for p in params
+    )
+    levers = (r.get("selection") or {}).get("levers") or {}
+    overlay = f" поверх сценария «{_recipe_ru(levers)}»" if levers else " (базовый сценарий)"
+    return (f"Чувствительность метрики «{_mlabel(r.get('metric', ''))}»{overlay} — "
+            f"вклад показан относительно самого влиятельного параметра (100%): {ranking}")
+
+
+def _summarize_weak(r: Dict[str, Any]) -> str:
+    ws = r.get("weak_signals") or {}
+    m = ws.get("mahalanobis") or {}
+    n = m.get("n_anomalies", 0)
+    total = len(m.get("distance_sq") or [])
+    parts = [f"необычных шагов: {n} из {total}" if n else "необычных шагов не найдено"]
+    breaks = ws.get("structural_breaks") or {}
+    if breaks:
+        top_name, top_b = max(breaks.items(), key=lambda kv: kv[1].get("break_prob", 0.0))
+        prob = round(top_b.get("break_prob", 0) * 100)
+        if prob >= 50:
+            parts.append(f"заметный структурный сдвиг у «{_mlabel(top_name)}» (уверенность {prob}%)")
+    ew = ws.get("early_warning") or {}
+    warns = [k for k, v in ew.items() if v.get("warning")]
+    if warns:
+        parts.append("критическое замедление (экспериментально, требует ансамбля для подтверждения): "
+                     + ", ".join(_mlabel(k) for k in warns))
+    return "; ".join(parts)
 
 
 def _assistant_executor(name: str, args: Dict[str, Any]) -> Dict[str, Any]:
@@ -196,6 +318,34 @@ def _assistant_executor(name: str, args: Dict[str, Any]) -> Dict[str, Any]:
                                     members=24, years=8, max_agents=57,
                                     threshold_members=16, cascade_members=20)
             return {"summary": _summarize_answer(result), "result": result}
+        if name == "run_scenario":
+            items = args.get("levers") or []
+            if not items:
+                return {"summary": "Уточните: какие рычаги прогнать?", "result": None}
+            result = S.compute_scenario(levers=items, actors=args.get("actors"),
+                                        members=40, years=int(args.get("years", 10)), max_agents=40)
+            return {"summary": _summarize_scenario(result), "result": result}
+        if name == "run_ensemble":
+            result = S.compute_ensemble(members=60, years=int(args.get("years", 10)), max_agents=40)
+            return {"summary": _summarize_ensemble(result), "result": result}
+        if name == "run_dose_response":
+            lever = str(args.get("lever") or "")
+            if lever not in L.GROUNDED_LEVERS:
+                return {"summary": f"Уточните рычаг: один из {', '.join(sorted(L.GROUNDED_LEVERS))}",
+                        "result": None}
+            result = compute_dose(lever=lever, metric=str(args.get("metric", "world_gdp")),
+                                  actors=args.get("actors"), members=40, years=10, max_agents=40)
+            return {"summary": _summarize_dose(result), "result": result}
+        if name == "run_sensitivity":
+            result = S.compute_sensitivity(metric=str(args.get("metric", "world_gdp")), years=10, r=8,
+                                           max_agents=20, levers=args.get("levers") or [],
+                                           actors=args.get("actors"))
+            return {"summary": _summarize_sensitivity(result), "result": result}
+        if name == "run_weak_signals":
+            years = max(12, int(args.get("years", 20)))
+            result = S.compute_weak(levers=args.get("levers") or [], actors=args.get("actors"),
+                                    years=years, max_agents=30)
+            return {"summary": _summarize_weak(result), "result": result}
     except (ValueError, KeyError) as exc:
         return {"summary": f"Не получилось: {exc}", "result": None}
     except Exception as exc:  # noqa: BLE001
@@ -354,10 +504,13 @@ class EngineHandler(BaseHTTPRequestHandler):
             base_url=str(body.get("base_url", "")),
         )
         messages = body.get("messages") or []
+        active_levers = body.get("active_levers") or None
+        active_actors = body.get("active_actors") or None
         self._sse_start()
         try:
             run_assistant_turn(messages, config, _assistant_executor,
-                               lambda ev, data: self._sse_emit(ev, data))
+                               lambda ev, data: self._sse_emit(ev, data),
+                               active_levers=active_levers, active_actors=active_actors)
         except Exception as exc:  # noqa: BLE001
             self._sse_emit("error", {"message": str(exc)})
 

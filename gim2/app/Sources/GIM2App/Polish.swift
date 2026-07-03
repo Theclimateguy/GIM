@@ -43,7 +43,7 @@ struct SplashView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 0) {
                             Text("GIM").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.text)
-                            Text("17").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.accent)
+                            Text("18").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.accent)
                         }
                         Text("DETERMINISTIC WORLD SIMULATOR")
                             .font(.system(size: 9, weight: .semibold)).tracking(2.5).foregroundStyle(Theme.accent)

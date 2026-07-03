@@ -4,9 +4,9 @@
 <meta charset="utf-8"/>
 <style>
   :root{
-    --bg:#0E0F12; --surface:#17181D; --surface2:#121317; --line:#2E2C28;
-    --text:#ECE6DD; --muted:#9A948A; --faint:#5A554D; --accent:#E0A458;
-    --green:#4FBF86; --coral:#E07A5F;
+    --bg:#0A0B0D; --surface:#15171B; --surface2:#0F1013; --line:#2A2D33;
+    --text:#F2F3F5; --muted:#9AA0AA; --faint:#5A5F68; --accent:#8FA8C9;
+    --green:#6FAE8C; --coral:#C97D6E;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;background:var(--bg);color:var(--text);
@@ -19,7 +19,7 @@
   h3{font-size:14px;font-weight:600;margin:0 0 5px;}
   p{font-size:12.5px;line-height:1.6;color:var(--text);margin:0 0 9px;}
   .muted{color:var(--muted);}
-  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(224,164,88,.35);}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(143,168,201,.35);}
   a:hover{border-bottom-color:var(--accent);}
   .repo{font-size:12px;color:var(--muted);margin:-14px 0 22px;}
   .toc{display:grid;grid-template-columns:1fr 1fr;gap:5px 22px;background:var(--surface);
@@ -43,7 +43,7 @@
   table.cap-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin:4px 0 14px;}
   table.cap-tbl th{text-align:left;color:var(--muted);font-size:9.5px;letter-spacing:.4px;
      text-transform:uppercase;padding:8px 14px 6px 0;border-bottom:1px solid var(--line);font-weight:600;}
-  table.cap-tbl td{padding:9px 14px 9px 0;border-bottom:1px solid #1f1e1b;color:var(--text);
+  table.cap-tbl td{padding:9px 14px 9px 0;border-bottom:1px solid #24262b;color:var(--text);
      vertical-align:top;line-height:1.5;}
   table.cap-tbl td.k{color:var(--accent);font-weight:600;}
   table.cap-tbl td .eg{color:var(--muted);}
@@ -58,7 +58,7 @@
     border-radius:6px;padding:1px 6px;margin-bottom:7px;letter-spacing:.4px;}
   figure{margin:0;background:#fbfbf9;border:1px solid var(--line);border-radius:10px;padding:12px;}
   figure img{width:100%;display:block;border-radius:4px;}
-  figcaption{font-size:10.5px;color:#5b5750;margin-top:8px;line-height:1.45;}
+  figcaption{font-size:10.5px;color:#6B7078;margin-top:8px;line-height:1.45;}
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 14px;}
   .kpi{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
   .kpi .v{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;}
@@ -102,7 +102,10 @@
     словами; ассистент сопоставляет его с заземлёнными рычагами, выполняет детерминированный прогон
     и возвращает структурированную «карту ответа»: вердикт, точку перелома, цепочку последствий по
     доменам и итоговые состояния стран. Все числовые величины вычисляются движком, а не языковой
-    моделью — ассистент лишь маршрутизирует запрос и интерпретирует результат.</p>
+    моделью — ассистент лишь маршрутизирует запрос и интерпретирует результат. При подключённой LLM
+    ассистенту доступны все режимы движка (не только карта ответа), диалоги разделены на именованные
+    сессии, а «Трейс агента» показывает сырое решение модели на каждом шаге — подробности на вкладке
+    «Инструкции».</p>
     <h4>Как пользоваться</h4>
     <ol class="howto">
       <li>Сформулируйте вопрос или описание сценария в поле ввода в нижней части экрана.</li>
@@ -145,8 +148,8 @@
             <td>Скрининг параметров методом Морриса.</td>
             <td>Диаграмма&nbsp;μ* — ранжирование параметров по силе влияния на метрику. <span class="eg">(Например, температуру определяет прежде всего равновесная чувствительность климата.)</span></td></tr>
         <tr><td class="k">Сигналы</td>
-            <td>Поиск аномалий в траектории по расстоянию Махаланобиса.</td>
-            <td>Число аномальных шагов и порог&nbsp;χ² — индикатор приближения структурного сдвига. <span class="eg">(Например, накопление неустойчивости перед кризисом.)</span></td></tr>
+            <td>Три метода раннего предупреждения: аномалии Махаланобиса, структурные сдвиги, критическое замедление.</td>
+            <td>Число аномальных шагов и порог&nbsp;χ², вероятность структурного сдвига по метрикам, тренд критического замедления (экспериментально — требует ансамбля для подтверждения). Горизонт настраивается (12–40&nbsp;лет). <span class="eg">(Например, накопление неустойчивости перед кризисом.)</span> Подробнее — вкладка «Инструкции».</td></tr>
       </tbody>
     </table>
 
@@ -216,39 +219,39 @@
       </defs>
       <!-- inputs -->
       <g>
-        <rect x="20"  y="14" width="270" height="46" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="155" y="34" fill="#ECE6DD" font-size="13" text-anchor="middle">Состояние стран</text>
-        <text x="155" y="50" fill="#9A948A" font-size="10.5" text-anchor="middle">CSV: ВВП, капитал, население, резервы</text>
-        <rect x="325" y="14" width="270" height="46" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="460" y="34" fill="#ECE6DD" font-size="13" text-anchor="middle">Литературные приоры</text>
-        <text x="460" y="50" fill="#9A948A" font-size="10.5" text-anchor="middle">33 ключевых параметра с источниками</text>
-        <rect x="630" y="14" width="270" height="46" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="765" y="34" fill="#ECE6DD" font-size="13" text-anchor="middle">Геометрия границ</text>
-        <text x="765" y="50" fill="#9A948A" font-size="10.5" text-anchor="middle">граф соседства стран</text>
+        <rect x="20"  y="14" width="270" height="46" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="155" y="34" fill="#F2F3F5" font-size="13" text-anchor="middle">Состояние стран</text>
+        <text x="155" y="50" fill="#9AA0AA" font-size="10.5" text-anchor="middle">CSV: ВВП, капитал, население, резервы</text>
+        <rect x="325" y="14" width="270" height="46" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="460" y="34" fill="#F2F3F5" font-size="13" text-anchor="middle">Литературные приоры</text>
+        <text x="460" y="50" fill="#9AA0AA" font-size="10.5" text-anchor="middle">33 ключевых параметра с источниками</text>
+        <rect x="630" y="14" width="270" height="46" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="765" y="34" fill="#F2F3F5" font-size="13" text-anchor="middle">Геометрия границ</text>
+        <text x="765" y="50" fill="#9AA0AA" font-size="10.5" text-anchor="middle">граф соседства стран</text>
       </g>
-      <line x1="155" y1="60" x2="155" y2="92" stroke="#5A554D" marker-end="url(#arr)"/>
-      <line x1="460" y1="60" x2="460" y2="92" stroke="#5A554D" marker-end="url(#arr)"/>
-      <line x1="765" y1="60" x2="765" y2="92" stroke="#5A554D" marker-end="url(#arr)"/>
+      <line x1="155" y1="60" x2="155" y2="92" stroke="#5A5F68" marker-end="url(#arr)"/>
+      <line x1="460" y1="60" x2="460" y2="92" stroke="#5A5F68" marker-end="url(#arr)"/>
+      <line x1="765" y1="60" x2="765" y2="92" stroke="#5A5F68" marker-end="url(#arr)"/>
 
       <!-- core -->
-      <rect x="20" y="94" width="880" height="232" rx="12" fill="#17181D" stroke="#2E2C28"/>
-      <text x="40" y="118" fill="#E0A458" font-size="12" font-weight="600">Детерминированное ядро — один шаг мира (1 год)</text>
+      <rect x="20" y="94" width="880" height="232" rx="12" fill="#15171B" stroke="#2A2D33"/>
+      <text x="40" y="118" fill="#8FA8C9" font-size="12" font-weight="600">Детерминированное ядро — один шаг мира (1 год)</text>
       <g font-size="12.5" text-anchor="middle">
-        <rect x="44"  y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="142" y="166" fill="#ECE6DD">Экономика</text>
-        <text x="142" y="184" fill="#9A948A" font-size="10.5">CES · деньги→цены · рост</text>
-        <rect x="256" y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="354" y="166" fill="#ECE6DD">Климат</text>
-        <text x="354" y="184" fill="#9A948A" font-size="10.5">выбросы→T (энергобаланс)</text>
-        <rect x="468" y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="566" y="166" fill="#ECE6DD">Ресурсы</text>
-        <text x="566" y="184" fill="#9A948A" font-size="10.5">энергия · еда · металлы</text>
-        <rect x="680" y="138" width="196" height="64" rx="9" fill="#121317" stroke="#2E2C28"/>
-        <text x="778" y="162" fill="#ECE6DD">Общество и</text>
-        <text x="778" y="178" fill="#ECE6DD">геополитика</text>
+        <rect x="44"  y="138" width="196" height="64" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="142" y="166" fill="#F2F3F5">Экономика</text>
+        <text x="142" y="184" fill="#9AA0AA" font-size="10.5">CES · деньги→цены · рост</text>
+        <rect x="256" y="138" width="196" height="64" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="354" y="166" fill="#F2F3F5">Климат</text>
+        <text x="354" y="184" fill="#9AA0AA" font-size="10.5">выбросы→T (энергобаланс)</text>
+        <rect x="468" y="138" width="196" height="64" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="566" y="166" fill="#F2F3F5">Ресурсы</text>
+        <text x="566" y="184" fill="#9AA0AA" font-size="10.5">энергия · еда · металлы</text>
+        <rect x="680" y="138" width="196" height="64" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="778" y="162" fill="#F2F3F5">Общество и</text>
+        <text x="778" y="178" fill="#F2F3F5">геополитика</text>
       </g>
       <!-- coupling arrows between modules -->
-      <g stroke="#5A554D">
+      <g stroke="#5A5F68">
         <line x1="240" y1="170" x2="256" y2="170" marker-end="url(#arr)"/>
         <line x1="256" y1="182" x2="240" y2="182" marker-end="url(#arr)"/>
         <line x1="452" y1="170" x2="468" y2="170" marker-end="url(#arr)"/>
@@ -257,31 +260,31 @@
         <line x1="680" y1="182" x2="664" y2="182" marker-end="url(#arr)"/>
       </g>
       <!-- geo band -->
-      <rect x="44" y="246" width="832" height="40" rx="8" fill="#1b1a17" stroke="#2E2C28"/>
-      <text x="460" y="271" fill="#E0A458" font-size="11.5" text-anchor="middle">Географическая связность — торговля (гравитация), пространственное распространение конфликта · напряжённости · климата</text>
-      <text x="460" y="306" fill="#9A948A" font-size="10.5" text-anchor="middle">модули связаны двусторонне: цены ресурсов → экономика → выбросы → климат → урожай/стресс → общество → безопасность → торговля</text>
+      <rect x="44" y="246" width="832" height="40" rx="8" fill="#24262b" stroke="#2A2D33"/>
+      <text x="460" y="271" fill="#8FA8C9" font-size="11.5" text-anchor="middle">Географическая связность — торговля (гравитация), пространственное распространение конфликта · напряжённости · климата</text>
+      <text x="460" y="306" fill="#9AA0AA" font-size="10.5" text-anchor="middle">модули связаны двусторонне: цены ресурсов → экономика → выбросы → климат → урожай/стресс → общество → безопасность → торговля</text>
 
-      <line x1="460" y1="326" x2="460" y2="356" stroke="#5A554D" marker-end="url(#arr)"/>
+      <line x1="460" y1="326" x2="460" y2="356" stroke="#5A5F68" marker-end="url(#arr)"/>
       <!-- ensemble -->
-      <rect x="250" y="358" width="420" height="44" rx="9" fill="#121317" stroke="#2E2C28"/>
-      <text x="460" y="378" fill="#ECE6DD" font-size="12.5" text-anchor="middle">Ансамбль Монте-Карло</text>
-      <text x="460" y="393" fill="#9A948A" font-size="10.5" text-anchor="middle">выборка приоров → распределения траекторий</text>
-      <line x1="460" y1="402" x2="460" y2="430" stroke="#5A554D" marker-end="url(#arr)"/>
+      <rect x="250" y="358" width="420" height="44" rx="9" fill="#0F1013" stroke="#2A2D33"/>
+      <text x="460" y="378" fill="#F2F3F5" font-size="12.5" text-anchor="middle">Ансамбль Монте-Карло</text>
+      <text x="460" y="393" fill="#9AA0AA" font-size="10.5" text-anchor="middle">выборка приоров → распределения траекторий</text>
+      <line x1="460" y1="402" x2="460" y2="430" stroke="#5A5F68" marker-end="url(#arr)"/>
 
       <!-- outputs -->
       <g font-size="11.5" text-anchor="middle">
-        <rect x="20"  y="432" width="210" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
-        <text x="125" y="458" fill="#ECE6DD">Веера</text>
-        <text x="125" y="474" fill="#9A948A" font-size="10">медиана · IQR · 5–95</text>
-        <rect x="243" y="432" width="210" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
-        <text x="348" y="458" fill="#ECE6DD">Каскад по доменам</text>
-        <text x="348" y="474" fill="#9A948A" font-size="10">цепочка последствий</text>
-        <rect x="466" y="432" width="210" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
-        <text x="571" y="458" fill="#ECE6DD">Карта стран</text>
-        <text x="571" y="474" fill="#9A948A" font-size="10">выигравшие / проигравшие</text>
-        <rect x="689" y="432" width="211" height="58" rx="9" fill="#17181D" stroke="#2E2C28"/>
-        <text x="794" y="458" fill="#ECE6DD">Пороги</text>
-        <text x="794" y="474" fill="#9A948A" font-size="10">точки перелома</text>
+        <rect x="20"  y="432" width="210" height="58" rx="9" fill="#15171B" stroke="#2A2D33"/>
+        <text x="125" y="458" fill="#F2F3F5">Веера</text>
+        <text x="125" y="474" fill="#9AA0AA" font-size="10">медиана · IQR · 5–95</text>
+        <rect x="243" y="432" width="210" height="58" rx="9" fill="#15171B" stroke="#2A2D33"/>
+        <text x="348" y="458" fill="#F2F3F5">Каскад по доменам</text>
+        <text x="348" y="474" fill="#9AA0AA" font-size="10">цепочка последствий</text>
+        <rect x="466" y="432" width="210" height="58" rx="9" fill="#15171B" stroke="#2A2D33"/>
+        <text x="571" y="458" fill="#F2F3F5">Карта стран</text>
+        <text x="571" y="474" fill="#9AA0AA" font-size="10">выигравшие / проигравшие</text>
+        <rect x="689" y="432" width="211" height="58" rx="9" fill="#15171B" stroke="#2A2D33"/>
+        <text x="794" y="458" fill="#F2F3F5">Пороги</text>
+        <text x="794" y="474" fill="#9AA0AA" font-size="10">точки перелома</text>
       </g>
     </svg>
     <div class="legend">Поток: входные данные → детерминированное ядро (связанные модули) → ансамбль неопределённости → выходные представления.</div>
@@ -350,30 +353,30 @@
   <div class="panel" style="padding:4px 16px 8px">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
       <thead>
-        <tr style="text-align:left;color:#9A948A;font-size:10px;letter-spacing:.5px;text-transform:uppercase">
-          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2E2C28">Домен</th>
-          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2E2C28">Данные</th>
-          <th style="padding:9px 0 7px 0;border-bottom:1px solid #2E2C28">Источники</th>
+        <tr style="text-align:left;color:#9AA0AA;font-size:10px;letter-spacing:.5px;text-transform:uppercase">
+          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2A2D33">Домен</th>
+          <th style="padding:9px 10px 7px 0;border-bottom:1px solid #2A2D33">Данные</th>
+          <th style="padding:9px 0 7px 0;border-bottom:1px solid #2A2D33">Источники</th>
         </tr>
       </thead>
-      <tbody style="color:#ECE6DD">
-        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Экономика</td>
-            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">ВВП, население, капитал, производительность</td>
-            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">World Bank (WDI), IMF, Penn World Table</td></tr>
-        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Климат</td>
-            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">выбросы CO₂, наблюдаемая температура</td>
-            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Global Carbon Project, NOAA / HadCRUT</td></tr>
-        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Ресурсы</td>
-            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">продовольствие; энергетические и металлические балансы</td>
-            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">FAO; публичная отраслевая статистика</td></tr>
-        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Общество и геополитика</td>
-            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">вооружённые конфликты, бедствия, институты/режим, госдолг</td>
-            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">UCDP GED, EM-DAT, V-Dem / Polity, World Bank</td></tr>
-        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">Геометрия</td>
-            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #1f1e1b;color:#9A948A;vertical-align:top">границы стран (граф соседства)</td>
-            <td style="padding:8px 0 8px 0;border-bottom:1px solid #1f1e1b;vertical-align:top">общедоступный мировой GeoJSON</td></tr>
+      <tbody style="color:#F2F3F5">
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;vertical-align:top">Экономика</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;color:#9AA0AA;vertical-align:top">ВВП, население, капитал, производительность</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #24262b;vertical-align:top">World Bank (WDI), IMF, Penn World Table</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;vertical-align:top">Климат</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;color:#9AA0AA;vertical-align:top">выбросы CO₂, наблюдаемая температура</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #24262b;vertical-align:top">Global Carbon Project, NOAA / HadCRUT</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;vertical-align:top">Ресурсы</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;color:#9AA0AA;vertical-align:top">продовольствие; энергетические и металлические балансы</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #24262b;vertical-align:top">FAO; публичная отраслевая статистика</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;vertical-align:top">Общество и геополитика</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;color:#9AA0AA;vertical-align:top">вооружённые конфликты, бедствия, институты/режим, госдолг</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #24262b;vertical-align:top">UCDP GED, EM-DAT, V-Dem / Polity, World Bank</td></tr>
+        <tr><td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;vertical-align:top">Геометрия</td>
+            <td style="padding:8px 10px 8px 0;border-bottom:1px solid #24262b;color:#9AA0AA;vertical-align:top">границы стран (граф соседства)</td>
+            <td style="padding:8px 0 8px 0;border-bottom:1px solid #24262b;vertical-align:top">общедоступный мировой GeoJSON</td></tr>
         <tr><td style="padding:8px 10px 4px 0;vertical-align:top">Приоры (калибровка)</td>
-            <td style="padding:8px 10px 4px 0;color:#9A948A;vertical-align:top">33 ключевых параметра с распределениями</td>
+            <td style="padding:8px 10px 4px 0;color:#9AA0AA;vertical-align:top">33 ключевых параметра с распределениями</td>
             <td style="padding:8px 0 4px 0;vertical-align:top">рецензируемая литература (см. Валидацию)</td></tr>
       </tbody>
     </table>
@@ -392,31 +395,31 @@
       </defs>
       <!-- lane headers -->
       <g text-anchor="middle">
-        <rect x="35"  y="6" width="150" height="40" rx="9" fill="#121317" stroke="#2E2C28"/><text x="110" y="31" fill="#ECE6DD" font-size="12.5">Пользователь</text>
-        <rect x="275" y="6" width="150" height="40" rx="9" fill="#17181D" stroke="#2E2C28"/><text x="350" y="31" fill="#ECE6DD" font-size="12.5">Приложение</text>
-        <rect x="515" y="6" width="150" height="40" rx="9" fill="#17181D" stroke="#2E2C28"/><text x="590" y="31" fill="#ECE6DD" font-size="12.5">Движок</text>
-        <rect x="730" y="6" width="190" height="40" rx="9" fill="#1b1a17" stroke="#2E2C28"/>
-        <text x="825" y="26" fill="#E0A458" font-size="12">Языковая модель</text><text x="825" y="39" fill="#9A948A" font-size="9">OpenAI / Ollama / без LLM</text>
+        <rect x="35"  y="6" width="150" height="40" rx="9" fill="#0F1013" stroke="#2A2D33"/><text x="110" y="31" fill="#F2F3F5" font-size="12.5">Пользователь</text>
+        <rect x="275" y="6" width="150" height="40" rx="9" fill="#15171B" stroke="#2A2D33"/><text x="350" y="31" fill="#F2F3F5" font-size="12.5">Приложение</text>
+        <rect x="515" y="6" width="150" height="40" rx="9" fill="#15171B" stroke="#2A2D33"/><text x="590" y="31" fill="#F2F3F5" font-size="12.5">Движок</text>
+        <rect x="730" y="6" width="190" height="40" rx="9" fill="#24262b" stroke="#2A2D33"/>
+        <text x="825" y="26" fill="#8FA8C9" font-size="12">Языковая модель</text><text x="825" y="39" fill="#9AA0AA" font-size="9">OpenAI / Ollama / без LLM</text>
       </g>
       <!-- lifelines -->
-      <g stroke="#2E2C28" stroke-dasharray="2 4">
+      <g stroke="#2A2D33" stroke-dasharray="2 4">
         <line x1="110" y1="46" x2="110" y2="398"/><line x1="350" y1="46" x2="350" y2="398"/>
         <line x1="590" y1="46" x2="590" y2="398"/><line x1="825" y1="46" x2="825" y2="398"/>
       </g>
       <!-- messages -->
-      <g font-size="10" fill="#9A948A" text-anchor="middle">
-        <line x1="110" y1="80"  x2="350" y2="80"  stroke="#5A554D" marker-end="url(#ams)"/><text x="230" y="74">1 · вопрос</text>
-        <line x1="350" y1="112" x2="590" y2="112" stroke="#5A554D" marker-end="url(#ams)"/><text x="470" y="106">2 · POST /assistant</text>
-        <line x1="590" y1="150" x2="825" y2="150" stroke="#5A554D" marker-end="url(#ams)"/><text x="707" y="144">3 · промпт + вопрос + инструменты</text>
-        <line x1="825" y1="186" x2="590" y2="186" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="180">4 · tool_call: run_answer</text>
-        <line x1="590" y1="186" x2="590" y2="206" stroke="#5A554D"/>
-        <rect x="452" y="206" width="276" height="36" rx="8" fill="#121317" stroke="#2E2C28"/>
-        <text x="590" y="229" fill="#ECE6DD" font-size="11">5 · compute_answer — детерминированный прогон</text>
-        <line x1="590" y1="242" x2="590" y2="264" stroke="#5A554D"/>
-        <line x1="590" y1="266" x2="825" y2="266" stroke="#5A554D" marker-end="url(#ams)"/><text x="707" y="260">6 · результат прогона</text>
-        <line x1="825" y1="300" x2="590" y2="300" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="294">7 · интерпретация (язык польз.)</text>
-        <line x1="590" y1="334" x2="350" y2="334" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="470" y="328">8 · SSE: tool_call · run_result · текст</text>
-        <line x1="350" y1="368" x2="110" y2="368" stroke="#5A554D" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="230" y="362">9 · Ситуационная комната</text>
+      <g font-size="10" fill="#9AA0AA" text-anchor="middle">
+        <line x1="110" y1="80"  x2="350" y2="80"  stroke="#5A5F68" marker-end="url(#ams)"/><text x="230" y="74">1 · вопрос</text>
+        <line x1="350" y1="112" x2="590" y2="112" stroke="#5A5F68" marker-end="url(#ams)"/><text x="470" y="106">2 · POST /assistant</text>
+        <line x1="590" y1="150" x2="825" y2="150" stroke="#5A5F68" marker-end="url(#ams)"/><text x="707" y="144">3 · промпт + вопрос + инструменты</text>
+        <line x1="825" y1="186" x2="590" y2="186" stroke="#5A5F68" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="180">4 · tool_call: run_answer</text>
+        <line x1="590" y1="186" x2="590" y2="206" stroke="#5A5F68"/>
+        <rect x="452" y="206" width="276" height="36" rx="8" fill="#0F1013" stroke="#2A2D33"/>
+        <text x="590" y="229" fill="#F2F3F5" font-size="11">5 · compute_answer — детерминированный прогон</text>
+        <line x1="590" y1="242" x2="590" y2="264" stroke="#5A5F68"/>
+        <line x1="590" y1="266" x2="825" y2="266" stroke="#5A5F68" marker-end="url(#ams)"/><text x="707" y="260">6 · результат прогона</text>
+        <line x1="825" y1="300" x2="590" y2="300" stroke="#5A5F68" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="707" y="294">7 · интерпретация (язык польз.)</text>
+        <line x1="590" y1="334" x2="350" y2="334" stroke="#5A5F68" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="470" y="328">8 · SSE: tool_call · run_result · текст</text>
+        <line x1="350" y1="368" x2="110" y2="368" stroke="#5A5F68" stroke-dasharray="3 3" marker-end="url(#ams)"/><text x="230" y="362">9 · Ситуационная комната</text>
       </g>
     </svg>
     <div class="legend">Числа — <b class="a">всегда из движка</b>. Шаги 3–7 — цикл инструментов: повторяются, пока модель не

@@ -248,23 +248,70 @@ def compute_scenario(
 
 def compute_sensitivity(
     *, state_csv=None, metric="world_gdp", years=10, params=None, r=10, levels=4,
-    max_agents=100, seed=2026,
+    max_agents=100, seed=2026, levers=(), magnitude=None, actors=None,
 ) -> Dict[str, Any]:
-    from gim import scc as scc_mod
+    from gim.core.params import default_params
+    from gim.core.policy import make_policy_map
     from gim.core.priors import key_priors
-    from gim.sensitivity import bounds_for, morris, make_output_fn
+    from gim.core.rng import seed_world
+    from gim.core.simulation import step_world
+    from gim.core.world_factory import make_world_from_csv
+    from gim.sensitivity import bounds_for, make_output_fn, morris
 
     priors = key_priors()
     if params:
         names = [n for n in params if n in priors]
         missing = [n for n in params if n not in priors]
     else:
-        names = [n for n in scc_mod.SCC_PRIOR_PARAMS if n in priors]
+        # Screen the full validated prior set (33 params), not just the 7 SCC-discounting
+        # params — that narrower list was originally reused from gim.scc and left 2 of its 7
+        # entries (ELASTICITY_MARGINAL_UTILITY, PURE_TIME_PREFERENCE) structurally unable to
+        # move ANY of the four selectable metrics (they only feed the SCC valuation, never the
+        # simulated economy/climate/society state), so the tornado ranking always showed the
+        # same narrow, partly-dead set regardless of which metric was picked.
+        names = list(priors.keys())
         missing = []
     if not names:
         raise ValueError("no sensitivity parameters resolved against the priors")
-    fn = make_output_fn(metric, state_csv or default_state_csv(), years=int(years),
-                        max_agents=int(max_agents), base_year=2023, seed=int(seed))
+
+    selection = _selection_from_items(levers, magnitude, actors) if levers else L.LeverSelection()
+    csv = state_csv or default_state_csv()
+
+    if selection.is_empty:
+        # No scenario overlay: identical to the plain-baseline screening (unchanged path).
+        fn = make_output_fn(metric, csv, years=int(years), max_agents=int(max_agents),
+                            base_year=2023, seed=int(seed))
+    else:
+        # Screen the 33 params around a SCENARIO-perturbed world instead of the plain baseline —
+        # same per-year lever injection compute_scenario/compute_weak use (gim2.levers.run_member),
+        # so "which params drive this metric" can be asked *given* a lever combo is already active.
+        base = default_params()
+
+        def _metric_value(world) -> float:
+            agents = world.agents.values()
+            if metric == "temperature":
+                return float(world.global_state.temperature_global)
+            if metric == "co2":
+                return float(world.global_state.co2)
+            if metric == "world_gdp":
+                return float(sum(a.economy.gdp for a in agents))
+            if metric == "mean_social_tension":
+                t = [a.society.social_tension for a in agents]
+                return float(sum(t) / len(t)) if t else 0.0
+            raise ValueError(f"Unknown output metric: {metric}")
+
+        def fn(overrides: Dict[str, float]) -> float:
+            ps = L.apply_param_levers(base.with_overrides(overrides), selection)
+            world = make_world_from_csv(csv, max_agents=int(max_agents), base_year=2023)
+            world.params = ps
+            seed_world(world, int(seed))
+            policies = make_policy_map(world.agents.keys(), mode="simple")
+            actor_ids = L.resolve_actors(world, selection.actors)
+            for t in range(1, int(years) + 1):
+                step_world(world, policies)
+                L.apply_pulses(world, t, selection, actor_ids)
+            return _metric_value(world)
+
     result = morris(names, bounds_for(priors, names), fn, r=int(r), levels=int(levels), seed=int(seed))
     out = {
         "schema": SCHEMA,
@@ -272,6 +319,7 @@ def compute_sensitivity(
         "metric": metric,
         "config": {"years": int(years), "max_agents": int(max_agents), "seed": int(seed),
                    "r": int(r), "levels": int(levels), "params": names},
+        "selection": selection.to_dict(),
         "projection": P.tornado_projection(metric, result),
     }
     if missing:
@@ -472,13 +520,21 @@ def run_scenario_cli(args) -> Dict[str, Any]:
 
 
 def run_sensitivity_cli(args) -> Dict[str, Any]:
+    levers = getattr(args, "lever", []) or []
+    magnitude = getattr(args, "magnitude", None)
+    actors = getattr(args, "actors", None)
     out = compute_sensitivity(state_csv=args.state_csv, metric=args.metric, years=args.years,
                               params=args.params, r=args.r, levels=args.levels,
-                              max_agents=args.max_agents, seed=args.seed)
+                              max_agents=args.max_agents, seed=args.seed,
+                              levers=levers, magnitude=magnitude, actors=actors)
     cli = ["python3", "-m", "gim2", "sensitivity", "--metric", args.metric, "--years", args.years,
            "--r", args.r, "--levels", args.levels, *_world_cli(args)]
     if args.params:
         cli += ["--params", *args.params]
+    for lid in levers:
+        cli += ["--lever", lid]
+    if magnitude is not None:
+        cli += ["--magnitude", magnitude]
     out["equiv_cli"] = _equiv(cli)
     return out
 
