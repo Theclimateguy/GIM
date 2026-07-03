@@ -6,7 +6,7 @@ import SwiftUI
 
 private let METRIC_OPTIONS = ["world_gdp", "temperature", "co2", "mean_social_tension"]
 
-enum ExpertMode: Hashable { case scenario, ensemble, dose, sensitivity, weak }
+enum ExpertMode: Hashable { case scenario, ensemble, dose, sensitivity, weak, policyGame }
 
 // Shared atoms ------------------------------------------------------------- //
 
@@ -89,6 +89,7 @@ struct ExpertView: View {
                     (ExpertMode.dose,        "Отклик",   "function"),
                     (ExpertMode.sensitivity, "Чувствительность", "tornado"),
                     (ExpertMode.weak,        "Сигналы",  "waveform.path.ecg"),
+                    (ExpertMode.policyGame,  "Ролевая игра", "person.2.wave.2.fill"),
                 ], selection: $mode)
 
                 switch mode {
@@ -97,6 +98,7 @@ struct ExpertView: View {
                 case .dose:        DosePane()
                 case .sensitivity: SensitivityPane()
                 case .weak:        WeakPane()
+                case .policyGame:  PolicyGamePane()
                 }
             }
             .padding(28)
@@ -512,5 +514,156 @@ private struct EarlyWarningRow: View {
             }
             Spacer(minLength: 0)
         }
+    }
+}
+
+// Ролевая игра акторов ------------------------------------------------------ //
+// Exploratory: selected actors run on an LLM-compiled multi-year doctrine
+// (gim.compiled_policy.CompiledLLMPolicyManager) instead of the scripted policy;
+// everyone else keeps the scripted policy. One deterministic trajectory, not an
+// ensemble — the point is the per-year decision log, not an uncertainty fan.
+// Mirrors gim/persona.py's three fixed archetypes (kept in sync manually — they
+// rarely change and a dedicated /personas round-trip isn't worth it for three items).
+
+private let POLICY_GAME_PERSONAS: [(id: String?, label: String)] = [
+    (nil, "База (без персоны)"),
+    ("hawk_protectionist", "Ястреб-протекционист"),
+    ("dove", "Голубь"),
+    ("technocrat", "Технократ"),
+]
+
+private struct PolicyGamePane: View {
+    @EnvironmentObject var app: AppState
+    @State private var selectedActors: [String] = []
+    @State private var personaByActor: [String: String] = [:]
+    @State private var source: RunSource = .baseline
+    @State private var years: Int = 8
+    @State private var result: PolicyGameResult?
+    @State private var running = false
+    @State private var error: String?
+
+    private let actorCap = 5
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Panel(title: "Акторы под управлением ЛЛМ", icon: "person.2.wave.2.fill",
+                  caption: "выбрано \(selectedActors.count) из \(actorCap) · остальные — на штатных правилах") {
+                actorGrid
+                if !selectedActors.isEmpty {
+                    Divider().overlay(Theme.line).padding(.vertical, 2)
+                    personaRows
+                }
+                if app.llmProvider == "deterministic" {
+                    Text("Без подключённой LLM (шестерёнка в «Ассистенте») доктрина каждого актора считается по эвристике — без реального рассуждения модели, но прогон всё равно работает.")
+                        .font(Theme.ui(11)).foregroundStyle(Theme.faint).padding(.top, 4)
+                }
+            }
+
+            Panel(title: "Параметры", icon: "slider.horizontal.3") {
+                HStack(alignment: .top, spacing: 26) {
+                    ParamStepper(label: "Горизонт, лет", value: $years, range: 3...15)
+                    SourceField(source: $source)
+                    Spacer(minLength: 0)
+                }
+            }
+
+            HStack(spacing: 14) {
+                RunButton(title: "Сыграть", running: running, action: run, enabled: !selectedActors.isEmpty)
+                ErrorLine(text: error)
+                Spacer(minLength: 0)
+            }
+
+            if let result {
+                Panel(title: "Аналитическая записка", icon: "text.alignleft") {
+                    BriefView(text: result.brief)
+                }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 14)], spacing: 14) {
+                    ForEach(result.projection.metrics) { fan in
+                        ExpandableChartCard(
+                            title: MetricLabel.of(fan.metric), icon: "chart.xyaxis.line",
+                            caption: "одна детерминированная траектория, не ансамбль · нажмите, чтобы развернуть",
+                            note: "«\(MetricLabel.of(fan.metric))» по годам единственного прогона с ЛЛМ-акторами. Полосы неопределённости здесь ничего не значат — показана только сама траектория.") { h in
+                            FanChartView(fan: fan, height: h)
+                        }
+                    }
+                }
+                Panel(title: "Журнал решений", icon: "text.book.closed",
+                      caption: "\(result.decisions.count) решений · что и почему решил каждый актор по годам") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(result.decisions) { decisionRow($0) }
+                    }
+                }
+            }
+        }
+    }
+
+    private var actorGrid: some View {
+        let cols = [GridItem(.adaptive(minimum: 132), spacing: 8)]
+        return LazyVGrid(columns: cols, alignment: .leading, spacing: 8) {
+            ForEach(app.ontology?.actors ?? [], id: \.self) { name in
+                let on = selectedActors.contains(name)
+                let atCap = selectedActors.count >= actorCap
+                Chip(text: name, on: on) {
+                    if on {
+                        selectedActors.removeAll { $0 == name }
+                        personaByActor.removeValue(forKey: name)
+                    } else if !atCap {
+                        selectedActors.append(name)
+                    }
+                }
+                .opacity(!on && atCap ? 0.45 : 1)
+            }
+        }
+    }
+
+    private var personaRows: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(selectedActors, id: \.self) { name in
+                HStack(spacing: 10) {
+                    Text(name).font(Theme.ui(12, .medium)).foregroundStyle(Theme.text)
+                        .frame(width: 150, alignment: .leading).lineLimit(1)
+                    Picker("", selection: Binding(
+                        get: { personaByActor[name] ?? "" },
+                        set: { personaByActor[name] = $0.isEmpty ? nil : $0 }
+                    )) {
+                        ForEach(POLICY_GAME_PERSONAS, id: \.label) { opt in
+                            Text(opt.label).tag(opt.id ?? "")
+                        }
+                    }.labelsHidden().pickerStyle(.menu).frame(width: 230)
+                }
+            }
+        }
+    }
+
+    private func decisionRow(_ d: PolicyDecision) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Text(d.agentName).font(Theme.ui(12.5, .semibold)).foregroundStyle(Theme.text)
+                Text("год \(d.time)").font(Theme.mono(11)).foregroundStyle(Theme.faint)
+            }
+            Text(d.explanation).font(Theme.ui(12)).foregroundStyle(Theme.muted)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(d.domesticSummary).font(Theme.mono(10.5)).foregroundStyle(Theme.faint)
+            Text(d.foreignSummary).font(Theme.mono(10.5)).foregroundStyle(Theme.faint)
+        }
+        .padding(10)
+        .background(Theme.surface2)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func run() {
+        running = true; error = nil
+        let resolved = source.resolve(in: app.history)
+        let req = PolicyGameRequest(
+            llmActors: selectedActors,
+            personaByActor: personaByActor.isEmpty ? nil : personaByActor,
+            levers: resolved?.levers, actors: resolved?.actors,
+            years: years, maxAgents: 57,
+            llmProvider: app.llmProvider, llmModel: app.llmModel,
+            llmApiKey: app.llmApiKey, llmBaseURL: app.llmBaseURL)
+        Task { defer { running = false }
+            do { result = try await app.runPolicyGame(req) }
+            catch { self.error = "\(error)" } }
     }
 }

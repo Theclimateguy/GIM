@@ -159,6 +159,13 @@ final class EngineProcess {
             p.arguments = ["-m", "gim2", "engine"]
             p.currentDirectoryURL = Self.repoRoot()
         }
+        // GIM18.app is the one shipped app line, and deliberately re-exposes the single
+        // "exploratory" capability it wants (LLM actor policy in Expert mode → policy_game) —
+        // see gim2.is_exploratory_enabled(). Every other exploratory mode (softmax game_runner,
+        // criticality, ...) stays unreachable: the engine only routes /run/policy_game here.
+        var env = ProcessInfo.processInfo.environment
+        env["GIM_EXPLORATORY"] = "1"
+        p.environment = env
         try p.run()
         self.process = p
 

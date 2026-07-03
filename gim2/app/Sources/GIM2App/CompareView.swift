@@ -155,6 +155,8 @@ struct CompareView: View {
                         Text(summary(record)).font(Theme.mono(11)).foregroundStyle(Theme.muted).lineLimit(1)
                     }
                     Spacer(minLength: 8)
+                    Text(ChatSession.titleFormatter.string(from: record.createdAt))
+                        .font(Theme.mono(10.5)).foregroundStyle(Theme.faint)
                     Text(record.kind == "answer" ? "ассистент" : "эксперт")
                         .font(Theme.ui(10)).foregroundStyle(Theme.faint)
                         .padding(.horizontal, 7).padding(.vertical, 2)

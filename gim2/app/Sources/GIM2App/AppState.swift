@@ -55,6 +55,8 @@ final class AppState: ObservableObject {
         llmBaseURL = d.string(forKey: "llmBaseURL") ?? ""
         llmApiKey = Keychain.get(account: "llm_key")
 
+        history = RunHistoryStore.loadAll()
+
         sessions = SessionStore.loadAll()
         if let first = sessions.first {
             currentSessionID = first.id
@@ -179,10 +181,16 @@ final class AppState: ObservableObject {
     func runWeak(_ req: WeakRequest) async throws -> WeakResult {
         try await require().post("/run/weak_signals", req, as: WeakResult.self)
     }
+    func runPolicyGame(_ req: PolicyGameRequest) async throws -> PolicyGameResult {
+        try await require().post("/run/policy_game", req, as: PolicyGameResult.self)
+    }
 
+    // Every run (Expert-mode scenario or Assistant answer) is persisted individually
+    // (see RunHistoryStore) so Compare can offer the full history across app restarts,
+    // not just the runs made in the current session.
     func record(_ rec: ScenarioRecord) {
         history.insert(rec, at: 0)
-        if history.count > 8 { history.removeLast() }
+        RunHistoryStore.save(rec)
     }
 
     // Pinned-baseline trust metrics. AUC is fast; SCC + backtest are slow (they

@@ -6,7 +6,7 @@ import Foundation
 
 // MARK: fans
 
-struct FanSeries: Decodable, Identifiable {
+struct FanSeries: Codable, Identifiable {
     let metric: String
     let years: [Int]
     let p5: [Double]
@@ -18,7 +18,7 @@ struct FanSeries: Decodable, Identifiable {
     var id: String { metric }
 }
 
-struct EnsembleProjection: Decodable {
+struct EnsembleProjection: Codable {
     let kind: String
     let nMembers: Int
     let years: [Int]
@@ -34,7 +34,7 @@ struct EnsembleResult: Decodable {
 
 // MARK: scenario delta
 
-struct DeltaMetric: Decodable, Identifiable {
+struct DeltaMetric: Codable, Identifiable {
     let metric: String
     let delta: FanSeries
     let baselineP50: [Double]
@@ -42,7 +42,7 @@ struct DeltaMetric: Decodable, Identifiable {
     var id: String { metric }
 }
 
-struct DeltaProjection: Decodable {
+struct DeltaProjection: Codable {
     let kind: String
     let nMembers: Int
     let years: [Int]
@@ -53,7 +53,7 @@ struct DeltaProjection: Decodable {
 // compute_weak all echo it back as `selection.to_dict()`): per-lever magnitude + affected actors.
 // Lets the Expert-mode Sensitivity/Weak panes replay a saved run instead of only screening the
 // plain baseline or a single ad-hoc lever.
-struct SelectionInfo: Decodable {
+struct SelectionInfo: Codable {
     let levers: [String: Double]
     let actors: [String]
 
@@ -62,7 +62,7 @@ struct SelectionInfo: Decodable {
     var asLeverItems: [String] { levers.map { "\($0.key)=\($0.value)" } }
 }
 
-struct ScenarioResult: Decodable {
+struct ScenarioResult: Codable {
     let schema: String
     let mode: String
     let projection: DeltaProjection
@@ -267,6 +267,45 @@ struct SensitivityRequest: Encodable {
     var actors: [String]? = nil
 }
 
+// MARK: policy game (Экспертный режим → «Ролевая игра акторов», exploratory: LLM-compiled
+// per-actor doctrine instead of the scripted policy — see gim2/policy_game.py)
+
+struct PolicyGameRequest: Encodable {
+    var llmActors: [String]
+    var personaByActor: [String: String]? = nil
+    var levers: [String]? = nil
+    var magnitude: Double? = nil
+    var actors: [String]? = nil
+    var years: Int
+    var maxAgents: Int
+    var refreshMode: String = "trigger"
+    var llmProvider: String
+    var llmModel: String
+    var llmApiKey: String
+    var llmBaseURL: String
+}
+
+struct PolicyDecision: Decodable, Identifiable {
+    let time: Int
+    let agentId: String
+    let agentName: String
+    let explanation: String
+    let domesticSummary: String
+    let foreignSummary: String
+    var id: String { "\(agentId)-\(time)" }
+}
+
+struct PolicyGameResult: Decodable {
+    let schema: String
+    let mode: String
+    let llmActors: [String]
+    let personaByActor: [String: String]
+    let selection: SelectionInfo?
+    let projection: EnsembleProjection
+    let decisions: [PolicyDecision]
+    let brief: String
+}
+
 // MARK: UI helpers
 
 enum MetricLabel {
@@ -330,6 +369,7 @@ enum ParamLabel {
 // per metric. Both /run/scenario and the assistant's /run/answer reduce to this.
 struct ScenarioRecord: Identifiable {
     let id = UUID()
+    let createdAt: Date
     let label: String
     let kind: String                 // "scenario" | "answer"
     let metrics: [(key: String, delta: Double)]
@@ -339,21 +379,21 @@ struct ScenarioRecord: Identifiable {
     let scenario: ScenarioResult?
 
     init(label: String, kind: String, metrics: [(key: String, delta: Double)], cli: String?,
-         answer: AnswerResult? = nil, scenario: ScenarioResult? = nil) {
+         answer: AnswerResult? = nil, scenario: ScenarioResult? = nil, createdAt: Date = Date()) {
         self.label = label; self.kind = kind; self.metrics = metrics; self.cli = cli
-        self.answer = answer; self.scenario = scenario
+        self.answer = answer; self.scenario = scenario; self.createdAt = createdAt
     }
 
-    init(scenario r: ScenarioResult, label: String) {
+    init(scenario r: ScenarioResult, label: String, createdAt: Date = Date()) {
         self.init(label: label, kind: "scenario",
                   metrics: r.projection.metrics.map { ($0.metric, $0.delta.p50.last ?? 0) },
-                  cli: r.equivCli, scenario: r)
+                  cli: r.equivCli, scenario: r, createdAt: createdAt)
     }
 
-    init(answer r: AnswerResult, label: String) {
+    init(answer r: AnswerResult, label: String, createdAt: Date = Date()) {
         self.init(label: label, kind: "answer",
                   metrics: r.cards.map { ($0.metric, $0.deltaP50) },
-                  cli: r.equivCli, answer: r)
+                  cli: r.equivCli, answer: r, createdAt: createdAt)
     }
 
     func delta(of key: String) -> Double? { metrics.first { $0.key == key }?.delta }

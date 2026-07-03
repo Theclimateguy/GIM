@@ -34,6 +34,9 @@ gim2/
   levers.py            E2 — grounded lever ontology (params/state, not softmax)
   scenario.py          E3 — base-vs-scenario two-ensemble delta fans
   dose_response.py     E3 — lever-magnitude sweep → terminal delta
+  policy_game.py       THE-71 — the ONE re-exposed exploratory mode: selected actors run an
+                       LLM-compiled doctrine (gim.compiled_policy + gim.persona) instead of
+                       the scripted policy; single trajectory, not an ensemble
   projections.py       E3/E5 — chart-ready JSON (fan/delta/dose/tornado/roc)
   engine_service.py    E3 — deterministic HTTP+SSE engine (schema gim-engine/2)
   perf.py              E4 — timing bench + baseline cache
@@ -45,6 +48,13 @@ gim2/
   `hybrid_simulator`, softmax `assistant` tools) are **not deleted** — they remain
   in `gim` and are reachable from v2 only when `GIM_EXPLORATORY=1`
   (`gim2.is_exploratory_enabled()`). See THE-71.
+* v2 makes **one** deliberate exception: `POST /run/policy_game` (Экспертный режим →
+  «Ролевая игра акторов» in the app) re-exposes `gim.compiled_policy` +
+  `gim.persona` — LLM-compiled per-actor doctrine — behind the same
+  `GIM_EXPLORATORY` gate. `GIM2App`'s `EngineProcess` sets that env var for its own
+  bundled engine subprocess only, so this is the one exploratory capability an end
+  user actually reaches; `game_runner`/`hybrid_simulator` stay unreachable from the
+  shipped app. See `gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md`.
 * The Swift app reuses `Theme` / `Brand` / `Components` from `../macapp` verbatim.
 
 ## Substantive-quantity rule

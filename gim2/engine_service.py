@@ -38,6 +38,7 @@ from . import scenario as S
 from .answer import compute_answer
 from .assistant import AssistantConfig, probe_llm, run_assistant_turn
 from .dose_response import compute_dose
+from .policy_game import compute_policy_game
 from .runtime import load_world_for  # local light loader (no v1 world cache)
 
 
@@ -141,6 +142,23 @@ def _run_answer(body, progress, cancel):
     )
 
 
+def _run_policy_game(body, progress, cancel):
+    llm_config = AssistantConfig(
+        provider=str(body.get("llm_provider", "deterministic")),
+        model=str(body.get("llm_model", "")),
+        api_key=str(body.get("llm_api_key", "")),
+        base_url=str(body.get("llm_base_url", "")),
+    )
+    return compute_policy_game(
+        state_csv=body.get("state_csv"), llm_actors=body.get("llm_actors", []),
+        persona_by_actor=body.get("persona_by_actor"), levers=body.get("levers", []),
+        magnitude=body.get("magnitude"), actors=body.get("actors"),
+        years=int(body.get("years", 8)), max_agents=int(body.get("max_agents", 57)),
+        seed=int(body.get("seed", 2026)), refresh_mode=str(body.get("refresh_mode", "trigger")),
+        llm_config=llm_config,
+    )
+
+
 _RUN_DISPATCH: Dict[str, Callable[[Dict[str, Any], Any, Any], Dict[str, Any]]] = {
     "ensemble": _run_ensemble,
     "scenario": _run_scenario,
@@ -148,6 +166,7 @@ _RUN_DISPATCH: Dict[str, Callable[[Dict[str, Any], Any, Any], Dict[str, Any]]] =
     "sensitivity": _run_sensitivity,
     "weak_signals": _run_weak,
     "answer": _run_answer,
+    "policy_game": _run_policy_game,
 }
 _HEAVY = {"ensemble", "scenario", "dose_response", "answer"}
 

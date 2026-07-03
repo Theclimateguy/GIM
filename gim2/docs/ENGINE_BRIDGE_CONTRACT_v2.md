@@ -22,6 +22,7 @@ modes only. Every endpoint emits the **same JSON the CLI prints** (parity).
 | `sensitivity` | metric, years, params[], r, levels, … | `tornado` |
 | `weak_signals` | levers[], magnitude, actors[], years, … | (mahalanobis/breaks/early_warning) |
 | `answer` | archetype \| levers[], magnitude, actors[], members, years, threshold_lever/metric | **decision card**: verdict + delta fans + threshold + cascade + brief |
+| `policy_game` | llm_actors[], persona_by_actor{}, levers[]/actors[] (overlay), years, refresh_mode, llm_provider/model/api_key/base_url | `ensemble` (single trajectory, `n_members:1`) + `decisions[]` — **exploratory, see below** |
 
 Sync (no SSE) → `{schema, mode, config, projection, …, trace:{run_id, elapsed_ms}}`.
 SSE → `progress {percent, done, total}` … then `result` carrying the same object.
@@ -68,6 +69,39 @@ in a `WKWebView` → a true choropleth by the selected domain). Regional aggrega
 > The per-domain Δ are model outputs; the composite **score** (`gdp_pct − 60·tension
 > − 0.5·debt_pct − 3·crisis_added`) is a tunable presentation **heuristic** for
 > ranking, not a validated index.
+
+## Policy game — `POST /run/policy_game` (exploratory)
+
+The one deliberate exception to "no LLM in the simulation loop": up to five selected actors
+run on an LLM-compiled multi-year doctrine (`gim.compiled_policy.CompiledLLMPolicyManager` +
+`gim.persona`, part of the exploratory layer, see `gim2.is_exploratory_enabled()`) instead of
+the scripted policy; every other actor keeps the scripted policy, so cost is bounded to one
+LLM call per selected actor (cached by context signature), not per agent per simulated year.
+Rejects with a 500 (`ValueError`) unless `GIM_EXPLORATORY=1` is set in the engine's
+environment — the packaged app sets it for its own bundled subprocess only.
+
+A single deterministic trajectory, **not an ensemble**: `projection` reuses the `ensemble`
+shape with `n_members:1` and every percentile band collapsed to the same series (so the
+existing fan chart renders it, with flat bands signalling "no uncertainty quantification
+here" rather than a real 5–95% spread).
+
+```
+llm_actors:       ["United States", "China", …]   # display names, resolved server-side
+persona_by_actor: {"United States": "hawk_protectionist"}  # optional; ids: hawk_protectionist|dove|technocrat
+levers[] / actors[]: optional exogenous shock overlay (same shape as /run/scenario)
+llm_provider/model/api_key/base_url: the SAME connection already configured for the Assistant
+  (ollama | openai-compatible incl. DeepSeek via base_url); "deterministic" runs each actor's
+  doctrine on a heuristic fallback (no network call) instead of failing.
+
+decisions: [{time, agent_id, agent_name, explanation, domestic_summary, foreign_summary}]
+  # one record per selected actor per simulated year — what it decided and, in `explanation`,
+  # the compiled doctrine's own stated reasoning. This is the point of the exercise, not the
+  # trajectory chart.
+```
+
+> Not validated the way the deterministic core is (see `docs/GIM18_REVIEWER_RESPONSE.md` for
+> what *is* validated). Treat the trajectory as illustrative of an autonomous actor's reasoning,
+> not a forecast.
 
 ## Projection shapes (`gim2.projections`)
 

@@ -3,7 +3,7 @@ import Foundation
 // Codable models for POST /run/answer (the «Аналитический ассистент» card).
 // Keys arrive snake_case; EngineClient decodes with .convertFromSnakeCase.
 
-struct AnswerCard: Decodable, Identifiable {
+struct AnswerCard: Codable, Identifiable {
     let metric: String
     let label: String
     let deltaP50: Double
@@ -13,14 +13,14 @@ struct AnswerCard: Decodable, Identifiable {
     var id: String { metric }
 }
 
-struct AnswerThreshold: Decodable {
+struct AnswerThreshold: Codable {
     let lever: String
     let metric: String
     let note: String
     let crossingMagnitude: Double?
 }
 
-struct CascadeNode: Decodable, Identifiable {
+struct CascadeNode: Codable, Identifiable {
     let id: String
     let label: String
     let shown: String
@@ -28,13 +28,13 @@ struct CascadeNode: Decodable, Identifiable {
     let focusScope: String
 }
 
-struct CascadeBlock: Decodable {
+struct CascadeBlock: Codable {
     let nodes: [CascadeNode]
     let affected: [String]
     let selectionActors: [String]
 }
 
-struct ActorEntry: Decodable, Identifiable {
+struct ActorEntry: Codable, Identifiable {
     let id: String
     let name: String
     let region: String
@@ -62,20 +62,20 @@ struct Geo: Codable {
     let countries: [GeoCountry]
 }
 
-struct ActorsBlock: Decodable {
+struct ActorsBlock: Codable {
     let leaders: [ActorEntry]
     let laggards: [ActorEntry]
     let geo: Geo
 }
 
-struct AnswerArchetype: Decodable {
+struct AnswerArchetype: Codable {
     let id: String
     let nameRu: String
     let description: String
     let segments: [String]
 }
 
-struct AnswerResult: Decodable {
+struct AnswerResult: Codable {
     let mode: String
     let verdict: String
     let headlineMetric: String

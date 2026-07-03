@@ -69,7 +69,7 @@ timestamped folders under `results/` (each with a `run_manifest.json`).
 
 The graphical shell is a **native macOS app** (SwiftUI, macOS 13+), not a browser page: a small,
 deterministic Python engine (`python3 -m gim2 engine`, HTTP+SSE over loopback, schema `gim-engine/2`)
-sits behind a Situation-Room-style interface with five areas —
+sits behind a Situation-Room-style interface with six areas —
 
 <table>
 <tr>
@@ -93,21 +93,32 @@ sits behind a Situation-Room-style interface with five areas —
 - **Ассистент** — natural-language front end. Describe a scenario in words; the assistant maps it to
   grounded levers or a composed scenario, runs the deterministic engine, and returns a verdict,
   tipping point, per-domain cascade, and per-country outcomes. All numbers come from the engine, never
-  the language model.
+  the language model. Every conversation is a named, on-disk session (survives a restart) with a raw
+  agent-trace view for debugging why a given tool was routed.
 - **Экспертный режим** — direct control: Сценарий (levers vs. baseline), Ансамбли (Monte-Carlo fans),
-  Отклик (dose-response), Чувствительность (Morris screening), Сигналы (Mahalanobis anomaly scan).
-  Every chart shows the equivalent `python3 -m gim2 …` CLI command for reproducibility.
-- **Сравнение** — up to three runs side by side against the baseline, with a PDF export.
-- **Документация** — the model's architecture, modules, data sources, and the LLM tool-calling path,
-  rendered in-app.
+  Отклик (dose-response), Чувствительность (Morris screening, all 33 calibrated priors), Сигналы
+  (Mahalanobis anomaly / structural-break / critical-slowing-down scan), and **Ролевая игра акторов**
+  (below). Every chart shows the equivalent `python3 -m gim2 …` CLI command for reproducibility.
+- **Сравнение** — every run made anywhere in the app (Экспертный режим or Ассистент) is written to disk
+  individually and stays available across restarts; pick up to three against the validated baseline for
+  a Δ matrix, with a PDF export per run or for the comparison as a whole.
+- **Документация** / **Инструкции** — architecture, modules, data sources and the LLM tool-calling path
+  on one tab; a practical analyst's guide (when to use which mode, how to read every chart, what's
+  validated vs. exploratory) on the other.
 - **Валидация** — retro-backtest RMSE, ensemble fans, conflict AUC, and Morris sensitivity, drawn live
   from the running engine (not static images).
 
-**"Play as a country."** A persona (protectionist hawk, dove, technocrat, …) *biases* a country's
-machine-compiled **doctrine** — a 9-dimensional vector (escalation, trade openness, sanctions
-tolerance, mediation, …) the model otherwise derives from the country's own state. The app shows this
-as a read-only base → shift preview before you run. Doctrine compilation can use a hosted model or a
-local one (`GIM_LLM_BACKEND=ollama`); interactive runs default to a fast deterministic approximation.
+**Ролевая игра акторов ("play as a country").** The one deliberate exception to "the engine is
+deterministic, the LLM only narrates": pick up to five actors and an LLM compiles each one's multi-year
+governing **doctrine** — a 9-dimensional vector (escalation bias, trade openness, sanctions tolerance,
+mediation openness, …) derived from that country's own state — instead of the engine's scripted policy;
+every other actor keeps running the scripted policy, so the run costs one LLM call per selected actor,
+not per year or per country. A persona (protectionist hawk, dove, technocrat) can additively bias the
+compiled doctrine. It reuses whichever LLM connection is already configured for the Assistant (a local
+Ollama model or an OpenAI-compatible key); without one, doctrines fall back to a deterministic
+heuristic. The point of the exercise is the per-year, per-actor decision log (what it did and, in its
+own words, why) — a single trajectory, not an uncertainty ensemble, and explicitly **not** validated the
+way the deterministic core is.
 
 ### Build & run
 
