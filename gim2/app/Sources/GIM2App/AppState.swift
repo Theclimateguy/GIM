@@ -45,6 +45,17 @@ final class AppState: ObservableObject {
     @Published var llmTestState: LLMTestState = .idle
     @Published var llmTestMessage = ""
 
+    // One-time first-launch note: the engine is fully usable without any LLM
+    // (deterministic mode); an LLM only unlocks the Assistant dialog and the
+    // actor role-play mode. Versioned key so a future onboarding change can
+    // re-show it once.
+    private static let welcomeKey = "welcomeShown_v1"
+    @Published var showWelcome = false
+    func dismissWelcome() {
+        showWelcome = false
+        UserDefaults.standard.set(true, forKey: Self.welcomeKey)
+    }
+
     private let proc = EngineProcess()
     private(set) var client: EngineClient?
 
@@ -144,6 +155,7 @@ final class AppState: ObservableObject {
             self.info = info
             self.ready = true
             self.status = "движок готов · gim2 \(info.gim2Version ?? "?") · ядро \(info.engineLine ?? "?")"
+            self.showWelcome = !UserDefaults.standard.bool(forKey: Self.welcomeKey)
             if let ont = try? await client.get(
                 "/ontology", query: [URLQueryItem(name: "max_agents", value: "57")], as: OntologyResult.self) {
                 self.ontology = ont.ontology

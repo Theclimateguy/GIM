@@ -17,18 +17,20 @@ struct GIM2GUI: App {
     @StateObject private var app = AppState()
 
     var body: some Scene {
-        WindowGroup("GIM18 v2") {
+        WindowGroup("GIM18") {
             ZStack {
-                RootView().environmentObject(app)
+                RootView()
                 if !app.ready {
                     SplashView(status: app.status).transition(.opacity)
                 }
             }
+            .environmentObject(app)
             .frame(minWidth: 940, minHeight: 640)
             .preferredColorScheme(.dark)
             .animation(.easeOut(duration: 0.4), value: app.ready)
             .task { await app.boot() }
             .onDisappear { app.shutdown() }
+            .sheet(isPresented: $app.showWelcome) { WelcomeView(onDismiss: app.dismissWelcome) }
         }
         .windowStyle(.hiddenTitleBar)
     }

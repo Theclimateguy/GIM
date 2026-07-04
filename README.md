@@ -124,8 +124,9 @@ way the deterministic core is.
 
 ```bash
 gim2/app/freeze/freeze_engine.sh   # PyInstaller-freeze the engine (~3 min, one-time; needs pyinstaller)
-gim2/app/build_app.sh              # swift build -c release + assemble GIM2.app
-open gim2/app/GIM2.app
+gim2/app/build_app.sh              # swift build -c release + assemble GIM18.app
+gim2/app/make_dmg.sh               # (optional) wrap it in a drag-to-Applications GIM18-<ver>.dmg
+open gim2/app/GIM18.app
 ```
 
 `build_app.sh` embeds the frozen engine for a self-contained, offline app if
