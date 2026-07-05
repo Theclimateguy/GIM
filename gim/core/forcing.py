@@ -31,7 +31,10 @@ from typing import Dict, List, Optional, Tuple
 
 # [#11] SSP marker -> forward non-CO2 ERF table file (data/forcing/). Only SSP2 is shipped; other
 # scenarios fall back to the lumped path until their table is added (same columns, drop-in).
-_FORCING_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "forcing"
+# Resolved via paths.DATA_ROOT so gim-lib's package-internal data relocation applies here too.
+from ..paths import DATA_ROOT as _DATA_ROOT
+
+_FORCING_DIR = _DATA_ROOT / "forcing"
 _NONCO2_TABLE_FILES: Dict[str, str] = {"SSP2": "rcmip_nonco2_ssp245.csv"}
 
 

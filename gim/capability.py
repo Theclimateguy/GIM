@@ -18,8 +18,11 @@ import csv
 from pathlib import Path
 from typing import Dict, List
 
+from .paths import DATA_ROOT
+
 # [F3+] SIPRI 2023 milex grounding file (built by scripts/build_milex_grounding.py).
-_MILEX_GROUNDING_CSV = Path(__file__).resolve().parents[1] / "data" / "external" / "sipri_milex_2023.csv"
+# Resolved via paths.DATA_ROOT so gim-lib's package-internal data relocation applies here too.
+_MILEX_GROUNDING_CSV = DATA_ROOT / "external" / "sipri_milex_2023.csv"
 
 
 def load_military_spending(world, csv_path: str | Path | None = None) -> int:
