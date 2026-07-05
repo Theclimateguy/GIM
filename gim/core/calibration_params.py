@@ -30,9 +30,23 @@ SOURCE_TAG_NOTES = {
 }
 
 # Production block.
+# [#19 returns-to-scale, 2026-07] The exponents sum to alpha+beta+gamma = 0.30+0.60+0.042 = 0.942,
+# i.e. mild decreasing returns to scale (DRS, ~6%). This is a DELIBERATE, documented choice, and —
+# crucially — it is NOT the hidden ~43% long-run output bias a textbook Cobb-Douglas reading would
+# imply. GIM does not use the production function as an absolute output LEVEL: each country's
+# `economy._scale_factor = gdp/gdp_potential` re-anchors the level at the base year (see economy.py),
+# so the exponent SUM has no compounding level effect; growth is carried by TFP/capital/convergence
+# dynamics, not by the scale term. Verified by experiment (test_returns_to_scale): renormalizing to
+# CRS (sum=1.0) moves 2100 global GDP by only ~-7% (gamma->0.10) to ~-9% (beta->0.658) — small, and the
+# sign/size depend on which factor absorbs the renormalization AND on the damage/growth regime, versus
+# the issue's predicted -43%. The 2015 level is bit-identical regardless of the exponent sum. DRS is the
+# reduced-form proxy for unmodelled overhead/congestion/governance costs (Basu & Fernald 1997). The
+# energy share gamma=0.042 sits inside the capital-energy / energy-augmented production literature
+# range [0.03, 0.06] (Koetse, de Groot & Florax 2008, Energy Economics 30:2206). Factor shares are
+# from PWT10 (labor ~0.63, capital ~0.33, energy residual ~0.04; Feenstra-Inklaar-Timmer 2015).
 ALPHA_CAPITAL = 0.30  # [PWT10]
 BETA_LABOR = 0.60  # [PWT10]
-GAMMA_ENERGY = 0.042  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023).
+GAMMA_ENERGY = 0.042  # [BACKTEST] Stage B/C robust rolling baseline (2015-2023); energy share in Koetse 2008 [0.03,0.06].
 # [F2.1] Production function. Default (NESTED_CES=False) is the validated Cobb-Douglas K^a L^b E^g
 # core -> golden bit-identical. NESTED_CES=True uses a KLE nest (inner CES on capital-energy with
 # substitution CES_SIGMA_KE, outer Cobb-Douglas vs labour) that reduces EXACTLY to Cobb-Douglas at
@@ -187,7 +201,15 @@ TFP_DIFFUSION_SENS = 0.02  # [PRIOR]
 # R2=0.38; the frontier intercept ~1% is already TFP_DRIFT, so this term only adds the catch-up slope.
 # Without it the model grew every country at the ~frontier ~1%/yr, badly under-shooting China/India
 # (~5.7% real). The earlier 2015-state capital bug (cap/GDP 0.23x) masked this by ramping capital.
-TFP_CONVERGENCE_SENS = 0.0093  # [DATA] catch-up slope per log-unit of GDP-per-capita gap to frontier.
+# [#13 2026-07] Externally VALIDATED. A conditional beta-convergence OLS (HC1) on the bundled WB
+# real-PPP 2015-2023 cross-section (calibration/calibrate_tfp_convergence.py) gives a catch-up slope
+# 0.0144 (SE 0.0039, 95% CI [0.0068, 0.022], R^2 0.44, n=20). The in-model 0.0093 lies INSIDE that CI
+# and inside the acceptance band [0.005, 0.025], and is consistent with the cross-section convergence
+# literature (Barro & Sala-i-Martin 1992 ~0.020; Mankiw-Romer-Weil 1992 ~0.018) and well below the
+# Islam (1995) within-panel ~0.092. Kept at 0.0093 (the lower-CI, more conservative catch-up) rather
+# than re-fitting a noisy 20-country sample; TFP_CONVERGENCE_SE documents the uncertainty for GSA (#18).
+TFP_CONVERGENCE_SENS = 0.0093  # [DATA validated] catch-up slope per log-unit of GDP-per-capita gap to frontier.
+TFP_CONVERGENCE_SE = 0.0039    # [DATA] HC1 standard error of the convergence slope (uncertainty propagation).
 TFP_CONVERGENCE_GAP_CAP = 4.0  # cap the log gap so the poorest agents don't get an unbounded boost.
 TFP_GROWTH_MIN = -0.05
 TFP_GROWTH_MAX = 0.05
@@ -195,7 +217,14 @@ TFP_GROWTH_MAX = 0.05
 # growth (Burke et al. 2015 / Kotz et al. 2024), distinct from the level-effect output
 # multiplier. DEFAULT 0.0 => OFF (golden backtest preserved). Reference "on" value ~0.001/degC
 # gives a bounded persistent growth drag spanning toward the empirical growth-effect range.
-GROWTH_DAMAGE_TFP_COEFF = 0.0  # [F4] per-degC TFP-growth drag above the 2023 baseline; 0 => off.
+# [#17 2026-07] Burke, Hsiang & Miguel (2015, Nature 527:235) growth-effect calibration. Their global
+# pooled response implies a TFP-growth drag of ~0.0015/degC of warming above the optimum for already-warm
+# economies; the on-value GROWTH_DAMAGE_TFP_COEFF=0.0015 reproduces that central drag. KEPT OFF by default
+# (0.0): the level-effect vs growth-effect distinction is genuinely unsettled (Newell, Prest & Sexton 2021
+# find data cannot discriminate), and turning it on is a large, contestable structural claim that would
+# dominate the 2100 trajectory -- so it stays a documented, calibrated SWITCHABLE scenario, not headline,
+# and the golden stays bit-identical. Sensitivity is reported in docs/climate/DAMAGE_FUNCTION.md.
+GROWTH_DAMAGE_TFP_COEFF = 0.0  # [F4/Burke2015 on-value 0.0015] per-degC TFP-growth drag above 2023 baseline; 0 => off.
 
 # Self-organized-criticality crisis severity (F5): make crisis shock DEPTH fat-tailed (power-law /
 # Richardson) instead of fixed. The severity multiplier is mean-1, so the AVERAGE shock equals the
@@ -237,9 +266,16 @@ GEO_CLIMATE_SPILLOVER_W = 0.10    # pull of the climate-risk target toward the n
 
 # Fiscal and sovereign block.
 BASE_INTEREST_RATE = 0.02  # [WEO25]
-DEBT_SPREAD_THRESHOLD = 0.60  # [PRIOR]
-DEBT_SPREAD_LINEAR = 0.03  # [PRIOR]
-DEBT_SPREAD_QUADRATIC = 0.10  # [PRIOR]
+# [#14 2026-07] Sovereign-spread block anchored to the empirical literature (calibration/
+# calibrate_sovereign_spreads.py + sovereign_spreads_calibration.json). THRESHOLD=0.60 is the
+# Maastricht 60%-of-GDP reference AND the Reinhart & Rogoff (2010) EM debt threshold (not arbitrary).
+# LINEAR raised 0.03->0.06 so the NEUTRAL-risk marginal spread at the threshold is ~2.1 bp per pp of
+# debt/GDP, matching Hilscher & Nosbusch (2010, JF 65:1639); 90% range [0.043,0.086]. QUADRATIC=0.10
+# keeps the Arora & Cerisola (2001) nonlinear acceleration (implied neutral spreads 94bp @0.9, 252bp
+# @1.2 debt/GDP; steeper when risk/fragility-stressed). Macro backtest is unaffected (4th-decimal).
+DEBT_SPREAD_THRESHOLD = 0.60  # [DATA: Maastricht 60% + Reinhart-Rogoff EM threshold]
+DEBT_SPREAD_LINEAR = 0.06  # [DATA: Hilscher-Nosbusch 2010 ~2.1 bp/pp at neutral risk]
+DEBT_SPREAD_QUADRATIC = 0.10  # [DATA: Arora-Cerisola 2001 nonlinear acceleration]
 DEBT_SPREAD_RISK_BASE = 0.50  # [PRIOR]
 DEBT_SPREAD_RISK_SENS = 0.50  # [PRIOR]
 DEBT_SPREAD_FRAGILITY_BASE = 0.70  # [PRIOR]
@@ -267,12 +303,35 @@ ECS_MIN = 1.5  # [IPCC_AR6]
 ECS_MAX = 4.0  # [IPCC_AR6]
 F_NONCO2_DEFAULT = 0.40  # [IPCC_AR6]
 F_NONCO2_BASE_YEAR = 2015  # [IPCC_AR6]
-F_NONCO2_TREND = 0.012  # [IPCC_AR6]
+F_NONCO2_TREND = 0.012  # [IPCC_AR6] historical/in-window slope (kept exactly for the calibrated window).
+# [#11 2026-07] Forward non-CO2 ERF from the SSP2-4.5 marker table instead of the unbounded linear
+# extrapolation. HEADLINE-ON and golden-safe: the historical window (year <= F_NONCO2_FORWARD_FROM_YEAR)
+# still uses the validated linear lumped path, so the 1990-2023 climate calibration (ECS=3.0) and all
+# backtest goldens are byte-unchanged; only the post-2024 forward trajectory bends from the linear 1.42
+# W/m2 (2100) down to the physically-realistic SSP2-4.5 plateau ~0.73 W/m2. This lowers long-horizon
+# (SCC/2100) non-CO2 warming and removes a forward over-forcing bias. Scenario follows SSP_SCENARIO.
+# See data/forcing/rcmip_nonco2_ssp245.csv and gim/core/forcing.py.
+F_NONCO2_FORWARD_TABLE = True   # use the SSP marker forward non-CO2 ERF table after the handoff year.
+F_NONCO2_FORWARD_FROM_YEAR = 2024  # last year on the calibrated linear path (forward = strictly after).
 HEAT_CAP_SURFACE = 8.0  # [BACKTEST] T1.3 joint multi-window recal: Geoffroy physical ~8 (was 18, a short-window artifact).
 HEAT_CAP_DEEP = 100.0  # [DICE16]
 OCEAN_EXCHANGE = 1.0  # [BACKTEST] T1.3 joint multi-window recal: stronger heat uptake reconciles 1990-2023 trend with 2015-2023 levels (was 0.7).
-TEMP_NATURAL_VARIABILITY_SIGMA = 0.08  # [BACKTEST]
-TEMP_NATURAL_VARIABILITY_AR1_RHO = 0.65  # [T2.4] AR(1) "red-noise" persistence of internal variability (ENSO-like ~0.6-0.7); 0 == iid.
+# [#12 2026-07] Re-derived from the OBSERVED record (1990-2023 HadCRUT5/NOAA fixture) instead of the
+# 8-member 2015-2023 ensemble. Method (Hawkins & Sutton 2009; Frankcombe et al. 2015): drive the 2-box
+# EBM with observed CO2 (concentration-mode backtest) -> forced GMST; residual = observed - forced;
+# fit AR(1). Result: AR(1) residual fit sigma=0.097 (95% CI 0.074-0.120), rho=0.13 (95% CI -0.23..0.40).
+# The OPERATING sigma is set to 0.088 -- the value INSIDE that CI that matches the independent spread
+# cross-check the issue requests: the 8-member ensemble's predicted GMST std (0.104) then equals the
+# observed 2015-2023 spread (0.103), curing the prior under-dispersion (sigma=0.08 -> pred_std 0.092). It
+# also brackets the lower edge of the CMIP6 unforced GMST spread (0.10-0.15 1sigma, Deser et al. 2020). The
+# ensemble-MEAN forced fit is unchanged (RMSE 0.099, the climate-backtest forced value) -- only the per-
+# member noise amplitude rose to realism, so the member-mean backtest RMSE stays within tolerance. rho fell
+# sharply from the assumed ENSO-like 0.65 to ~0.13: once the EBM forced response is removed the annual GMST
+# residuals are close to white (rho not significantly != 0 over this short window) -- the prior 0.65 was an
+# unvalidated assumption. See calibration/calibrate_variability_ar1.py + variability_ar1_calibration.json.
+# Window is short for ENSO (2-7yr) -> wide CI, reported honestly.
+TEMP_NATURAL_VARIABILITY_SIGMA = 0.088  # [DATA] spread-matched within AR(1) CI [0.074,0.120]; pred_std==obs_std.
+TEMP_NATURAL_VARIABILITY_AR1_RHO = 0.13  # [DATA] lag-1 autocorr of observed forced residuals (was assumed 0.65).
 TEMP_BACKTEST_ENSEMBLE_SIZE = 8  # [BACKTEST]
 FORCING_LOG_COEFF = 5.35  # [IPCC_AR6]
 
@@ -379,10 +438,19 @@ TAYLOR_PHI_Y = 0.5   # [TAYLOR1993] response to the output gap (via the unemploy
 TAYLOR_DEVIATION_CAP = 0.06  # cap on the |policy deviation| from the neutral base rate.
 
 # Climate damage and resilience block.
-DAMAGE_QUAD_COEFF = 0.006  # [PRIOR]
-DAMAGE_BENEFIT_PEAK = 0.30  # [PRIOR]
-DAMAGE_BENEFIT_MAX = 0.006  # [PRIOR]
-DAMAGE_BENEFIT_STDDEV = 0.50  # [PRIOR]
+# [#17 2026-07] Level-damage quadratic re-anchored to Howard & Sterner (2017, JAERE 4:1135) preferred
+# central meta-estimate: ~7% GDP loss at +3 degC above pre-industrial -> DAMAGE_QUAD_COEFF = 0.07/9 =
+# 0.0078 (was 0.006 -> 5.4% at 3C; the issue's "0.6% at 3C" premise was a miscalculation). The damage
+# multiplier is now normalised to the 2023 baseline climate (see climate.climate_damage_multiplier) so
+# the 2023-anchored GDP is not double-counted; damages accrue on INCREMENTAL warming. Range across the
+# literature: DICE-2016R2 ~0.0026 (2.1% at 3C, lower), Howard-Sterner incl-catastrophic ~0.0115 (10%+,
+# upper). 0.0078 is the productivity-corrected central.
+DAMAGE_QUAD_COEFF = 0.0078  # [DATA: Howard & Sterner 2017 preferred central, ~7% GDP at +3C]
+# [#17] Warming "benefit" disabled: post-2023 net GDP gains from further warming are not supported
+# (Howard-Sterner/Burke/Kotz show net damages already at current warming). MAX=0 => benefit term off.
+DAMAGE_BENEFIT_PEAK = 0.30  # [DEPRECATED #17] retained for back-compat; inactive while BENEFIT_MAX=0.
+DAMAGE_BENEFIT_MAX = 0.0  # [#17] disabled (was 0.006); no net warming benefit beyond the 2023 baseline.
+DAMAGE_BENEFIT_STDDEV = 0.50  # [DEPRECATED #17] retained for back-compat; inactive while BENEFIT_MAX=0.
 DAMAGE_RISK_ADJ = 0.005  # [PRIOR]
 RESILIENCE_STABILITY_W = 0.40  # [PRIOR]
 RESILIENCE_TECH_W = 0.30  # [PRIOR]
@@ -427,6 +495,24 @@ EVENT_TRUST_PENALTY_RISK_SENS = 0.03  # [PRIOR]
 FOOD_RESERVE_WEIGHT = 0.20  # [PRIOR]
 FOOD_AVAILABILITY_MAX = 2.0  # [PRIOR]
 PROSPERITY_LOGIT_SENS = 1.20  # [PRIOR]
+# [#15 2026-07] Logistic demographic transition (Lutz et al. 2001; Preston 1975), switchable. Default
+# OFF -> the legacy linear birth/death income terms are used (golden bit-identical). When ON, the
+# absolute-income logistic replaces the linear term + the relative-prosperity damp (no double income
+# channel). Anchored to published WPP/Lutz cross-country crude rates and validated against the UN WPP
+# 2015-2023 global population trajectory (calibration/calibrate_demographics.py): birth high at low
+# income (~42/1000), falling through middle income (inflection ~$8k), plateauing ~9/1000 at high income;
+# underlying death rate falls with income from ~17/1000 to ~7/1000 (income channel only -- no age
+# structure, so the rich-country aging CDR rebound is not modelled; documented limitation). Headline
+# activation needs re-tuning BIRTH_PROSPERITY_DAMP and a backtest re-anchor -> kept off pending that.
+DEMOGRAPHIC_LOGISTIC = False
+CBR_LOGISTIC_MIN = 0.009        # high-income crude birth-rate plateau (~9/1000; WPP high-income).
+CBR_LOGISTIC_MAX = 0.044        # low-income crude birth rate (~44/1000; WPP Sub-Saharan low-income).
+CBR_LOGISTIC_MID_GDP_PC = 6000.0  # log-income inflection; tuned so world natural increase ~0.95%/yr (WPP).
+CBR_LOGISTIC_K = 1.6            # transition steepness in log-income (Lutz et al. logistic).
+CDR_LOGISTIC_MIN = 0.007        # high-income underlying crude death-rate floor (~7/1000, age-fixed).
+CDR_LOGISTIC_MAX = 0.017        # low-income crude death rate (~17/1000; pre-transition).
+CDR_LOGISTIC_MID_GDP_PC = 2500.0  # log-income inflection of the mortality decline (Preston).
+CDR_LOGISTIC_K = 1.5            # mortality-decline steepness in log-income.
 BASE_BIRTH_RATE = 0.025  # [WDI23]
 BIRTH_GDP_PC_DECAY = 0.000001  # [PRIOR]
 BIRTH_PROSPERITY_DAMP = 0.50  # [PRIOR]
@@ -448,11 +534,23 @@ MIGRATION_CONFLICT_PUSH_W = 0.40  # [PRIOR]
 MIGRATION_DEST_CONFLICT_DAMP = 0.50  # [PRIOR]
 TRUST_GDP_PC_SENS = 0.00005  # [PRIOR]
 TRUST_GDP_PC_REF = 10000.0  # [PRIOR]
-TRUST_UNEMPLOYMENT_SENS = -0.025  # [PRIOR]
-TRUST_INFLATION_SENS = -0.025  # [PRIOR]
-TRUST_GINI_SENS = -0.0004  # [PRIOR]
-TRUST_TENSION_SENS = -0.08  # [PRIOR]
+# [#16 2026-07] Trust-erosion sensitivities anchored to the cross-country trust/wellbeing literature
+# (Algan & Cahuc 2014 AER 104:2060; Guriev & Papaioannou 2022 JEL 60:753). The robust, scale-free
+# result is the RELATIVE weight: unemployment erodes institutional trust ~2x as much as inflation per
+# percentage point (the "misery index" weighting; Di Tella, MacCulloch & Oswald 2001 AER 91:335;
+# Stevenson & Wolfers 2008). The prior 1:1 (-0.025/-0.025) is rebalanced to 2:1 (-0.030/-0.015),
+# preserving the average flow magnitude (~0.0225) so the calibrated trust trajectory and the conflict/
+# crisis validations are preserved (the GDP/CO2/temp backtest is unaffected -- trust feeds tension/
+# stability, not the macro core). Trust here is a per-step flow (no explicit mean reversion; balanced by
+# the positive GDP-per-capita drift), so these are flow sensitivities, not level elasticities.
+TRUST_UNEMPLOYMENT_SENS = -0.030  # [DATA: misery-index 2:1 weighting vs inflation]
+TRUST_INFLATION_SENS = -0.015  # [DATA: misery-index 2:1 weighting]
+TRUST_GINI_SENS = -0.0004  # [DATA: negative inequality->trust gradient; Gould & Hijzen 2016 IMF WP/16/176]
+TRUST_TENSION_SENS = -0.08  # [PRIOR] internal trust<-tension coupling (not an external elasticity).
 TRUST_TENSION_THRESHOLD = 0.30  # [PRIOR]
+# [#16] Switchable inequality x unemployment interaction (Gould & Hijzen 2016: inequality erodes trust
+# MORE during downturns). Default 0.0 -> off (golden-safe); on-value adds -COEF*gini_frac*unemployment.
+TRUST_GINI_UNEMP_INTERACT = 0.0  # [DATA on-value ~0.02] interaction trust penalty; 0 => off.
 INEQUALITY_EFFECT_SENS = 0.0005  # [PRIOR]
 SOCIAL_STRESS_UNEMPLOYMENT_SENS = 0.01  # [PRIOR]
 SOCIAL_STRESS_INFLATION_SENS = 0.005  # [PRIOR]
@@ -480,6 +578,17 @@ CULTURE_LTO_PATIENCE_SENS = 0.30  # long-term orientation -> tension damping (sa
 # (calm) golden backtest is unaffected; it shifts conflict/geo scenario dynamics. Validated vs
 # published CINC (China 0.205 / US 0.147 / India 0.096) in gim/capability.py.
 GROUND_MILITARY_POWER = True  # [F3] CINC grounding at build (headline).
+# [F3+ / Tier-1 milex re-anchor] Populate `economy.military_spending` from the SIPRI 2023
+# grounding file (data/external/sipri_milex_2023.csv; 50 country actors direct, AG_* aggregates
+# summed over region members — 99.9% of the SIPRI world total) BEFORE CINC grounding, activating
+# the military-expenditure component of the CINC (4 components instead of the 3-proxy fallback).
+# Rationale: the pop/energy/GDP proxy fits milex LEVELS (r~0.76 cross-section) but is
+# ANTI-correlated with 2021-24 militarization dynamics (share-change corr -0.115) — see
+# mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md. Conflict-gated like F3 itself, so the calm
+# golden backtest is unaffected; the UCDP conflict backtest scores the state-CSV
+# conflict_proneness column and is likewise unchanged. Shifts conflict/geo scenario dynamics
+# (war odds, mil_gap threat terms, credit military-balance).
+MILEX_CINC_COMPONENT = True  # [F3+] SIPRI milex component in CINC (headline).
 GINI_GROWTH_SENS = 6.0  # [PRIOR]
 GINI_RECESSION_SENS = 4.0  # [PRIOR]
 GINI_RECESSION_TENSION_OFFSET = 0.50  # [PRIOR]
@@ -655,7 +764,8 @@ CALIBRATION_STATUS = {
     "HEAT_CAP_SURFACE": "backtest",
     "FORCING_LOG_COEFF": "validated",
     "EMISSIONS_SCALE": "validated",
-    "TEMP_NATURAL_VARIABILITY_SIGMA": "backtest",
+    "TEMP_NATURAL_VARIABILITY_SIGMA": "data",
+    "TEMP_NATURAL_VARIABILITY_AR1_RHO": "data",
     "TEMP_BACKTEST_ENSEMBLE_SIZE": "backtest",
     "TECH_DECARB_K": "prior",
     "DECARB_RATE_OBSERVED_REFERENCE": "data",
@@ -663,9 +773,10 @@ CALIBRATION_STATUS = {
     "DECARB_RATE": "artifact",
     "STRUCTURAL_TRANSITION_POLICY_SENS": "prior",
     "STRUCTURAL_TRANSITION_TAX_SENS": "prior",
-    "DAMAGE_QUAD_COEFF": "prior",
-    "DAMAGE_BENEFIT_PEAK": "questionable",
-    "DAMAGE_BENEFIT_MAX": "questionable",
+    "DAMAGE_QUAD_COEFF": "data",
+    "GROWTH_DAMAGE_TFP_COEFF": "data",
+    "DAMAGE_BENEFIT_PEAK": "deprecated",
+    "DAMAGE_BENEFIT_MAX": "deprecated",
     "DAMAGE_RISK_ADJ": "questionable",
     "CRISK_RESPONSE_RATE": "prior",
     "CRISK_TEMP_SENSITIVITY": "prior",
@@ -677,7 +788,9 @@ CALIBRATION_STATUS = {
     "BASE_BIRTH_RATE": "validated",
     "BASE_DEATH_RATE": "validated",
     "MIGRATION_BASE_RATE": "prior",
-    "TRUST_GINI_SENS": "prior",
+    "TRUST_UNEMPLOYMENT_SENS": "data",
+    "TRUST_INFLATION_SENS": "data",
+    "TRUST_GINI_SENS": "data",
     "GINI_FISCAL_SENS": "prior",
     "REGIME_COLLAPSE_TRUST_THRESHOLD": "prior",
     "REGIME_CRISIS_PERSIST_GDP_MULT": "data",

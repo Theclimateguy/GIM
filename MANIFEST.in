@@ -1,6 +1,6 @@
 # Runtime data ships inside the package (gim/data) via package-data; this also
 # guarantees inclusion in the sdist. Docs and the paper PDFs travel along too.
-recursive-include gim/data *.csv *.json *.geojson
+recursive-include gim/data *.csv *.json *.geojson *.md
 include docs/*.md
 include paper/*.pdf
 include LICENSE NOTICE requirements-lock.txt README.md

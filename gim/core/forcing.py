@@ -24,7 +24,56 @@ it shifts the climate trajectory and would re-open the T1.3b joint recalibration
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+import csv
+from functools import lru_cache
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+# [#11] SSP marker -> forward non-CO2 ERF table file (data/forcing/). Only SSP2 is shipped; other
+# scenarios fall back to the lumped path until their table is added (same columns, drop-in).
+# Resolved via paths.DATA_ROOT so gim-lib's package-internal data relocation applies here too.
+from ..paths import DATA_ROOT as _DATA_ROOT
+
+_FORCING_DIR = _DATA_ROOT / "forcing"
+_NONCO2_TABLE_FILES: Dict[str, str] = {"SSP2": "rcmip_nonco2_ssp245.csv"}
+
+
+@lru_cache(maxsize=8)
+def _load_nonco2_forward_table(scenario: str) -> Optional[Tuple[Tuple[int, float], ...]]:
+    """Load the (year, ERF) forward non-CO2 table for an SSP marker, or None if absent."""
+    fname = _NONCO2_TABLE_FILES.get(scenario)
+    if not fname:
+        return None
+    path = _FORCING_DIR / fname
+    if not path.exists():
+        return None
+    rows: List[Tuple[int, float]] = []
+    with open(path, newline="") as fh:
+        for raw in csv.reader(fh):
+            if not raw or raw[0].lstrip().startswith("#") or raw[0].strip() == "year":
+                continue
+            rows.append((int(raw[0]), float(raw[1])))
+    return tuple(sorted(rows)) if rows else None
+
+
+def _interp_table(table: Tuple[Tuple[int, float], ...], year: int) -> float:
+    """Piecewise-linear interpolation of a sorted (year, value) table, clamped at the ends."""
+    if year <= table[0][0]:
+        return table[0][1]
+    if year >= table[-1][0]:
+        return table[-1][1]
+    for (y0, v0), (y1, v1) in zip(table, table[1:]):
+        if y0 <= year <= y1:
+            return v0 + (v1 - v0) * (year - y0) / (y1 - y0)
+    return table[-1][1]
+
+
+def _nonco2_scenario() -> str:
+    """Active SSP marker for the non-CO2 forward table (string params are module-level)."""
+    from . import calibration_params as cal
+
+    return getattr(cal, "SSP_SCENARIO", "SSP2")
+
 
 # AR6/IGCC component ERF (W/m2, ~2019 vs 1750). Order is documentation only.
 NONCO2_ERF_REFERENCE: Dict[str, float] = {
@@ -56,10 +105,30 @@ def set_nonco2_component_scales(world, scales: Optional[Dict[str, float]]) -> No
     setattr(world.global_state, _COMPONENT_SCALES_ATTR, dict(scales) if scales else None)
 
 
-def lumped_nonco2_forcing(params, year: int) -> float:
-    """The model's calibrated lumped non-CO2 net ERF for a calendar year (W/m2)."""
+def _linear_lumped(params, year: int) -> float:
+    """The original linear non-CO2 net ERF path (W/m2)."""
     year_offset = year - params.F_NONCO2_BASE_YEAR
     return max(0.0, params.F_NONCO2_DEFAULT + params.F_NONCO2_TREND * year_offset)
+
+
+def lumped_nonco2_forcing(params, year: int) -> float:
+    """The model's net non-CO2 ERF for a calendar year (W/m2).
+
+    [#11] Through the calibrated/historical window (year <= F_NONCO2_FORWARD_FROM_YEAR, default
+    2024) this is exactly the validated LINEAR lumped path -> the 1990-2023 climate calibration and
+    the backtest goldens are untouched. AFTER that year, when F_NONCO2_FORWARD_TABLE is on and the
+    SSP marker's table exists, the forward ERF follows the realistic SSP2-4.5 trajectory (rises then
+    plateaus ~0.73 W/m2 by 2100) instead of the unbounded linear extrapolation (~1.42 by 2100). The
+    table is anchored at the handoff year to the linear value for C1 continuity. Linear fallback is
+    kept whenever the table is absent or the switch is off (golden-safe).
+    """
+    if getattr(params, "F_NONCO2_FORWARD_TABLE", False):
+        from_year = int(getattr(params, "F_NONCO2_FORWARD_FROM_YEAR", 2024))
+        if year > from_year:
+            table = _load_nonco2_forward_table(_nonco2_scenario())
+            if table is not None:
+                return max(0.0, _interp_table(table, year))
+    return _linear_lumped(params, year)
 
 
 def nonco2_forcing(

@@ -55,7 +55,7 @@ def gim_scc_at_discounting(
     eta: float,
     *,
     horizons=(100, 200),
-    state_csv: str = "data/agent_states_operational_2026_calibrated.csv",
+    state_csv: str = "data/agent_states_operational.csv",
     max_agents: int = 12,
     seed: int = 2026,
 ) -> Dict[int, float]:

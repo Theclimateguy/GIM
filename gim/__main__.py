@@ -40,7 +40,6 @@ from .results import build_run_artifacts, resolve_run_output_path, write_json_ar
 from .runtime import SCENARIOS_ROOT, load_world
 from .scenario_compiler import compile_question, load_game_definition, resolve_actor_names
 from .sim_bridge import SimBridge, SimProgress
-from .ui_server import run_ui_server
 
 BACKGROUND_POLICY_CHOICES = ("compiled-llm", "llm", "simple", "growth")
 LLM_REFRESH_CHOICES = ("trigger", "periodic", "never")
@@ -57,7 +56,7 @@ def _resolve_case_path(raw_value: str) -> Path:
 
 
 def build_parser() -> ArgumentParser:
-    parser = ArgumentParser(description="GIM17 scenario, game and reporting layer")
+    parser = ArgumentParser(description="GIM18 scenario, game and reporting layer")
     parser.add_argument("--version", action="version", version=f"GIM17 {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -207,13 +206,6 @@ def build_parser() -> ArgumentParser:
     )
     brief_parser.add_argument("--from-json", required=True)
     brief_parser.add_argument("--output", default="decision_brief.md")
-
-    ui_parser = subparsers.add_parser(
-        "ui",
-        help="Launch local web UI bound to the current repository and local model runtime",
-    )
-    ui_parser.add_argument("--host", default="127.0.0.1")
-    ui_parser.add_argument("--port", type=int, default=8090)
 
     hybrid_parser = subparsers.add_parser(
         "hybrid",
@@ -457,7 +449,7 @@ def _apply_world_cli_overrides(argv: list[str]) -> None:
 
 
 def main() -> None:
-    orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief", "ui", "hybrid"}
+    orchestration_commands = {"question", "game", "metrics", "console", "calibrate", "brief", "hybrid"}
     argv = sys.argv[1:]
     if not argv:
         core_main()
@@ -479,9 +471,6 @@ def main() -> None:
             max_countries=args.max_countries,
             state_year=args.state_year,
         )
-        return
-    if args.command == "ui":
-        run_ui_server(host=args.host, port=args.port)
         return
     if args.command == "brief":
         run_artifacts = build_run_artifacts(args.command)

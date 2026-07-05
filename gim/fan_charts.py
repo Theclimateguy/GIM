@@ -87,7 +87,7 @@ def _render_metric_svg(metric: str, bands: Dict[str, List[float]], years: Sequen
 def render_fan_charts(
     result: EnsembleResult,
     metrics: Optional[Sequence[str]] = None,
-    title: str = "GIM17 Ensemble Projection",
+    title: str = "GIM18 Ensemble Projection",
 ) -> str:
     """Return a self-contained HTML page of SVG fan charts for the ensemble."""
     metrics = list(metrics) if metrics is not None else list(METRICS)

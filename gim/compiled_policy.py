@@ -188,6 +188,7 @@ class CompiledLLMPolicyManager:
         refresh_years: int = 2,
         prefer_llm: bool = True,
         personas: dict[str, Persona] | None = None,
+        chat_fn: Callable[[str], str] | None = None,
     ) -> None:
         normalized_mode = (refresh_mode or "trigger").strip().lower()
         if normalized_mode not in {"trigger", "periodic", "never"}:
@@ -199,6 +200,11 @@ class CompiledLLMPolicyManager:
         self._policy_cache: dict[str, Callable[..., Action]] = {}
         self._cache_lock = Lock()
         self._personas: dict[str, Persona] = dict(personas or {})
+        # Overrides the env-var-driven DeepSeek/Ollama call_llm with an explicit caller-
+        # supplied chat function (e.g. gim2's own provider config — Ollama/OpenAI-compatible
+        # with an explicit model/key/base_url) — falls back to call_llm when not given, so
+        # existing callers (v1, CLI) are unaffected.
+        self._chat_fn = chat_fn
 
     def set_persona(self, agent_id: str, persona: Persona | None) -> None:
         """Attach (or clear) the persona that biases this agent's doctrine."""
@@ -290,6 +296,10 @@ class CompiledLLMPolicyManager:
         }
 
     def _llm_status(self) -> tuple[bool, str]:
+        if self._chat_fn is not None:
+            # An explicit chat_fn means the caller (gim2) already owns and validated its
+            # own provider config — the env-var-based DeepSeek/Ollama gate does not apply.
+            return True, "app-supplied chat_fn"
         return llm_enablement_status("llm")
 
     def _context_signature(self, obs: Observation) -> str:
@@ -337,7 +347,7 @@ class CompiledLLMPolicyManager:
         )
         if persona is not None:
             prompt = f"{prompt}\n{persona_prompt_block(persona)}"
-        raw = call_llm(prompt)
+        raw = (self._chat_fn or call_llm)(prompt)
         start = raw.find("{")
         end = raw.rfind("}")
         if start == -1 or end == -1 or end <= start:

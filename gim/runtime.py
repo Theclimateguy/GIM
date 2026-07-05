@@ -14,6 +14,7 @@ DEFAULT_STATE_YEAR = 2023
 
 def default_state_year() -> int:
     for env_name in (
+        "GIM18_STATE_YEAR",
         "GIM17_STATE_YEAR",
         "GIM15_STATE_YEAR",
         "GIM_STATE_YEAR",
@@ -32,7 +33,7 @@ def default_state_year() -> int:
 
 
 def default_state_csv() -> str:
-    for env_name in ("GIM17_STATE_CSV", "GIM15_STATE_CSV", "GIM_STATE_CSV", "GIM13_STATE_CSV"):
+    for env_name in ("GIM18_STATE_CSV", "GIM17_STATE_CSV", "GIM15_STATE_CSV", "GIM_STATE_CSV", "GIM13_STATE_CSV"):
         explicit = os.environ.get(env_name)
         if explicit:
             return explicit

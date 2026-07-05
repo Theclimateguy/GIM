@@ -249,7 +249,7 @@ def update_tfp_endogenous(agent: AgentState, world: WorldState) -> None:
             convergence = cal.TFP_CONVERGENCE_SENS * loggap
 
     # Growth-effect climate damage (F4): warming above the 2023 baseline persistently lowers
-    # TFP growth (Burke 2015 / Kotz 2024), separate from the level-effect output multiplier.
+    # TFP growth (Burke 2015; Kotz 2024 RETRACTED, not used), separate from the level-effect multiplier.
     # Switchable via GROWTH_DAMAGE_TFP_COEFF (default 0.0 -> off, golden backtest preserved).
     growth_drag_coeff = getattr(cal, "GROWTH_DAMAGE_TFP_COEFF", 0.0)
     growth_drag = 0.0

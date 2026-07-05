@@ -1,6 +1,6 @@
 # GIM — library + MCP server
 
-Self-contained distribution of the **Global Integrated Model (GIM17)** engine, packaged as
+Self-contained distribution of the **Global Integrated Model (GIM18)** engine, packaged as
 a library and exposed to LLMs through an **MCP server**. Designed for risk analysts who want
 GIM's validated climate–economy–conflict math available as tools (scenario distributions,
 SCC, sensitivity, weak-signals, bespoke what-ifs) while a frontier model handles the natural
@@ -10,12 +10,13 @@ inside a company perimeter.
 ## What's in this branch
 
 ```
-gim/                  the validated GIM17 engine (the library)
+gim/                  the validated GIM18 engine (v18.1.0: SIPRI milex grounding,
+                      4-component CINC; see repo CHANGELOG)
 gim/mcp_server.py     the MCP server (gim-mcp) — 6 tools + 3 resources
 gim/data/             calibrated state snapshots, priors, world geometry — bundled
                       INSIDE the package, so a plain `pip install` works out of the box
 docs/mcp_server.md    MCP tool/resource reference + client setup
-paper/                the GIM17 paper (RU primary, EN) — the authoritative math guide
+paper/                the GIM paper (RU primary, EN) — the authoritative math guide
 ```
 
 ## The math guide

@@ -472,14 +472,37 @@ def apply_climate_extreme_events(
 
 
 def climate_damage_multiplier(temperature: float, params=None) -> float:
-    cal = params if params is not None else default_params()
-    delta_t = temperature - TGLOBAL_2023_C
+    """Climate level-damage multiplier on GDP, quadratic in warming (Howard & Sterner 2017).
 
-    benefit = cal.DAMAGE_BENEFIT_MAX * math.exp(
-        -((delta_t - cal.DAMAGE_BENEFIT_PEAK) ** 2) / (2 * cal.DAMAGE_BENEFIT_STDDEV**2)
+    [#17 2026-07] Two corrections vs the prior form:
+      1. NORMALISED to the 2023 baseline climate (TGLOBAL_2023_C). GIM anchors each country's GDP to
+         the *2023-observed* level, which already embodies today's ~1.3 degC of warming and its damage.
+         Measuring loss from pre-industrial (the old `QUAD*T**2`) therefore DOUBLE-COUNTS the base-year
+         damage. Using `QUAD*(T**2 - T_ref**2)` makes the multiplier exactly 1.0 at the 2023 anchor and
+         accrues damage only for INCREMENTAL warming above it -> no double-count, base year untouched.
+      2. DAMAGE_QUAD_COEFF re-anchored 0.006 -> 0.0078 to the Howard & Sterner (2017) meta-regression
+         preferred central estimate (~7% GDP loss at +3 degC above pre-industrial). NB the issue's claim
+         that the old value implied "0.6% at 3C" was a miscalculation: 0.006*3**2 = 5.4%, already between
+         DICE-2016R2 (~2.1%) and Howard-Sterner; the real change is a modest +30%, not 3-4x.
+    The unsupported warming "benefit" term is disabled by default (DAMAGE_BENEFIT_MAX=0): post-2023 net
+    GDP *gains* from further warming are not supported by Howard-Sterner/Burke. The growth-effect channel
+    (Burke et al. 2015) is GROWTH_DAMAGE_TFP_COEFF (separate, switchable). NB Kotz et al. (2024), cited by
+    the issue, was RETRACTED and is deliberately NOT used as an anchor.
+    """
+    cal = params if params is not None else default_params()
+    t_ref = TGLOBAL_2023_C
+    delta_t = temperature - t_ref
+
+    benefit_max = getattr(cal, "DAMAGE_BENEFIT_MAX", 0.0)
+    benefit = (
+        benefit_max
+        * math.exp(-((delta_t - cal.DAMAGE_BENEFIT_PEAK) ** 2) / (2 * cal.DAMAGE_BENEFIT_STDDEV**2))
+        if benefit_max > 0.0
+        else 0.0
     )
 
-    loss = cal.DAMAGE_QUAD_COEFF * (temperature**2)
+    # Quadratic level damage, incremental to the calibrated 2023 baseline (no double-count).
+    loss = cal.DAMAGE_QUAD_COEFF * (temperature**2 - t_ref**2)
     return max(0.0, 1.0 + benefit - loss)
 
 

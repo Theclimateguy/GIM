@@ -41,11 +41,16 @@ LEGACY_FALLBACK_CONTRACT = (
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]  # package root (gim/); data ships inside the package
+    return Path(__file__).resolve().parents[2]
 
 
 def _primary_state_csv(repo_root: Path) -> Path:
-    return (repo_root / "data" / "agent_states_operational.csv").resolve()
+    # Resolved via paths.OPERATIONAL_STATE_CSV (not repo_root/"data") so gim-lib's
+    # package-internal data relocation finds the canon + its artifact manifest;
+    # in-repo behavior is unchanged (same file).
+    from ..paths import OPERATIONAL_STATE_CSV
+
+    return OPERATIONAL_STATE_CSV.resolve()
 
 
 def _resolve_state_csv_path(path: str | Path) -> Path:
@@ -58,7 +63,7 @@ def _resolve_state_csv_path(path: str | Path) -> Path:
 
 
 def _active_state_csv_override() -> str | None:
-    for env_name in ("GIM17_STATE_CSV", "GIM15_STATE_CSV", "GIM_STATE_CSV", "GIM13_STATE_CSV"):
+    for env_name in ("GIM18_STATE_CSV", "GIM17_STATE_CSV", "GIM15_STATE_CSV", "GIM_STATE_CSV", "GIM13_STATE_CSV"):
         raw = os.environ.get(env_name)
         if raw is None:
             continue

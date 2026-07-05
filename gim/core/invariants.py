@@ -1,4 +1,4 @@
-"""Accounting / integrity invariant layer for the GIM17 yearly transition.
+"""Accounting / integrity invariant layer for the GIM18 yearly transition.
 
 This module turns previously-silent reconciliation behaviour into explicit,
 auditable signals. It consumes the two artifacts the reconcile phase already
@@ -25,7 +25,7 @@ DIAGNOSTIC (reported, never raises - documented known gap, see docs/calibration/
                        Currently non-zero by construction (borrowing cap, debt
                        zero-flooring inside ``economy.py``, and crisis debt shocks).
 
-Mode is resolved from ``GIM17_INVARIANT_MODE`` (``off`` | ``observe`` | ``strict``),
+Mode is resolved from ``GIM18_INVARIANT_MODE`` (``off`` | ``observe`` | ``strict``),
 default ``observe`` (compute + log, never raise).
 """
 
@@ -55,7 +55,7 @@ class InvariantViolation(RuntimeError):
 
 
 def resolve_invariant_mode(explicit: Optional[str] = None) -> str:
-    raw = explicit if explicit is not None else os.getenv("GIM17_INVARIANT_MODE")
+    raw = explicit if explicit is not None else os.getenv("GIM18_INVARIANT_MODE") or os.getenv("GIM17_INVARIANT_MODE")
     if not raw:
         return "observe"
     mode = str(raw).strip().lower()

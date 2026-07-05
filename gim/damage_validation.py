@@ -53,9 +53,11 @@ EMPIRICAL_DAMAGE_ESTIMATES: List[DamageEstimate] = [
         "Predecessor coefficient (0.267%/C^2); revised down in 2016 after Tol-survey corrections.",
     ),
     DamageEstimate(
-        "gim", "GIM17 (this model)",
-        "level", 5.4, 0.006,
-        "DAMAGE_QUAD_COEFF=0.006 -> 5.4%/3C; ~2.5x DICE-2016R2, within the empirical envelope.",
+        "gim", "GIM18 (this model)",
+        "level", 7.0, 0.0078,
+        "[#17] DAMAGE_QUAD_COEFF=0.0078 -> 7.0%/3C; re-anchored to the Howard & Sterner 2017 preferred "
+        "central. ~3x DICE-2016R2. Engine applies it normalised to the 2023 baseline (incremental "
+        "damages, no double-count); this absolute-T figure is for literature comparison.",
     ),
     DamageEstimate(
         "howard_sterner_noncat", "Howard & Sterner 2017, Env. Resource Econ. 68:197 (preferred)",

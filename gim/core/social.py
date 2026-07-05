@@ -122,6 +122,30 @@ def _flush_social_pending_for_agent(world: WorldState, agent: AgentState) -> Non
     )
 
 
+def logistic_birth_rate(gdp_per_capita: float, cal) -> float:
+    """[#15] Logistic demographic-transition crude birth rate as a function of income (Lutz et al.
+    2001, Nature 412:543). High at low income, falling steeply through middle income, plateauing at
+    high income: CBR(y) = MIN + (MAX-MIN)/(1+exp(K*(ln y - ln y_mid))). Replaces the linear
+    `BASE_BIRTH_RATE - BIRTH_GDP_PC_DECAY*y` (negligible slope; could go negative at high income).
+    """
+    y = max(gdp_per_capita, 1.0)
+    lo, hi = cal.CBR_LOGISTIC_MIN, cal.CBR_LOGISTIC_MAX
+    z = cal.CBR_LOGISTIC_K * (math.log(y) - math.log(cal.CBR_LOGISTIC_MID_GDP_PC))
+    return lo + (hi - lo) / (1.0 + math.exp(z))
+
+
+def preston_death_rate(gdp_per_capita: float, cal) -> float:
+    """[#15] Income-driven underlying crude death rate (Preston 1975, Pop. Studies 29:231): mortality
+    risk falls with income (via life expectancy), plateauing at high income. Logistic in log-income.
+    NB GIM has no age structure, so this models the income->mortality channel holding age-composition
+    fixed (it does NOT reproduce the aging-driven CDR rebound in rich countries — documented limitation).
+    """
+    y = max(gdp_per_capita, 1.0)
+    lo, hi = cal.CDR_LOGISTIC_MIN, cal.CDR_LOGISTIC_MAX
+    z = cal.CDR_LOGISTIC_K * (math.log(y) - math.log(cal.CDR_LOGISTIC_MID_GDP_PC))
+    return lo + (hi - lo) / (1.0 + math.exp(z))
+
+
 def update_population(agent: AgentState, world: WorldState) -> None:
     cal = resolve_params(world)
     gdp_per_capita = agent.economy.gdp_per_capita
@@ -141,15 +165,24 @@ def update_population(agent: AgentState, world: WorldState) -> None:
     ratio = max(gdp_per_capita / baseline, 1e-6)
     prosperity = 1.0 / (1.0 + math.exp(-cal.PROSPERITY_LOGIT_SENS * math.log(ratio)))
 
-    birth_rate = cal.BASE_BIRTH_RATE - cal.BIRTH_GDP_PC_DECAY * gdp_per_capita
-    birth_rate *= 1.0 - cal.BIRTH_PROSPERITY_DAMP * prosperity
+    # [#15] Income channel: logistic demographic transition (switchable) vs the legacy linear term.
+    # When on, the absolute-income logistic SUBSUMES both the linear income term and the relative-
+    # prosperity damp (avoiding a double income->fertility channel); scarcity/gini multipliers remain.
+    if getattr(cal, "DEMOGRAPHIC_LOGISTIC", False):
+        birth_rate = logistic_birth_rate(gdp_per_capita, cal)
+    else:
+        birth_rate = cal.BASE_BIRTH_RATE - cal.BIRTH_GDP_PC_DECAY * gdp_per_capita
+        birth_rate *= 1.0 - cal.BIRTH_PROSPERITY_DAMP * prosperity
     birth_rate *= 1.0 - cal.BIRTH_SCARCITY_DAMP * scarcity
     birth_rate *= 1.0 - cal.BIRTH_GINI_DAMP * gini
     agent.economy.birth_rate = max(cal.BIRTH_RATE_MIN, min(cal.BIRTH_RATE_MAX, birth_rate))
 
-    death_rate = cal.BASE_DEATH_RATE - cal.DEATH_GDP_PC_DECAY * gdp_per_capita
+    if getattr(cal, "DEMOGRAPHIC_LOGISTIC", False):
+        death_rate = preston_death_rate(gdp_per_capita, cal)
+    else:
+        death_rate = cal.BASE_DEATH_RATE - cal.DEATH_GDP_PC_DECAY * gdp_per_capita
+        death_rate *= 1.0 - cal.DEATH_PROSPERITY_DAMP * prosperity
     death_rate *= 1.0 + cal.DEATH_SCARCITY_SENS * scarcity + cal.DEATH_GINI_SENS * gini
-    death_rate *= 1.0 - cal.DEATH_PROSPERITY_DAMP * prosperity
     agent.economy.death_rate = max(cal.DEATH_RATE_MIN, min(cal.DEATH_RATE_MAX, death_rate))
 
     growth_rate = agent.economy.birth_rate - agent.economy.death_rate
@@ -236,6 +269,11 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
         + inequality_trust_penalty
         + tension_trust_penalty
     )
+    # [#16] Inequality x unemployment interaction (Gould & Hijzen 2016): inequality erodes trust more
+    # in downturns. Default coef 0.0 => off (golden-safe).
+    interact = getattr(cal, "TRUST_GINI_UNEMP_INTERACT", 0.0)
+    if interact:
+        trust_change -= interact * (agent.society.inequality_gini / 100.0) * agent.economy.unemployment
     # [F3] Culture link: power distance -> weaker accountability institutions -> lower trust.
     if getattr(cal, "CULTURE_SOCIAL_LINKS", False):
         _ref = cal.CULTURE_DIM_REF

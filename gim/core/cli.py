@@ -19,7 +19,7 @@ from .rng import seed_world
 from .simulation import step_world
 from .world_factory import make_world_from_csv
 
-MODEL_DISPLAY_NAME = "GIM17"
+MODEL_DISPLAY_NAME = "GIM18"
 
 
 def _resolve_state_csv() -> str:
@@ -59,6 +59,7 @@ def _bool_env(name: str, default: bool) -> bool:
 
 def _resolve_state_year() -> int:
     for env_name in (
+        "GIM18_STATE_YEAR",
         "GIM17_STATE_YEAR",
         "GIM15_STATE_YEAR",
         "GIM_STATE_YEAR",

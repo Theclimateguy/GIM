@@ -1,4 +1,4 @@
-"""Persona layer for the GIM17 decision-maker UI.
+"""Persona layer for the GIM18 decision-maker UI.
 
 A persona is a *bias* on top of the country's own compiled doctrine, not an
 override. It carries an opening declaration (fed into the doctrine-compilation
