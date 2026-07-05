@@ -69,22 +69,26 @@ This is the researched mapping; all datasets verified June 2026.
 
 `gim/capability.py` computes a **CINC-style capability share** (Correlates of War methodology) from
 the components GIM tracks — total population, energy consumption, GDP (industrial proxy), and
-military spending when nonzero. Validated against the published CINC ranking (`tests/test_capability.py`):
+**SIPRI military expenditure** (populated at world build from `data/external/sipri_milex_2023.csv`
+since v18.1.0, `MILEX_CINC_COMPONENT=True`, [F3+]). Both configurations validated
+(`tests/test_capability.py`):
 
-| | GIM CINC-style | Published CINC ~2016 |
-|---|---|---|
-| China | 0.205 | ~0.22 |
-| United States | 0.147 | ~0.14 |
-| India | 0.096 | ~0.08 |
-| Russia | 0.030 | ~0.04 |
-| Japan | 0.027 | ~0.03 |
+| | 3-proxy (flag off) | 4-component headline (v18.1.0) | Published CINC ~2016 |
+|---|---|---|---|
+| United States | 0.147 | **0.204** | ~0.14 |
+| China | 0.205 | 0.185 | ~0.22 |
+| India | 0.096 | 0.080 | ~0.08 |
+| Russia | 0.030 | 0.034 | ~0.04 |
+| Japan | 0.027 | 0.025 | ~0.03 |
 
-The index reproduces the real ranking (China > US > India) using only 3 components.
-`ground_military_power(world)` sets `technology.military_power` to the capability share (rescaled to
-mean ~1 to preserve the scalar's units). Provided as a **callable grounding tool** (not auto-wired
-into the factory, since it overrides hand-set CSV values and shifts conflict dynamics — a
-calibration decision); golden backtest is unaffected (military_power is conflict-gated). Recommended
-to enable after a conflict-scenario regression check.
+The 3-proxy configuration reproduces the published COW ranking (China > US > India). The headline
+4-component index intentionally departs from it — the milex share (US ≈ 37% of world) outweighs the
+steel-and-personnel-era COW mix; rationale: the proxy fits milex levels (r≈0.76 cross-section) but
+is anti-correlated with 2021–24 militarization dynamics (share-change corr −0.115; see
+`mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md`). `ground_military_power(world)` sets
+`technology.military_power` to the capability share (rescaled to mean ~1) and is **auto-wired at
+world build** since the E2.4 re-anchor (`GROUND_MILITARY_POWER=True`); golden backtest unaffected
+(military_power is conflict-gated), conflict backtest AUC 0.739 / BSS +0.123.
 
 ## Honest caveat
 

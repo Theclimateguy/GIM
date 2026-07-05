@@ -2,6 +2,34 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [18.1.0] — 2026-07-05 — SIPRI milex grounding (4-component CINC, F3+)
+
+Data-grounding re-anchor of the capability index, motivated by the mil_risk empirical program
+(`mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md`): the pop/energy/GDP proxy fits military-
+expenditure *levels* (r≈0.76 cross-section) but is **anti-correlated with 2021–24 militarization
+dynamics** (share-change corr −0.115), and the deterministic core had no military-expenditure
+observable at all.
+
+### Changed (headline)
+- **`economy.military_spending` populated at world build** from the committed SIPRI 2023 grounding
+  file (`data/external/sipri_milex_2023.csv`; 50 country actors direct, AG_* aggregates summed over
+  pipeline `model_region` members — 99.9% of the SIPRI world total; documented carry-forward for
+  SIPRI gaps: ARE←2014, VNM←2018; HKG=0, folded into CHN). Built by
+  `scripts/build_milex_grounding.py`; gated by `MILEX_CINC_COMPONENT=True` ([F3+]).
+- **CINC becomes 4-component** (pop, energy, GDP, milex): C′ = 0.75·C + 0.25·s_milex. Capability
+  ranking shifts to **USA 0.204 > CHN 0.185 > IND 0.080** (RUS 0.034, +12.5%; ISR +88%, SAU +50%,
+  USA +40% vs proxy) — an intentional, documented departure from the steel-and-personnel-era COW
+  component mix. The 3-proxy configuration keeps the published-CINC anchor (China > US > India)
+  and stays covered by tests under flag-off.
+
+### Verified
+- Full suite OK; golden backtest bit-identical: **GDP 0.599 / CO₂ 0.939 / T 0.145**; SCC bands
+  (`test_benchmark_alignment`) in band.
+- Conflict backtest re-scored locally against UCDP/PRIO ACD v24.1: **AUC 0.739 / BSS +0.123**
+  (scores the untouched state-CSV `conflict_proneness`; re-fetch instructions in
+  `data/external/SOURCES.md`).
+- Calm 2015–2024 trajectories bit-identical (military_power is conflict-gated).
+
 ## [18.0.0] — 2026-07-01 — GIM18 reviewer-response (deepening + global sensitivity)
 
 Closes reviewer issues #11–#19: deepened the climate, economy and social modules and added a Sobol

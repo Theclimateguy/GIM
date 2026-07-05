@@ -38,6 +38,7 @@ The World Bank API does NOT serve these; they are zip/xlsx/rda. Download and dro
 | **SWIID v9.x** | `society.inequality_gini` (preferred, standardized) | https://fsolt.org/swiid/ (GitHub `fsolt/swiid`) | `swiid9_x_summary.csv` |
 | **Correlates of War — National Material Capabilities v6.0** | CINC validation for `military_power` | https://correlatesofwar.org/data-sets/national-material-capabilities/ | `NMC-60-abridged.csv` |
 | **SIPRI Military Expenditure Database** (full) | `economy.military_spending` full series | https://www.sipri.org/databases/milex | `SIPRI-Milex-data.xlsx` |
+| **SIPRI milex 2023 grounding file** (committed) | `economy.military_spending` at world build → milex component of the CINC (`MILEX_CINC_COMPONENT`, [F3+]) | built by `scripts/build_milex_grounding.py` from the SIPRI workbook (57 actors: countries direct, AG_* aggregates summed over pipeline `model_region`; carry-forward for SIPRI gaps: ARE←2014, VNM←2018; HKG=0) | `sipri_milex_2023.csv` (in repo) |
 | **Global Sanctions Database (GSDB) v3** | `political.sanction_propensity` | https://www.globalsanctionsdatabase.com/ | `GSDB_V3.xlsx` |
 | **V-Dem v14** (optional) | `culture.regime_type` ground (Democracy/Autocracy) | https://v-dem.net/data/the-v-dem-dataset/ | `V-Dem-CY-Core-v14.csv` |
 | **WRI Aqueduct 4.0** (optional) | `risk.water_stress` | https://www.wri.org/data/aqueduct-global-maps-40-data | `Aqueduct40_baseline.csv` |

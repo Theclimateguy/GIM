@@ -16,6 +16,16 @@ CINC-grounded headline SCC at modern 2%/200y is **~$197** (near the EPA/RFF cent
 the arbitrary `military_power=1.0` scalar. The grounded value is the more defensible one. Test
 bands widened to reflect this sensitivity (`test_benchmark_alignment`).
 
+**[F3+ / v18.1.0] Milex component activated.** `economy.military_spending` is populated from the
+SIPRI 2023 grounding file (`data/external/sipri_milex_2023.csv`) at world build
+(`MILEX_CINC_COMPONENT=True`), so the CINC gains its military-expenditure component (4 components
+instead of the 3-proxy fallback). Motivation: the proxy fits milex *levels* (r≈0.76) but is
+anti-correlated with 2021–24 militarization *dynamics* (share-change corr −0.115). Capability
+ranking shifts to **USA 0.204 > CHN 0.185** (intentional departure from the steel-and-personnel-era
+COW mix; the proxy configuration keeps the published-CINC anchor under flag-off, both covered by
+`tests/test_capability.py`). Verified: golden bit-identical (GDP 0.599 / CO₂ 0.939 / T 0.145),
+conflict backtest AUC 0.739 / BSS +0.123, full suite (incl. `test_benchmark_alignment` SCC bands) OK.
+
 **Ensemble / tail only (OFF in the deterministic headline):** smooth carbon-cycle feedback,
 abrupt carbon tipping, fat-tailed crisis severity, growth-effect damage upper. These carry deep
 uncertainty and (the feedback especially) blow up the deterministic long-horizon SCC — they belong

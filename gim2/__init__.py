@@ -29,7 +29,7 @@ import os
 __version__ = "2.1.0-dev"
 
 # The version of the frozen math line v2 wraps (must stay in lock-step with gim).
-ENGINE_LINE = "18.0.0"
+ENGINE_LINE = "18.1.0"
 
 SCHEMA = "gim-engine/2"
 

@@ -1,4 +1,4 @@
-# Global Integrated Model — GIM18 (v18.0.0)
+# Global Integrated Model — GIM18 (v18.1.0)
 
 A year-by-year simulation of the world as interacting countries (~50 countries plus regional
 groupings), integrating **economy, climate, climate damage, resources, society, politics,
@@ -10,7 +10,7 @@ not pinpoint forecasting.
 every layer, what it can do, and its limits. For where the model stands and what comes next, see
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-## Status (v18.0.0)
+## Status (v18.1.0)
 
 - All runs start from a single **validated 2023 canon** compiled state
   (`data/agent_states_operational.csv`): 57 actors covering essentially all of world output
@@ -152,6 +152,17 @@ python3 -m unittest discover -s tests             # full suite
 ```
 
 ## Version
+
+**`18.1.0` — SIPRI milex grounding (4-component CINC, F3+).** `economy.military_spending` is
+populated at world build from a committed SIPRI 2023 grounding file (57 actors, 99.9% of the world
+total), activating the military-expenditure component of the CINC capability index. Motivation (from
+the mil_risk empirical program): the pop/energy/GDP proxy fits milex *levels* (r≈0.76) but is
+anti-correlated with post-2022 militarization *dynamics* (share-change corr −0.115). Capability
+ranking shifts to **USA > China** (documented departure from the steel-era COW mix; the proxy
+configuration keeps the published-CINC anchor under flag-off). Golden backtest bit-identical
+(**GDP 0.599 / CO₂ 0.939 / T 0.145**); conflict backtest **AUC 0.739 / BSS +0.123**.
+
+### Lineage (v18.0.0)
 
 **`18.0.0` — reviewer-response deepening + global sensitivity.** Closes reviewer issues #11–#19,
 deepening the climate, economy and social modules and adding a Sobol global sensitivity analysis, with
