@@ -438,7 +438,11 @@ def make_world_from_csv(
     # [F3 / E2.4 re-anchor] Ground military_power in the CINC capability share (headline default).
     # Conflict-gated -> golden-safe; replaces the curated CSV scalar with the observable share.
     if getattr(world.params, "GROUND_MILITARY_POWER", False):
-        from ..capability import ground_military_power
+        from ..capability import ground_military_power, load_military_spending
+        # [F3+ / Tier-1] SIPRI milex -> economy.military_spending BEFORE grounding, so the
+        # CINC gains its military-expenditure component (see calibration_params).
+        if getattr(world.params, "MILEX_CINC_COMPONENT", False):
+            load_military_spending(world)
         ground_military_power(world)
 
     return world

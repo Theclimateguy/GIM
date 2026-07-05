@@ -14,7 +14,32 @@ world) from those components — an observable, standard grounding for `military
 
 from __future__ import annotations
 
+import csv
+from pathlib import Path
 from typing import Dict, List
+
+# [F3+] SIPRI 2023 milex grounding file (built by scripts/build_milex_grounding.py).
+_MILEX_GROUNDING_CSV = Path(__file__).resolve().parents[1] / "data" / "external" / "sipri_milex_2023.csv"
+
+
+def load_military_spending(world, csv_path: str | Path | None = None) -> int:
+    """[F3+] Populate `economy.military_spending` from the SIPRI grounding CSV (id -> US$m).
+
+    Returns the number of agents populated. No-ops (returns 0) if the file is absent, so a
+    checkout without the data file degrades gracefully to the 3-component proxy CINC.
+    """
+    path = Path(csv_path) if csv_path is not None else _MILEX_GROUNDING_CSV
+    if not path.exists():
+        return 0
+    n = 0
+    with open(path, newline="") as fh:
+        for row in csv.DictReader(fh):
+            agent = world.agents.get(row.get("id", ""))
+            if agent is None:
+                continue
+            agent.economy.military_spending = max(0.0, float(row["military_spending_musd"]))
+            n += 1
+    return n
 
 
 def _component_vectors(world) -> Dict[str, Dict[str, float]]:

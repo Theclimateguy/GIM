@@ -578,6 +578,17 @@ CULTURE_LTO_PATIENCE_SENS = 0.30  # long-term orientation -> tension damping (sa
 # (calm) golden backtest is unaffected; it shifts conflict/geo scenario dynamics. Validated vs
 # published CINC (China 0.205 / US 0.147 / India 0.096) in gim/capability.py.
 GROUND_MILITARY_POWER = True  # [F3] CINC grounding at build (headline).
+# [F3+ / Tier-1 milex re-anchor] Populate `economy.military_spending` from the SIPRI 2023
+# grounding file (data/external/sipri_milex_2023.csv; 50 country actors direct, AG_* aggregates
+# summed over region members — 99.9% of the SIPRI world total) BEFORE CINC grounding, activating
+# the military-expenditure component of the CINC (4 components instead of the 3-proxy fallback).
+# Rationale: the pop/energy/GDP proxy fits milex LEVELS (r~0.76 cross-section) but is
+# ANTI-correlated with 2021-24 militarization dynamics (share-change corr -0.115) — see
+# mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md. Conflict-gated like F3 itself, so the calm
+# golden backtest is unaffected; the UCDP conflict backtest scores the state-CSV
+# conflict_proneness column and is likewise unchanged. Shifts conflict/geo scenario dynamics
+# (war odds, mil_gap threat terms, credit military-balance).
+MILEX_CINC_COMPONENT = True  # [F3+] SIPRI milex component in CINC (headline).
 GINI_GROWTH_SENS = 6.0  # [PRIOR]
 GINI_RECESSION_SENS = 4.0  # [PRIOR]
 GINI_RECESSION_TENSION_OFFSET = 0.50  # [PRIOR]
