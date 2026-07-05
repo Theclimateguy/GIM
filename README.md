@@ -156,7 +156,7 @@ python3 -m unittest discover -s tests             # full suite
 **`18.1.0` — SIPRI milex grounding (4-component CINC, F3+).** `economy.military_spending` is
 populated at world build from a committed SIPRI 2023 grounding file (57 actors, 99.9% of the world
 total), activating the military-expenditure component of the CINC capability index. Motivation (from
-the mil_risk empirical program): the pop/energy/GDP proxy fits milex *levels* (r≈0.76) but is
+`docs/MILEX_GROUNDING_ANALYSIS.md`): the pop/energy/GDP proxy fits milex *levels* (r≈0.76) but is
 anti-correlated with post-2022 militarization *dynamics* (share-change corr −0.115). Capability
 ranking shifts to **USA > China** (documented departure from the steel-era COW mix; the proxy
 configuration keeps the published-CINC anchor under flag-off). Golden backtest bit-identical

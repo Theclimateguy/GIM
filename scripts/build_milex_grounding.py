@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build data/external/sipri_milex_2023.csv — SIPRI 2023 military expenditure mapped
-to GIM's 57 actors (Tier 1 milex grounding; see mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md).
+to GIM's 57 actors (Tier 1 milex grounding; see docs/MILEX_GROUNDING_ANALYSIS.md).
 
 Country actors: direct SIPRI value (constant 2022 US$ m).
 AG_* aggregates: sum of SIPRI countries whose wb_region (pipeline panel) matches the
@@ -8,7 +8,8 @@ aggregate's region, excluding explicit country actors. Countries SIPRI lacks (e.
 North Korea) or that fail name-matching are reported and omitted.
 
 Source file: the SIPRI milex workbook (constant 2022 US$) — path via --sipri, default
-looks in ../mil_risk/data/raw/sipri/.
+looks in ../mil_risk/data/raw/sipri/ (local research workspace; any SIPRI milex
+workbook 'constant 2022 US$' sheet works — pass --sipri).
 """
 from __future__ import annotations
 

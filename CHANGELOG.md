@@ -4,8 +4,8 @@ All notable changes to the Global Integrated Model. This project follows semanti
 
 ## [18.1.0] — 2026-07-05 — SIPRI milex grounding (4-component CINC, F3+)
 
-Data-grounding re-anchor of the capability index, motivated by the mil_risk empirical program
-(`mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md`): the pop/energy/GDP proxy fits military-
+Data-grounding re-anchor of the capability index, based on the empirical analysis in
+`docs/MILEX_GROUNDING_ANALYSIS.md`: the pop/energy/GDP proxy fits military-
 expenditure *levels* (r≈0.76 cross-section) but is **anti-correlated with 2021–24 militarization
 dynamics** (share-change corr −0.115), and the deterministic core had no military-expenditure
 observable at all.

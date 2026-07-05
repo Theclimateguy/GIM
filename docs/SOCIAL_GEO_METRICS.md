@@ -85,7 +85,7 @@ The 3-proxy configuration reproduces the published COW ranking (China > US > Ind
 4-component index intentionally departs from it — the milex share (US ≈ 37% of world) outweighs the
 steel-and-personnel-era COW mix; rationale: the proxy fits milex levels (r≈0.76 cross-section) but
 is anti-correlated with 2021–24 militarization dynamics (share-change corr −0.115; see
-`mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md`). `ground_military_power(world)` sets
+`docs/MILEX_GROUNDING_ANALYSIS.md`). `ground_military_power(world)` sets
 `technology.military_power` to the capability share (rescaled to mean ~1) and is **auto-wired at
 world build** since the E2.4 re-anchor (`GROUND_MILITARY_POWER=True`); golden backtest unaffected
 (military_power is conflict-gated), conflict backtest AUC 0.739 / BSS +0.123.

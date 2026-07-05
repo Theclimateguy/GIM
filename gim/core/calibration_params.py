@@ -584,7 +584,7 @@ GROUND_MILITARY_POWER = True  # [F3] CINC grounding at build (headline).
 # the military-expenditure component of the CINC (4 components instead of the 3-proxy fallback).
 # Rationale: the pop/energy/GDP proxy fits milex LEVELS (r~0.76 cross-section) but is
 # ANTI-correlated with 2021-24 militarization dynamics (share-change corr -0.115) — see
-# mil_risk/analysis/output/GIM_INTEGRATION_MEMO.md. Conflict-gated like F3 itself, so the calm
+# docs/MILEX_GROUNDING_ANALYSIS.md. Conflict-gated like F3 itself, so the calm
 # golden backtest is unaffected; the UCDP conflict backtest scores the state-CSV
 # conflict_proneness column and is likewise unchanged. Shifts conflict/geo scenario dynamics
 # (war odds, mil_gap threat terms, credit military-balance).

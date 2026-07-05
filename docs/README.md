@@ -72,6 +72,7 @@ notes have been moved out of the repository to keep it clean.)
 ## Finalization record
 
 - [`RE_ANCHOR.md`](RE_ANCHOR.md) — the headline activation decision + the new golden.
+- [`MILEX_GROUNDING_ANALYSIS.md`](MILEX_GROUNDING_ANALYSIS.md) — empirical basis for the v18.1.0 SIPRI milex re-anchor (proxy-CINC blind spot, decomposition test, decision matrix, verification).
 - [`OBJECTIVE_RELATIONSHIPS.md`](OBJECTIVE_RELATIONSHIPS.md) — objective definitions and linkage map.
 
 ## Graphical interface
