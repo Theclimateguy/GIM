@@ -45,7 +45,12 @@ def _repo_root() -> Path:
 
 
 def _primary_state_csv(repo_root: Path) -> Path:
-    return (repo_root / "data" / "agent_states_operational.csv").resolve()
+    # Resolved via paths.OPERATIONAL_STATE_CSV (not repo_root/"data") so gim-lib's
+    # package-internal data relocation finds the canon + its artifact manifest;
+    # in-repo behavior is unchanged (same file).
+    from ..paths import OPERATIONAL_STATE_CSV
+
+    return OPERATIONAL_STATE_CSV.resolve()
 
 
 def _resolve_state_csv_path(path: str | Path) -> Path:
