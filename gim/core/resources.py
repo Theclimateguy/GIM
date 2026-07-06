@@ -250,14 +250,30 @@ def update_global_resource_prices(
     clearing = getattr(cal, "MARKET_CLEARING", False)
     alpha = getattr(cal, "PRICE_ADJUST_ALPHA", alpha)
     eps = max(0.05, getattr(cal, "MARKET_DEMAND_ELASTICITY", 0.4))
+    reserves = getattr(world.global_state, "global_reserves", {})
 
     for resource_name in RESOURCE_NAMES:
         current_price = world.global_state.prices.get(resource_name, 1.0)
         if clearing:
             # [F2.2] within-period clearing: set price so constant-elasticity demand == supply.
             # demand(p) = D0*(p/p_cur)^(-eps) == supply  ->  p* = p_cur*(D0/supply)^(1/eps).
-            ratio = (demand[resource_name] + epsilon) / (supply[resource_name] + epsilon)
-            next_price = current_price * (ratio ** (1.0 / eps))
+            #
+            # [reserve buffer] A flow-only clearing price assumes this year's production must
+            # equal this year's consumption, which is a fair approximation for a near-zero-storage
+            # good but not for one with a large standing stock: metals carry several years of
+            # above-ground/recycled inventory, energy several years of proven reserves, so a
+            # flow imbalance is mostly absorbed by drawing down (or building) that stock rather
+            # than requiring price alone to clear it in one step. food carries very little
+            # buffer (perishable), so it keeps clearing close to the pure flow rule, correctly
+            # staying the most price-volatile of the three. buffer_ratio -> 1 when reserves dwarf
+            # the imbalance (price barely moves this year); -> 0 when reserves are thin relative
+            # to the imbalance (recovers the original pure flow-clearing rule).
+            raw_ratio = (demand[resource_name] + epsilon) / (supply[resource_name] + epsilon)
+            imbalance = abs(demand[resource_name] - supply[resource_name])
+            reserve = max(0.0, float(reserves.get(resource_name, 0.0)))
+            buffer_ratio = reserve / (reserve + imbalance + epsilon)
+            damped_ratio = 1.0 + (1.0 - buffer_ratio) * (raw_ratio - 1.0)
+            next_price = current_price * (damped_ratio ** (1.0 / eps))
         else:
             imbalance = (demand[resource_name] - supply[resource_name]) / (
                 supply[resource_name] + epsilon
