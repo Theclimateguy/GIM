@@ -153,6 +153,16 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
+**`18.1.1` — reserve-buffered resource-price clearing (forward-stability fix).** The instant
+market-clearing rule treated every resource as a pure flow good, driving food/metals prices into
+their clamp bounds within a few years on a plain forward run (metals carry a large above-ground
+stock and a 4.7× baseline flow imbalance in the canon). Clearing now damps the demand/supply ratio
+by the standing reserve already tracked in `global_reserves`, so prices stay smooth for 10–15 years;
+thin-buffer food correctly remains the most volatile. Golden backtest **bit-identical**
+(GDP 0.599 / CO₂ 0.939 / T 0.145); full suite 527/527. See `CHANGELOG.md`.
+
+### Lineage (v18.1.0)
+
 **`18.1.0` — SIPRI milex grounding (4-component CINC, F3+).** `economy.military_spending` is
 populated at world build from a committed SIPRI 2023 grounding file (57 actors, 99.9% of the world
 total), activating the military-expenditure component of the CINC capability index. Motivation (from

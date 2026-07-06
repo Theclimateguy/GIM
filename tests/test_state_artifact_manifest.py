@@ -46,7 +46,11 @@ class StateArtifactManifestTests(unittest.TestCase):
             state_csv.parent.mkdir(parents=True, exist_ok=True)
             state_csv.write_text("id,value\nA,1\n", encoding="utf-8")
 
-            with patch.object(state_artifact, "_repo_root", return_value=repo_root):
+            # The canonical state CSV is resolved through paths.OPERATIONAL_STATE_CSV
+            # (so gim-lib's package-internal data relocation is honoured); redirect the
+            # primary-state resolver at that seam rather than at _repo_root, which the
+            # resolver no longer consults.
+            with patch.object(state_artifact, "_primary_state_csv", return_value=state_csv):
                 with warnings.catch_warnings(record=True) as caught:
                     warnings.simplefilter("always")
                     binding = state_artifact.load_primary_state_artifact(allow_legacy_fallback=True)

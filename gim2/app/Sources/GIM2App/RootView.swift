@@ -59,7 +59,7 @@ struct RootView: View {
                     Text(app.ready ? "движок готов · офлайн" : "запуск движка…")
                         .font(Theme.ui(10)).foregroundStyle(Theme.muted)
                 }
-                let core = app.info?.engineLine ?? "18.1.0"
+                let core = app.info?.engineLine ?? "18.1.1"
                 let appVer = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "2.1.0"
                 if let url = URL(string: "https://github.com/Theclimateguy/GIM/releases/tag/v\(core)") {
                     Link(destination: url) {

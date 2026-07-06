@@ -2,6 +2,34 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [18.1.1] — 2026-07-06 — reserve-buffered resource-price clearing (forward-stability fix)
+
+Behaviour fix to the forward/scenario path; the 2015–2023 golden backtest is **bit-identical**
+(GDP 0.599 / CO₂ 0.939 / T 0.145), so all validated headline numbers are unchanged.
+
+### Fixed
+- **Instant market-clearing overshoot on stock goods** (`gim/core/resources.py`). The headline
+  clearing rule `p* = p_cur·(demand/supply)^(1/ε)` treated every resource as a pure flow good that
+  must clear within the year — fine for energy (reserve/flow ≈ 7×) but wrong for metals (≈ 2.3×,
+  mostly above-ground/recycled stock) whose 2023 baseline flow imbalance (demand/supply ≈ 4.7×, a
+  data fact in the canon, not a runtime artifact) drove food and metals prices into their
+  `[0.3, 5.0]` clamp bounds within 2–4 years on a plain `step_world` forward run. The rule now damps
+  the demand/supply ratio toward 1 by a **reserve buffer** already tracked in
+  `global_state.global_reserves` (`buffer_ratio = reserve / (reserve + |imbalance|)`): large standing
+  stocks (metals, energy) absorb most of a flow imbalance, while thin-buffer food keeps clearing near
+  the original pure-flow rule and correctly stays the most volatile. Prices are now smooth and
+  monotonic for 10–15 years. No calibration data changed; `MARKET_CLEARING`, `PRICE_ADJUST_ALPHA`,
+  `MARKET_DEMAND_ELASTICITY` untouched. (Surfaced while driving the engine year-by-year through the
+  plain programmatic API during a game-prototype integration.)
+- **State-artifact manifest test regression** (`tests/test_state_artifact_manifest.py`). The v18.1.1
+  line inherited a test that redirected the canon via `_repo_root`; since v18.1.0 resolved the canon
+  through `paths.OPERATIONAL_STATE_CSV` (gim-lib data relocation), the redirect no longer took effect
+  and the missing-manifest fallback was never exercised. The test now patches `_primary_state_csv`,
+  the actual resolution seam — **full suite 527/527 green**.
+
+### Changed
+- Version 18.1.0 → **18.1.1** (patch: forward-behaviour fix, no API or golden change).
+
 ## [18.1.0] — 2026-07-05 — SIPRI milex grounding (4-component CINC, F3+)
 
 Data-grounding re-anchor of the capability index, based on the empirical analysis in

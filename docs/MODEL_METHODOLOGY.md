@@ -161,6 +161,16 @@ For `energy`, `food`, and `metals`, the model updates:
 
 Energy allocation/caps are computed before resource stock updates and then feed downstream economic and climate channels.
 
+Global prices use a within-period constant-elasticity clearing rule (`MARKET_CLEARING`, headline
+default) that is **reserve-buffered** (v18.1.1): the demand/supply ratio is damped toward 1 in
+proportion to the standing reserve stock relative to the flow imbalance
+(`buffer_ratio = reserve / (reserve + |demand − supply|)`). A resource with a large above-ground
+stock (metals, energy) absorbs most of a one-year flow imbalance through the stock rather than the
+price, while a thin-buffer good (food) clears close to the pure-flow rule and correctly remains the
+most price-volatile of the three. This keeps forward price paths smooth rather than driving them into
+the `[0.3, 5.0]` clamp bounds within a few years; no calibration coefficient changed and the
+2015–2023 backtest is bit-identical.
+
 ### 6.3 Climate layer
 
 Climate module behavior includes:
