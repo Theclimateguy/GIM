@@ -138,7 +138,8 @@ def compute_policy_game(
     from gim.persona import get_persona
 
     csv = state_csv or default_state_csv()
-    world = make_world_from_csv(csv, max_agents=int(max_agents), base_year=2023)
+    # forward_init: balance base-year resource markets so forward prices don't pin to a clamp.
+    world = make_world_from_csv(csv, max_agents=int(max_agents), base_year=2023, forward_init=True)
     world.params = default_params()
     seed_world(world, int(seed))
 

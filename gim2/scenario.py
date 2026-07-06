@@ -302,7 +302,8 @@ def compute_sensitivity(
 
         def fn(overrides: Dict[str, float]) -> float:
             ps = L.apply_param_levers(base.with_overrides(overrides), selection)
-            world = make_world_from_csv(csv, max_agents=int(max_agents), base_year=2023)
+            # forward_init: balance base-year resource markets so forward prices don't pin to a clamp.
+            world = make_world_from_csv(csv, max_agents=int(max_agents), base_year=2023, forward_init=True)
             world.params = ps
             seed_world(world, int(seed))
             policies = make_policy_map(world.agents.keys(), mode="simple")

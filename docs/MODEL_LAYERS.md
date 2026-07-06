@@ -75,7 +75,10 @@ into prices, which feed into inflation and into the economy.
 
 **Limits.** The energy/resource market now clears by price (demand responds with a calibrated
 elasticity), which is the headline behaviour; a sluggish-adjustment fallback rule remains available.
-Resources are represented at a broad level, not as detailed sector-by-sector energy systems.
+On forward runs, resource demand grows with population and income, a weak equilibrium anchor keeps
+any persistent imbalance from pinning a price to its clamp, and an opt-in `forward_init` balances the
+base-year markets so prices stay readable over a multi-decade projection (v18.1.2). Resources are
+represented at a broad level, not as detailed sector-by-sector energy systems.
 
 ## 5. Society and politics
 

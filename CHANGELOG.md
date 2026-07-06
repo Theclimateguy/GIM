@@ -2,6 +2,38 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [18.1.2] — 2026-07-06 — resource-price degeneracy fix (equilibrium anchor + demand growth)
+
+Behaviour fix to the forward/scenario path; the 2015–2023 golden backtest is **bit-identical** and
+the full test suite (527 tests) is green — every change below is a no-op at the base year, so no
+golden snapshot moved.
+
+### Fixed
+- **Resource prices pinned to their clamp bounds on a forward run** (`gim/core/resources.py`,
+  `gim/core/calibration_params.py`, `gim/core/world_factory.py`, `gim/runtime.py`). The
+  reserve-buffered clearing rule (v18.1.1) damped the *speed* of a price move but not its
+  *destination*: a persistent one-directional supply/demand imbalance still walked a price to a
+  `[0.3, 5.0]` clamp and pinned there (energy → ceiling as reserves depleted; food/metals → floor
+  under structural over-supply), identically across seeds. Four coordinated changes close it:
+  - **Equilibrium anchor** — `PRICE_ANCHOR_PULL` (default 0.15) adds a weak log-space mean-reversion
+    toward a per-resource anchor (the base-year reference price) after the walk step in
+    `update_global_resource_prices`, so no persistent imbalance can pin a price. Zero pull, or a
+    price already at its anchor, is a no-op.
+  - **Resource demand growth** — food/metals consumption grows each year with realized population and
+    per-capita income (`FOOD_/METALS_DEMAND_POP/INCOME_ELASTICITY`) instead of a frozen constant.
+    Energy retains its cost-min demand path (elasticities 0). Clamped per-year growth band.
+  - **Metals recycling compounding bug** — primary production is now carried forward as the desired
+    base (`_primary_production`); recycled secondary supply is a within-year market term only, so it
+    no longer inflated next year's production base (metals supply had run away ~20× over the horizon).
+  - **Forward base-year balancing** — `normalize_resource_scales_forward` now also balances the
+    base-year food market (consumption scaled up to production, mirroring the metals balance), and is
+    reached via a new opt-in `forward_init` flag on `make_world_from_csv` / `load_world`. Default off
+    keeps the raw loader, historical backtest and calibration paths byte-identical; forward-run entry
+    points opt in.
+- **gim2 forward paths use `forward_init=True`** (`gim2/policy_game.py`, `gim2/scenario.py`) so
+  scenario and policy-game projections get balanced base-year markets. (`gim2/levers.py` ensemble
+  members already normalized; cascade/ontology use a read-only world and are unaffected.)
+
 ## [18.1.1] — 2026-07-06 — reserve-buffered resource-price clearing (forward-stability fix)
 
 Behaviour fix to the forward/scenario path; the 2015–2023 golden backtest is **bit-identical**

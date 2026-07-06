@@ -89,6 +89,32 @@ CARBON_PRICE_PASSTHROUGH = 0.003    # [D1] fractional economy-wide energy-price 
 MARKET_CLEARING = True               # [F2.2/E3] HEADLINE: within-period resource price clearing (full closure).
 MARKET_DEMAND_ELASTICITY = 0.4       # [F2.2] price elasticity of resource demand (energy ~0.3-0.5).
 PRICE_ADJUST_ALPHA = 0.15            # [F2.2] sluggish-adjustment step for the (non-clearing) fallback rule.
+# [F2.3] Resource-price equilibrium anchor. Both price rules above (clearing and the sluggish
+# tatonnement fallback) are a multiplicative walk with NO restoring force: any *persistent* one-
+# directional supply/demand imbalance compounds the price to a clamp bound and pins there
+# (energy -> ceiling as reserves deplete; food/metals -> floor under structural over-supply). This
+# adds a weak log-space mean-reversion toward a per-resource anchor (the calibration reference price,
+# captured once at the base year) AFTER the walk step, so no single persistent imbalance can pin a
+# price: scarcity still moves it (the pull is weak) but it settles at a finite level instead of the
+# clamp. At the anchor the pull term is exactly zero, so the base-year price update is unchanged
+# (golden-safe on a static base year). Set 0.0 to recover the exact pre-anchor walk.
+PRICE_ANCHOR_PULL = 0.15            # [F2.3] per-year share of the log-gap to the anchor pulled back.
+# [F2.4] Resource demand growth. Base-year resource consumption was carried forward as a frozen
+# constant (only the price-response terms nudged it), so food demand never tracked population and
+# metals demand never tracked income -> permanent over-supply -> price pinned to the floor.
+# Consumption now grows each year with realized population and per-capita income growth, with per-
+# resource elasticities. Energy keeps its own cost-min demand path (elasticities 0 here). At zero
+# pop/income growth the factor is 1, and the first (base) year has no prior to grow from -> golden-
+# safe on a static base year. The per-year factor is clamped to a sane band so a recovery/crisis
+# swing can't shock demand.
+RESOURCE_DEMAND_GROWTH_MIN = 0.8    # [F2.4] per-year demand-growth factor floor.
+RESOURCE_DEMAND_GROWTH_MAX = 1.25   # [F2.4] per-year demand-growth factor ceiling.
+FOOD_DEMAND_POP_ELASTICITY = 1.0      # [F2.4] calories track population ~1:1.
+FOOD_DEMAND_INCOME_ELASTICITY = 0.25  # [F2.4] richer diets add a little (Engel: food is income-inelastic).
+METALS_DEMAND_POP_ELASTICITY = 0.0
+METALS_DEMAND_INCOME_ELASTICITY = 0.7 # [F2.4] material intensity rises sub-proportionally with income.
+ENERGY_DEMAND_POP_ELASTICITY = 0.0    # [F2.4] energy demand handled by ENERGY_DEMAND_PRICE_RESPONSE.
+ENERGY_DEMAND_INCOME_ELASTICITY = 0.0
 # [E3.2] Capital-market clearing. Investment responds to the price of capital: the gap between the
 # marginal product of capital (return, ~ALPHA_CAPITAL*Y/K) and its cost (effective interest rate +
 # depreciation). Anchored at each country's baseline gap so the calibration steady state is unchanged

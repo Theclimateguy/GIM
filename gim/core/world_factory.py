@@ -265,6 +265,7 @@ def make_world_from_csv(
     path: str = "agent_states.csv",
     max_agents: int | None = None,
     base_year: int = 2023,
+    forward_init: bool = False,
 ) -> WorldState:
     agents: Dict[str, AgentState] = {}
 
@@ -444,5 +445,14 @@ def make_world_from_csv(
         if getattr(world.params, "MILEX_CINC_COMPONENT", False):
             load_military_spending(world)
         ground_military_power(world)
+
+    # [F2.4c] Forward-projection init: correct the resource-block scale issues (energy reserve
+    # horizon, metals prod/reserve, food demand balance) so the forward markets clear and prices
+    # don't pin to a clamp. Opt-in (default off) so the raw loader, historical backtest and geo
+    # calibration paths stay byte-identical; forward-run entry points (e.g. load_world) pass True.
+    if forward_init:
+        from .resources import normalize_resource_scales_forward
+
+        normalize_resource_scales_forward(world)
 
     return world

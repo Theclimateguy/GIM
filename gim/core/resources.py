@@ -1,3 +1,4 @@
+import math
 from typing import Dict, Optional
 
 from .core import (
@@ -61,6 +62,26 @@ def normalize_resource_scales_forward(world: WorldState) -> None:
             if metals is not None:
                 metals.production *= factor
                 metals.own_reserve *= factor
+
+    # 3) FOOD consumption -> balance the market with production. Base-year food consumption is
+    #    understated ~0.64x vs production (a frozen base demand that never tracked population), so the
+    #    food market is permanently over-supplied and its price pins to the floor. Scale EVERY agent's
+    #    food consumption up by the single global prod/cons ratio (mirrors the metals balance above,
+    #    inverted) so the global market clears at the base year while each agent's importer/exporter
+    #    position is preserved; demand growth then tracks population from a balanced start. Scale UP
+    #    only, so the validated base-year production surface is untouched.
+    f_prod = f_cons = 0.0
+    for agent in world.agents.values():
+        food = agent.resources.get("food")
+        if food is not None:
+            f_prod += max(0.0, food.production)
+            f_cons += max(0.0, food.consumption)
+    if f_cons > 0.0 and f_prod > f_cons:
+        factor = f_prod / f_cons
+        for agent in world.agents.values():
+            food = agent.resources.get("food")
+            if food is not None:
+                food.consumption *= factor
 
     sync_global_reserves_from_agents(world)
 
@@ -158,11 +179,60 @@ def update_resource_stocks(
     metals_demand_adjust = (metals_price_now / metals_price_prev) ** (-metals_substitution_elasticity)
     world.global_state._metals_demand_price_prev = metals_price_now
 
+    # [F2.4] Resource demand growth. Consumption tracks realized population and per-capita income
+    # growth (per-resource elasticities) instead of sitting frozen at its base-year level, which
+    # otherwise permanently over-supplied food (demand never grew with population) and understated
+    # metals demand -> prices pinned to the floor. Growth is realized with a one-year lag (economy
+    # and population update later in the step) and uses per-agent prev pop/income kept on
+    # global_state; the first year has no prior -> factor 1, so the base year is unchanged.
+    demand_pop_elas = {
+        "energy": getattr(cal, "ENERGY_DEMAND_POP_ELASTICITY", 0.0),
+        "food": getattr(cal, "FOOD_DEMAND_POP_ELASTICITY", 0.0),
+        "metals": getattr(cal, "METALS_DEMAND_POP_ELASTICITY", 0.0),
+    }
+    demand_income_elas = {
+        "energy": getattr(cal, "ENERGY_DEMAND_INCOME_ELASTICITY", 0.0),
+        "food": getattr(cal, "FOOD_DEMAND_INCOME_ELASTICITY", 0.0),
+        "metals": getattr(cal, "METALS_DEMAND_INCOME_ELASTICITY", 0.0),
+    }
+    demand_growth_on = any(v != 0.0 for v in demand_pop_elas.values()) or any(
+        v != 0.0 for v in demand_income_elas.values()
+    )
+    growth_min = getattr(cal, "RESOURCE_DEMAND_GROWTH_MIN", 0.8)
+    growth_max = getattr(cal, "RESOURCE_DEMAND_GROWTH_MAX", 1.25)
+    pop_prev = getattr(world.global_state, "_resource_demand_pop_prev", {})
+    gdppc_prev = getattr(world.global_state, "_resource_demand_gdppc_prev", {})
+    next_pop_prev: Dict[str, float] = {}
+    next_gdppc_prev: Dict[str, float] = {}
+
     for agent_id, agent in world.agents.items():
+        # [F2.4] realized per-agent pop / per-capita-income growth since the last step.
+        pop = max(0.0, float(getattr(agent.economy, "population", 0.0)))
+        gdp = max(0.0, float(getattr(agent.economy, "gdp", 0.0)))
+        gdp_pc = gdp / pop if pop > 0.0 else 0.0
+        prev_pop = pop_prev.get(agent_id)
+        prev_gdppc = gdppc_prev.get(agent_id)
+        if demand_growth_on and prev_pop and prev_pop > 0.0 and prev_gdppc and prev_gdppc > 0.0:
+            pop_growth = pop / prev_pop
+            income_growth = gdp_pc / prev_gdppc
+        else:
+            pop_growth = 1.0
+            income_growth = 1.0
+        next_pop_prev[agent_id] = pop
+        next_gdppc_prev[agent_id] = gdp_pc
+
         for resource_name in RESOURCE_NAMES:
             resource = agent.resources.get(resource_name)
             if resource is None:
                 continue
+
+            # [F2.4] grow base demand with realized population + per-capita income (clamped band).
+            if demand_growth_on:
+                growth_factor = (pop_growth ** demand_pop_elas[resource_name]) * (
+                    income_growth ** demand_income_elas[resource_name]
+                )
+                growth_factor = min(growth_max, max(growth_min, growth_factor))
+                resource.consumption = max(0.0, resource.consumption * growth_factor)
 
             if resource_name == "energy" and energy_demand_response:
                 resource.consumption = max(0.0, resource.consumption * energy_demand_adjust)
@@ -171,21 +241,30 @@ def update_resource_stocks(
                 # Price-based substitution reduces metals demand when prices rise (non-compounding).
                 resource.consumption = max(0.0, resource.consumption * metals_demand_adjust)
 
+            # [F2.4b] Desired PRIMARY production carried forward is last year's primary output only,
+            # NOT the total output including recycled secondary supply. Storing the recycled-inclusive
+            # total as the desired base (as before) let recycling compound into the primary base every
+            # year -> metals supply ran away ~20x over the horizon -> D/S collapsed -> price pinned to
+            # the floor. First year has no stored primary, so fall back to the loaded production
+            # (== base-year primary, no recycling yet) -> base year unchanged.
+            prev_primary = getattr(resource, "_primary_production", None)
+            desired_base = prev_primary if prev_primary is not None else max(0.0, resource.production)
+
             if resource_name == "energy" and energy_alloc is not None:
                 caps = energy_alloc.get(
                     agent_id,
                     {"prod_cap_zj_per_year": WORLD_ANNUAL_SUPPLY_CAP_ZJ},
                 )
-                desired = max(0.0, resource.production)
                 cap_year = caps["prod_cap_zj_per_year"]
                 max_from_reserve = max(0.0, resource.own_reserve)
-                production = min(desired, cap_year, max_from_reserve)
+                production = min(desired_base, cap_year, max_from_reserve)
             else:
-                production = max(0.0, resource.production)
+                production = desired_base
 
             primary_production = production
             if resource_name == "metals":
-                # Recycling adds secondary supply without depleting ore reserves.
+                # Recycling adds secondary supply without depleting ore reserves. It boosts THIS
+                # year's market supply only; it must not feed back into next year's primary base.
                 recycle_rate = max(0.0, min(0.9, metals_recycling_rate))
                 recycled = recycle_rate * max(0.0, resource.consumption)
                 production = production + recycled
@@ -202,8 +281,15 @@ def update_resource_stocks(
                 new_reserve = resource.own_reserve - primary_production + regen + tech_expansion
 
             resource.own_reserve = max(0.0, new_reserve)
+            # [F2.4b] carry PRIMARY production forward as next year's desired base; keep the
+            # recycled-inclusive total as the reported output the market/economy consume.
+            resource._primary_production = primary_production
             resource.production = production
             total_primary_production[resource_name] += primary_production
+
+    # [F2.4] carry this step's pop / per-capita income forward as the base for next year's growth.
+    world.global_state._resource_demand_pop_prev = next_pop_prev
+    world.global_state._resource_demand_gdppc_prev = next_gdppc_prev
 
     # T1.2 (Finding C-1): the global reserve ledger is the coherent aggregate of the country
     # ledgers — global_reserves[r] == sum_i own_reserve[r] — so it tracks the per-country
@@ -225,6 +311,19 @@ def sync_global_reserves_from_agents(world: WorldState) -> None:
             if resource is not None:
                 total += max(0.0, float(resource.own_reserve))
         reserves[resource_name] = total
+
+
+def _resource_price_anchors(world: WorldState) -> Dict[str, float]:
+    """Per-resource anchor price for the equilibrium pull: the calibration reference price,
+    captured once the first time prices are updated (the base year, where prices are ~1.0)."""
+    anchors = getattr(world.global_state, "_resource_price_anchors", None)
+    if anchors is None:
+        anchors = {
+            name: max(1e-6, float(world.global_state.prices.get(name, 1.0)))
+            for name in RESOURCE_NAMES
+        }
+        world.global_state._resource_price_anchors = anchors
+    return anchors
 
 
 def update_global_resource_prices(
@@ -251,6 +350,8 @@ def update_global_resource_prices(
     alpha = getattr(cal, "PRICE_ADJUST_ALPHA", alpha)
     eps = max(0.05, getattr(cal, "MARKET_DEMAND_ELASTICITY", 0.4))
     reserves = getattr(world.global_state, "global_reserves", {})
+    anchor_pull = float(getattr(cal, "PRICE_ANCHOR_PULL", 0.0))
+    anchors = _resource_price_anchors(world) if anchor_pull > 0.0 else {}
 
     for resource_name in RESOURCE_NAMES:
         current_price = world.global_state.prices.get(resource_name, 1.0)
@@ -279,6 +380,15 @@ def update_global_resource_prices(
                 supply[resource_name] + epsilon
             )
             next_price = current_price * (1.0 + alpha * imbalance)
+
+        # [F2.3] weak log-space mean-reversion toward the calibration anchor, applied AFTER the
+        # walk step so a persistent imbalance settles at a finite level instead of pinning to a
+        # clamp. Zero pull, or a price already at its anchor, leaves next_price untouched.
+        if anchor_pull > 0.0:
+            anchor = max(1e-6, float(anchors.get(resource_name, 1.0)))
+            log_next = math.log(max(next_price, 1e-9))
+            next_price = math.exp(log_next + anchor_pull * (math.log(anchor) - log_next))
+
         world.global_state.prices[resource_name] = max(
             min_price,
             min(max_price, next_price),

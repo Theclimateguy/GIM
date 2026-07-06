@@ -171,6 +171,32 @@ most price-volatile of the three. This keeps forward price paths smooth rather t
 the `[0.3, 5.0]` clamp bounds within a few years; no calibration coefficient changed and the
 2015–2023 backtest is bit-identical.
 
+The reserve buffer damps the *speed* of a price move but not its *destination*: a one-directional
+imbalance still walks a price to a clamp and pins there, because the clearing/tatonnement rule is a
+multiplicative walk with no restoring force. **v18.1.2** closes this on the forward path with four
+changes (each a no-op at the base year, so the golden backtest stays bit-identical):
+
+- **Equilibrium anchor** (`PRICE_ANCHOR_PULL`, default 0.15). After the walk step, each price is
+  pulled weakly toward a per-resource anchor (the calibration reference price, captured at the base
+  year) in log space. Scarcity still moves the price, but no single persistent imbalance can pin it
+  to a clamp. At the anchor the pull term is exactly zero.
+- **Resource demand growth.** Consumption of food and metals now grows each year with realized
+  population and per-capita income (per-resource elasticities), instead of sitting frozen at the
+  base-year level — which had left food permanently over-supplied and metals demand understated.
+  Energy keeps its own cost-minimizing demand path.
+- **Metals recycling no longer compounds.** Recycled secondary supply is counted in the current
+  year's market supply only; the *primary* production carried forward is stored separately, so
+  recycling can no longer inflate next year's production base (which had run metals supply away
+  ~20× over the horizon).
+- **Forward base-year market balance** (`forward_init` flag on `make_world_from_csv` / `load_world`,
+  default off). Opt-in forward-projection init that scales the base-year energy reserve horizon,
+  metals production/reserve, and now food consumption so the base-year markets clear. The raw
+  loader, historical backtest and calibration paths stay byte-identical; forward-run entry points
+  (ensemble members, the game adapter, gim2 scenario/policy-game runs) pass `forward_init=True`.
+
+With all four active on a forward run, energy, food and metals prices move and respond to policy
+without pinning to a clamp.
+
 ### 6.3 Climate layer
 
 Climate module behavior includes:

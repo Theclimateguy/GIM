@@ -153,6 +153,18 @@ python3 -m unittest discover -s tests             # full suite
 
 ## Version
 
+**`18.1.2` — resource-price degeneracy fix (equilibrium anchor + demand growth).** The
+reserve-buffer (v18.1.1) slowed a price move but not its destination: a persistent one-directional
+imbalance still walked a price to its `[0.3, 5.0]` clamp and pinned there (energy → ceiling on
+reserve depletion; food/metals → floor on structural over-supply), identically across seeds. Fixed on
+the forward path with a weak price-equilibrium anchor (`PRICE_ANCHOR_PULL`), resource demand that
+grows with population/income, a metals recycling fix (recycled supply no longer compounds into the
+primary base), and an opt-in `forward_init` that balances the base-year markets. Prices now move and
+respond to policy without pinning. Every change is a no-op at the base year, so the golden backtest is
+**bit-identical** and the full suite is 527/527. See `CHANGELOG.md`.
+
+### Lineage (v18.1.1)
+
 **`18.1.1` — reserve-buffered resource-price clearing (forward-stability fix).** The instant
 market-clearing rule treated every resource as a pure flow good, driving food/metals prices into
 their clamp bounds within a few years on a plain forward run (metals carry a large above-ground

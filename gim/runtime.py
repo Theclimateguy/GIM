@@ -48,12 +48,17 @@ def load_world(
     state_csv: str | None = None,
     max_agents: int | None = None,
     state_year: int | None = None,
+    forward_init: bool = False,
 ) -> WorldState:
+    # forward_init=True applies the forward-projection resource-scale corrections (energy reserve
+    # horizon, metals balance, food demand balance) so forward markets clear and prices don't pin.
+    # Default off keeps the historical-backtest and calibration callers byte-identical.
     resolved_state_year = default_state_year() if state_year is None else int(state_year)
     return make_world_from_csv(
         state_csv or default_state_csv(),
         max_agents=max_agents,
         base_year=resolved_state_year,
+        forward_init=forward_init,
     )
 
 
