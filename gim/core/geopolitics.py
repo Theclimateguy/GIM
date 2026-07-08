@@ -273,11 +273,13 @@ def apply_security_actions(world: WorldState, actions: Dict[str, Action]) -> Non
     # society.{trust_gov,social_tension}
     for action in actions.values():
         sec = action.foreign_policy.security_actions
+        was_auto = False
         if sec.type == "none":
             auto = _auto_security_action(world, action.agent_id)
             if auto is None:
                 continue
             sec.type, sec.target = auto
+            was_auto = True
 
         actor_id = action.agent_id
         target_id = _coerce_agent_id(sec.target)
@@ -394,6 +396,25 @@ def apply_security_actions(world: WorldState, actions: Dict[str, Action]) -> Non
             rel_ta.at_war = True
             _ensure_war_start(rel_at, actor)
             _ensure_war_start(rel_ta, target)
+
+        if was_auto and sec.type != "none":
+            # Silent-RNG audit trail (T-notes calibration review): fires with
+            # no card, no narrative when the player left security policy at
+            # "none" — log it so godmode can surface it instead of a mystery
+            # stability/trust move.
+            log = getattr(world.global_state, "recent_events", None)
+            if log is None:
+                log = world.global_state.recent_events = []
+            log.append({
+                "kind": "auto_security",
+                "type": sec.type,
+                "actor_id": actor_id,
+                "actor_name": getattr(actor, "name", actor_id),
+                "target_id": target_id,
+                "target_name": getattr(target, "name", target_id),
+                "severity": {"military_exercise": 1.0, "arms_buildup": 2.0,
+                             "border_incident": 3.0, "conflict": 4.0}.get(sec.type, 0.0),
+            })
 
 
 def update_active_conflicts(world: WorldState) -> None:

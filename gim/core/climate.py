@@ -461,6 +461,7 @@ def apply_climate_extreme_events(
                 "trust_gov",
                 min(1.0, _effective(world, agent, "trust_gov") + trust_delta),
             )
+            trust_reward = True
         else:
             trust_delta = cal.EVENT_TRUST_PENALTY_BASE + cal.EVENT_TRUST_PENALTY_RISK_SENS * risk
             _set_effective(
@@ -469,6 +470,22 @@ def apply_climate_extreme_events(
                 "trust_gov",
                 max(0.0, _effective(world, agent, "trust_gov") - trust_delta),
             )
+            trust_reward = False
+
+        # Silent-RNG audit trail (T-notes calibration review): this branch has
+        # no card, no narrative, nothing on screen when it fires — a player
+        # sees stability/trust move with no visible cause. Log it so the
+        # godmode layer can surface it as a headline instead of a mystery.
+        log = getattr(world.global_state, "recent_events", None)
+        if log is None:
+            log = world.global_state.recent_events = []
+        log.append({
+            "kind": "climate_extreme",
+            "agent_id": agent.id,
+            "agent_name": getattr(agent, "name", agent.id),
+            "severity": round(severity, 3),
+            "trust_reward": trust_reward,
+        })
 
 
 def climate_damage_multiplier(temperature: float, params=None) -> float:
