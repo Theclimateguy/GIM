@@ -2,6 +2,51 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [18.1.3] — 2026-07-12 — trust_gov equilibrium anchor + per-agent tension reference (opt-in)
+
+Behaviour fix to the political/social layer, same shape as the 18.1.2 resource-price fix; **opt-in**
+(default off), so the 2015–2023 golden backtest and the full test suite (527 tests, same pass/skip
+split) are bit-identical with the flag at its default.
+
+### Found
+- **`trust_gov` has no equilibrium term, and the model's own comment claiming otherwise is wrong.**
+  `gim/core/social.py:update_social_state` computes `trust_gov`'s per-year change as a straight sum
+  of sensitivities (GDP-per-capita level, unemployment, inflation, inequality, a tension penalty)
+  with a governing comment stating the flow is "balanced by the positive GDP-per-capita drift." Under
+  calibrated values that balance does not hold: the GDP-per-capita term is ~0.0004–0.0005/yr for a
+  typical tracked country, while the inequality (`gini`) term alone is ~−0.0165/yr and stays close to
+  constant since gini barely moves under normal play — ~40× larger, unopposed. Net effect: trust decays
+  at a near-constant rate regardless of policy, and once it crosses the tension threshold a self-
+  reinforcing trust↔tension coupling (via `SOCIAL_TRUST_ANCHOR_SENS`) takes over independent of any
+  further input, settling into a repeating regime-collapse/partial-recovery cycle rather than a stable
+  floor. Confirmed empirically with a downstream consumer's scripted-policy batch (an extreme
+  pro-stability policy and its exact opposite produced statistically indistinguishable trajectories,
+  12 seeds to a 27-year horizon: −34.2 vs −34.6). Not caught by the existing social-validation program
+  (`docs/calibration/SOCIAL_VALIDATION_PROGRAM.md` S1–S6) — S3 explicitly found no marginal
+  trust→growth channel exists at all, so `trust_gov`'s own time-series behaviour was never itself
+  checked for realism, and `docs/SOCIAL_GEO_METRICS.md` still lists trust_gov "level + trend
+  validation" as an open item, not a finished one.
+
+### Fixed (opt-in — see the partial-result note below for why this isn't the new default yet)
+- **Equilibrium anchor** — `TRUST_ANCHOR_PULL` (default `0.0`) adds a weak linear mean-reversion,
+  after the normal walk step in `update_social_state`, pulling `trust_gov` back toward each agent's own
+  base-year (2023) value (`_trust_anchors`, capture-once, same pattern as
+  `resources._resource_price_anchors`). Linear rather than log-space since `trust_gov` is an additive
+  `[0,1]` quantity, unlike a multiplicative price.
+- **Per-agent tension reference** — the tension equation's own `trust_anchor` term previously measured
+  every agent against one global constant (`SOCIAL_TRUST_ANCHOR_REF = 0.50`), so an agent whose own
+  baseline trust sits above 0.50 (most of a typical tracked set) had an ordinary crisis dip flip this
+  term from damping tension to amplifying it, at a threshold unrelated to that agent's own social
+  reality. Now references the same per-agent anchor as above when `TRUST_ANCHOR_PULL > 0`.
+- **Verified but partial:** at `TRUST_ANCHOR_PULL = 0.15` (the same value already validated for
+  `PRICE_ANCHOR_PULL`), the repeating collapse cycle is gone and the settling floor is measurably
+  higher (~13 vs ~7–9 with the flag off, same 12-seed batch). It does **not** by itself restore
+  policy-sensitivity — the scripted pro-/anti-stability policies remain statistically indistinguishable
+  at every pull strength tested (0.08/0.15/0.25), because the domestic-policy levers that could move
+  `gini`/`unemployment`/`inflation` don't do so strongly or often enough on their own. Left opt-in
+  (default `0.0`) rather than activated in the headline pending that follow-on work, unlike
+  `PRICE_ANCHOR_PULL` which was validated sufficient on its own and activated by default.
+
 ## [18.1.2] — 2026-07-06 — resource-price degeneracy fix (equilibrium anchor + demand growth)
 
 Behaviour fix to the forward/scenario path; the 2015–2023 golden backtest is **bit-identical** and

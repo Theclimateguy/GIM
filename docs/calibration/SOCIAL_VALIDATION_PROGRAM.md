@@ -176,6 +176,24 @@ social-media penetration), so the tension weight stays an honest, modest expert 
 adjacency anchor. All headline numbers were re-validated under the geo-on default in
 [`GEO_ON_REVALIDATION.md`](GEO_ON_REVALIDATION.md).
 
+### S7 — `trust_gov` dynamical equilibrium — DONE (bug found, opt-in fix, not yet sufficient)
+
+Follow-on from S3's finding that trust has no marginal growth channel: this asks whether `trust_gov`'s
+own *time-series* dynamics are plausible, independent of what they feed. They are not. The governing
+comment in `calibration_params.py` claims the per-step trust flow is "balanced by the positive
+GDP-per-capita drift" — under calibrated values it isn't (that term is ~40× too small relative to the
+near-constant inequality drag), so `trust_gov` decays at a roughly constant rate regardless of policy
+and, once it crosses the tension threshold, enters a self-reinforcing collapse loop with no equilibrium
+to settle at. Confirmed with a downstream consumer's scripted-policy batch: an extreme pro-stability
+policy and its exact opposite over 12 seeds to a 27-year horizon were statistically indistinguishable
+(−34.2 vs −34.6). See `CHANGELOG.md` [18.1.3] for the fix (`TRUST_ANCHOR_PULL`, opt-in, default off,
+golden-safe) and its measured effect (removes the repeating collapse cycle, raises the settling floor
+~7–9 → ~13 at pull=0.15) and its measured limit (does not by itself restore policy-sensitivity — a
+second, separate gap in how strongly/often domestic-policy levers move `gini`/`unemployment`/`inflation`).
+Artifacts: `gim/core/social.py` (`_trust_anchors`), `gim/core/calibration_params.py`
+(`TRUST_ANCHOR_PULL`). No dedicated test module yet — validated via the full suite (unaffected at
+default) plus the downstream consumer's batch scripts, not checked into this repo.
+
 ## Status
 
 - **S1** — DONE (war-size exponent anchored; sampler validated, α̂=1.51, KS=0.003).
@@ -185,6 +203,8 @@ adjacency anchor. All headline numbers were re-validated under the geo-on defaul
 - **S6** — DONE (geographic coupling across trade/conflict/tension/climate, ACTIVATED in headline; golden in band, suite 455 passed; shapely now a runtime dep; payoff concentrated in trade).
 - **S5** — DONE (geography diagnostic → leverage AUC 0.772→0.805 → switchable adjacency contagion,
   locality 2.7×→9.6×; off by default, golden-safe).
+- **S7** — DONE (`trust_gov` equilibrium bug found and fixed opt-in via `TRUST_ANCHOR_PULL`; removes
+  the collapse-cycle attractor, does not by itself restore policy-sensitivity — follow-on needed).
 
 **Net:** 7 new literature-anchored prior rows in `data/parameter_priors.csv` (was 0 social/political);
 6 reproduction/diagnostic scripts + 6 test modules; 5 validation modules; one switchable, off-by-default

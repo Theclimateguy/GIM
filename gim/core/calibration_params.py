@@ -577,6 +577,19 @@ TRUST_TENSION_THRESHOLD = 0.30  # [PRIOR]
 # [#16] Switchable inequality x unemployment interaction (Gould & Hijzen 2016: inequality erodes trust
 # MORE during downturns). Default 0.0 -> off (golden-safe); on-value adds -COEF*gini_frac*unemployment.
 TRUST_GINI_UNEMP_INTERACT = 0.0  # [DATA on-value ~0.02] interaction trust penalty; 0 => off.
+# [2026-07-12] The "balanced by the positive GDP-per-capita drift" claim above does not hold under
+# calibrated values: at TRUST_GDP_PC_SENS=0.00005 the GDP-per-capita term is ~0.0004-0.0005/yr even
+# for a rich country, while TRUST_GINI_SENS alone contributes ~-0.0165/yr at a realistic gini
+# (35-45) -- ~40x larger and never reached zero under card-driven play (batch-verified: a scripted
+# maximize-social-spending/R&D policy and its exact opposite produced statistically indistinguishable
+# avg_stability trajectories over 12 seeds to 2050, -34.2 vs -34.6). trust_gov has no equilibrium
+# term of its own (unlike price's PRICE_ANCHOR_PULL below), so it drifts down at a near-constant
+# rate until clamped, then the SOCIAL_TRUST_ANCHOR_SENS/TENSION_SENS coupling below turns that into
+# a self-reinforcing collapse. Same shape as the pre-fix resource-price walk (e0fa89f). Default 0.0
+# => off, golden-safe: turns on a weak per-agent mean-reversion toward each agent's own base-year
+# (2023) trust_gov, captured once (see _trust_anchors in social.py), mirroring PRICE_ANCHOR_PULL's
+# log-space pull but linear (trust_gov is already an additive [0,1] quantity, not multiplicative).
+TRUST_ANCHOR_PULL = 0.0  # [F-social] per-year share of the gap to each agent's base-year trust pulled back.
 INEQUALITY_EFFECT_SENS = 0.0005  # [PRIOR]
 SOCIAL_STRESS_UNEMPLOYMENT_SENS = 0.01  # [PRIOR]
 SOCIAL_STRESS_INFLATION_SENS = 0.005  # [PRIOR]

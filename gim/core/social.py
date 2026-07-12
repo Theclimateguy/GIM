@@ -250,6 +250,19 @@ def update_migration_flows(world: WorldState) -> None:
         agent.economy.population = max(0.0, agent.economy.population + delta)
 
 
+_TRUST_ANCHORS_ATTR = "_trust_anchors"
+
+
+def _trust_anchors(world: WorldState) -> Dict[str, float]:
+    """Per-agent anchor trust_gov for the equilibrium pull: each agent's own base-year value
+    (captured once, the first time this is called) -- mirrors resources._resource_price_anchors."""
+    anchors = getattr(world.global_state, _TRUST_ANCHORS_ATTR, None)
+    if anchors is None:
+        anchors = {aid: clamp01(a.society.trust_gov) for aid, a in world.agents.items()}
+        setattr(world.global_state, _TRUST_ANCHORS_ATTR, anchors)
+    return anchors
+
+
 def update_social_state(agent: AgentState, action: Action, world: WorldState) -> None:
     cal = resolve_params(world)
     gdp_pc_effect = cal.TRUST_GDP_PC_SENS * (agent.economy.gdp_per_capita / cal.TRUST_GDP_PC_REF)
@@ -280,6 +293,13 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
         trust_change -= cal.CULTURE_PDI_TRUST_SENS * (agent.culture.pdi - _ref) / 100.0
     current_trust = _effective_critical(agent, world, "trust_gov")
     trust_next = clamp01(current_trust + trust_change)
+    # [2026-07-12] Weak equilibrium pull toward this agent's own base-year trust, applied AFTER the
+    # walk step -- same role PRICE_ANCHOR_PULL plays for prices (resources.py), linear here since
+    # trust_gov is additive/[0,1], not multiplicative. Default 0.0 => off, golden-safe/bit-identical.
+    anchor_pull = float(getattr(cal, "TRUST_ANCHOR_PULL", 0.0))
+    if anchor_pull > 0.0:
+        anchor = _trust_anchors(world).get(agent.id, trust_next)
+        trust_next = clamp01(trust_next + anchor_pull * (anchor - trust_next))
     _set_critical_effective(world, agent, "trust_gov", trust_next)
 
     inequality_sensitivity = 1.0 - agent.culture.idv / 100.0
@@ -292,7 +312,17 @@ def update_social_state(agent: AgentState, action: Action, world: WorldState) ->
     if getattr(cal, "CULTURE_SOCIAL_LINKS", False):
         _ref = cal.CULTURE_DIM_REF
         stress_effect *= 1.0 + cal.CULTURE_UAI_STRESS_SENS * (agent.culture.uai - _ref) / 100.0
-    trust_anchor = cal.SOCIAL_TRUST_ANCHOR_SENS * (cal.SOCIAL_TRUST_ANCHOR_REF - trust_next)
+    # [2026-07-12] SOCIAL_TRUST_ANCHOR_REF is a single global constant (0.50) regardless of an
+    # agent's own natural trust baseline -- for an agent whose base-year trust sits above 0.50 (most
+    # of the tracked set), an ordinary crisis dip below the constant flips this term from damping
+    # tension to actively amplifying it, at a threshold with no relation to that agent's own social
+    # reality. Gated on the same TRUST_ANCHOR_PULL flag (same underlying fix: give trust dynamics a
+    # per-agent baseline instead of one global reference point); default off leaves REF untouched.
+    tension_ref = (
+        _trust_anchors(world).get(agent.id, cal.SOCIAL_TRUST_ANCHOR_REF)
+        if anchor_pull > 0.0 else cal.SOCIAL_TRUST_ANCHOR_REF
+    )
+    trust_anchor = cal.SOCIAL_TRUST_ANCHOR_SENS * (tension_ref - trust_next)
 
     tension_change = inequality_effect + stress_effect + trust_anchor
     # [F3] Culture link: long-term orientation (patience) damps short-run unrest swings.
