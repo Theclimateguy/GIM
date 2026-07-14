@@ -24,7 +24,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-FIGDIR = os.path.join(REPO, "paper", "figures")
+FIGDIR = os.path.join(REPO, "Paper", "figures")
 DATA = os.path.join(REPO, "results", "integration_benchmark", "latest.json")
 
 plt.rcParams.update({

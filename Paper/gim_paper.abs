@@ -1,0 +1,8 @@
+
+This paper describes an integrated simulation model of the world, in which the economy, climate
+and carbon cycle, warming damages, natural resources, society and politics, interstate
+relations, culture, crisis and finance mechanisms are coupled within a single computational
+loop. The model is organized as a system of interacting countries and includes 57 country agents plus several regional aggregates. Simulation advances year by year: each block updates its state annually, and the results are passed to the next year and to adjacent blocks. The aim is not to deliver a point forecast of the future but to provide a tool for strategic planning and scenario analysis: playing out coherent development scenarios, comparing alternative policy decisions, quantifying uncertainty through ensembles, and detecting weak signals of approaching structural shifts -- including for the management of systemic risks. We set out the problem and the model's place among existing approaches, its architecture and the mathematics and empirical basis underlying each block, the calibration and validation procedure with the resulting metrics, sensitivity analysis and ensemble uncertainty quantification, an explicit list of limitations, and typical use cases. The economic and climate blocks are calibrated on 1990--2023 historical data and pass retrospective validation. The society, politics, and geopolitics blocks are assessed against a more modest criterion -- improvement over consensus expert forecasts.
+
+\medskip
+\noindent\textbf{Keywords:} integrated assessment model (IAM), strategic planning, scenario analysis, uncertainty quantification, risk management, weak signals.
