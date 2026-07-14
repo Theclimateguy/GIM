@@ -6,8 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PARAM_PATH = REPO_ROOT / "data" / "parameters_gim17.csv"
-LOCK_PATH = REPO_ROOT / "data" / "parameters_gim17.lock.json"
+PARAM_PATH = REPO_ROOT / "data" / "parameters_gim18.csv"
+LOCK_PATH = REPO_ROOT / "data" / "parameters_gim18.lock.json"
 
 
 def sha256(path: Path) -> str:

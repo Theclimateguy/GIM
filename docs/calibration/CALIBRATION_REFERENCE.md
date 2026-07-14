@@ -32,8 +32,9 @@ It documents:
 Source: `data/agent_states_operational.artifacts.json`
 
 - `EMISSIONS_SCALE = 0.9755424434247171`
-- `DECARB_RATE_STRUCTURAL = 0.052`
-- manifest observed decarb reference:
+- `DECARB_RATE_STRUCTURAL = 0.016025082589816386` (17.3.0: re-stamped from the legacy 0.052 to the
+  data-derived observed prior; the two errors the 0.052 rate was silently cancelling are fixed)
+- manifest observed decarb reference (now also the stamped rate):
   - `rate = 0.016025082589816386`
   - `start_year = 2000`
   - `end_year = 2023`
@@ -47,7 +48,8 @@ Source: rolling walk-forward Stage B/C artifacts
 - `TFP_RD_SHARE_SENS = 0.300000`
 - `GAMMA_ENERGY = 0.042000`
 - `HEAT_CAP_SURFACE = 8.000000`
-- `DECARB_RATE_STRUCTURAL = 0.052000` (kept artifact-bound from the operational manifest)
+- `DECARB_RATE_STRUCTURAL = 0.016025` (kept artifact-bound from the operational manifest; 17.3.0
+  re-stamped it from the legacy 0.052 to the observed prior)
 
 Rule: release `15.5` retains the hybrid baseline introduced in `15.1`: macro sensitivity and heat capacity use rolling-selected values, while structural decarb remains manifest-bound to preserve historical CO2 fit.
 
@@ -58,7 +60,8 @@ Source: `gim/core/calibration_params.py`
 - `GAMMA_ENERGY = 0.042` (`[BACKTEST]`)
 - `TFP_RD_SHARE_SENS = 0.30` (`[BACKTEST]`)
 - `HEAT_CAP_SURFACE = 8.0` (`[BACKTEST]`)
-- `TEMP_NATURAL_VARIABILITY_SIGMA = 0.08` (`[BACKTEST]`)
+- `TEMP_NATURAL_VARIABILITY_SIGMA = 0.088` (`[DATA]`; 18.0.0 #12 re-derivation from the observed
+  1990–2023 forced residuals — spread-matched within the AR(1) CI [0.074, 0.120])
 - `TEMP_BACKTEST_ENSEMBLE_SIZE = 8` (`[BACKTEST]`)
 
 `DECARB_RATE_STRUCTURAL` is intentionally a compound parameter today (artifact-bound residual). The empirical intensity decline reference is stored separately as `DECARB_RATE_OBSERVED_REFERENCE`.
@@ -86,19 +89,19 @@ Source: `gim/core/calibration_params.py`, provenance in `calibration/crisis_pers
 
 ### 3.1 Historical backtest
 
-Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`), **17.3.0
-development-structured recalibration** (re-pinned to the recalibrated headline):
+Bundled fixture baseline (`tests/fixtures/historical_backtest_baseline.json`), **18.0.0
+reviewer-response re-anchor** (#17 damage 2023-normalisation + #12 variability re-derivation):
 
-- GDP RMSE: `0.62061758080248`
-- global CO2 RMSE: `0.9326386833407672`
-- temperature RMSE: `0.13500704173336117`
-- temperature bias: `0.016279130918871433`
+- GDP RMSE: `0.598965252294154`
+- global CO2 RMSE: `0.9386351962461614`
+- temperature RMSE: `0.14474188734739715`
+- temperature bias: `0.01646246908304738`
 
 Current golden regression target (`tests/test_historical_backtest.py`):
 
-- GDP RMSE `0.621 ± 0.01`
-- global CO2 RMSE `0.933 ± 0.01`
-- temperature RMSE `0.135 ± 0.01`
+- GDP RMSE `0.598 ± 0.01`
+- global CO2 RMSE `0.939 ± 0.01`
+- temperature RMSE `0.145 ± 0.01`
 
 **Calibration history.** The objective + fully-closed economic core (nested-CES production +
 cost-minimizing energy demand + resource & capital-market clearing + full SFC bank balance sheet)
@@ -113,6 +116,14 @@ equally, so the nested-CES advantage now shows in emissions (CO2 0.93 vs Cobb-Do
 than in GDP. Emissions remain re-anchored via `NESTED_CES_EMISSIONS_NORM` (1.056) with the
 data-derived `EMISSIONS_SCALE` (0.9755) artifact-bound; capital-clearing sensitivity 0.3.
 Deep-uncertainty climate/risk channels remain ensemble-only (off in the headline).
+
+The **18.0.0** reviewer-response re-anchor then moved the golden again: normalising the damage
+multiplier to the 2023 baseline (#17) removed a spurious base-year damage and **improved** GDP
+0.621→**0.598**; re-deriving the internal-variability sigma from the observed 1990–2023 forced
+residuals (#12, `TEMP_NATURAL_VARIABILITY_SIGMA` 0.08→0.088) raised the temperature RMSE
+0.135→**0.145** while curing the ensemble under-dispersion (predicted spread now equals observed,
+0.104 ≈ 0.103). CO2 is essentially unchanged (0.933→**0.939**). The 18.1.x fixes are forward-path
+only and golden bit-identical.
 
 ### 3.2 Operational suites
 

@@ -4,7 +4,7 @@
 
 Recalibration is required if and only if at least one of the following is true:
 
-1. Numeric values in `data/parameters_gim17.csv` changed.
+1. Numeric values in `data/parameters_gim18.csv` changed.
 2. New free parameters were added to transition equations.
 3. Existing equation structure changed (not just variable renaming/extraction).
 
@@ -18,9 +18,9 @@ Recalibration is **not required** for:
 
 Current lock:
 
-- `data/parameters_gim17.lock.json`
+- `data/parameters_gim18.lock.json`
 
-This lock stores SHA-256 of `parameters_gim17.csv`.
+This lock stores SHA-256 of `parameters_gim18.csv`.
 If SHA changes, run calibration and update lock.
 
 ## Minimum post-change checks

@@ -30,15 +30,16 @@ DAMAGE_QUAD_COEFF = 0.0078        T_2023 = 1.333 °C
 | Prior meta-analyses, low end (Howard-Sterner survey) | 1.9% | 0.00211 | envelope floor |
 | **DICE-2016R2** (Nordhaus & Moffat 2017) | 2.1% | 0.00236 | widely seen as a lower bound |
 | DICE-2013R | 2.4% | 0.00267 | revised down in 2016 |
-| **GIM18** | **5.4%** | **0.006** | ~2.5× DICE-2016R2 |
+| **GIM18** (#17 re-anchor) | **7.0%** | **0.0078** | ~3.3× DICE-2016R2; = Howard-Sterner preferred central (was 5.4% / 0.006 pre-#17) |
 | Howard-Sterner 2017 preferred (non-catastrophic) | 7–8% | 0.0078–0.0089 | meta-analysis central |
 | Howard-Sterner 2017 + catastrophic | 9–10% | 0.010–0.011 | |
 | Prior meta-analyses, high end | 17.3% | 0.01922 | envelope ceiling |
 
-GIM sits **inside the empirical envelope at every policy-relevant warming**, above DICE
-(addressing the common critique that IAMs lowball damages) and below the Howard-Sterner
-preferred central estimate. This is the defensible academic position, and the test
-`gim_within_envelope()` guards it against future drift.
+GIM sits **inside the empirical envelope at every policy-relevant warming**, well above DICE
+(addressing the common critique that IAMs lowball damages), **at the Howard-Sterner preferred
+central** (lower edge of the 7–8% band) and below the incl-catastrophic estimates. This is the
+defensible academic position, and the tests (`gim_within_envelope()`,
+`test_gim_at_howard_sterner_preferred_above_dice`) guard it against future drift.
 
 ## Growth-effect studies (context, not a level coefficient)
 
@@ -53,23 +54,28 @@ Two influential empirical studies estimate temperature effects on the growth *ra
 Implication: because GIM uses a level-effect multiplier, its damages are likely a
 **lower bound** on the growth-effect estimates. This is represented as uncertainty rather
 than hidden: the `DAMAGE_QUAD_COEFF` prior is a right-skewed lognormal (median 0.006, range
-0.0015–0.025) whose upper tail reaches the high-empirical / catastrophic region.
+0.0015–0.025) whose upper tail reaches the high-empirical / catastrophic region. (Note: the
+sampling prior in `data/parameter_priors.csv` still centres on the pre-#17 median 0.006, below
+the re-anchored central 0.0078 — a known follow-up, left untouched to keep the published SCC
+bands stable.)
 
 ## Calibration stance
 
-The central coefficient is **kept at 0.006** — it is empirically defensible and already more
-conservative (higher damage) than DICE. The deliverable of T1.4 is the explicit
-cross-validation and the honest representation of the deep uncertainty (the "catastrophic
-spread"), not a point change. Closing the residual spread further would require modelling
-*growth-effect* persistence — a Phase-5 structural item.
+The central coefficient was **re-anchored 0.006 → 0.0078** in the #17 review cycle (2026-07),
+to the Howard & Sterner (2017) preferred central — see the update note above. (T1.4's original
+stance kept 0.006; its lasting deliverable is the explicit cross-validation and the honest
+representation of the deep uncertainty — the "catastrophic spread".) Closing the residual
+level-vs-growth spread would require modelling *growth-effect* persistence; the Burke growth
+channel is calibrated and switchable (`GROWTH_DAMAGE_TFP_COEFF`, off by default).
 
 ## SCC context
 
-With this damage function, post-recalibration SCC is ~$15 / $45 / $48 per tCO₂ at the
-30/100/200-year horizons (see `docs/WELFARE_SCC.md`). The headline value is below the modern
-EPA-2023 / RFF-SP central (~$185) chiefly because of (a) the truncated horizon and (b) the
-absence of growth-effect persistence — both documented, both Phase-5 extensions, not a
-sign of low damages (GIM damage is ~2.5× DICE).
+With this damage function, the SCC under Nordhaus-style discounting is ~$22 / $43 / $46 per tCO₂
+at the 30/100/200-year horizons; under a modern Ramsey scheme (near-zero ρ) the 200-year headline
+is ~$90 (range ~$90–280 across economic-core calibrations; see `docs/climate/WELFARE_SCC.md`).
+The headline sits below the modern EPA-2023 / RFF-SP central (~$190) chiefly because of (a) the
+truncated horizon and (b) the absence of growth-effect persistence — both documented, not a
+sign of low damages (GIM damage is ~3.3× DICE).
 
 ## Validation
 

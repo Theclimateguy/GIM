@@ -30,7 +30,7 @@ from .params import ParameterSet, default_params
 
 _DATA = Path(__file__).resolve().parents[2] / "data"
 PRIORS_CSV = _DATA / "parameter_priors.csv"
-REGISTRY_CSV = _DATA / "parameters_gim17.csv"
+REGISTRY_CSV = _DATA / "parameters_gim18.csv"
 
 # Half-width of the uniform band for long-tail params, by registry uncertainty_level.
 UNCERTAINTY_BAND = {"low": 0.05, "medium": 0.15, "high": 0.35, "unspecified": 0.25}

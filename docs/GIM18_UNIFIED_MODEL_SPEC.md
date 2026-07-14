@@ -15,8 +15,8 @@ This document is the single consolidated specification for GIM18:
 Authoritative registries:
 
 - state registry: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/docs/state_registry.csv)
-- parameter registry: [`data/parameters_gim17.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim17.csv)
-- parameter lock: [`data/parameters_gim17.lock.json`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim17.lock.json)
+- parameter registry: [`data/parameters_gim18.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim18.csv)
+- parameter lock: [`data/parameters_gim18.lock.json`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim18.lock.json)
 
 ## 2. Global notation
 
@@ -355,6 +355,6 @@ Policy document:
 
 - kernel phases and tracing: [`gim/core/simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/gim/core/simulation.py)
 - full state list: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/docs/state_registry.csv)
-- parameter list: [`data/parameters_gim17.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim17.csv)
+- parameter list: [`data/parameters_gim18.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim18.csv)
 - crisis validation harness: [`gim/crisis_validation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/gim/crisis_validation.py)
 
