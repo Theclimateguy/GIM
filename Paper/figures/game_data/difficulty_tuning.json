@@ -1,0 +1,4592 @@
+{
+  "random": {
+    "policy": "random",
+    "n": 75,
+    "win_rate": 0.373,
+    "loss_reasons": {
+      "temp": 15,
+      "geopolitical_strain": 13,
+      "economic_strain": 9,
+      "avg_stability": 1,
+      "energy_price": 9
+    },
+    "mean_final_metrics": {
+      "temp": 1.71,
+      "planet_health": 41.82,
+      "avg_stability": 31.47,
+      "economic_strain": 59.94,
+      "geopolitical_strain": 58.44,
+      "energy_price": 189.37,
+      "food_price": 168.02
+    },
+    "runs": [
+      {
+        "seed": 7001,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.886,
+          "planet_health": 42.9,
+          "avg_stability": 39.7,
+          "economic_strain": 9.0,
+          "geopolitical_strain": 47.8,
+          "energy_price": 144.7,
+          "food_price": 136.8
+        }
+      },
+      {
+        "seed": 7002,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.625,
+          "planet_health": 42.4,
+          "avg_stability": 30.8,
+          "economic_strain": 47.2,
+          "geopolitical_strain": 80.2,
+          "energy_price": 167.8,
+          "food_price": 183.4
+        }
+      },
+      {
+        "seed": 7003,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.566,
+          "planet_health": 40.4,
+          "avg_stability": 40.4,
+          "economic_strain": 70.6,
+          "geopolitical_strain": 93.6,
+          "energy_price": 231.2,
+          "food_price": 184.0
+        }
+      },
+      {
+        "seed": 7004,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.576,
+          "planet_health": 41.2,
+          "avg_stability": 28.5,
+          "economic_strain": 62.7,
+          "geopolitical_strain": 84.2,
+          "energy_price": 211.7,
+          "food_price": 179.7
+        }
+      },
+      {
+        "seed": 7005,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.633,
+          "planet_health": 47.0,
+          "avg_stability": 38.2,
+          "economic_strain": 50.0,
+          "geopolitical_strain": 86.1,
+          "energy_price": 170.8,
+          "food_price": 142.8
+        }
+      },
+      {
+        "seed": 7006,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.683,
+          "planet_health": 43.3,
+          "avg_stability": 36.9,
+          "economic_strain": 53.2,
+          "geopolitical_strain": 67.1,
+          "energy_price": 165.1,
+          "food_price": 171.3
+        }
+      },
+      {
+        "seed": 7007,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2037,
+        "final_metrics": {
+          "temp": 1.654,
+          "planet_health": 47.5,
+          "avg_stability": 36.7,
+          "economic_strain": 89.1,
+          "geopolitical_strain": 47.8,
+          "energy_price": 147.3,
+          "food_price": 147.6
+        }
+      },
+      {
+        "seed": 7008,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.572,
+          "planet_health": 52.9,
+          "avg_stability": 19.7,
+          "economic_strain": 23.5,
+          "geopolitical_strain": 44.8,
+          "energy_price": 107.2,
+          "food_price": 105.4
+        }
+      },
+      {
+        "seed": 7009,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.524,
+          "planet_health": 47.0,
+          "avg_stability": 20.4,
+          "economic_strain": 23.7,
+          "geopolitical_strain": 83.8,
+          "energy_price": 187.4,
+          "food_price": 146.2
+        }
+      },
+      {
+        "seed": 7010,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.619,
+          "planet_health": 44.6,
+          "avg_stability": 30.4,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 30.8,
+          "energy_price": 121.6,
+          "food_price": 142.1
+        }
+      },
+      {
+        "seed": 7011,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.671,
+          "planet_health": 37.5,
+          "avg_stability": 34.3,
+          "economic_strain": 68.7,
+          "geopolitical_strain": 55.8,
+          "energy_price": 180.0,
+          "food_price": 223.6
+        }
+      },
+      {
+        "seed": 7012,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.596,
+          "planet_health": 41.5,
+          "avg_stability": 33.3,
+          "economic_strain": 59.8,
+          "geopolitical_strain": 69.4,
+          "energy_price": 200.0,
+          "food_price": 231.6
+        }
+      },
+      {
+        "seed": 7013,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.729,
+          "planet_health": 38.6,
+          "avg_stability": 21.6,
+          "economic_strain": 85.6,
+          "geopolitical_strain": 61.5,
+          "energy_price": 243.6,
+          "food_price": 183.7
+        }
+      },
+      {
+        "seed": 7014,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.462,
+          "planet_health": 50.1,
+          "avg_stability": 33.4,
+          "economic_strain": 41.5,
+          "geopolitical_strain": 64.1,
+          "energy_price": 151.6,
+          "food_price": 154.0
+        }
+      },
+      {
+        "seed": 7015,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.513,
+          "planet_health": 46.2,
+          "avg_stability": 27.2,
+          "economic_strain": 34.8,
+          "geopolitical_strain": 83.8,
+          "energy_price": 149.7,
+          "food_price": 148.1
+        }
+      },
+      {
+        "seed": 7016,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.464,
+          "planet_health": 45.6,
+          "avg_stability": 23.4,
+          "economic_strain": 54.6,
+          "geopolitical_strain": 50.0,
+          "energy_price": 209.4,
+          "food_price": 164.1
+        }
+      },
+      {
+        "seed": 7017,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.482,
+          "planet_health": 47.4,
+          "avg_stability": 30.2,
+          "economic_strain": 35.0,
+          "geopolitical_strain": 84.7,
+          "energy_price": 222.6,
+          "food_price": 136.3
+        }
+      },
+      {
+        "seed": 7018,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.576,
+          "planet_health": 43.0,
+          "avg_stability": 23.8,
+          "economic_strain": 58.5,
+          "geopolitical_strain": 65.0,
+          "energy_price": 223.2,
+          "food_price": 189.7
+        }
+      },
+      {
+        "seed": 7019,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.696,
+          "planet_health": 40.2,
+          "avg_stability": 28.5,
+          "economic_strain": 47.0,
+          "geopolitical_strain": 67.4,
+          "energy_price": 252.4,
+          "food_price": 194.2
+        }
+      },
+      {
+        "seed": 7020,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.841,
+          "planet_health": 36.6,
+          "avg_stability": 24.3,
+          "economic_strain": 55.5,
+          "geopolitical_strain": 75.4,
+          "energy_price": 243.3,
+          "food_price": 181.0
+        }
+      },
+      {
+        "seed": 7021,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.823,
+          "planet_health": 38.4,
+          "avg_stability": 29.1,
+          "economic_strain": 59.7,
+          "geopolitical_strain": 49.8,
+          "energy_price": 241.3,
+          "food_price": 175.5
+        }
+      },
+      {
+        "seed": 7022,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.858,
+          "planet_health": 39.0,
+          "avg_stability": 38.7,
+          "economic_strain": 50.2,
+          "geopolitical_strain": 55.4,
+          "energy_price": 221.0,
+          "food_price": 173.8
+        }
+      },
+      {
+        "seed": 7023,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.92,
+          "planet_health": 41.0,
+          "avg_stability": 40.2,
+          "economic_strain": 79.9,
+          "geopolitical_strain": 42.2,
+          "energy_price": 173.6,
+          "food_price": 160.4
+        }
+      },
+      {
+        "seed": 7024,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2035,
+        "final_metrics": {
+          "temp": 1.514,
+          "planet_health": 51.0,
+          "avg_stability": 26.2,
+          "economic_strain": 27.3,
+          "geopolitical_strain": 90.3,
+          "energy_price": 177.7,
+          "food_price": 139.7
+        }
+      },
+      {
+        "seed": 7025,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.894,
+          "planet_health": 33.7,
+          "avg_stability": 27.4,
+          "economic_strain": 71.6,
+          "geopolitical_strain": 56.0,
+          "energy_price": 218.3,
+          "food_price": 223.0
+        }
+      },
+      {
+        "seed": 7026,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.903,
+          "planet_health": 37.4,
+          "avg_stability": 35.9,
+          "economic_strain": 52.8,
+          "geopolitical_strain": 53.8,
+          "energy_price": 225.8,
+          "food_price": 160.6
+        }
+      },
+      {
+        "seed": 7027,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.895,
+          "planet_health": 40.4,
+          "avg_stability": 34.6,
+          "economic_strain": 37.9,
+          "geopolitical_strain": 59.5,
+          "energy_price": 199.9,
+          "food_price": 166.4
+        }
+      },
+      {
+        "seed": 7028,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.884,
+          "planet_health": 38.1,
+          "avg_stability": 27.1,
+          "economic_strain": 37.1,
+          "geopolitical_strain": 43.6,
+          "energy_price": 196.7,
+          "food_price": 140.3
+        }
+      },
+      {
+        "seed": 7029,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.788,
+          "planet_health": 41.4,
+          "avg_stability": 39.7,
+          "economic_strain": 86.9,
+          "geopolitical_strain": 48.7,
+          "energy_price": 183.9,
+          "food_price": 153.7
+        }
+      },
+      {
+        "seed": 7030,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.765,
+          "planet_health": 39.2,
+          "avg_stability": 37.9,
+          "economic_strain": 63.7,
+          "geopolitical_strain": 94.4,
+          "energy_price": 184.3,
+          "food_price": 170.6
+        }
+      },
+      {
+        "seed": 7031,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.841,
+          "planet_health": 38.6,
+          "avg_stability": 33.5,
+          "economic_strain": 90.9,
+          "geopolitical_strain": 62.5,
+          "energy_price": 238.8,
+          "food_price": 212.4
+        }
+      },
+      {
+        "seed": 7032,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.807,
+          "planet_health": 41.8,
+          "avg_stability": 25.3,
+          "economic_strain": 91.8,
+          "geopolitical_strain": 56.2,
+          "energy_price": 231.9,
+          "food_price": 169.5
+        }
+      },
+      {
+        "seed": 7033,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.616,
+          "planet_health": 50.8,
+          "avg_stability": 35.3,
+          "economic_strain": 38.5,
+          "geopolitical_strain": 82.6,
+          "energy_price": 139.0,
+          "food_price": 127.8
+        }
+      },
+      {
+        "seed": 7034,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.728,
+          "planet_health": 41.3,
+          "avg_stability": 36.9,
+          "economic_strain": 72.4,
+          "geopolitical_strain": 37.4,
+          "energy_price": 146.3,
+          "food_price": 177.6
+        }
+      },
+      {
+        "seed": 7035,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.674,
+          "planet_health": 41.1,
+          "avg_stability": 25.0,
+          "economic_strain": 74.9,
+          "geopolitical_strain": 43.4,
+          "energy_price": 251.7,
+          "food_price": 172.5
+        }
+      },
+      {
+        "seed": 7036,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.71,
+          "planet_health": 43.1,
+          "avg_stability": 33.8,
+          "economic_strain": 49.7,
+          "geopolitical_strain": 71.5,
+          "energy_price": 154.8,
+          "food_price": 128.5
+        }
+      },
+      {
+        "seed": 7037,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.759,
+          "planet_health": 34.3,
+          "avg_stability": 34.3,
+          "economic_strain": 50.8,
+          "geopolitical_strain": 68.0,
+          "energy_price": 200.2,
+          "food_price": 227.2
+        }
+      },
+      {
+        "seed": 7038,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.75,
+          "planet_health": 39.5,
+          "avg_stability": 25.6,
+          "economic_strain": 51.8,
+          "geopolitical_strain": 42.1,
+          "energy_price": 209.3,
+          "food_price": 220.2
+        }
+      },
+      {
+        "seed": 7039,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.681,
+          "planet_health": 43.0,
+          "avg_stability": 29.5,
+          "economic_strain": 59.2,
+          "geopolitical_strain": 58.3,
+          "energy_price": 148.5,
+          "food_price": 199.1
+        }
+      },
+      {
+        "seed": 7040,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.656,
+          "planet_health": 40.2,
+          "avg_stability": 38.4,
+          "economic_strain": 47.4,
+          "geopolitical_strain": 50.3,
+          "energy_price": 181.6,
+          "food_price": 165.6
+        }
+      },
+      {
+        "seed": 7041,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.671,
+          "planet_health": 43.0,
+          "avg_stability": 36.2,
+          "economic_strain": 64.0,
+          "geopolitical_strain": 35.3,
+          "energy_price": 119.8,
+          "food_price": 188.3
+        }
+      },
+      {
+        "seed": 7042,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.667,
+          "planet_health": 45.1,
+          "avg_stability": 30.0,
+          "economic_strain": 49.5,
+          "geopolitical_strain": 34.4,
+          "energy_price": 150.3,
+          "food_price": 124.6
+        }
+      },
+      {
+        "seed": 7043,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.724,
+          "planet_health": 44.3,
+          "avg_stability": 33.4,
+          "economic_strain": 48.8,
+          "geopolitical_strain": 48.2,
+          "energy_price": 183.0,
+          "food_price": 162.5
+        }
+      },
+      {
+        "seed": 7044,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.563,
+          "planet_health": 44.6,
+          "avg_stability": 33.9,
+          "economic_strain": 79.7,
+          "geopolitical_strain": 45.7,
+          "energy_price": 248.4,
+          "food_price": 176.6
+        }
+      },
+      {
+        "seed": 7045,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.609,
+          "planet_health": 39.0,
+          "avg_stability": 37.9,
+          "economic_strain": 64.3,
+          "geopolitical_strain": 93.0,
+          "energy_price": 207.2,
+          "food_price": 185.4
+        }
+      },
+      {
+        "seed": 7046,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.566,
+          "planet_health": 45.9,
+          "avg_stability": 28.7,
+          "economic_strain": 56.4,
+          "geopolitical_strain": 58.8,
+          "energy_price": 164.5,
+          "food_price": 188.6
+        }
+      },
+      {
+        "seed": 7047,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.567,
+          "planet_health": 44.6,
+          "avg_stability": 23.6,
+          "economic_strain": 53.2,
+          "geopolitical_strain": 28.0,
+          "energy_price": 159.8,
+          "food_price": 161.4
+        }
+      },
+      {
+        "seed": 7048,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.592,
+          "planet_health": 39.8,
+          "avg_stability": 34.3,
+          "economic_strain": 79.9,
+          "geopolitical_strain": 49.4,
+          "energy_price": 175.5,
+          "food_price": 174.2
+        }
+      },
+      {
+        "seed": 7049,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.627,
+          "planet_health": 40.9,
+          "avg_stability": 28.0,
+          "economic_strain": 55.6,
+          "geopolitical_strain": 57.6,
+          "energy_price": 201.2,
+          "food_price": 171.9
+        }
+      },
+      {
+        "seed": 7050,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.715,
+          "planet_health": 41.3,
+          "avg_stability": 26.9,
+          "economic_strain": 50.8,
+          "geopolitical_strain": 69.7,
+          "energy_price": 213.5,
+          "food_price": 199.3
+        }
+      },
+      {
+        "seed": 7051,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.818,
+          "planet_health": 38.3,
+          "avg_stability": 28.6,
+          "economic_strain": 38.2,
+          "geopolitical_strain": 48.9,
+          "energy_price": 205.5,
+          "food_price": 157.3
+        }
+      },
+      {
+        "seed": 7052,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.429,
+          "planet_health": 51.1,
+          "avg_stability": 29.3,
+          "economic_strain": 91.8,
+          "geopolitical_strain": 45.8,
+          "energy_price": 163.1,
+          "food_price": 150.3
+        }
+      },
+      {
+        "seed": 7053,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.899,
+          "planet_health": 40.4,
+          "avg_stability": 36.2,
+          "economic_strain": 68.3,
+          "geopolitical_strain": 30.2,
+          "energy_price": 148.0,
+          "food_price": 149.3
+        }
+      },
+      {
+        "seed": 7054,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.891,
+          "planet_health": 35.6,
+          "avg_stability": 28.3,
+          "economic_strain": 77.8,
+          "geopolitical_strain": 59.1,
+          "energy_price": 214.2,
+          "food_price": 179.9
+        }
+      },
+      {
+        "seed": 7055,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.858,
+          "planet_health": 34.4,
+          "avg_stability": 31.3,
+          "economic_strain": 57.5,
+          "geopolitical_strain": 50.5,
+          "energy_price": 251.7,
+          "food_price": 174.8
+        }
+      },
+      {
+        "seed": 7056,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.926,
+          "planet_health": 37.1,
+          "avg_stability": 30.5,
+          "economic_strain": 58.2,
+          "geopolitical_strain": 60.4,
+          "energy_price": 190.5,
+          "food_price": 156.4
+        }
+      },
+      {
+        "seed": 7057,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.903,
+          "planet_health": 36.9,
+          "avg_stability": 36.0,
+          "economic_strain": 50.2,
+          "geopolitical_strain": 71.3,
+          "energy_price": 140.3,
+          "food_price": 173.2
+        }
+      },
+      {
+        "seed": 7058,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.815,
+          "planet_health": 41.1,
+          "avg_stability": 30.0,
+          "economic_strain": 51.3,
+          "geopolitical_strain": 51.6,
+          "energy_price": 199.2,
+          "food_price": 162.0
+        }
+      },
+      {
+        "seed": 7059,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.837,
+          "planet_health": 41.0,
+          "avg_stability": 27.0,
+          "economic_strain": 60.1,
+          "geopolitical_strain": 66.7,
+          "energy_price": 250.1,
+          "food_price": 179.2
+        }
+      },
+      {
+        "seed": 7060,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.788,
+          "planet_health": 42.0,
+          "avg_stability": 22.7,
+          "economic_strain": 75.8,
+          "geopolitical_strain": 41.9,
+          "energy_price": 136.3,
+          "food_price": 158.0
+        }
+      },
+      {
+        "seed": 7061,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.348,
+          "planet_health": 54.5,
+          "avg_stability": 28.2,
+          "economic_strain": 36.3,
+          "geopolitical_strain": 93.5,
+          "energy_price": 182.6,
+          "food_price": 137.9
+        }
+      },
+      {
+        "seed": 7062,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.493,
+          "planet_health": 45.1,
+          "avg_stability": 30.3,
+          "economic_strain": 46.2,
+          "geopolitical_strain": 92.5,
+          "energy_price": 209.7,
+          "food_price": 158.2
+        }
+      },
+      {
+        "seed": 7063,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2037,
+        "final_metrics": {
+          "temp": 1.461,
+          "planet_health": 50.7,
+          "avg_stability": 40.9,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 24.5,
+          "energy_price": 104.9,
+          "food_price": 136.9
+        }
+      },
+      {
+        "seed": 7064,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.774,
+          "planet_health": 39.6,
+          "avg_stability": 31.3,
+          "economic_strain": 75.9,
+          "geopolitical_strain": 43.9,
+          "energy_price": 185.9,
+          "food_price": 157.4
+        }
+      },
+      {
+        "seed": 7065,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.787,
+          "planet_health": 38.7,
+          "avg_stability": 32.9,
+          "economic_strain": 93.5,
+          "geopolitical_strain": 36.2,
+          "energy_price": 160.6,
+          "food_price": 201.5
+        }
+      },
+      {
+        "seed": 7066,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.819,
+          "planet_health": 40.3,
+          "avg_stability": 38.2,
+          "economic_strain": 51.1,
+          "geopolitical_strain": 42.1,
+          "energy_price": 163.1,
+          "food_price": 167.4
+        }
+      },
+      {
+        "seed": 7067,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.662,
+          "planet_health": 44.2,
+          "avg_stability": 37.8,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 37.3,
+          "energy_price": 197.2,
+          "food_price": 151.1
+        }
+      },
+      {
+        "seed": 7068,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.728,
+          "planet_health": 40.6,
+          "avg_stability": 27.9,
+          "economic_strain": 63.5,
+          "geopolitical_strain": 82.1,
+          "energy_price": 191.9,
+          "food_price": 165.8
+        }
+      },
+      {
+        "seed": 7069,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.881,
+          "planet_health": 36.5,
+          "avg_stability": 35.4,
+          "economic_strain": 48.9,
+          "geopolitical_strain": 53.6,
+          "energy_price": 210.0,
+          "food_price": 199.2
+        }
+      },
+      {
+        "seed": 7070,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.763,
+          "planet_health": 41.3,
+          "avg_stability": 46.2,
+          "economic_strain": 58.8,
+          "geopolitical_strain": 66.4,
+          "energy_price": 154.1,
+          "food_price": 141.2
+        }
+      },
+      {
+        "seed": 7071,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.808,
+          "planet_health": 36.3,
+          "avg_stability": 29.9,
+          "economic_strain": 69.9,
+          "geopolitical_strain": 54.1,
+          "energy_price": 263.0,
+          "food_price": 194.5
+        }
+      },
+      {
+        "seed": 7072,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.937,
+          "planet_health": 38.8,
+          "avg_stability": 28.9,
+          "economic_strain": 69.9,
+          "geopolitical_strain": 40.3,
+          "energy_price": 238.9,
+          "food_price": 143.8
+        }
+      },
+      {
+        "seed": 7073,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.909,
+          "planet_health": 40.8,
+          "avg_stability": 26.2,
+          "economic_strain": 59.3,
+          "geopolitical_strain": 73.6,
+          "energy_price": 161.7,
+          "food_price": 147.0
+        }
+      },
+      {
+        "seed": 7074,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.903,
+          "planet_health": 37.3,
+          "avg_stability": 28.5,
+          "economic_strain": 71.7,
+          "geopolitical_strain": 35.1,
+          "energy_price": 224.1,
+          "food_price": 152.4
+        }
+      },
+      {
+        "seed": 7075,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.919,
+          "planet_health": 36.3,
+          "avg_stability": 28.7,
+          "economic_strain": 71.4,
+          "geopolitical_strain": 52.3,
+          "energy_price": 178.0,
+          "food_price": 164.3
+        }
+      }
+    ]
+  },
+  "first": {
+    "policy": "first",
+    "n": 75,
+    "win_rate": 0.187,
+    "loss_reasons": {
+      "temp": 5,
+      "economic_strain": 41,
+      "geopolitical_strain": 14,
+      "energy_price": 1
+    },
+    "mean_final_metrics": {
+      "temp": 1.61,
+      "planet_health": 45.8,
+      "avg_stability": 39.09,
+      "economic_strain": 79.27,
+      "geopolitical_strain": 51.4,
+      "energy_price": 160.52,
+      "food_price": 162.42
+    },
+    "runs": [
+      {
+        "seed": 7001,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.885,
+          "planet_health": 43.6,
+          "avg_stability": 46.2,
+          "economic_strain": 57.6,
+          "geopolitical_strain": 32.8,
+          "energy_price": 125.3,
+          "food_price": 132.5
+        }
+      },
+      {
+        "seed": 7002,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2033,
+        "final_metrics": {
+          "temp": 1.704,
+          "planet_health": 50.9,
+          "avg_stability": 40.2,
+          "economic_strain": 93.6,
+          "geopolitical_strain": 24.4,
+          "energy_price": 120.7,
+          "food_price": 130.5
+        }
+      },
+      {
+        "seed": 7003,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2036,
+        "final_metrics": {
+          "temp": 1.83,
+          "planet_health": 48.7,
+          "avg_stability": 40.0,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 10.6,
+          "energy_price": 110.2,
+          "food_price": 129.9
+        }
+      },
+      {
+        "seed": 7004,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.644,
+          "planet_health": 38.0,
+          "avg_stability": 35.5,
+          "economic_strain": 75.9,
+          "geopolitical_strain": 69.9,
+          "energy_price": 193.2,
+          "food_price": 215.6
+        }
+      },
+      {
+        "seed": 7005,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.629,
+          "planet_health": 50.2,
+          "avg_stability": 45.6,
+          "economic_strain": 87.5,
+          "geopolitical_strain": 24.7,
+          "energy_price": 124.4,
+          "food_price": 96.1
+        }
+      },
+      {
+        "seed": 7006,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.684,
+          "planet_health": 41.4,
+          "avg_stability": 45.1,
+          "economic_strain": 82.0,
+          "geopolitical_strain": 51.9,
+          "energy_price": 165.8,
+          "food_price": 212.2
+        }
+      },
+      {
+        "seed": 7007,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.719,
+          "planet_health": 50.3,
+          "avg_stability": 39.2,
+          "economic_strain": 91.7,
+          "geopolitical_strain": 37.1,
+          "energy_price": 125.8,
+          "food_price": 131.1
+        }
+      },
+      {
+        "seed": 7008,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.566,
+          "planet_health": 48.8,
+          "avg_stability": 37.7,
+          "economic_strain": 91.0,
+          "geopolitical_strain": 50.9,
+          "energy_price": 122.2,
+          "food_price": 172.8
+        }
+      },
+      {
+        "seed": 7009,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.483,
+          "planet_health": 50.8,
+          "avg_stability": 38.7,
+          "economic_strain": 89.1,
+          "geopolitical_strain": 3.2,
+          "energy_price": 99.6,
+          "food_price": 128.4
+        }
+      },
+      {
+        "seed": 7010,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.752,
+          "planet_health": 44.1,
+          "avg_stability": 37.0,
+          "economic_strain": 68.6,
+          "geopolitical_strain": 50.2,
+          "energy_price": 136.4,
+          "food_price": 139.2
+        }
+      },
+      {
+        "seed": 7011,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.651,
+          "planet_health": 41.5,
+          "avg_stability": 44.5,
+          "economic_strain": 71.8,
+          "geopolitical_strain": 60.6,
+          "energy_price": 167.3,
+          "food_price": 196.4
+        }
+      },
+      {
+        "seed": 7012,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.484,
+          "planet_health": 54.7,
+          "avg_stability": 34.3,
+          "economic_strain": 89.4,
+          "geopolitical_strain": 0.0,
+          "energy_price": 99.8,
+          "food_price": 141.4
+        }
+      },
+      {
+        "seed": 7013,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.542,
+          "planet_health": 40.3,
+          "avg_stability": 23.9,
+          "economic_strain": 77.5,
+          "geopolitical_strain": 70.8,
+          "energy_price": 227.0,
+          "food_price": 192.4
+        }
+      },
+      {
+        "seed": 7014,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.457,
+          "planet_health": 47.9,
+          "avg_stability": 38.8,
+          "economic_strain": 80.9,
+          "geopolitical_strain": 48.4,
+          "energy_price": 170.9,
+          "food_price": 177.6
+        }
+      },
+      {
+        "seed": 7015,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.432,
+          "planet_health": 50.0,
+          "avg_stability": 41.2,
+          "economic_strain": 34.2,
+          "geopolitical_strain": 79.0,
+          "energy_price": 166.1,
+          "food_price": 127.2
+        }
+      },
+      {
+        "seed": 7016,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.487,
+          "planet_health": 49.1,
+          "avg_stability": 35.2,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 41.5,
+          "energy_price": 179.2,
+          "food_price": 164.9
+        }
+      },
+      {
+        "seed": 7017,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.471,
+          "planet_health": 49.8,
+          "avg_stability": 33.6,
+          "economic_strain": 54.5,
+          "geopolitical_strain": 86.7,
+          "energy_price": 224.6,
+          "food_price": 146.7
+        }
+      },
+      {
+        "seed": 7018,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.549,
+          "planet_health": 48.2,
+          "avg_stability": 34.9,
+          "economic_strain": 92.6,
+          "geopolitical_strain": 23.3,
+          "energy_price": 119.5,
+          "food_price": 176.6
+        }
+      },
+      {
+        "seed": 7019,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.39,
+          "planet_health": 49.5,
+          "avg_stability": 36.8,
+          "economic_strain": 92.0,
+          "geopolitical_strain": 21.1,
+          "energy_price": 113.4,
+          "food_price": 144.8
+        }
+      },
+      {
+        "seed": 7020,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.332,
+          "planet_health": 46.5,
+          "avg_stability": 42.5,
+          "economic_strain": 75.2,
+          "geopolitical_strain": 87.4,
+          "energy_price": 177.3,
+          "food_price": 215.4
+        }
+      },
+      {
+        "seed": 7021,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2030,
+        "final_metrics": {
+          "temp": 1.198,
+          "planet_health": 58.2,
+          "avg_stability": 33.8,
+          "economic_strain": 21.0,
+          "geopolitical_strain": 84.1,
+          "energy_price": 153.8,
+          "food_price": 131.1
+        }
+      },
+      {
+        "seed": 7022,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2035,
+        "final_metrics": {
+          "temp": 1.435,
+          "planet_health": 52.3,
+          "avg_stability": 39.8,
+          "economic_strain": 45.1,
+          "geopolitical_strain": 89.4,
+          "energy_price": 172.8,
+          "food_price": 143.2
+        }
+      },
+      {
+        "seed": 7023,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.365,
+          "planet_health": 54.1,
+          "avg_stability": 39.4,
+          "economic_strain": 88.5,
+          "geopolitical_strain": 50.5,
+          "energy_price": 126.6,
+          "food_price": 114.5
+        }
+      },
+      {
+        "seed": 7024,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.783,
+          "planet_health": 39.6,
+          "avg_stability": 29.7,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 51.2,
+          "energy_price": 171.9,
+          "food_price": 177.3
+        }
+      },
+      {
+        "seed": 7025,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2029,
+        "final_metrics": {
+          "temp": 1.258,
+          "planet_health": 57.9,
+          "avg_stability": 30.7,
+          "economic_strain": 51.2,
+          "geopolitical_strain": 87.4,
+          "energy_price": 147.1,
+          "food_price": 133.6
+        }
+      },
+      {
+        "seed": 7026,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.783,
+          "planet_health": 38.7,
+          "avg_stability": 49.6,
+          "economic_strain": 86.2,
+          "geopolitical_strain": 49.5,
+          "energy_price": 193.7,
+          "food_price": 187.4
+        }
+      },
+      {
+        "seed": 7027,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.891,
+          "planet_health": 39.9,
+          "avg_stability": 33.8,
+          "economic_strain": 74.5,
+          "geopolitical_strain": 44.0,
+          "energy_price": 206.3,
+          "food_price": 176.3
+        }
+      },
+      {
+        "seed": 7028,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.383,
+          "planet_health": 45.2,
+          "avg_stability": 32.7,
+          "economic_strain": 81.7,
+          "geopolitical_strain": 64.8,
+          "energy_price": 250.8,
+          "food_price": 185.2
+        }
+      },
+      {
+        "seed": 7029,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.733,
+          "planet_health": 45.1,
+          "avg_stability": 53.9,
+          "economic_strain": 88.6,
+          "geopolitical_strain": 70.1,
+          "energy_price": 138.3,
+          "food_price": 162.2
+        }
+      },
+      {
+        "seed": 7030,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.787,
+          "planet_health": 42.6,
+          "avg_stability": 46.0,
+          "economic_strain": 62.7,
+          "geopolitical_strain": 83.0,
+          "energy_price": 167.4,
+          "food_price": 189.6
+        }
+      },
+      {
+        "seed": 7031,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.725,
+          "planet_health": 41.4,
+          "avg_stability": 28.7,
+          "economic_strain": 76.9,
+          "geopolitical_strain": 87.1,
+          "energy_price": 234.6,
+          "food_price": 171.8
+        }
+      },
+      {
+        "seed": 7032,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.8,
+          "planet_health": 42.0,
+          "avg_stability": 33.2,
+          "economic_strain": 74.5,
+          "geopolitical_strain": 51.7,
+          "energy_price": 170.7,
+          "food_price": 185.3
+        }
+      },
+      {
+        "seed": 7033,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.609,
+          "planet_health": 48.4,
+          "avg_stability": 48.0,
+          "economic_strain": 43.1,
+          "geopolitical_strain": 82.7,
+          "energy_price": 149.7,
+          "food_price": 142.0
+        }
+      },
+      {
+        "seed": 7034,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.652,
+          "planet_health": 49.5,
+          "avg_stability": 36.9,
+          "economic_strain": 86.9,
+          "geopolitical_strain": 24.0,
+          "energy_price": 108.5,
+          "food_price": 128.5
+        }
+      },
+      {
+        "seed": 7035,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.683,
+          "planet_health": 42.8,
+          "avg_stability": 34.5,
+          "economic_strain": 87.6,
+          "geopolitical_strain": 68.6,
+          "energy_price": 189.5,
+          "food_price": 188.0
+        }
+      },
+      {
+        "seed": 7036,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.716,
+          "planet_health": 49.1,
+          "avg_stability": 41.4,
+          "economic_strain": 88.2,
+          "geopolitical_strain": 26.5,
+          "energy_price": 126.3,
+          "food_price": 134.4
+        }
+      },
+      {
+        "seed": 7037,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.625,
+          "planet_health": 51.9,
+          "avg_stability": 47.8,
+          "economic_strain": 93.1,
+          "geopolitical_strain": 31.3,
+          "energy_price": 88.4,
+          "food_price": 135.0
+        }
+      },
+      {
+        "seed": 7038,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.652,
+          "planet_health": 44.4,
+          "avg_stability": 34.9,
+          "economic_strain": 89.4,
+          "geopolitical_strain": 32.6,
+          "energy_price": 139.0,
+          "food_price": 159.2
+        }
+      },
+      {
+        "seed": 7039,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2036,
+        "final_metrics": {
+          "temp": 1.67,
+          "planet_health": 50.2,
+          "avg_stability": 44.4,
+          "economic_strain": 91.1,
+          "geopolitical_strain": 28.8,
+          "energy_price": 108.4,
+          "food_price": 138.4
+        }
+      },
+      {
+        "seed": 7040,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.659,
+          "planet_health": 50.8,
+          "avg_stability": 39.2,
+          "economic_strain": 92.1,
+          "geopolitical_strain": 25.6,
+          "energy_price": 120.4,
+          "food_price": 129.0
+        }
+      },
+      {
+        "seed": 7041,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2037,
+        "final_metrics": {
+          "temp": 1.569,
+          "planet_health": 52.2,
+          "avg_stability": 36.1,
+          "economic_strain": 94.2,
+          "geopolitical_strain": 31.0,
+          "energy_price": 119.5,
+          "food_price": 135.5
+        }
+      },
+      {
+        "seed": 7042,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.652,
+          "planet_health": 47.1,
+          "avg_stability": 37.4,
+          "economic_strain": 71.0,
+          "geopolitical_strain": 49.9,
+          "energy_price": 161.9,
+          "food_price": 115.7
+        }
+      },
+      {
+        "seed": 7043,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.612,
+          "planet_health": 47.1,
+          "avg_stability": 48.1,
+          "economic_strain": 87.7,
+          "geopolitical_strain": 40.5,
+          "energy_price": 135.7,
+          "food_price": 151.5
+        }
+      },
+      {
+        "seed": 7044,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.563,
+          "planet_health": 40.5,
+          "avg_stability": 40.3,
+          "economic_strain": 91.3,
+          "geopolitical_strain": 47.9,
+          "energy_price": 218.5,
+          "food_price": 160.1
+        }
+      },
+      {
+        "seed": 7045,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.606,
+          "planet_health": 39.3,
+          "avg_stability": 40.0,
+          "economic_strain": 57.9,
+          "geopolitical_strain": 85.8,
+          "energy_price": 177.4,
+          "food_price": 193.8
+        }
+      },
+      {
+        "seed": 7046,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.623,
+          "planet_health": 38.8,
+          "avg_stability": 33.2,
+          "economic_strain": 69.5,
+          "geopolitical_strain": 88.7,
+          "energy_price": 232.2,
+          "food_price": 243.1
+        }
+      },
+      {
+        "seed": 7047,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.552,
+          "planet_health": 41.6,
+          "avg_stability": 30.6,
+          "economic_strain": 93.7,
+          "geopolitical_strain": 33.4,
+          "energy_price": 199.1,
+          "food_price": 198.0
+        }
+      },
+      {
+        "seed": 7048,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.505,
+          "planet_health": 46.9,
+          "avg_stability": 54.3,
+          "economic_strain": 88.5,
+          "geopolitical_strain": 23.2,
+          "energy_price": 102.5,
+          "food_price": 149.8
+        }
+      },
+      {
+        "seed": 7049,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.517,
+          "planet_health": 45.8,
+          "avg_stability": 34.0,
+          "economic_strain": 91.7,
+          "geopolitical_strain": 32.2,
+          "energy_price": 214.5,
+          "food_price": 172.6
+        }
+      },
+      {
+        "seed": 7050,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.715,
+          "planet_health": 39.3,
+          "avg_stability": 37.0,
+          "economic_strain": 67.0,
+          "geopolitical_strain": 57.5,
+          "energy_price": 184.6,
+          "food_price": 205.9
+        }
+      },
+      {
+        "seed": 7051,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.788,
+          "planet_health": 38.8,
+          "avg_stability": 39.7,
+          "economic_strain": 67.8,
+          "geopolitical_strain": 66.0,
+          "energy_price": 188.7,
+          "food_price": 181.7
+        }
+      },
+      {
+        "seed": 7052,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.449,
+          "planet_health": 49.6,
+          "avg_stability": 42.0,
+          "economic_strain": 87.4,
+          "geopolitical_strain": 51.9,
+          "energy_price": 129.8,
+          "food_price": 156.9
+        }
+      },
+      {
+        "seed": 7053,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.479,
+          "planet_health": 48.2,
+          "avg_stability": 50.8,
+          "economic_strain": 89.2,
+          "geopolitical_strain": 36.1,
+          "energy_price": 130.3,
+          "food_price": 139.4
+        }
+      },
+      {
+        "seed": 7054,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.894,
+          "planet_health": 36.7,
+          "avg_stability": 30.2,
+          "economic_strain": 70.6,
+          "geopolitical_strain": 55.3,
+          "energy_price": 186.3,
+          "food_price": 175.5
+        }
+      },
+      {
+        "seed": 7055,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.458,
+          "planet_health": 46.7,
+          "avg_stability": 25.9,
+          "economic_strain": 90.7,
+          "geopolitical_strain": 54.7,
+          "energy_price": 184.9,
+          "food_price": 199.9
+        }
+      },
+      {
+        "seed": 7056,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.815,
+          "planet_health": 36.7,
+          "avg_stability": 44.4,
+          "economic_strain": 89.1,
+          "geopolitical_strain": 43.0,
+          "energy_price": 144.6,
+          "food_price": 157.8
+        }
+      },
+      {
+        "seed": 7057,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.384,
+          "planet_health": 53.2,
+          "avg_stability": 54.8,
+          "economic_strain": 56.8,
+          "geopolitical_strain": 87.2,
+          "energy_price": 166.1,
+          "food_price": 136.6
+        }
+      },
+      {
+        "seed": 7058,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.369,
+          "planet_health": 54.1,
+          "avg_stability": 54.0,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 33.3,
+          "energy_price": 120.0,
+          "food_price": 153.9
+        }
+      },
+      {
+        "seed": 7059,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.78,
+          "planet_health": 37.1,
+          "avg_stability": 49.2,
+          "economic_strain": 71.0,
+          "geopolitical_strain": 43.0,
+          "energy_price": 163.2,
+          "food_price": 234.4
+        }
+      },
+      {
+        "seed": 7060,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.408,
+          "planet_health": 49.9,
+          "avg_stability": 36.7,
+          "economic_strain": 86.6,
+          "geopolitical_strain": 63.1,
+          "energy_price": 139.8,
+          "food_price": 146.4
+        }
+      },
+      {
+        "seed": 7061,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.395,
+          "planet_health": 52.8,
+          "avg_stability": 36.2,
+          "economic_strain": 75.1,
+          "geopolitical_strain": 86.6,
+          "energy_price": 149.8,
+          "food_price": 160.1
+        }
+      },
+      {
+        "seed": 7062,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2037,
+        "final_metrics": {
+          "temp": 1.369,
+          "planet_health": 53.1,
+          "avg_stability": 43.0,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 28.4,
+          "energy_price": 135.4,
+          "food_price": 146.9
+        }
+      },
+      {
+        "seed": 7063,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2037,
+        "final_metrics": {
+          "temp": 1.458,
+          "planet_health": 50.8,
+          "avg_stability": 43.7,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 39.0,
+          "energy_price": 106.5,
+          "food_price": 137.9
+        }
+      },
+      {
+        "seed": 7064,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.755,
+          "planet_health": 44.7,
+          "avg_stability": 31.2,
+          "economic_strain": 92.1,
+          "geopolitical_strain": 42.1,
+          "energy_price": 199.0,
+          "food_price": 136.2
+        }
+      },
+      {
+        "seed": 7065,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.768,
+          "planet_health": 35.1,
+          "avg_stability": 42.6,
+          "economic_strain": 70.5,
+          "geopolitical_strain": 86.1,
+          "energy_price": 206.9,
+          "food_price": 215.4
+        }
+      },
+      {
+        "seed": 7066,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.797,
+          "planet_health": 37.7,
+          "avg_stability": 47.1,
+          "economic_strain": 73.4,
+          "geopolitical_strain": 59.5,
+          "energy_price": 189.8,
+          "food_price": 213.9
+        }
+      },
+      {
+        "seed": 7067,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.503,
+          "planet_health": 53.4,
+          "avg_stability": 49.0,
+          "economic_strain": 94.3,
+          "geopolitical_strain": 32.1,
+          "energy_price": 110.8,
+          "food_price": 131.4
+        }
+      },
+      {
+        "seed": 7068,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.635,
+          "planet_health": 47.0,
+          "avg_stability": 25.9,
+          "economic_strain": 54.9,
+          "geopolitical_strain": 94.5,
+          "energy_price": 210.4,
+          "food_price": 138.7
+        }
+      },
+      {
+        "seed": 7069,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.667,
+          "planet_health": 39.1,
+          "avg_stability": 31.1,
+          "economic_strain": 87.5,
+          "geopolitical_strain": 44.7,
+          "energy_price": 229.0,
+          "food_price": 204.4
+        }
+      },
+      {
+        "seed": 7070,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.769,
+          "planet_health": 39.8,
+          "avg_stability": 43.0,
+          "economic_strain": 70.1,
+          "geopolitical_strain": 60.4,
+          "energy_price": 165.9,
+          "food_price": 155.8
+        }
+      },
+      {
+        "seed": 7071,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.779,
+          "planet_health": 35.6,
+          "avg_stability": 30.3,
+          "economic_strain": 87.8,
+          "geopolitical_strain": 60.9,
+          "energy_price": 203.7,
+          "food_price": 215.8
+        }
+      },
+      {
+        "seed": 7072,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.607,
+          "planet_health": 46.9,
+          "avg_stability": 30.7,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 36.6,
+          "energy_price": 216.7,
+          "food_price": 152.8
+        }
+      },
+      {
+        "seed": 7073,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.905,
+          "planet_health": 42.6,
+          "avg_stability": 34.7,
+          "economic_strain": 74.7,
+          "geopolitical_strain": 53.3,
+          "energy_price": 135.8,
+          "food_price": 132.0
+        }
+      },
+      {
+        "seed": 7074,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.885,
+          "planet_health": 36.0,
+          "avg_stability": 39.7,
+          "economic_strain": 67.5,
+          "geopolitical_strain": 60.0,
+          "energy_price": 209.1,
+          "food_price": 198.0
+        }
+      },
+      {
+        "seed": 7075,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.716,
+          "planet_health": 42.6,
+          "avg_stability": 35.6,
+          "economic_strain": 86.8,
+          "geopolitical_strain": 39.4,
+          "energy_price": 137.8,
+          "food_price": 150.3
+        }
+      }
+    ]
+  },
+  "green": {
+    "policy": "green",
+    "n": 75,
+    "win_rate": 0.24,
+    "loss_reasons": {
+      "temp": 9,
+      "economic_strain": 28,
+      "geopolitical_strain": 14,
+      "energy_price": 6
+    },
+    "mean_final_metrics": {
+      "temp": 1.69,
+      "planet_health": 43.47,
+      "avg_stability": 39.2,
+      "economic_strain": 74.21,
+      "geopolitical_strain": 54.19,
+      "energy_price": 165.82,
+      "food_price": 166.13
+    },
+    "runs": [
+      {
+        "seed": 7001,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.886,
+          "planet_health": 44.3,
+          "avg_stability": 46.5,
+          "economic_strain": 60.5,
+          "geopolitical_strain": 20.4,
+          "energy_price": 113.9,
+          "food_price": 126.9
+        }
+      },
+      {
+        "seed": 7002,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.77,
+          "planet_health": 47.2,
+          "avg_stability": 43.0,
+          "economic_strain": 90.9,
+          "geopolitical_strain": 29.2,
+          "energy_price": 134.5,
+          "food_price": 151.9
+        }
+      },
+      {
+        "seed": 7003,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.637,
+          "planet_health": 41.8,
+          "avg_stability": 43.6,
+          "economic_strain": 67.3,
+          "geopolitical_strain": 94.5,
+          "energy_price": 202.8,
+          "food_price": 184.0
+        }
+      },
+      {
+        "seed": 7004,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.638,
+          "planet_health": 52.2,
+          "avg_stability": 41.5,
+          "economic_strain": 94.0,
+          "geopolitical_strain": 30.0,
+          "energy_price": 114.5,
+          "food_price": 119.1
+        }
+      },
+      {
+        "seed": 7005,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.61,
+          "planet_health": 48.0,
+          "avg_stability": 41.5,
+          "economic_strain": 87.8,
+          "geopolitical_strain": 22.0,
+          "energy_price": 129.2,
+          "food_price": 108.2
+        }
+      },
+      {
+        "seed": 7006,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.685,
+          "planet_health": 40.8,
+          "avg_stability": 34.8,
+          "economic_strain": 77.9,
+          "geopolitical_strain": 58.6,
+          "energy_price": 195.2,
+          "food_price": 205.5
+        }
+      },
+      {
+        "seed": 7007,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.732,
+          "planet_health": 40.6,
+          "avg_stability": 32.5,
+          "economic_strain": 79.2,
+          "geopolitical_strain": 52.3,
+          "energy_price": 222.5,
+          "food_price": 181.2
+        }
+      },
+      {
+        "seed": 7008,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.602,
+          "planet_health": 44.0,
+          "avg_stability": 31.6,
+          "economic_strain": 88.5,
+          "geopolitical_strain": 50.8,
+          "energy_price": 118.7,
+          "food_price": 175.6
+        }
+      },
+      {
+        "seed": 7009,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.802,
+          "planet_health": 41.7,
+          "avg_stability": 31.0,
+          "economic_strain": 77.6,
+          "geopolitical_strain": 30.8,
+          "energy_price": 121.3,
+          "food_price": 142.9
+        }
+      },
+      {
+        "seed": 7010,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.735,
+          "planet_health": 47.1,
+          "avg_stability": 41.0,
+          "economic_strain": 67.8,
+          "geopolitical_strain": 39.1,
+          "energy_price": 89.1,
+          "food_price": 123.6
+        }
+      },
+      {
+        "seed": 7011,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.601,
+          "planet_health": 43.3,
+          "avg_stability": 28.9,
+          "economic_strain": 61.0,
+          "geopolitical_strain": 83.6,
+          "energy_price": 202.8,
+          "food_price": 167.1
+        }
+      },
+      {
+        "seed": 7012,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.522,
+          "planet_health": 47.2,
+          "avg_stability": 39.2,
+          "economic_strain": 92.7,
+          "geopolitical_strain": 33.1,
+          "energy_price": 110.0,
+          "food_price": 165.2
+        }
+      },
+      {
+        "seed": 7013,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.746,
+          "planet_health": 40.1,
+          "avg_stability": 26.1,
+          "economic_strain": 51.8,
+          "geopolitical_strain": 83.3,
+          "energy_price": 202.0,
+          "food_price": 175.7
+        }
+      },
+      {
+        "seed": 7014,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.542,
+          "planet_health": 43.8,
+          "avg_stability": 42.3,
+          "economic_strain": 73.8,
+          "geopolitical_strain": 88.7,
+          "energy_price": 177.1,
+          "food_price": 159.8
+        }
+      },
+      {
+        "seed": 7015,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.422,
+          "planet_health": 50.5,
+          "avg_stability": 47.2,
+          "economic_strain": 53.4,
+          "geopolitical_strain": 52.0,
+          "energy_price": 133.6,
+          "food_price": 156.8
+        }
+      },
+      {
+        "seed": 7016,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.425,
+          "planet_health": 50.4,
+          "avg_stability": 39.6,
+          "economic_strain": 86.6,
+          "geopolitical_strain": 30.3,
+          "energy_price": 154.0,
+          "food_price": 173.4
+        }
+      },
+      {
+        "seed": 7017,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.407,
+          "planet_health": 39.8,
+          "avg_stability": 39.7,
+          "economic_strain": 79.2,
+          "geopolitical_strain": 70.3,
+          "energy_price": 269.7,
+          "food_price": 197.5
+        }
+      },
+      {
+        "seed": 7018,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.551,
+          "planet_health": 46.7,
+          "avg_stability": 36.3,
+          "economic_strain": 61.6,
+          "geopolitical_strain": 55.9,
+          "energy_price": 154.1,
+          "food_price": 178.1
+        }
+      },
+      {
+        "seed": 7019,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.689,
+          "planet_health": 42.2,
+          "avg_stability": 35.1,
+          "economic_strain": 71.2,
+          "geopolitical_strain": 48.4,
+          "energy_price": 150.5,
+          "food_price": 157.1
+        }
+      },
+      {
+        "seed": 7020,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.597,
+          "planet_health": 48.8,
+          "avg_stability": 33.0,
+          "economic_strain": 49.7,
+          "geopolitical_strain": 83.6,
+          "energy_price": 180.7,
+          "food_price": 134.8
+        }
+      },
+      {
+        "seed": 7021,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.84,
+          "planet_health": 35.5,
+          "avg_stability": 41.5,
+          "economic_strain": 89.3,
+          "geopolitical_strain": 48.8,
+          "energy_price": 226.3,
+          "food_price": 223.4
+        }
+      },
+      {
+        "seed": 7022,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.852,
+          "planet_health": 38.8,
+          "avg_stability": 44.1,
+          "economic_strain": 71.1,
+          "geopolitical_strain": 45.1,
+          "energy_price": 204.8,
+          "food_price": 186.8
+        }
+      },
+      {
+        "seed": 7023,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.935,
+          "planet_health": 35.7,
+          "avg_stability": 25.7,
+          "economic_strain": 41.6,
+          "geopolitical_strain": 67.6,
+          "energy_price": 225.5,
+          "food_price": 146.4
+        }
+      },
+      {
+        "seed": 7024,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.894,
+          "planet_health": 40.6,
+          "avg_stability": 37.1,
+          "economic_strain": 69.2,
+          "geopolitical_strain": 59.5,
+          "energy_price": 190.8,
+          "food_price": 145.4
+        }
+      },
+      {
+        "seed": 7025,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2029,
+        "final_metrics": {
+          "temp": 1.258,
+          "planet_health": 57.8,
+          "avg_stability": 31.3,
+          "economic_strain": 51.2,
+          "geopolitical_strain": 85.2,
+          "energy_price": 144.9,
+          "food_price": 132.5
+        }
+      },
+      {
+        "seed": 7026,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.897,
+          "planet_health": 38.2,
+          "avg_stability": 53.8,
+          "economic_strain": 75.8,
+          "geopolitical_strain": 67.2,
+          "energy_price": 198.8,
+          "food_price": 187.3
+        }
+      },
+      {
+        "seed": 7027,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.884,
+          "planet_health": 40.4,
+          "avg_stability": 41.0,
+          "economic_strain": 63.7,
+          "geopolitical_strain": 54.3,
+          "energy_price": 175.6,
+          "food_price": 185.9
+        }
+      },
+      {
+        "seed": 7028,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.774,
+          "planet_health": 42.3,
+          "avg_stability": 30.5,
+          "economic_strain": 83.2,
+          "geopolitical_strain": 86.0,
+          "energy_price": 220.2,
+          "food_price": 180.7
+        }
+      },
+      {
+        "seed": 7029,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.759,
+          "planet_health": 43.1,
+          "avg_stability": 44.1,
+          "economic_strain": 86.0,
+          "geopolitical_strain": 56.1,
+          "energy_price": 183.6,
+          "food_price": 151.3
+        }
+      },
+      {
+        "seed": 7030,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.782,
+          "planet_health": 42.8,
+          "avg_stability": 38.3,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 50.1,
+          "energy_price": 154.7,
+          "food_price": 188.3
+        }
+      },
+      {
+        "seed": 7031,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.828,
+          "planet_health": 42.2,
+          "avg_stability": 43.0,
+          "economic_strain": 71.5,
+          "geopolitical_strain": 43.0,
+          "energy_price": 155.3,
+          "food_price": 181.3
+        }
+      },
+      {
+        "seed": 7032,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.822,
+          "planet_health": 36.0,
+          "avg_stability": 37.9,
+          "economic_strain": 68.4,
+          "geopolitical_strain": 93.7,
+          "energy_price": 205.1,
+          "food_price": 202.2
+        }
+      },
+      {
+        "seed": 7033,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.705,
+          "planet_health": 43.0,
+          "avg_stability": 51.0,
+          "economic_strain": 86.0,
+          "geopolitical_strain": 43.2,
+          "energy_price": 161.6,
+          "food_price": 173.0
+        }
+      },
+      {
+        "seed": 7034,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.653,
+          "planet_health": 48.6,
+          "avg_stability": 36.5,
+          "economic_strain": 87.6,
+          "geopolitical_strain": 18.2,
+          "energy_price": 119.6,
+          "food_price": 137.0
+        }
+      },
+      {
+        "seed": 7035,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.76,
+          "planet_health": 37.2,
+          "avg_stability": 26.2,
+          "economic_strain": 51.7,
+          "geopolitical_strain": 40.0,
+          "energy_price": 241.0,
+          "food_price": 180.3
+        }
+      },
+      {
+        "seed": 7036,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.74,
+          "planet_health": 45.1,
+          "avg_stability": 41.9,
+          "economic_strain": 92.6,
+          "geopolitical_strain": 51.7,
+          "energy_price": 129.1,
+          "food_price": 161.9
+        }
+      },
+      {
+        "seed": 7037,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.744,
+          "planet_health": 40.0,
+          "avg_stability": 38.7,
+          "economic_strain": 75.1,
+          "geopolitical_strain": 64.1,
+          "energy_price": 178.3,
+          "food_price": 163.6
+        }
+      },
+      {
+        "seed": 7038,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.686,
+          "planet_health": 43.9,
+          "avg_stability": 38.4,
+          "economic_strain": 86.0,
+          "geopolitical_strain": 45.1,
+          "energy_price": 183.6,
+          "food_price": 156.5
+        }
+      },
+      {
+        "seed": 7039,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2035,
+        "final_metrics": {
+          "temp": 1.658,
+          "planet_health": 51.7,
+          "avg_stability": 47.6,
+          "economic_strain": 91.4,
+          "geopolitical_strain": 16.4,
+          "energy_price": 94.4,
+          "food_price": 127.6
+        }
+      },
+      {
+        "seed": 7040,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2033,
+        "final_metrics": {
+          "temp": 1.622,
+          "planet_health": 49.8,
+          "avg_stability": 42.3,
+          "economic_strain": 38.5,
+          "geopolitical_strain": 85.6,
+          "energy_price": 151.5,
+          "food_price": 130.1
+        }
+      },
+      {
+        "seed": 7041,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.622,
+          "planet_health": 46.2,
+          "avg_stability": 45.8,
+          "economic_strain": 94.5,
+          "geopolitical_strain": 37.6,
+          "energy_price": 107.5,
+          "food_price": 197.9
+        }
+      },
+      {
+        "seed": 7042,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.664,
+          "planet_health": 42.4,
+          "avg_stability": 42.2,
+          "economic_strain": 79.0,
+          "geopolitical_strain": 94.5,
+          "energy_price": 163.7,
+          "food_price": 154.5
+        }
+      },
+      {
+        "seed": 7043,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.578,
+          "planet_health": 49.9,
+          "avg_stability": 39.5,
+          "economic_strain": 88.7,
+          "geopolitical_strain": 28.8,
+          "energy_price": 96.0,
+          "food_price": 114.2
+        }
+      },
+      {
+        "seed": 7044,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.645,
+          "planet_health": 41.9,
+          "avg_stability": 35.6,
+          "economic_strain": 70.0,
+          "geopolitical_strain": 62.0,
+          "energy_price": 240.6,
+          "food_price": 186.6
+        }
+      },
+      {
+        "seed": 7045,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.642,
+          "planet_health": 43.6,
+          "avg_stability": 45.7,
+          "economic_strain": 67.8,
+          "geopolitical_strain": 77.2,
+          "energy_price": 187.1,
+          "food_price": 198.6
+        }
+      },
+      {
+        "seed": 7046,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.532,
+          "planet_health": 44.1,
+          "avg_stability": 36.2,
+          "economic_strain": 74.3,
+          "geopolitical_strain": 71.0,
+          "energy_price": 219.2,
+          "food_price": 201.7
+        }
+      },
+      {
+        "seed": 7047,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.551,
+          "planet_health": 41.1,
+          "avg_stability": 30.2,
+          "economic_strain": 57.8,
+          "geopolitical_strain": 58.9,
+          "energy_price": 170.0,
+          "food_price": 223.8
+        }
+      },
+      {
+        "seed": 7048,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.564,
+          "planet_health": 42.6,
+          "avg_stability": 44.3,
+          "economic_strain": 73.8,
+          "geopolitical_strain": 75.4,
+          "energy_price": 189.7,
+          "food_price": 200.1
+        }
+      },
+      {
+        "seed": 7049,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.606,
+          "planet_health": 40.1,
+          "avg_stability": 31.8,
+          "economic_strain": 93.9,
+          "geopolitical_strain": 62.6,
+          "energy_price": 205.6,
+          "food_price": 198.0
+        }
+      },
+      {
+        "seed": 7050,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.593,
+          "planet_health": 46.7,
+          "avg_stability": 41.9,
+          "economic_strain": 86.0,
+          "geopolitical_strain": 26.0,
+          "energy_price": 114.9,
+          "food_price": 138.4
+        }
+      },
+      {
+        "seed": 7051,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.796,
+          "planet_health": 36.7,
+          "avg_stability": 40.5,
+          "economic_strain": 61.6,
+          "geopolitical_strain": 93.4,
+          "energy_price": 245.6,
+          "food_price": 189.1
+        }
+      },
+      {
+        "seed": 7052,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.406,
+          "planet_health": 50.2,
+          "avg_stability": 41.9,
+          "economic_strain": 90.8,
+          "geopolitical_strain": 42.4,
+          "energy_price": 126.8,
+          "food_price": 195.5
+        }
+      },
+      {
+        "seed": 7053,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.879,
+          "planet_health": 41.2,
+          "avg_stability": 41.9,
+          "economic_strain": 63.7,
+          "geopolitical_strain": 39.7,
+          "energy_price": 141.9,
+          "food_price": 156.7
+        }
+      },
+      {
+        "seed": 7054,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.456,
+          "planet_health": 48.7,
+          "avg_stability": 41.7,
+          "economic_strain": 93.6,
+          "geopolitical_strain": 11.4,
+          "energy_price": 87.8,
+          "food_price": 173.8
+        }
+      },
+      {
+        "seed": 7055,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.925,
+          "planet_health": 36.7,
+          "avg_stability": 36.3,
+          "economic_strain": 61.3,
+          "geopolitical_strain": 33.9,
+          "energy_price": 169.3,
+          "food_price": 149.4
+        }
+      },
+      {
+        "seed": 7056,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.918,
+          "planet_health": 40.8,
+          "avg_stability": 33.6,
+          "economic_strain": 82.0,
+          "geopolitical_strain": 43.3,
+          "energy_price": 126.4,
+          "food_price": 164.1
+        }
+      },
+      {
+        "seed": 7057,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.799,
+          "planet_health": 36.9,
+          "avg_stability": 53.3,
+          "economic_strain": 55.7,
+          "geopolitical_strain": 90.6,
+          "energy_price": 219.1,
+          "food_price": 161.5
+        }
+      },
+      {
+        "seed": 7058,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.866,
+          "planet_health": 38.5,
+          "avg_stability": 36.8,
+          "economic_strain": 86.0,
+          "geopolitical_strain": 36.4,
+          "energy_price": 163.1,
+          "food_price": 160.9
+        }
+      },
+      {
+        "seed": 7059,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.781,
+          "planet_health": 35.6,
+          "avg_stability": 41.2,
+          "economic_strain": 63.7,
+          "geopolitical_strain": 61.6,
+          "energy_price": 219.0,
+          "food_price": 223.8
+        }
+      },
+      {
+        "seed": 7060,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.337,
+          "planet_health": 54.7,
+          "avg_stability": 39.3,
+          "economic_strain": 87.1,
+          "geopolitical_strain": 17.9,
+          "energy_price": 103.5,
+          "food_price": 103.4
+        }
+      },
+      {
+        "seed": 7061,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.395,
+          "planet_health": 53.4,
+          "avg_stability": 33.8,
+          "economic_strain": 72.5,
+          "geopolitical_strain": 86.6,
+          "energy_price": 146.6,
+          "food_price": 152.3
+        }
+      },
+      {
+        "seed": 7062,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.74,
+          "planet_health": 41.8,
+          "avg_stability": 30.4,
+          "economic_strain": 87.5,
+          "geopolitical_strain": 32.8,
+          "energy_price": 174.0,
+          "food_price": 174.9
+        }
+      },
+      {
+        "seed": 7063,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.628,
+          "planet_health": 48.7,
+          "avg_stability": 44.9,
+          "economic_strain": 88.4,
+          "geopolitical_strain": 34.2,
+          "energy_price": 110.3,
+          "food_price": 148.6
+        }
+      },
+      {
+        "seed": 7064,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.789,
+          "planet_health": 40.2,
+          "avg_stability": 28.9,
+          "economic_strain": 76.2,
+          "geopolitical_strain": 50.1,
+          "energy_price": 180.1,
+          "food_price": 148.8
+        }
+      },
+      {
+        "seed": 7065,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2038,
+        "final_metrics": {
+          "temp": 1.655,
+          "planet_health": 47.8,
+          "avg_stability": 43.6,
+          "economic_strain": 87.7,
+          "geopolitical_strain": 45.0,
+          "energy_price": 128.4,
+          "food_price": 175.4
+        }
+      },
+      {
+        "seed": 7066,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.655,
+          "planet_health": 42.9,
+          "avg_stability": 47.9,
+          "economic_strain": 43.4,
+          "geopolitical_strain": 90.4,
+          "energy_price": 197.3,
+          "food_price": 152.5
+        }
+      },
+      {
+        "seed": 7067,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.825,
+          "planet_health": 32.2,
+          "avg_stability": 47.2,
+          "economic_strain": 77.6,
+          "geopolitical_strain": 69.0,
+          "energy_price": 243.1,
+          "food_price": 229.5
+        }
+      },
+      {
+        "seed": 7068,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.625,
+          "planet_health": 51.3,
+          "avg_stability": 47.5,
+          "economic_strain": 88.7,
+          "geopolitical_strain": 42.9,
+          "energy_price": 83.7,
+          "food_price": 140.1
+        }
+      },
+      {
+        "seed": 7069,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.807,
+          "planet_health": 37.5,
+          "avg_stability": 40.4,
+          "economic_strain": 74.3,
+          "geopolitical_strain": 46.8,
+          "energy_price": 240.6,
+          "food_price": 206.3
+        }
+      },
+      {
+        "seed": 7070,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.769,
+          "planet_health": 41.1,
+          "avg_stability": 43.8,
+          "economic_strain": 72.2,
+          "geopolitical_strain": 54.6,
+          "energy_price": 149.7,
+          "food_price": 152.1
+        }
+      },
+      {
+        "seed": 7071,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.621,
+          "planet_health": 44.6,
+          "avg_stability": 44.0,
+          "economic_strain": 38.5,
+          "geopolitical_strain": 94.5,
+          "energy_price": 169.9,
+          "food_price": 150.8
+        }
+      },
+      {
+        "seed": 7072,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.926,
+          "planet_health": 41.6,
+          "avg_stability": 35.4,
+          "economic_strain": 50.4,
+          "geopolitical_strain": 34.2,
+          "energy_price": 144.2,
+          "food_price": 134.8
+        }
+      },
+      {
+        "seed": 7073,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.897,
+          "planet_health": 41.8,
+          "avg_stability": 34.8,
+          "economic_strain": 47.5,
+          "geopolitical_strain": 60.9,
+          "energy_price": 150.0,
+          "food_price": 139.5
+        }
+      },
+      {
+        "seed": 7074,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.786,
+          "planet_health": 40.1,
+          "avg_stability": 33.7,
+          "economic_strain": 94.1,
+          "geopolitical_strain": 50.0,
+          "energy_price": 192.8,
+          "food_price": 186.6
+        }
+      },
+      {
+        "seed": 7075,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.726,
+          "planet_health": 43.7,
+          "avg_stability": 38.8,
+          "economic_strain": 88.5,
+          "geopolitical_strain": 30.0,
+          "energy_price": 108.0,
+          "food_price": 149.4
+        }
+      }
+    ]
+  },
+  "growth": {
+    "policy": "growth",
+    "n": 75,
+    "win_rate": 0.32,
+    "loss_reasons": {
+      "temp": 10,
+      "geopolitical_strain": 11,
+      "avg_stability": 20,
+      "energy_price": 9,
+      "economic_strain": 1
+    },
+    "mean_final_metrics": {
+      "temp": 1.7,
+      "planet_health": 41.44,
+      "avg_stability": 23.53,
+      "economic_strain": 47.94,
+      "geopolitical_strain": 58.55,
+      "energy_price": 195.26,
+      "food_price": 163.31
+    },
+    "runs": [
+      {
+        "seed": 7001,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2039,
+        "final_metrics": {
+          "temp": 1.894,
+          "planet_health": 43.7,
+          "avg_stability": 32.0,
+          "economic_strain": 28.1,
+          "geopolitical_strain": 24.0,
+          "energy_price": 148.8,
+          "food_price": 104.6
+        }
+      },
+      {
+        "seed": 7002,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.674,
+          "planet_health": 39.8,
+          "avg_stability": 27.6,
+          "economic_strain": 39.5,
+          "geopolitical_strain": 83.3,
+          "energy_price": 199.1,
+          "food_price": 155.1
+        }
+      },
+      {
+        "seed": 7003,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.677,
+          "planet_health": 44.4,
+          "avg_stability": 33.3,
+          "economic_strain": 32.8,
+          "geopolitical_strain": 68.0,
+          "energy_price": 147.2,
+          "food_price": 136.8
+        }
+      },
+      {
+        "seed": 7004,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.559,
+          "planet_health": 45.0,
+          "avg_stability": 19.8,
+          "economic_strain": 40.2,
+          "geopolitical_strain": 34.9,
+          "energy_price": 150.1,
+          "food_price": 119.7
+        }
+      },
+      {
+        "seed": 7005,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.665,
+          "planet_health": 43.2,
+          "avg_stability": 20.2,
+          "economic_strain": 40.5,
+          "geopolitical_strain": 39.3,
+          "energy_price": 160.0,
+          "food_price": 172.3
+        }
+      },
+      {
+        "seed": 7006,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.696,
+          "planet_health": 38.5,
+          "avg_stability": 28.1,
+          "economic_strain": 46.0,
+          "geopolitical_strain": 51.7,
+          "energy_price": 209.5,
+          "food_price": 197.3
+        }
+      },
+      {
+        "seed": 7007,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.743,
+          "planet_health": 36.3,
+          "avg_stability": 18.7,
+          "economic_strain": 31.4,
+          "geopolitical_strain": 70.3,
+          "energy_price": 276.6,
+          "food_price": 180.0
+        }
+      },
+      {
+        "seed": 7008,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.585,
+          "planet_health": 45.7,
+          "avg_stability": 19.6,
+          "economic_strain": 34.8,
+          "geopolitical_strain": 53.1,
+          "energy_price": 135.2,
+          "food_price": 145.6
+        }
+      },
+      {
+        "seed": 7009,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.719,
+          "planet_health": 40.7,
+          "avg_stability": 20.8,
+          "economic_strain": 69.0,
+          "geopolitical_strain": 52.1,
+          "energy_price": 251.6,
+          "food_price": 160.9
+        }
+      },
+      {
+        "seed": 7010,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.805,
+          "planet_health": 37.6,
+          "avg_stability": 19.1,
+          "economic_strain": 54.5,
+          "geopolitical_strain": 39.8,
+          "energy_price": 190.2,
+          "food_price": 157.0
+        }
+      },
+      {
+        "seed": 7011,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.689,
+          "planet_health": 38.7,
+          "avg_stability": 24.4,
+          "economic_strain": 41.5,
+          "geopolitical_strain": 55.8,
+          "energy_price": 176.4,
+          "food_price": 201.5
+        }
+      },
+      {
+        "seed": 7012,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.595,
+          "planet_health": 42.6,
+          "avg_stability": 20.7,
+          "economic_strain": 49.1,
+          "geopolitical_strain": 82.4,
+          "energy_price": 207.7,
+          "food_price": 171.7
+        }
+      },
+      {
+        "seed": 7013,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.577,
+          "planet_health": 41.1,
+          "avg_stability": 18.5,
+          "economic_strain": 41.8,
+          "geopolitical_strain": 55.3,
+          "energy_price": 204.8,
+          "food_price": 161.6
+        }
+      },
+      {
+        "seed": 7014,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.475,
+          "planet_health": 48.6,
+          "avg_stability": 24.7,
+          "economic_strain": 51.6,
+          "geopolitical_strain": 50.4,
+          "energy_price": 173.4,
+          "food_price": 155.7
+        }
+      },
+      {
+        "seed": 7015,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.471,
+          "planet_health": 47.4,
+          "avg_stability": 22.6,
+          "economic_strain": 42.7,
+          "geopolitical_strain": 36.0,
+          "energy_price": 145.5,
+          "food_price": 148.5
+        }
+      },
+      {
+        "seed": 7016,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.671,
+          "planet_health": 42.0,
+          "avg_stability": 19.7,
+          "economic_strain": 47.0,
+          "geopolitical_strain": 90.3,
+          "energy_price": 220.5,
+          "food_price": 153.4
+        }
+      },
+      {
+        "seed": 7017,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.66,
+          "planet_health": 44.1,
+          "avg_stability": 22.6,
+          "economic_strain": 34.9,
+          "geopolitical_strain": 64.6,
+          "energy_price": 256.4,
+          "food_price": 158.3
+        }
+      },
+      {
+        "seed": 7018,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.581,
+          "planet_health": 42.8,
+          "avg_stability": 23.0,
+          "economic_strain": 63.9,
+          "geopolitical_strain": 80.0,
+          "energy_price": 187.3,
+          "food_price": 216.8
+        }
+      },
+      {
+        "seed": 7019,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.554,
+          "planet_health": 40.0,
+          "avg_stability": 16.6,
+          "economic_strain": 41.5,
+          "geopolitical_strain": 81.9,
+          "energy_price": 232.1,
+          "food_price": 199.1
+        }
+      },
+      {
+        "seed": 7020,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.354,
+          "planet_health": 49.6,
+          "avg_stability": 22.5,
+          "economic_strain": 39.8,
+          "geopolitical_strain": 88.5,
+          "energy_price": 200.2,
+          "food_price": 170.3
+        }
+      },
+      {
+        "seed": 7021,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.871,
+          "planet_health": 35.5,
+          "avg_stability": 20.1,
+          "economic_strain": 33.9,
+          "geopolitical_strain": 94.5,
+          "energy_price": 263.3,
+          "food_price": 188.9
+        }
+      },
+      {
+        "seed": 7022,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.885,
+          "planet_health": 37.6,
+          "avg_stability": 21.2,
+          "economic_strain": 73.0,
+          "geopolitical_strain": 62.3,
+          "energy_price": 257.5,
+          "food_price": 186.5
+        }
+      },
+      {
+        "seed": 7023,
+        "outcome": "loss",
+        "outcome_reason": "economic_strain",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.38,
+          "planet_health": 53.8,
+          "avg_stability": 30.6,
+          "economic_strain": 88.7,
+          "geopolitical_strain": 30.8,
+          "energy_price": 126.6,
+          "food_price": 108.0
+        }
+      },
+      {
+        "seed": 7024,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2035,
+        "final_metrics": {
+          "temp": 1.513,
+          "planet_health": 51.0,
+          "avg_stability": 25.7,
+          "economic_strain": 25.7,
+          "geopolitical_strain": 89.1,
+          "energy_price": 177.3,
+          "food_price": 139.4
+        }
+      },
+      {
+        "seed": 7025,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.9,
+          "planet_health": 34.9,
+          "avg_stability": 21.0,
+          "economic_strain": 61.2,
+          "geopolitical_strain": 45.7,
+          "energy_price": 223.5,
+          "food_price": 175.4
+        }
+      },
+      {
+        "seed": 7026,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.462,
+          "planet_health": 50.6,
+          "avg_stability": 21.8,
+          "economic_strain": 23.5,
+          "geopolitical_strain": 82.9,
+          "energy_price": 203.0,
+          "food_price": 147.5
+        }
+      },
+      {
+        "seed": 7027,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.79,
+          "planet_health": 37.9,
+          "avg_stability": 19.2,
+          "economic_strain": 47.8,
+          "geopolitical_strain": 34.8,
+          "energy_price": 198.9,
+          "food_price": 157.4
+        }
+      },
+      {
+        "seed": 7028,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.883,
+          "planet_health": 35.3,
+          "avg_stability": 24.7,
+          "economic_strain": 47.9,
+          "geopolitical_strain": 76.7,
+          "energy_price": 234.6,
+          "food_price": 175.7
+        }
+      },
+      {
+        "seed": 7029,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.81,
+          "planet_health": 39.2,
+          "avg_stability": 29.6,
+          "economic_strain": 49.8,
+          "geopolitical_strain": 57.2,
+          "energy_price": 194.1,
+          "food_price": 153.5
+        }
+      },
+      {
+        "seed": 7030,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.736,
+          "planet_health": 41.9,
+          "avg_stability": 30.5,
+          "economic_strain": 18.5,
+          "geopolitical_strain": 82.9,
+          "energy_price": 180.7,
+          "food_price": 162.6
+        }
+      },
+      {
+        "seed": 7031,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.68,
+          "planet_health": 46.7,
+          "avg_stability": 19.8,
+          "economic_strain": 16.3,
+          "geopolitical_strain": 46.7,
+          "energy_price": 130.9,
+          "food_price": 134.0
+        }
+      },
+      {
+        "seed": 7032,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.751,
+          "planet_health": 43.9,
+          "avg_stability": 18.6,
+          "economic_strain": 45.3,
+          "geopolitical_strain": 9.9,
+          "energy_price": 139.9,
+          "food_price": 156.4
+        }
+      },
+      {
+        "seed": 7033,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.774,
+          "planet_health": 41.4,
+          "avg_stability": 24.7,
+          "economic_strain": 60.7,
+          "geopolitical_strain": 51.9,
+          "energy_price": 179.3,
+          "food_price": 165.1
+        }
+      },
+      {
+        "seed": 7034,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.736,
+          "planet_health": 40.3,
+          "avg_stability": 26.5,
+          "economic_strain": 66.5,
+          "geopolitical_strain": 35.7,
+          "energy_price": 190.7,
+          "food_price": 191.4
+        }
+      },
+      {
+        "seed": 7035,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.709,
+          "planet_health": 38.4,
+          "avg_stability": 23.6,
+          "economic_strain": 48.6,
+          "geopolitical_strain": 77.2,
+          "energy_price": 242.6,
+          "food_price": 181.9
+        }
+      },
+      {
+        "seed": 7036,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.718,
+          "planet_health": 41.3,
+          "avg_stability": 23.1,
+          "economic_strain": 44.5,
+          "geopolitical_strain": 64.2,
+          "energy_price": 190.4,
+          "food_price": 143.4
+        }
+      },
+      {
+        "seed": 7037,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.777,
+          "planet_health": 35.9,
+          "avg_stability": 27.1,
+          "economic_strain": 41.9,
+          "geopolitical_strain": 46.0,
+          "energy_price": 173.7,
+          "food_price": 204.4
+        }
+      },
+      {
+        "seed": 7038,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.694,
+          "planet_health": 42.0,
+          "avg_stability": 18.0,
+          "economic_strain": 44.7,
+          "geopolitical_strain": 64.9,
+          "energy_price": 162.2,
+          "food_price": 165.1
+        }
+      },
+      {
+        "seed": 7039,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.687,
+          "planet_health": 42.3,
+          "avg_stability": 25.9,
+          "economic_strain": 34.2,
+          "geopolitical_strain": 47.7,
+          "energy_price": 160.7,
+          "food_price": 180.7
+        }
+      },
+      {
+        "seed": 7040,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.662,
+          "planet_health": 41.0,
+          "avg_stability": 27.5,
+          "economic_strain": 39.7,
+          "geopolitical_strain": 45.7,
+          "energy_price": 188.3,
+          "food_price": 142.6
+        }
+      },
+      {
+        "seed": 7041,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.682,
+          "planet_health": 43.0,
+          "avg_stability": 27.9,
+          "economic_strain": 50.8,
+          "geopolitical_strain": 36.6,
+          "energy_price": 143.7,
+          "food_price": 160.9
+        }
+      },
+      {
+        "seed": 7042,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.667,
+          "planet_health": 40.8,
+          "avg_stability": 23.1,
+          "economic_strain": 48.4,
+          "geopolitical_strain": 56.1,
+          "energy_price": 222.6,
+          "food_price": 164.3
+        }
+      },
+      {
+        "seed": 7043,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.736,
+          "planet_health": 43.8,
+          "avg_stability": 29.7,
+          "economic_strain": 34.4,
+          "geopolitical_strain": 46.1,
+          "energy_price": 192.8,
+          "food_price": 155.4
+        }
+      },
+      {
+        "seed": 7044,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.716,
+          "planet_health": 41.1,
+          "avg_stability": 23.1,
+          "economic_strain": 62.4,
+          "geopolitical_strain": 59.4,
+          "energy_price": 245.1,
+          "food_price": 165.9
+        }
+      },
+      {
+        "seed": 7045,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.671,
+          "planet_health": 47.2,
+          "avg_stability": 26.8,
+          "economic_strain": 42.2,
+          "geopolitical_strain": 42.9,
+          "energy_price": 154.5,
+          "food_price": 139.1
+        }
+      },
+      {
+        "seed": 7046,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.684,
+          "planet_health": 33.7,
+          "avg_stability": 22.7,
+          "economic_strain": 43.8,
+          "geopolitical_strain": 94.5,
+          "energy_price": 246.2,
+          "food_price": 207.6
+        }
+      },
+      {
+        "seed": 7047,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.576,
+          "planet_health": 41.8,
+          "avg_stability": 20.7,
+          "economic_strain": 57.4,
+          "geopolitical_strain": 43.6,
+          "energy_price": 207.6,
+          "food_price": 187.4
+        }
+      },
+      {
+        "seed": 7048,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.596,
+          "planet_health": 40.7,
+          "avg_stability": 29.8,
+          "economic_strain": 59.3,
+          "geopolitical_strain": 54.3,
+          "energy_price": 179.8,
+          "food_price": 153.2
+        }
+      },
+      {
+        "seed": 7049,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.638,
+          "planet_health": 40.7,
+          "avg_stability": 20.3,
+          "economic_strain": 79.6,
+          "geopolitical_strain": 47.3,
+          "energy_price": 191.7,
+          "food_price": 170.7
+        }
+      },
+      {
+        "seed": 7050,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.49,
+          "planet_health": 47.4,
+          "avg_stability": 19.5,
+          "economic_strain": 37.8,
+          "geopolitical_strain": 48.6,
+          "energy_price": 181.8,
+          "food_price": 127.9
+        }
+      },
+      {
+        "seed": 7051,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.538,
+          "planet_health": 43.2,
+          "avg_stability": 23.7,
+          "economic_strain": 49.4,
+          "geopolitical_strain": 85.3,
+          "energy_price": 205.0,
+          "food_price": 158.0
+        }
+      },
+      {
+        "seed": 7052,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.699,
+          "planet_health": 38.9,
+          "avg_stability": 19.2,
+          "economic_strain": 69.9,
+          "geopolitical_strain": 66.8,
+          "energy_price": 216.1,
+          "food_price": 188.1
+        }
+      },
+      {
+        "seed": 7053,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.912,
+          "planet_health": 36.4,
+          "avg_stability": 22.6,
+          "economic_strain": 64.5,
+          "geopolitical_strain": 49.1,
+          "energy_price": 212.4,
+          "food_price": 171.4
+        }
+      },
+      {
+        "seed": 7054,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.893,
+          "planet_health": 36.2,
+          "avg_stability": 27.0,
+          "economic_strain": 58.3,
+          "geopolitical_strain": 41.0,
+          "energy_price": 197.6,
+          "food_price": 176.4
+        }
+      },
+      {
+        "seed": 7055,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.415,
+          "planet_health": 52.4,
+          "avg_stability": 19.4,
+          "economic_strain": 53.5,
+          "geopolitical_strain": 28.1,
+          "energy_price": 103.9,
+          "food_price": 103.4
+        }
+      },
+      {
+        "seed": 7056,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.922,
+          "planet_health": 37.5,
+          "avg_stability": 25.1,
+          "economic_strain": 48.6,
+          "geopolitical_strain": 51.8,
+          "energy_price": 205.9,
+          "food_price": 154.9
+        }
+      },
+      {
+        "seed": 7057,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2047,
+        "final_metrics": {
+          "temp": 1.919,
+          "planet_health": 34.9,
+          "avg_stability": 29.5,
+          "economic_strain": 54.3,
+          "geopolitical_strain": 66.9,
+          "energy_price": 181.3,
+          "food_price": 177.8
+        }
+      },
+      {
+        "seed": 7058,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2046,
+        "final_metrics": {
+          "temp": 1.888,
+          "planet_health": 35.2,
+          "avg_stability": 23.4,
+          "economic_strain": 60.2,
+          "geopolitical_strain": 51.2,
+          "energy_price": 179.2,
+          "food_price": 161.7
+        }
+      },
+      {
+        "seed": 7059,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.814,
+          "planet_health": 37.6,
+          "avg_stability": 23.1,
+          "economic_strain": 73.7,
+          "geopolitical_strain": 81.5,
+          "energy_price": 242.2,
+          "food_price": 189.9
+        }
+      },
+      {
+        "seed": 7060,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.85,
+          "planet_health": 42.9,
+          "avg_stability": 18.8,
+          "economic_strain": 84.5,
+          "geopolitical_strain": 37.5,
+          "energy_price": 115.1,
+          "food_price": 143.6
+        }
+      },
+      {
+        "seed": 7061,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2034,
+        "final_metrics": {
+          "temp": 1.349,
+          "planet_health": 54.2,
+          "avg_stability": 26.2,
+          "economic_strain": 49.0,
+          "geopolitical_strain": 82.9,
+          "energy_price": 179.6,
+          "food_price": 140.4
+        }
+      },
+      {
+        "seed": 7062,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2044,
+        "final_metrics": {
+          "temp": 1.785,
+          "planet_health": 41.1,
+          "avg_stability": 19.3,
+          "economic_strain": 35.1,
+          "geopolitical_strain": 93.6,
+          "energy_price": 220.8,
+          "food_price": 149.8
+        }
+      },
+      {
+        "seed": 7063,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.805,
+          "planet_health": 39.4,
+          "avg_stability": 21.3,
+          "economic_strain": 66.3,
+          "geopolitical_strain": 46.3,
+          "energy_price": 193.7,
+          "food_price": 175.6
+        }
+      },
+      {
+        "seed": 7064,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.808,
+          "planet_health": 38.7,
+          "avg_stability": 24.2,
+          "economic_strain": 33.5,
+          "geopolitical_strain": 60.9,
+          "energy_price": 223.1,
+          "food_price": 144.4
+        }
+      },
+      {
+        "seed": 7065,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.784,
+          "planet_health": 36.2,
+          "avg_stability": 21.8,
+          "economic_strain": 47.3,
+          "geopolitical_strain": 90.0,
+          "energy_price": 226.4,
+          "food_price": 201.6
+        }
+      },
+      {
+        "seed": 7066,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.77,
+          "planet_health": 35.9,
+          "avg_stability": 25.1,
+          "economic_strain": 45.2,
+          "geopolitical_strain": 60.3,
+          "energy_price": 242.7,
+          "food_price": 192.7
+        }
+      },
+      {
+        "seed": 7067,
+        "outcome": "win",
+        "outcome_reason": null,
+        "final_year": 2050,
+        "final_metrics": {
+          "temp": 1.857,
+          "planet_health": 36.7,
+          "avg_stability": 22.8,
+          "economic_strain": 43.8,
+          "geopolitical_strain": 36.4,
+          "energy_price": 172.5,
+          "food_price": 163.4
+        }
+      },
+      {
+        "seed": 7068,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2045,
+        "final_metrics": {
+          "temp": 1.72,
+          "planet_health": 38.9,
+          "avg_stability": 18.3,
+          "economic_strain": 51.0,
+          "geopolitical_strain": 72.3,
+          "energy_price": 216.8,
+          "food_price": 151.5
+        }
+      },
+      {
+        "seed": 7069,
+        "outcome": "loss",
+        "outcome_reason": "energy_price",
+        "final_year": 2040,
+        "final_metrics": {
+          "temp": 1.616,
+          "planet_health": 42.5,
+          "avg_stability": 27.8,
+          "economic_strain": 44.0,
+          "geopolitical_strain": 72.9,
+          "energy_price": 243.9,
+          "food_price": 166.7
+        }
+      },
+      {
+        "seed": 7070,
+        "outcome": "loss",
+        "outcome_reason": "temp",
+        "final_year": 2049,
+        "final_metrics": {
+          "temp": 1.881,
+          "planet_health": 36.2,
+          "avg_stability": 33.2,
+          "economic_strain": 33.4,
+          "geopolitical_strain": 70.4,
+          "energy_price": 238.7,
+          "food_price": 177.2
+        }
+      },
+      {
+        "seed": 7071,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2042,
+        "final_metrics": {
+          "temp": 1.657,
+          "planet_health": 40.2,
+          "avg_stability": 30.1,
+          "economic_strain": 39.4,
+          "geopolitical_strain": 88.5,
+          "energy_price": 200.5,
+          "food_price": 184.4
+        }
+      },
+      {
+        "seed": 7072,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2048,
+        "final_metrics": {
+          "temp": 1.769,
+          "planet_health": 36.8,
+          "avg_stability": 19.4,
+          "economic_strain": 69.5,
+          "geopolitical_strain": 57.5,
+          "energy_price": 239.2,
+          "food_price": 174.7
+        }
+      },
+      {
+        "seed": 7073,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2041,
+        "final_metrics": {
+          "temp": 1.645,
+          "planet_health": 46.8,
+          "avg_stability": 19.4,
+          "economic_strain": 32.2,
+          "geopolitical_strain": 18.2,
+          "energy_price": 189.5,
+          "food_price": 153.2
+        }
+      },
+      {
+        "seed": 7074,
+        "outcome": "loss",
+        "outcome_reason": "geopolitical_strain",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.728,
+          "planet_health": 41.0,
+          "avg_stability": 27.0,
+          "economic_strain": 39.4,
+          "geopolitical_strain": 85.8,
+          "energy_price": 224.1,
+          "food_price": 167.0
+        }
+      },
+      {
+        "seed": 7075,
+        "outcome": "loss",
+        "outcome_reason": "avg_stability",
+        "final_year": 2043,
+        "final_metrics": {
+          "temp": 1.778,
+          "planet_health": 45.1,
+          "avg_stability": 19.7,
+          "economic_strain": 50.1,
+          "geopolitical_strain": 18.5,
+          "energy_price": 117.4,
+          "food_price": 121.8
+        }
+      }
+    ]
+  }
+}
