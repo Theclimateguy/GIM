@@ -1,4 +1,4 @@
-# Global Integrated Model — GIM18 (v18.1.0)
+# Global Integrated Model — GIM18 (v18.1.3)
 
 A year-by-year simulation of the world as interacting countries (~50 countries plus regional
 groupings), integrating **economy, climate, climate damage, resources, society, politics,
@@ -10,7 +10,7 @@ not pinpoint forecasting.
 every layer, what it can do, and its limits. For where the model stands and what comes next, see
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-## Status (v18.1.0)
+## Status (v18.1.3)
 
 - All runs start from a single **validated 2023 canon** compiled state
   (`data/agent_states_operational.csv`): 57 actors covering essentially all of world output
@@ -152,6 +152,21 @@ python3 -m unittest discover -s tests             # full suite
 ```
 
 ## Version
+
+**`18.1.3` — trust_gov equilibrium anchor + per-agent tension reference (opt-in).** `trust_gov` had
+no equilibrium term despite a code comment claiming otherwise: the `gini` sensitivity alone (~40×
+the GDP-per-capita drift) dominates the per-year update, so trust decays at a near-constant rate
+regardless of policy and, once past the tension threshold, a self-reinforcing trust↔tension coupling
+takes over — a repeating collapse/partial-recovery cycle rather than a stable floor (confirmed:
+scripted pro-/anti-stability policies produced statistically indistinguishable trajectories).
+Fixed with a weak linear mean-reversion toward each agent's own base-year value
+(`TRUST_ANCHOR_PULL`, default `0.0`, same pattern as the v18.1.2 resource-price anchor) and a
+per-agent (not global-constant) tension reference. Verified but partial: at `TRUST_ANCHOR_PULL =
+0.15` the collapse cycle is gone and the settling floor is measurably higher, but policy-sensitivity
+is not yet restored — left **opt-in** pending that follow-on work. Golden backtest and full suite
+(527 tests) are bit-identical at the default. See `CHANGELOG.md`.
+
+### Lineage (v18.1.2)
 
 **`18.1.2` — resource-price degeneracy fix (equilibrium anchor + demand growth).** The
 reserve-buffer (v18.1.1) slowed a price move but not its destination: a persistent one-directional
