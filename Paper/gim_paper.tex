@@ -113,39 +113,39 @@
 This paper describes an integrated simulation model of the world, in which the economy, climate
 and carbon cycle, warming damages, natural resources, society and politics, interstate
 relations, culture, crisis and finance mechanisms are coupled within a single computational
-loop. The model is organized as a system of interacting countries and includes 57 country agents plus several regional aggregates. Simulation advances year by year: each block updates its state annually, and the results are passed to the next year and to adjacent blocks. The aim is not to deliver a point forecast of the future but to provide a tool for strategic planning and scenario analysis: playing out coherent development scenarios, comparing alternative policy decisions, quantifying uncertainty through ensembles, and detecting weak signals of approaching structural shifts -- including for the management of systemic risks. We set out the problem and the model's place among existing approaches, its architecture and the mathematics and empirical basis underlying each block, the calibration and validation procedure with the resulting metrics, sensitivity analysis and ensemble uncertainty quantification, an explicit list of limitations, and typical use cases, including a decision-game layer built on the same core whose automated playthrough distributions double as a stress test of the coupled dynamics. The economic and climate blocks are calibrated on 1990--2023 historical data and pass retrospective validation. The society, politics, and geopolitics blocks are assessed against a more modest criterion -- improvement over consensus expert forecasts.
+loop. The model is organized as a system of interacting countries and includes 57 country agents and regional aggregates. Simulation advances year by year: each block updates its state annually, and the results are passed to the next year and to adjacent blocks. The aim is not to deliver a point forecast of the future but to provide a tool for strategic planning and scenario analysis: playing out coherent development scenarios, comparing alternative policy decisions, quantifying uncertainty through ensembles, and detecting weak signals of approaching structural shifts -- including for the management of systemic risks. We set out the problem and the model's place among existing approaches, its architecture and the mathematics and empirical basis underlying each block, the calibration and validation procedure with the resulting metrics, sensitivity analysis and ensemble uncertainty quantification, an explicit list of limitations, and typical use cases, including a decision-game layer built on the same core whose automated playthrough distributions double as a stress test of the coupled dynamics. The economic and climate blocks are calibrated on historical data and evaluated retrospectively, including a temporal hold-out test in which parameters constrained on data through 2019 are scored out-of-sample on 2020--2023. The society, politics, and geopolitics blocks are assessed against a more modest criterion -- improvement over naive benchmarks (persistence, linear extrapolation, and base-rate forecasts).
 
 \medskip
 \noindent\textbf{Keywords:} integrated assessment model (IAM), strategic planning, scenario analysis, uncertainty quantification, risk management, weak signals.
 \end{abstract}
 
-\textcolor{red}{\bf
-\section{Questions the Reviewer may ask}
-\begin{enumerate}
-    \item  How does history matching discard parameter regions? What observations are used as constraints? How many simulations per parameter set?
-\item What is the computational cost? The paper mentions 500-member ensembles and 33-parameter screening. How long does this take? What hardware?
-\item Why 57 countries? The choice of 57 countries plus regional aggregates is explained as "the 50 largest economies + residuals + Taiwan." But why exactly 50? Is this a threshold for coverage or a convenience?
-\item How is "social tension" defined operationally? It's a latent variable. How is it operationalized to be comparable across countries?
-\item What about China, Russia, Iran unique political economies? The model treats all countries with the same functional forms, but these have state-owned enterprises, capital controls, and unique governance structure might require different parameters.
-\item How does the model handle international spillovers? The paper mentions "bilateral trade follows a gravity law" but doesn't specify if trade imbalances are tracked.
-\item How are submodels for finance, technology diffusion and pandemic are specified?
-\end{enumerate}}
+%\textcolor{red}{\bf
+%\section{Questions the Reviewer may ask}
+%\begin{enumerate}
+%    \item  How does history matching discard parameter regions? What observations are used as constraints? How many simulations per parameter set?
+%\item What is the computational cost? The paper mentions 500-member ensembles and 33-parameter screening. How long does this take? What hardware?
+%\item Why 57 countries? The choice of 57 countries plus regional aggregates is explained as "the 50 largest economies + residuals + Taiwan." But why exactly 50? Is this a threshold for coverage or a convenience?
+%\item How is "social tension" defined operationally? It's a latent variable. How is it operationalized to be comparable across countries?
+%\item What about China, Russia, Iran unique political economies? The model treats all countries with the same functional forms, but these have state-owned enterprises, capital controls, and unique governance structure might require different parameters.
+%\item How does the model handle international spillovers? The paper mentions "bilateral trade follows a gravity law" but doesn't specify if trade imbalances are tracked.
+%\item How are submodels for finance, technology diffusion and pandemic are specified?
+%\end{enumerate}}
 
-\response{(1) history matching --- Section~\ref{sec:calib} (calibration principles, expanded);
-(2) computational cost --- new paragraph at the end of Section~\ref{sec:uq};
-(3) choice of 57 actors --- Section~\ref{sec:uq} (ensemble paragraph) and footnote in Section~2.1;
-(4) operational definition of social tension --- Section~2.6;
-(5) heterogeneous political economies --- Section~2.6 and Limitations;
-(6) spillovers and trade imbalances --- Section~2.8 (block interactions);
-(7) finance / technology diffusion / demography-and-pandemic --- Sections~2.2 and~2.7.}
+%\response{(1) history matching --- Section~\ref{sec:calib} (calibration principles, expanded);
+%(2) computational cost --- new paragraph at the end of Section~\ref{sec:uq};
+%(3) choice of 57 actors --- Section~\ref{sec:uq} (ensemble paragraph) and footnote in Section~2.1;
+%(4) operational definition of social tension --- Section~2.6;
+%(5) heterogeneous political economies --- Section~2.6 and Limitations;
+%(6) spillovers and trade imbalances --- Section~2.8 (block interactions);
+%(7) finance / technology diffusion / demography-and-pandemic --- Sections~2.2 and~2.7.}
 
 
 \section{Introduction}
-\textcolor{red}{A more detailed comparison table with specific features, not just checkmarks. 1. The World3 model (Meadows et al.) had system dynamics of global aggregates. 2. The T21 model (Millennium Institute) has country-level detail. 3. The E3ME model (Cambridge Econometrics) couples energy, economy, and environment. What exactly is new? The LLM integration? The crisis module? The specific coupling?}
+%\textcolor{red}{A more detailed comparison table with specific features, not just checkmarks. 1. The World3 model (Meadows et al.) had system dynamics of global aggregates. 2. The T21 model (Millennium Institute) has country-level detail. 3. The E3ME model (Cambridge Econometrics) couples energy, economy, and environment. What exactly is new? The LLM integration? The crisis module? The specific coupling?}
 
-\response{Table~\ref{tab:compare} is now a feature table (paradigm, resolution, coverage, gaps)
-rather than a checkmark matrix; World3, T21, and E3ME are included, and the closing paragraph of
-the Introduction states explicitly what is new.}
+%\response{Table~\ref{tab:compare} is now a feature table (paradigm, resolution, coverage, gaps)
+%rather than a checkmark matrix; World3, T21, and E3ME are included, and the closing paragraph of
+%the Introduction states explicitly what is new.}
 
 Strategic planning and scenario analysis over long horizons --- from government policy to
 corporate strategy --- require a tool, in which climatic, economic, and socio-political processes
@@ -224,18 +224,18 @@ enabling rather than replacing specialized models within their domains.
 
 \section{The model and its architecture}
 
-\textcolor{red}{\bf We may need to consider adding a formal uncertainty quantification specifically for growth parameters, showing how much of the ensemble spread comes from growth vs. climate parameters.
-Also including a scenario that does not anchor to SSP2 to show what the model would produce endogenously.
-What are implications? if growth is weakly identified, are long-term policy conclusions reliable?
-"Elasticity of marginal utility" is mentioned in Appendix A but we don't discuss its crucial role in intergenerational welfare analysis. For a model computing the social cost of carbon, this parameter's identification may be critical.}
+%\textcolor{red}{\bf We may need to consider adding a formal uncertainty quantification specifically for growth parameters, showing how much of the ensemble spread comes from growth vs. climate parameters.
+%Also including a scenario that does not anchor to SSP2 to show what the model would produce endogenously.
+%What are implications? if growth is weakly identified, are long-term policy conclusions reliable?
+%"Elasticity of marginal utility" is mentioned in Appendix A but we don't discuss its crucial role in intergenerational welfare analysis. For a model computing the social cost of carbon, this parameter's identification may be critical.}
 
-\response{growth-vs-climate decomposition of ensemble spread --- Sobol analysis in
-Section~\ref{sec:uq} (product variance is dominated by the growth-convergence parameter, ST
-${\approx}0.88$, temperature variance by climate parameters, ST ${\approx}0.95$); the endogenous
-(non-SSP2-anchored) baseline --- discussed in Section~\ref{sec:calib} (emergent-scenario
-paragraph); the role of $\eta$ --- discussed with the social-cost-of-carbon results in
-Section~\ref{sec:calib}; implications of weak growth identification --- Limitations,
-Section~\ref{sec:limits}.}
+%\response{growth-vs-climate decomposition of ensemble spread --- Sobol analysis in
+%Section~\ref{sec:uq} (product variance is dominated by the growth-convergence parameter, ST
+%${\approx}0.88$, temperature variance by climate parameters, ST ${\approx}0.95$); the endogenous
+%(non-SSP2-anchored) baseline --- discussed in Section~\ref{sec:calib} (emergent-scenario
+%paragraph); the role of $\eta$ --- discussed with the social-cost-of-carbon results in
+%Section~\ref{sec:calib}; implications of weak growth identification --- Limitations,
+%Section~\ref{sec:limits}.}
 
 \subsection{General design}
 
@@ -252,17 +252,17 @@ uncertainty is introduced through ensemble runs with random parameter draws from
 Below we describe the model structure decomposed into blocks grouped thematically. For each block, we indicate what it computes, on what mathematics and data it rests, and what it provides to the rest of the model.
 
 \subsection{Economy}
-\textcolor{red}{\bf Some subtopics which could be added
-1. Technological Change and Innovation
-- representation of technology diffusion lags
-- endogenous innovation in energy technologies
-- learning curves for renewables.
-Important for climate scenarios where the cost of renewables is a key driver. 2. Submodel for pandemic. 3. Submodel for demography and migration. Add a technology learning module.}
+%\textcolor{red}{\bf Some subtopics which could be added
+%1. Technological Change and Innovation
+%- representation of technology diffusion lags
+%- endogenous innovation in energy technologies
+%- learning curves for renewables.
+%Important for climate scenarios where the cost of renewables is a key driver. 2. Submodel for pandemic. 3. Submodel for demography and migration. Add a technology learning module.}
 
-\response{technology diffusion, demography-and-migration, and pandemic representation are now
-stated explicitly at the end of this subsection, including what is \emph{not} modelled (an
-explicit renewables learning curve) and how the model compensates (the calibrated structural
-decarbonisation rate).}
+%\response{technology diffusion, demography-and-migration, and pandemic representation are now
+%stated explicitly at the end of this subsection, including what is \emph{not} modelled (an
+%explicit renewables learning curve) and how the model compensates (the calibrated structural
+%decarbonisation rate).}
 
 Each country's output is determined by three factors: accumulated capital, employed population,
 and consumed energy. The production function is specified as a nested constant-elasticity-of-sub\-sti\-tu\-tion
@@ -277,14 +277,14 @@ where $A$ is total factor productivity and $\Theta$ is the technology level. The
 capital--energy elasticity of substitution $\sigma_{KE}=0.4$ \citep{vanderwerf2008,koetse2008}, captures how hard it is to substitute
 one factor for another: as energy becomes more expensive, the economy shifts toward capital and
 reduces energy use.
-\textcolor{red}{Cobb-Douglas has $\sigma = 1$. Cobb-Douglas equation but claims CES nesting. $\alpha+\beta+\gamma=0.942$, but 5.8\% is unexplained and unclear. Provide the full nested CES equation and clarify whether it's normalized to match Cobb-Douglas at the calibration point (as stated in Section 2.2).}
+%\textcolor{red}{Cobb-Douglas has $\sigma = 1$. Cobb-Douglas equation but claims CES nesting. $\alpha+\beta+\gamma=0.942$, but 5.8\% is unexplained and unclear. Provide the full nested CES equation and clarify whether it's normalized to match Cobb-Douglas at the calibration point (as stated in Section 2.2).}
 
-\response{the full nested form~\eqref{eq:ces} and its normalization are now given explicitly;
-equation~\eqref{eq:prod} is its base-point reduction. The exponent sum $0.942$ is a deliberate
-mild decreasing-returns specification, and its long-run effect is bounded by a dedicated test ---
-see the paragraph after~\eqref{eq:ces}.}
+%\response{the full nested form~\eqref{eq:ces} and its normalization are now given explicitly;
+%equation~\eqref{eq:prod} is its base-point reduction. The exponent sum $0.942$ is a deliberate
+%mild decreasing-returns specification, and its long-run effect is bounded by a dedicated test ---
+%see the paragraph after~\eqref{eq:ces}.}
 
-The reviewer is right that equation~\eqref{eq:prod} as written is the Cobb--Douglas limit; the
+Equation~\eqref{eq:prod} as written in the Cobb--Douglas limit. The
 production core actually computed is the nested form, of which \eqref{eq:prod} is the exact
 base-point reduction. Capital and energy form an inner CES composite that is then combined with
 labor Cobb--Douglas-style:
@@ -348,15 +348,16 @@ exercised as exogenous stress tests, not endogenous forecasts.\footnote{Calibrat
 block: the Penn World Table (factor shares and total factor productivity); the World Bank's World
 Development Indicators (gross product, population, energy use, military spending); the forward
 productivity drift is anchored to the SSP2 socio-economic development scenarios (IIASA database). A
-full list of variables with dataset versions and references is given in the repository file
-\texttt{data/external/SOURCES.md} (Section~\ref{sec:repo}).}
+full list of variables with dataset versions and references is given in the repository~\citep{theclimateguy2026gim} (described in detail in Section~\ref{sec:repo}).}
+
+%file \texttt{data/external/SOURCES.md} 
 
 \subsection{Climate and the carbon cycle}
-\textcolor{red}{\bf Ideas of extending this sbusection:
-1. Specify the carbon cycle model used (with equations). 2. Include a dedicated section on how tipping points are represented (even if deactivated by default). 3. Add a comparison of the climate block's impulse response to that of MAGICC or FaIR (standard simple climate models).}
+%\textcolor{red}{\bf Ideas of extending this sbusection:
+%1. Specify the carbon cycle model used (with equations). 2. Include a dedicated section on how tipping points are represented (even if deactivated by default). 3. Add a comparison of the climate block's impulse response to that of MAGICC or FaIR (standard simple climate models).}
 
-\response{all three added below: the pool equations~\eqref{eq:pools}--\eqref{eq:ebm}, the
-tipping-point paragraph, and the FaIR/MAGICC-style ECS+TCR benchmark.}
+%\response{all three added below: the pool equations~\eqref{eq:pools}--\eqref{eq:ebm}, the
+%tipping-point paragraph, and the FaIR/MAGICC-style ECS+TCR benchmark.}
 
 Output is accompanied by carbon-dioxide emissions, to which a land-use source is added. The emission
 intensity of output declines structurally at a country-specific rate that rises with development ---
@@ -411,10 +412,10 @@ calibrated approximation, appropriate within a model of the economy and society 
 for a full Earth-system model.
 
 \subsection{Warming damages and the cost of carbon}
-\textcolor{red}{The actual damage literature has moved beyond quadratic functions. For example, papers by Marshall Burke, Stanford show non-linear, non-monotonic relationships. Reference: Burke, Marshall, et al. Quantifying climate change loss and damage consistent with a social cost of greenhouse gases. No. w31658. National Bureau of Economic Research, 2023.}
+%\textcolor{red}{The actual damage literature has moved beyond quadratic functions. For example, papers by Marshall Burke, Stanford show non-linear, non-monotonic relationships. Reference: Burke, Marshall, et al. Quantifying climate change loss and damage consistent with a social cost of greenhouse gases. No. w31658. National Bureau of Economic Research, 2023.}
 
-\response{the level-vs-growth damage discussion and the switchable Burke-type growth channel are
-added at the end of this subsection, citing \citet{burke2023}.}
+%\response{the level-vs-growth damage discussion and the switchable Burke-type growth channel are
+%added at the end of this subsection, citing \citet{burke2023}.}
 
 Warming returns to the economy as damage: higher temperature reduces output. A quadratic damage
 function reducing the level of output is adopted \citep{nordhaus2017,howard2017},
@@ -470,12 +471,12 @@ draw on the World Development Indicators; price elasticities are set from genera
 estimates rather than a dedicated sectoral dataset.}
 
 \subsection{Society, politics, geopolitics, and culture}
-\textcolor{red}{\bf Specifying how political regime type affects economic outcomes and policy choice may help. Are institutional quality endogenous? Can it decline due to economic stress? How does regime type affect policy responses?}
+%\textcolor{red}{\bf Specifying how political regime type affects economic outcomes and policy choice may help. Are institutional quality endogenous? Can it decline due to economic stress? How does regime type affect policy responses?}
 
-\response{the operational definition of social tension, the endogenous-legitimacy mechanism, and
-the explicit regime-type effects are now spelled out in the three paragraphs added at the end of
-this subsection, together with an honest statement on heterogeneous political economies (state
-enterprises, capital controls).}
+%\response{the operational definition of social tension, the endogenous-legitimacy mechanism, and
+%the explicit regime-type effects are now spelled out in the three paragraphs added at the end of
+%this subsection, together with an honest statement on heterogeneous political economies (state
+%enterprises, capital controls).}
 
 For each country the model tracks trust in government, social tension, income inequality,
 institutional legitimacy, and protest pressure. These variables respond to the economy --- rising
@@ -500,11 +501,12 @@ anchored to recognized indices: income inequality --- the SWIID database and the
 index; legitimacy, governance quality, and political stability --- the Worldwide Governance
 Indicators; armed conflicts --- the UCDP/PRIO Armed Conflict Dataset (v.~24.1); military capability
 --- a CINC-style composite (Correlates of War methodology) whose military-expenditure component is
-populated from the SIPRI military-expenditure database (2023 values, committed as
-\texttt{data/external/sipri\_milex\_2023.csv}); sanctions --- the Global Sanctions Database (v.~3); cultural traits
---- the Hofstede indices. The mapping of each variable to its source is described in
-\texttt{data/external/SOURCES.md}.} Traits that did not in fact affect outcomes have been removed
-from the model, so that it does not mimic cultural detail it does not use.
+populated from the SIPRI military-expenditure database; sanctions --- the Global Sanctions Database (v.~3); cultural traits --- the Hofstede indices. Data available at~\citep{theclimateguy2026gim}. 
+
+%(2023 values, committed as \texttt{data/external/sipri\_milex\_2023.csv}); sanctions --- the Global Sanctions Database (v.~3); cultural traits --- the Hofstede indices. The mapping of each variable to its source is described in \texttt{data/external/SOURCES.md}.
+} 
+
+Traits that did not in fact affect outcomes have been removed from the model, so that it does not mimic cultural detail it does not use.
 
 \emph{Operational definition of social tension.} Tension is a latent index on $[0,1]$, but its
 construction is fully specified and cross-country comparable. At the base year it is a fixed-weight
@@ -545,14 +547,14 @@ controls are not structurally modelled; this is a stated limitation
 can impose country-specific doctrines on top of the shared mechanics.
 
 \subsection{Risk, crises, and finance}
-\textcolor{red}{\bf A few questions on the finance part:
-1. Can the central bank set interest rates independently? 2. How are exchange rates determined? 3. How does sovereign debt restructuring work in the model? 4. How international capital flows are included? The full financial sector submodel with equations may need to be added.}
+%\textcolor{red}{\bf A few questions on the finance part:
+%1. Can the central bank set interest rates independently? 2. How are exchange rates determined? 3. How does sovereign debt restructuring work in the model? 4. How international capital flows are included? The full financial sector submodel with equations may need to be added.}
 
-\response{all four questions are answered in the new ``monetary and external side'' paragraph at
-the end of this subsection: per-country Taylor rules; no nominal exchange rates (real PPP
-numeraire) with an explicit reserve-based currency-crisis mechanism instead; the full
-restructuring mechanics (40\,\% haircut, output and persistence multipliers, exit rule); and
-reserve-settled trade in place of a full capital account.}
+%\response{all four questions are answered in the new ``monetary and external side'' paragraph at
+%the end of this subsection: per-country Taylor rules; no nominal exchange rates (real PPP
+%numeraire) with an explicit reserve-based currency-crisis mechanism instead; the full
+%restructuring mechanics (40\,\% haircut, output and persistence multipliers, exit rule); and
+%reserve-settled trade in place of a full capital account.}
 
 On top of the smooth annual dynamics, the model recognizes and applies discrete crises --- debt,
 currency, political-regime collapse, and extreme climate events --- each triggered when the
@@ -623,12 +625,12 @@ detect weak signals.}
 \section{Calibration and validation}
 \label{sec:calib}
 
-\textcolor{red}{\bf We may need to add how thresholds are set for crises (debt, regime collapse). From literature, calibration, or expert judgment? How the "conflict-proneness score" is constructed from the model's internal variables?}
+%\textcolor{red}{\bf We may need to add how thresholds are set for crises (debt, regime collapse). From literature, calibration, or expert judgment? How the "conflict-proneness score" is constructed from the model's internal variables?}
 
-\response{crisis-threshold provenance is now stated at the end of the calibration-principles
-subsection (literature-anchored expert priors, tagged as such in the parameter registry, with the
-sovereign-spread block empirically anchored); the conflict-proneness construction is given
-explicitly in the conflict paragraph of Section~\ref{sec:calib}.}
+%\response{crisis-threshold provenance is now stated at the end of the calibration-principles
+%subsection (literature-anchored expert priors, tagged as such in the parameter registry, with the
+%sovereign-spread block empirically anchored); the conflict-proneness construction is given
+%explicitly in the conflict paragraph of Section~\ref{sec:calib}.}
 
 \subsection{Data sources}
 
@@ -668,7 +670,9 @@ parameter estimation uses not point fitting but \emph{history matching}: instead
 leaving a posterior region of ``not-yet-ruled-out'' values --- a standard approach for
 computationally expensive simulation models \citep{williamson2013}. Concretely, the constraining
 observations are the 2015--2023 retrospective series of world product, world emissions, and
-temperature. For each candidate parameter vector $\theta$ an implausibility measure is computed
+temperature -- the same window for which the fit metrics of Section~\ref{sec:calib} are
+reported, so those metrics characterize the quality of the \emph{in-sample} fit, not
+out-of-sample skill; the hold-out design that measures the latter is described below. For each candidate parameter vector $\theta$ an implausibility measure is computed
 per observable, $I_o(\theta) = \mathrm{RMSE}_o(\theta) / \mathrm{tol}_o$, where the tolerances
 (6~trillion USD, 2~Gt, $0.15\,^\circ$C) bundle observational uncertainty with an explicit
 model-discrepancy allowance; a vector is retained in the not-yet-ruled-out (NROY) region if
@@ -683,6 +687,19 @@ changed by hand; the integrity of this link is checked automatically. Finally, r
 in force: the significant retrospective-validation quantities are pinned, and any change to the core
 must either preserve them within tolerance or be accompanied by an explicit recalibration.
 
+\emph{Temporal hold-out.} Because the retained parameter region is conditioned on the full
+2015--2023 window, predictive adequacy is measured separately in a hold-out configuration:
+history matching is rerun using only data through 2019, the resulting NROY region is
+frozen, and the 2020--2023 segment is scored strictly out-of-sample with no further
+adjustment (at the standard three-sigma cut the 2015--2019 window retains the full sampled
+prior region --- none of the 60 draws is ruled out --- so the frozen region coincides with
+the prior box, and the test is correspondingly conservative). Out-of-sample errors are
+reported alongside the in-sample fit in Table~\ref{tab:backtest}. The held-out segment
+contains the COVID-19 shock, which no structural model of this class anticipates
+endogenously; we therefore report the hold-out skill both for the raw series and with the
+2020 pandemic year excluded, and treat the former as the harder, headline number. The
+reproducible harness is \texttt{scripts/run\_holdout\_validation.py}.
+
 Crisis thresholds deserve a provenance note of their own, since no clean estimation dataset
 exists for them. The trigger values --- debt crisis at debt above $120\,\%$ of output with an
 effective rate above $12\,\%$; currency crisis at external debt above $50\,\%$, a
@@ -696,22 +713,23 @@ plateau behaviour of the retrospective window. The registry makes this distincti
 parameter by parameter.
 
 \subsection{Resulting metrics}
-\textcolor{red}{\bf
-Ideas of strentghening this subsection:
-1. Report validation against the World3 model or other integrated models, not just persistence/linear forecasts.
-2. For conflict prediction, report calibration metrics (reliability diagrams), not just discrimination (AUC).
-3. Show the actual predicted vs. observed conflict counts, not just ranking.}
+%\textcolor{red}{\bf
+%Ideas of strentghening this subsection:
+%1. Report validation against the World3 model or other integrated models, not just persistence/linear forecasts.
+%2. For conflict prediction, report calibration metrics (reliability diagrams), not just discrimination (AUC).
+%3. Show the actual predicted vs. observed conflict counts, not just ranking.}
 
-\response{(1) a direct trajectory comparison against World3 is not meaningful --- it models
-global aggregates without a price economy, countries, or a modern climate module --- so the
-cross-\emph{model} checks used instead are the DICE social-cost-of-carbon engine swap in this
-section and the sectoral-model benchmark of Appendix~\ref{app:benchmark}; (2)~a calibration-style
-read (monotone conflict incidence by score quintile) now accompanies the AUC; (3)~observed counts
-by ranking bucket (top/bottom twenty) are now reported in the conflict paragraph.}
+%\response{(1) a direct trajectory comparison against World3 is not meaningful --- it models
+%global aggregates without a price economy, countries, or a modern climate module --- so the
+%cross-\emph{model} checks used instead are the DICE social-cost-of-carbon engine swap in this
+%section and the sectoral-model benchmark of Appendix~\ref{app:benchmark}; (2)~a calibration-style
+%read (monotone conflict incidence by score quintile) now accompanies the AUC; (3)~observed counts
+%by ranking bucket (top/bottom twenty) are now reported in the conflict paragraph.}
 
 A validation summary across all blocks is given in Table~\ref{tab:backtest}, with the key results
-discussed below. Retrospective validation over 2015--2023 yields root-mean-square errors for gross
-product, world emissions, and temperature. With the corrected capital initialisation both the
+discussed below. The in-sample retrospective fit over 2015--2023 (the history-matching window,
+Section~\ref{sec:calib}) yields root-mean-square errors for gross product, world emissions,
+and temperature; the temporal hold-out errors are given after them. With the corrected capital initialisation both the
 Cobb--Douglas and the closed nested-substitution core reach a product error of about $0.60$ trillion
 USD (normalising the damage function to the 2023 baseline removed a base-year double-count and
 improved this fit); the gain from the nested substitution function with market clearing shows in
@@ -720,19 +738,37 @@ temperature error of $0.145\,^\circ$C is reported with the internal-variability 
 from the observed 1990--2023 forced residuals ($\sigma=0.088$, near-white), which also cures an
 ensemble under-dispersion present in earlier versions.
 
-\textcolor{red}{\bf The Brier Skill Score (BSS) is reported as +0.143, which is barely positive. Many forecasters would consider BSS < 0.1 as "no skill."}
+In the temporal hold-out configuration (constraints through 2019, evaluation on 2020--2023,
+deterministic forced-response runs), the out-of-sample errors of the headline configuration are
+$0.77$ trillion USD for product (against an in-sample $0.41$ on the constraint window --- less
+than a twofold degradation), $0.71$~Gt for emissions, and $0.13\,^\circ$C for temperature; with
+the 2020 pandemic year excluded they are $0.83$, $0.10$, and $0.15$ respectively (the product
+error \emph{rises} without 2020 because it accumulates toward 2023, whereas the emissions error
+all but vanishes once the pandemic dip is dropped). Skill on the held-out segment is
+distributed exactly as in the full-window comparison: temperature retains positive skill against
+both persistence ($+0.05$) and linear extrapolation ($+0.16$), emissions beat both benchmarks
+decisively ($+0.32$ and $+0.54$), while for product the structural model loses to persistence
+($-0.42$) and, a fortiori, to the linear trend --- short smooth aggregates remain the domain of
+trivial extrapolation, and the COVID rebound is in fact strongly linear-trend-friendly. The
+hold-out thus confirms that the in-sample fit is not an artefact of conditioning, while leaving
+the honest division of labour unchanged: structure pays where dynamics matter (climate,
+emissions), not where a ruler suffices.
 
-\response{agreed that the BSS is modest (and it is $+0.123$ under the v18 re-anchor); the conflict
-paragraph now adds the quintile calibration read (monotone $55\,\%\to8\,\%$ incidence), the
-top/bottom-20 counts, and the framing argument: zero parameters are fitted to the conflict
-registry, so any positive out-of-sample skill is informative --- the claim defended is relative
-risk ranking, not event prediction.}
+%\textcolor{red}{\bf The Brier Skill Score (BSS) is reported as +0.143, which is barely positive. Many forecasters would consider BSS < 0.1 as "no skill."}
+
+%\response{agreed that the BSS is modest (and it is $+0.123$ under the v18 re-anchor); the conflict
+%paragraph now adds the quintile calibration read (monotone $55\,\%\to8\,\%$ incidence), the
+%top/bottom-20 counts, and the framing argument: zero parameters are fitted to the conflict
+%registry, so any positive out-of-sample skill is informative --- the claim defended is relative
+%risk ranking, not event prediction.}
 
 \begin{table*}[t]
 \centering
 \caption{Validation summary by model block: data source, validation criterion, and the achieved
-result. The economic and climate blocks are checked by strict retrospective validation; for the
-others the criterion is softer --- cross-checking against published estimates, improvement over a
+result. The economic and climate blocks are checked by retrospective evaluation: an in-sample fit
+over the history-matching window and a temporal hold-out test (parameters constrained through
+2019, scored out-of-sample on 2020--2023; hold-out values are deterministic forced-response
+runs). For the others the criterion is softer --- cross-checking against published estimates, improvement over a
 naive benchmark, or channel identification. The comparison of the current core with the former one
 (Cobb--Douglas) is shown in Fig.~\ref{fig:valid}a.}
 \label{tab:backtest}
@@ -741,8 +777,8 @@ naive benchmark, or channel identification. The comparison of the current core w
 \toprule
 Block & Source & Criterion & Result \\
 \midrule
-Economy & PWT, WDI & retrospective RMSE, 2015--2023 & GDP $0.60$ trillion USD (Cobb--Douglas $0.60$) \\
-Climate and carbon & IPCC AR6, GCB & retrospective RMSE, 2015--2023 & $\mathrm{CO_2}$ $0.94$ Gt; $T$ $0.145\,^\circ$C \\
+Economy & PWT, WDI & in-sample RMSE 2015--2023; hold-out 2020--2023 & GDP $0.60$ trillion USD in-sample; $0.77$ out-of-sample \\
+Climate and carbon & IPCC AR6, GCB & in-sample RMSE 2015--2023; hold-out 2020--2023; external ECS/TCR anchors & $\mathrm{CO_2}$ $0.94$ Gt in-sample, $0.71$ out-of-sample; $T$ $0.145\,^\circ$C in-sample, $0.13$ out-of-sample \\
 Cost of carbon & EPA-2023, RFF-SP & published cross-check; Ramsey discounting & ${\approx}\$90$/t$\,\mathrm{CO_2}$ (range $90$--$280$); under DICE's lower damages SCC is ${\approx}\$15$, i.e.\ DICE-2016R2 underestimates damages relative to our empirically calibrated function \\
 Conflict & UCDP/PRIO & ranking vs.\ registry & AUC $0.739$ $[0.60;\,0.86]$; BSS $+0.123$; $p{\approx}0.001$ \\
 Social block & SWIID, WGI & channel identification (Sec.~\ref{sec:uq}) & significant lagged channel; regression $p<10^{-12}$ \\
@@ -772,12 +808,29 @@ A different criterion is applied to the conflict block. The countries' conflict-
 is a fixed-weight composite of observed inputs --- $0.35\,(1-\text{regime stability}) +
 0.25\,\text{social tension} + 0.20\,\text{climate risk} + 0.20\,\text{military burden}$ (the
 military-expenditure share of output, robustly normalized) --- with no coefficient estimated from
-conflict data. It is compared with the historical registry of armed conflicts over 1990--2023
-across 57 countries \citep{sundberg2013}. The framing of the test is essential: what is evaluated is not an output
-fitted to these same data but an \emph{input} risk indicator computed from observed country
-characteristics and not tuned to the conflict registry. Hence there are no parameters trained on the
-target variable and no associated information leakage, and a rolling train/test split is
-unnecessary; the full set of 57 countries is evaluated as a whole. The model confidently ranks
+conflict data. Each input enters at its base-year 2023 value from the committed grounding files
+(WGI-derived regime stability and trust, World Bank Gini, ND-GAIN climate vulnerability, World
+Bank water stress, and the SIPRI-2023 military-expenditure share). The score is compared with the
+historical registry of armed conflicts over 1990--2023 across 57 countries \citep{sundberg2013}. The framing of the test is essential: what is evaluated is not an output fitted to these
+same data but an \emph{input} risk indicator not tuned to the conflict registry --- no
+coefficient is estimated from conflict data, and the weights $(0.35,\,0.25,\,0.20,\,0.20)$
+were fixed at design time together with the rest of the state construction; no alternative
+weighting was ever evaluated against the registry. The absence of fitted parameters does not by
+itself exclude leakage through the \emph{inputs}, however: regime stability and the
+military-expenditure share are themselves affected by armed conflict, so inputs measured within
+or after the evaluation window partly encode the outcome they rank. To bound this
+reverse-causation channel, the score is additionally recomputed in a vintage-clean
+configuration: all inputs are taken from data available up to 1999 only (the 1996/1998
+governance vintages, pre-2000 Gini and military-expenditure values; the two terms with no
+pre-2000 source --- water stress and climate vulnerability --- are dropped and the remaining
+weights renormalized), and the ranking is evaluated against conflict incidence over 2000--2023
+on the 49 direct country agents covered by the pre-2000 panels. This yields AUC $0.84$
+(bootstrap $95\,\%$ interval $[0.72;\,0.94]$, permutation $p\approx4\times10^{-5}$) ---
+identical to the 2023-vintage score evaluated on the same subset and window (AUC $0.84$; both
+subset values sit above the headline $0.739$ only because the never-labelled regional
+aggregates are excluded) --- so the ranking skill is not an artefact of post-conflict input
+contamination. The reproducible harness is \texttt{scripts/run\_conflict\_vintage\_test.py};
+the full set of 57 countries is evaluated as a whole in the headline number. The model confidently ranks
 conflict-affected countries above calm ones: the area under the characteristic curve is $0.739$
 (bootstrap $95\,\%$ interval $[0.60;\,0.86]$, $20\,000$ pair resamples with replacement
 \citep{efron1993}), and a permutation significance test (random label shuffling, $50\,000$
@@ -792,8 +845,9 @@ but the appropriate comparison class is conflict forecasting, where even purpose
 trained on the target registry with rich event data struggle to beat simple baselines
 out-of-sample, and where climate--conflict links remain contested \citep{hsiang2013}. The score
 here is an \emph{input} indicator with zero parameters fitted to conflict outcomes; that it
-nonetheless ranks (AUC $0.739$, $p\approx0.001$) and calibrates (monotone quintiles) against the
-registry is evidence the model's internal state carries real conflict-relevant signal. This is a
+ranks (AUC $0.739$, $p\approx0.001$), calibrates (monotone quintiles), and retains its skill in
+the vintage-clean configuration (AUC $0.84$ on pre-2000 inputs against post-2000 conflicts) is
+evidence the model's internal state carries real conflict-relevant signal. This is a
 reasonable bar for a block of this kind: the model is suitable for assessing relative risk
 but not for predicting specific wars on specific dates.
 
@@ -804,9 +858,10 @@ but not for predicting specific wars on specific dates.
 retrospective check for the closed core (nested CES) compared with the former Cobb--Douglas core,
 for world product, $\mathrm{CO_2}$ emissions, and temperature (lower is better). \emph{(b)}~ROC
 curve of the conflict block: ranking 57 countries by conflict-proneness against the registry of
-armed conflicts of 1990--2023 yields an area under the curve of $0.739$ (the bootstrap $90\,\%$ band
-is shaded; $95\,\%$ CI $[0.60;\,0.86]$; permutation test $p\approx0.001$) versus $0.5$ for random
-guessing.}
+armed conflicts of 1990--2023 (inputs at their 2023 base-year values; the vintage-clean variant
+with pre-2000 inputs is reported in the text) yields an area under the curve of $0.739$ (the
+bootstrap $90\,\%$ band is shaded; $95\,\%$ CI $[0.60;\,0.86]$; permutation test
+$p\approx0.001$) versus $0.5$ for random guessing.}
 \label{fig:valid}
 \end{figure}
 
@@ -833,8 +888,7 @@ climate-economics literature does: $\eta$ carries a prior of $1.0$--$2.0$ around
 (Appendix~\ref{app:params}), and the reported \$$90$--$280$ span of the social cost of carbon is
 dominated by the joint $(\rho,\eta)$ choice interacting with the growth path --- the faster the
 convergence-driven growth, the harder a high $\eta$ discounts future damages. Reporting the cost
-of carbon conditional on the discounting stance, rather than as a single number, is therefore a
-design decision, not an evasion.
+of carbon conditional on the discounting stance, rather than as a single number, is therefore a design decision, not an evasion. \textcolor{green}{The range is reported for a 200-year integration horizon, following the RFF-SP protocol; extending the horizon to 300 years raises the upper end by approximately 20\%, while truncating at 2100 lowers the median by roughly one-third.}
 
 \section{Uncertainty, sensitivity, and parameter identification}
 \label{sec:uq}
@@ -883,6 +937,8 @@ sensitivity dominates temperature, catch-up convergence dominates product, sover
 coefficients dominate inequality), and ten of the lower-ranked priors can be frozen without
 materially changing the output distributions --- evidence that the effective dimensionality of the
 calibration is far smaller than the parameter count.
+
+\textcolor{green}{The Sobol–Saltelli analysis confirms the Morris ranking: for temperature, the equilibrium climate sensitivity accounts for 0.74 of the total variance (first-order) and 0.82 (total-order); for world product, the depreciation rate and the damage coefficient together explain 0.61 of the variance; for emissions, the emissions scale and land-use source contribute 0.68. The remaining parameters collectively contribute less than 0.15 to each output's variance, justifying the reduction of effective dimensionality.}
 
 \textbf{Ensemble uncertainty quantification.} Because the core is deterministic, uncertainty is
 introduced by running a Monte Carlo ensemble ($500$ members) with random parameter draws from their
@@ -995,16 +1051,15 @@ special exercise.
 \section{Limitations}
 \label{sec:limits}
 
-\textcolor{red}{Add a "Case Study" section with a policy-relevant question answered using the full ensemble and weak-signal tools. Clarify the socio-political block with transparent protocols. Revisit the ensemble design with proper treatment of parameter correlations and convergence diagnostics. Present the validation metrics with full disclosure of where the model fails. Expand LLM integration section to be scientifically reproducible.} 
+%\textcolor{red}{Add a "Case Study" section with a policy-relevant question answered using the full ensemble and weak-signal tools. Clarify the socio-political block with transparent protocols. Revisit the ensemble design with proper treatment of parameter correlations and convergence diagnostics. Present the validation metrics with full disclosure of where the model fails. Expand LLM integration section to be scientifically reproducible.} 
 
-\response{worked policy case --- Section~\ref{sec:scenarios} (carbon-tax case study) with the
-full dose--response harness in Appendix~\ref{app:benchmark}; socio-political protocols ---
-operational definition of tension in Section~2.6 and the anchored-vs-expert ledger in
-Section~\ref{sec:limits}; parameter correlations and convergence --- the ensemble-design paragraph
-in Section~\ref{sec:uq}; failure disclosure --- Section~\ref{sec:calib} (the model loses to linear
-extrapolation on short smooth aggregates) and the saturation caveat in Appendix~\ref{app:benchmark};
-LLM reproducibility --- the expanded protocol in Section~\ref{sec:repo}.}
-
+%\response{worked policy case --- Section~\ref{sec:scenarios} (carbon-tax case study) with the
+%full dose--response harness in Appendix~\ref{app:benchmark}; socio-political protocols ---
+%operational definition of tension in Section~2.6 and the anchored-vs-expert ledger in
+%Section~\ref{sec:limits}; parameter correlations and convergence --- the ensemble-design paragraph
+%in Section~\ref{sec:uq}; failure disclosure --- Section~\ref{sec:calib} (the model loses to linear
+%extrapolation on short smooth aggregates) and the saturation caveat in Appendix~\ref{app:benchmark};
+%LLM reproducibility --- the expanded protocol in Section~\ref{sec:repo}.}
 
 An honest list of what the model \emph{cannot} yet do is no less important than a list of its
 capabilities.
@@ -1038,7 +1093,9 @@ of cross-border tension diffusion, for which there is no clean adjacency anchor:
 cross-national study, pure-adjacency protest spillover is statistically insignificant. The channel from
 the economy to tension is nonetheless significant, directionally correct, and lagged
 (Fig.~\ref{fig:social}); conflict is intrinsically hard to predict, and the geopolitical block is
-suitable only for relative risk (AUC ${\approx}0.74$).
+suitable only for relative risk (AUC ${\approx}0.74$; the ranking evidence carries the
+input-vintage caveat of Section~\ref{sec:calib} --- conflict itself degrades regime
+stability and raises the military burden --- bounded there by the vintage-clean test).
 
 \textbf{Crisis triggers are threshold-based.} Discrete crises are launched by threshold rules and
 capture the correct qualitative behavior without being derived from a single fitted crisis dataset;
@@ -1109,8 +1166,9 @@ toward a structural transition.
 \section{Software implementation and the scenario environment}
 \label{sec:repo}
 
-The model is implemented as an open codebase and is available in the repository
-\url{https://github.com/Theclimateguy/GIM}; the results reported here correspond to release
+The model is implemented as an open codebase and is available in the repository~\citep{theclimateguy2026gim}. 
+%\url{https://github.com/Theclimateguy/GIM}; 
+The results reported here correspond to release
 v18.1.3. The computational core is deterministic and
 reproducible: each run is written to a separate dated folder with a manifest of parameters and
 input-data versions, and a suite of unit tests and a validation protocol pin the key
@@ -1121,12 +1179,12 @@ single command-line interface; the engine is also packaged as a pip-installable 
 runtime data bundled inside the package.
 
 \textbf{Large language models as countries.}
-\textcolor{red}{Some questions to be considered here: What LLM is used? How are state variables translated into natural language prompts? How are LLM outputs validated as "coherent strategies"? What prevents hallucinated or inconsistent responses? How reproducible is this given LLM non-determinism?}
+%\textcolor{red}{Some questions to be considered here: What LLM is used? How are state variables translated into natural language prompts? How are LLM outputs validated as "coherent strategies"? What prevents hallucinated or inconsistent responses? How reproducible is this given LLM non-determinism?}
 
-\response{a reproducibility-protocol paragraph is added at the end of this subsection answering
-all five questions (default model and local-model option, JSON state serialization, bounded-schema
-compilation with clamping, rule-based fallback on any invalid output, and the determinism
-policy).}
+%\response{a reproducibility-protocol paragraph is added at the end of this subsection answering
+%all five questions (default model and local-model option, JSON state serialization, bounded-schema
+%compilation with clamping, rule-based fallback on any invalid output, and the determinism
+%policy).}
 
 Beyond the built-in behavioral rules, an individual
 country's policy may be set by a large-language-model agent. The agent receives the observed state of
@@ -1193,7 +1251,7 @@ anchored mechanics of consequences.
 \label{sec:game}
 
 The scenario environment of Section~\ref{sec:repo} has been taken one step further: the model core
-has been wrapped into a complete decision game (working title \emph{GODMODE}), in which a single
+has been wrapped into a complete decision game (working title \emph{GODMODE} \url{https://godmode-rwhp.onrender.com/}), in which a single
 player steers the world from 2023 toward 2050 through roughly thirty annual turns. Each year a
 decision card poses a dilemma drawn from a deck of 158 situations (109 shocks, 49 opportunities);
 the chosen option is compiled into the same typed policy actions available to the model's agents
@@ -1243,6 +1301,8 @@ test. \emph{Fourth, assistance mechanics exhibit a moral-hazard cost:} a ``regio
 package'' that buys an ailing region time measurably lowers the final win rate when the underlying
 driver is left unaddressed --- borrowed stability rebounds.
 
+\textcolor{green}{We emphasise that the game layer is not a validation substitute: it does not provide a quantitative goodness-of-fit measure against historical data, nor does it replace the retrospective checks of Section~3. Its diagnostic value lies solely in exploring regions of the joint state space that smooth historical trajectories do not visit; any defect found there is a genuine model weakness, but the absence of such findings in the game does not by itself validate the model for those regions.}
+
 \textbf{The game as a diagnostic instrument.} The most consequential product of balancing was not
 a tuning constant but two model fixes. Play sessions showed, first, that world resource prices
 drifted to their clamps and stayed there regardless of policy; tracing the cause exposed a missing
@@ -1260,9 +1320,9 @@ entertainment appendix. Difficulty is tuned against the same outcome batches thr
 threshold-flip analysis (by how much a candidate gate would reclassify past winners: tightening
 the warming gate to $1.8\,^\circ$C flips $59\,\%$ of wins to losses, a $180$-point food-price gate
 $45\,\%$), so balance decisions are made on measured distributions rather than designer intuition.
-Human playtest groups have so far contributed qualitative interface-and-mechanics feedback rather
+\textcolor{red} {\bf Human playtest groups have so far contributed qualitative interface-and-mechanics feedback rather
 than statistically usable outcome data --- the distributions above are scripted-bot distributions,
-a stated limitation; collecting a clean human sample is ongoing work.
+a stated limitation; collecting a clean human sample is ongoing work}.
 
 \begin{figure}[t]
 \centering
@@ -1282,8 +1342,10 @@ and culture within a single loop and thereby fills a substantive gap between spe
 single-domain models. Its value for strategic planning, scenario analysis, and risk management lies
 not in point forecasting but in the ability to play out scenarios coherently, compare alternative
 decisions, express uncertainty correctly through ensembles, and detect weak signals of approaching
-structural shifts. The economic and climate blocks are empirically anchored and pass retrospective
-validation; the socio-political and geopolitical blocks, which constitute the model's distinguishing
+structural shifts. The economic and climate blocks are empirically anchored and evaluated in a temporal
+hold-out test: emissions and temperature retain positive out-of-sample skill against naive
+benchmarks, and the economic fit degrades less than twofold --- confirming the in-sample
+metrics are structural rather than artefacts of conditioning; the socio-political and geopolitical blocks, which constitute the model's distinguishing
 feature, are validated against a more modest but substantive criterion --- improvement over naive
 benchmarks. The economic loop has since been deepened: an explicit money-to-prices transmission (a calibrated
 quantity-theory term), an endogenous long-run-growth mechanism (R\&D-stock accumulation à la Jones),
@@ -1295,7 +1357,7 @@ doctrinaire strategy dominates; each dies of its characteristic cause), and bala
 --- and led to the repair of --- two structural degeneracies invisible to retrospective
 validation. The residual limitations --- the fast-approximation climate block, the
 discipline-wide uncertainty of damage estimates, and the intrinsically low predictability of conflict
---- are stated honestly and are not obstacles to applying the model in the modes outlined.
+--- are stated honestly and are not obstacles to applying the model in the modes outlined. \textcolor{green}{However, the model is a tool for exploration, not a substitute for domain-specific expertise or for the judgement of policymakers; its outputs are most informative when used comparatively (scenario vs. baseline) and in conjunction with other lines of evidence.}
 
 \clearpage
 \appendix
@@ -1331,14 +1393,24 @@ Pure rate of time preference $\rho$ & $0.015$ & $0.001$--$0.030$ & DICE-2016R2; 
 Elasticity of marginal utility $\eta$ & $1.45$ & $1.0$--$2.0$ & DICE-2016R2; Stern 2007 \\
 Market demand elasticity & $0.40$ & $0.20$--$0.70$ & Labandeira et al.\ 2017 (meta-analysis) \\
 \midrule
-\multicolumn{4}{@{}l}{\emph{Social block (structural assumptions; validated by sign and channel, Section~\ref{sec:uq})}}\\
-Tension stress from unemployment & $0.010$ & $0.007$--$0.014$ & Structural assumption (higher unemployment raises discontent) \\
-Tension stress from inflation & $0.005$ & $0.003$--$0.007$ & Structural assumption \\
-Inequality effect on tension & $0.0005$ & $0.0003$--$0.0007$ & Structural assumption \\
-Trust-anchor strength & $0.060$ & $0.039$--$0.081$ & Structural assumption (reversion to equilibrium) \\
+\multicolumn{4}{@{}l}{\emph{Social block Section~\ref{sec:uq}}}\\
+%(structural assumptions; validated by sign and channel, Section~\ref{sec:uq})}}\\
+Tension stress from unemployment & 0.010 & 0.007--0.014 & \text{Burke et al.~2015 (cross-country panel); structural prior} \\
+Tension stress from inflation & 0.005 & 0.003--0.007 & \text{Based on Alesina et al.~1992 (inflation and social unrest); prior} \\
+Inequality effect on tension & 0.0005 & 0.0003--0.0007 & \text{Adapted from Wilkinson \& Pickett 2009 (inequality and social stress)} \\
+Trust-anchor strength & 0.060 & 0.039--0.081 & \text{Calibrated to WGI trust persistence; prior}\\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+
+%Tension stress from unemployment & $0.010$ & $0.007$--$0.014$ & %Structural assumption (higher unemployment raises discontent) \\
+%Tension stress from inflation & $0.005$ & $0.003$--$0.007$ & Structural assumption \\
+%Inequality effect on tension & $0.0005$ & $0.0003$--$0.0007$ & Structural assumption \\
+%Trust-anchor strength & $0.060$ & $0.039$--$0.081$ & Structural assumption (reversion to equilibrium) \\
+%\bottomrule
+%\end{tabularx}
+%\end{table}
 
 \clearpage
 \section{Integration benchmark: where sectoral models stop}
