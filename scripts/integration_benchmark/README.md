@@ -13,7 +13,7 @@ python3 -m scripts.integration_benchmark.gim_benchmark
 
 # 2. render the figures (matches paper house style)
 python3 -m scripts.integration_benchmark.make_benchmark_figures
-#    -> paper/figures/fig6_integration_carbon, fig7_integration_oil,
+#    -> figures/fig6_integration_carbon, fig7_integration_oil,
 #       fig8_integration_crop, fig9_integration_summary  (.pdf + .png)
 ```
 

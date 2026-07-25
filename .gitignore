@@ -71,6 +71,10 @@ misc/assets/
 paper/REVISION_PLAN.md
 docs/FINALIZATION_REPORT.md
 
+# Paper materials — kept locally, not part of the public repo (companion to the publication)
+Paper/
+paper/
+
 # Paper scratch screenshots / review markups (not part of the paper; keep fig2-fig5 sources)
 paper/chk-*.png
 paper/vchk-*.png

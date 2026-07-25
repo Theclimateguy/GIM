@@ -2,7 +2,30 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
-## [18.1.3] — 2026-07-12 — trust_gov equilibrium anchor + per-agent tension reference (opt-in)
+## [18.1.4] — 2026-07-26 — archival release (repo hygiene, no engine change)
+
+Documentation and repository-hygiene release cut for the Zenodo archive. **No change to the
+simulation engine, calibration, or results** — the golden backtest and full test suite are
+bit-identical to 18.1.3.
+
+### Changed
+
+- **README streamlined** to the essentials (what the model is, validation highlights, screenshots,
+  native app, links); per-version status/lineage detail now lives solely in this changelog.
+- **GODMODE game section rewritten** for the production browser game
+  ([godmode-rwhp.onrender.com](https://godmode-rwhp.onrender.com/),
+  [source](https://github.com/Theclimateguy/GODMODE)) — CEO of the largest multinational holding,
+  ~1-in-6 survival, decision cards, War Room advisors, cabinet politics, interactive world map,
+  optional LLM advisors — replacing the earlier "play as a country" sketch.
+- **Default branch** moved to `GIM18`.
+
+### Removed
+
+- **`Paper/` LaTeX/figure materials removed from the public repository** (kept locally; companion to
+  the publication). References to `paper/…` paths scrubbed from the documentation. The published
+  paper is still cited in [`CITATION.cff`](CITATION.cff) and [`.zenodo.json`](.zenodo.json).
+
+
 
 Behaviour fix to the political/social layer, same shape as the 18.1.2 resource-price fix; **opt-in**
 (default off), so the 2015–2023 golden backtest and the full test suite (527 tests, same pass/skip
@@ -357,11 +380,11 @@ pipeline fully reproducible.
 
 ### Changed
 
-- The accompanying paper (`paper/gim_paper.tex`) is translated into academic English, reframed
-  around strategic planning and scenario analysis; the Russian version is retained as
-  `paper/gim_paper_ru.tex`. The appendix and the bibliography each begin on a new page.
-- Figures regenerated with English labels: `fig1` (architecture, TikZ) and `fig2`--`fig5` via the
-  committed, reproducible generator `paper/figures/make_figures.py`.
+- The accompanying paper is translated into academic English, reframed around strategic planning
+  and scenario analysis; a Russian version is retained. The appendix and the bibliography each
+  begin on a new page.
+- Figures regenerated with English labels: `fig1` (architecture, TikZ) and `fig2`--`fig5` via a
+  committed, reproducible figure generator.
 
 [17.1.1]: https://github.com/Theclimateguy/GIM/releases/tag/v17.1.1
 
@@ -384,7 +407,7 @@ reproducible. The accompanying paper is reframed around strategic planning and s
   accumulation, an impulse response to a stagflation shock, and a distributed-lag regression. The
   channel is **statistically significant but lagged**; its direct drivers are the social-block priors,
   which were absent from the screened physico-economic set — hence the screen's apparent null.
-- **Committed, reproducible figure generator** (`paper/figures/make_figures.py`) for Fig. 2–5,
+- **Committed, reproducible figure generator** for Fig. 2–5,
   including a new **Fig. 5** (economy→society channel). Method citations (Morris 1991,
   Campolongo 2007, Efron & Tibshirani 1993) added to the paper.
 

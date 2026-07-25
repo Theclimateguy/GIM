@@ -3,8 +3,8 @@
 Quantitative backing for the convergence claim in the paper (v2, "What keeps it
 together: stability, measured"). Harness: `scripts/run_stability_analysis.py`;
 output: `results/calibration/stability_analysis.json` (gitignored, deterministic
-— reruns reproduce it bit-for-bit); figure: `Paper/figures/make_stability_figure.py`
-(fig12) and `Paper/figures/make_ensemble30_figure.py` (fig11).
+— reruns reproduce it bit-for-bit). Figure generators are maintained with the
+publication materials, outside this repository.
 
 Configuration: deterministic core, simple background policy, extreme events off,
 `forward_init=True` (post-18.1.2 forward market corrections), base year 2023.
@@ -75,6 +75,4 @@ index (variance/mean) = 2.0 — crises cluster in time as slow accumulators
 ```
 python3 scripts/run_stability_analysis.py          # ~4 min on an M4 Pro
 ENS_YEARS=30 python3 scripts/run_ensemble.py       # ~1 min
-python3 Paper/figures/make_stability_figure.py
-python3 Paper/figures/make_ensemble30_figure.py
 ```

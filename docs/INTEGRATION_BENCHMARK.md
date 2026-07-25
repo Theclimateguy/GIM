@@ -15,7 +15,7 @@ Reproduce:
 
 ```bash
 python3 -m scripts.integration_benchmark.gim_benchmark          # -> results/integration_benchmark/<ts>/benchmark.json
-python3 -m scripts.integration_benchmark.make_benchmark_figures # -> paper/figures/fig6..fig9 (.pdf/.png)
+python3 -m scripts.integration_benchmark.make_benchmark_figures # -> figures/fig6..fig9 (.pdf/.png)
 ```
 
 Runs are deterministic (`enable_extreme_events=False`, `simple_rule_based_policy`, full 57-agent

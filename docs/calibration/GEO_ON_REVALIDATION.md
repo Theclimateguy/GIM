@@ -35,9 +35,8 @@ sensitivity structure (the drivers remain physico-economic, as the paper states)
 
 1. **Parameter counts are stale: 26 → 33 key, 294 → 305 all.** The social-validation program added 7 key
    priors (`CRISIS_SEVERITY_ALPHA`, `MIGRATION_BASE_RATE/MAX_SHARE/INCOME_PUSH_W/CONFLICT_PUSH_W`,
-   `REGIME_COLLAPSE_GDP_MULT/CAPITAL_MULT`). The paper still says **26 key / 294 all** in 6 places:
-   - RU `paper/gim_paper_ru.tex`: L474 (Morris text), L517 (fig caption), L732 (App A).
-   - EN `paper/gim_paper.tex`: L449 (Morris text), L490 (fig caption), L694 (App A).
+   `REGIME_COLLAPSE_GDP_MULT/CAPITAL_MULT`). The paper still says **26 key / 294 all** in 6 places
+   (Morris text, figure caption, and Appendix A, in both the RU and EN versions).
    Note **26 = 33 − the 7 social priors**, and the paper's own text says the screen "varies only
    physico-economic priors." So the faithful fix is a **design choice**:
    - **(a)** restrict the Morris screen to the 26 physico-economic priors (exclude the 7 social) and keep

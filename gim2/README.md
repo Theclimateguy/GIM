@@ -8,7 +8,7 @@ THE-63…71). It is a thin, validated surface over the frozen GIM17 math in
 
 v1 (the macOS app under [`../macapp`](../macapp)) headlines the *least*-validated
 layer: the softmax `game_runner` over 10 abstract risk-classes, "criticality", and
-LLM personas / hybrid games. The paper (`paper/gim_paper_ru.pdf`) holds that layer
+LLM personas / hybrid games. The accompanying paper holds that layer
 **off** as uncertainty and validates the **deterministic core**: nested-CES economy
 + climate + damage Ω(T)=1−0.006·T² + resources, coupled annually via
 `gim.core.simulation.step_world`. v2 surfaces *only* what the paper validates.
