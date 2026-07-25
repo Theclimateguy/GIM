@@ -1,0 +1,666 @@
+% Compile with XeLaTeX (Overleaf: Menu -> Compiler -> XeLaTeX).
+% v2 reframe: the paper leads with convergence, invariants, and tail exploration;
+% block detail and equations live in Appendix A. ~8K words.
+\documentclass[a4paper,fleqn]{cas-sc}
+
+\usepackage[authoryear]{natbib}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{xcolor, soul}
+% cas-common.sty defines L as a non-wrapping fill column; the tables need a wrapping one.
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+
+\shorttitle{Integrated World Model}
+
+\title[mode = title]{An Integrated World Model for Strategic Planning and Scenario Analysis}
+\author[1]{Nazar S.~Sotiriadi}
+\cormark[1]
+\ead{sotiriadi.n.s@gmail.com}
+\author[1,2]{Andrei A. Osiptsov}[]
+\affiliation[1]{organization={JSC Sberbank of Russia}, addressline={Kutuzovsky avenue, 32}, city={Moscow}, citysep={}, postcode = {121170}, country={Russian Federation}}
+\affiliation[2]{organization={Skolkovo Institute of Science and Technology (Skoltech)}, addressline={Bolshoy Boulevard 30, bld. 1}, city={Moscow}, citysep={}, postcode = {121205}, country={Russian Federation}}
+
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Coupling the economy, climate, society, and geopolitics in one simulator is easy to attempt and
+hard to sustain: closed feedback loops between social and physical blocks generically either
+diverge, collapse into absorbing states, or must be damped into triviality. We present a global
+integrated model (GIM) --- 57 country agents, seven coupled domains, an annual deterministic loop
+--- whose central result is \emph{practical convergence with non-trivial dynamics}: thirty-year
+trajectories remain bounded and plausible while still producing regime shifts, crisis cascades,
+and lagged social responses. We argue this behaviour follows from a design stance: the
+deterministic core is an explicit encoding of invariants --- physical conservation laws,
+stock-flow accounting identities, and empirical regularities treated as slowly varying --- with
+equilibrium anchors supplying restoring forces. Convergence is measured, not asserted: the
+spectral radius of the numerically linearized one-year map is $1.07$--$1.08$, with the modes
+above unity identified as common growth modes while trajectory-level perturbations contract; the
+5--95th uncertainty fan of a 500-member history-matched ensemble grows near-linearly (not
+exponentially) to $\pm11.5\,\%$ of median world product at thirty years. The model is anchored
+retrospectively (in-sample RMSE 2015--2023: 0.60 trillion USD GDP, 0.94 Gt CO$_2$,
+$0.145^{\circ}$C; temporal hold-out through 2019 scored out-of-sample on 2020--2023: 0.77, 0.71,
+$0.13$; conflict ranking AUC 0.739, vintage-clean 0.84) and produces emergent regularities none
+of which are individually programmed. A game-mechanical layer over the same core operates as an
+adversarial sampler of the tails: 1,002 scripted playthroughs and 200 completed runs by external
+players on the production deployment (28.5\,\% survival) map the distribution of ways a
+managed world fails, and exposed two structural degeneracies invisible to retrospective
+validation. GIM is an exploration instrument for scenarios, uncertainty, and weak signals ---
+not a forecast engine.
+
+\medskip
+\noindent\textbf{Keywords:} integrated assessment model, world simulation, stability, invariants, uncertainty quantification, serious games, weak signals.
+\end{abstract}
+
+\section{Introduction: the hard part is staying together}
+
+Strategic planning and systemic-risk work need a tool in which climatic, economic, and
+socio-political processes are considered jointly: the paths that matter --- warming to crop
+yields to prices to social tension to instability --- cross domain boundaries that sectoral
+models do not \citep{nordhaus2017,riahi2017}. That gap is well known. What is less discussed is
+why it persists. Coupling the domains is not conceptually difficult; the difficulty is that a
+\emph{closed} loop through economy, climate, society, and politics is a high-dimensional
+nonlinear dynamical system, and such systems do not stay plausible by default
+\citep{may1972,sterman2000}. In our experience they fail in a small number of characteristic
+ways: variables run to a bound and stick (absorbing states), accounting errors compound into
+runaway growth, latent variables drift to structural attractors that no policy can move, or ---
+the opposite failure --- every feedback is damped until the simulator reproduces a trend line
+and nothing else. A world model earns its keep in the space between these failures: bounded for
+decades, yet still able to generate crises, cascades, and lags.
+
+This paper reports a model built and validated to live in that space, and reframes what we
+consider its main result. The Global Integrated Model (GIM) advances 57 country agents (the 50
+largest economies plus seven regional aggregates that conserve world totals) through an annual
+deterministic loop spanning the economy and prices, climate and the carbon cycle, natural
+resources, society and politics, interstate relations, and discrete crises with
+stock-flow-consistent finance. Its headline property is not the breadth of coverage but the
+combination of three measured behaviours: (i)~\emph{convergence} --- thirty-year trajectories
+are bounded, insensitive to small initial-state perturbations, and their ensemble uncertainty
+grows near-linearly rather than exponentially (Section~\ref{sec:stability}); (ii)~\emph{anchor}
+--- the same configuration reproduces 2015--2023 history in-sample, survives a temporal
+hold-out, and carries out-of-sample skill where structure matters (Section~\ref{sec:valid});
+(iii)~\emph{life} --- the loop produces emergent dynamics (lagged social channels,
+threshold-stepped sovereign cascades, clustered late failures) that were not individually
+programmed (Section~\ref{sec:emergent}).
+
+The stance behind (i) is methodological and we state it up front: the deterministic core is an
+explicit hypothesis about \emph{invariants} --- the conservation laws, accounting identities,
+and slowly-varying empirical regularities that we take to govern nature and society
+(Section~\ref{sec:invariants}). Determinism is then a feature, not a naivety: the core computes
+what follows \emph{if} those invariants hold, and all uncertainty is carried by ensembles over
+the invariants' strengths. On top of this core sits an instrument layer --- history-matched
+ensembles, weak-signal detectors, and a decision game that operates as an adversarial sampler
+of the tails, including live outcome telemetry from external players
+(Section~\ref{sec:instrument}). The model does not claim predictive foresight; professional
+forecasts at two-to-five-year horizons often lose to naive extrapolation
+\citep{celasun2021}, and we hold ourselves to the same honest bar (Section~\ref{sec:valid}).
+
+Relative to the integrated-assessment and world-modeling traditions --- DICE/RICE and FUND
+(welfare optimisation), GCAM and MESSAGEix (energy-system equilibrium), E3ME (econometric
+simulation), T21/iSDG (single-country system dynamics), World3 (global aggregates)
+\citep{nordhaus2017,mercure2018,barney2002,meadows1972} --- GIM's distinction is that it closes
+the loop through society, geopolitics, and discrete crises at country resolution and then
+\emph{demonstrates} that the closed loop is stable, anchored, and non-trivial. A controlled
+benchmark quantifying what the closed loop sees and sectoral models structurally cannot is kept
+in Appendix~\ref{app:benchmark}; the model specification (functional forms, parameters) is
+compressed into Appendix~\ref{app:spec}.
+
+\section{The invariant view}
+\label{sec:invariants}
+
+Every long-horizon simulator embodies assumptions; ours are organized deliberately into three
+classes of invariants, in descending order of confidence, plus a fourth element that keeps the
+loop near them.
+
+\textbf{Physical conservation.} Carbon is conserved: each year's emissions are partitioned into
+the four IPCC AR6 impulse-response pools and decay on fixed timescales; atmospheric stock,
+radiative forcing, and the two-reservoir surface--ocean heat balance follow standard
+reduced-complexity climate physics \citep{joos2013,geoffroy2013}, the same architecture as the
+FaIR and MAGICC emulators \citep{smith2018fair,meinshausen2011}. The block reproduces both
+assessed constants an AR6-consistent emulator must match: equilibrium sensitivity
+$3.0\,^{\circ}$C and transient response $1.79\,^{\circ}$C (AR6 best estimate 1.8).
+
+\textbf{Accounting identities.} Money and goods cannot appear from nowhere: the financial side
+is stock-flow consistent (every loan creates a matching deposit; the money stock is identically
+deposits and loans) \citep{godley2007}; government budgets close; bilateral trade settles in
+reserves and world net exports sum to zero by an enforced invariant; excessive borrowing raises
+the cost of credit --- a financial accelerator \citep{bernanke1999}. These identities are
+checked at runtime, not assumed.
+
+\textbf{Empirical regularities as slow variables.} Between hard conservation and free
+parameters sits a class of relationships that are not laws but have been stable across decades
+and countries, and we treat them as invariants with priors on their strength: trade follows a
+gravity law in distance \citep{headmayer2014}; unemployment follows Okun's law and inflation a
+flat post-1990 Phillips curve with a weak quantity-theory term; poorer economies converge
+toward the frontier at a $\beta$-convergence rate validated against the cross-section; the
+public's response to unemployment and inflation follows the two-to-one misery-index ratio;
+war sizes follow a power law \citep{richardson1948,clauset2009}; institutions are anchored to
+governance indices, culture to the Hofstede dimensions \citep{kaufmann2011,hofstede2010}.
+Monetary policy follows country-level Taylor rules \citep{taylor1993}. Where a regularity
+failed the data --- a classic Richardson arms-race term, rejected at $p=0.74$ on the 1995--2024
+military-expenditure panel --- it was left out and the observed state variable used instead.
+
+\textbf{Equilibrium anchors and restoring forces.} Invariants alone do not prevent drift;
+bounded behaviour comes from explicit restoring terms whose strengths are calibrated, not
+hidden: resource prices mean-revert in log space toward reference levels; production is
+normalized so each country's base point is exactly reproduced (a normalized-CES discipline that
+pins levels while leaving substitution free); trust and tension carry anchor terms; crisis
+states have exit conditions. Section~\ref{sec:stability} shows what these forces achieve and
+Section~\ref{sec:instrument} how two missing anchors were found the hard way. The full
+functional forms and the 33 literature-grounded priors are in Appendix~\ref{app:spec}.
+
+Determinism, in this view, is the point: the core is a reproducible mapping from an invariant
+set to trajectories. Following \citet{oreskes1994}, we do not claim the model is verified truth
+--- we claim it is a confirmed, auditable encoding of stated assumptions, evaluated by whether
+its trajectories stay within the envelope of observed history and whether its failures are
+informative.
+
+\section{Architecture: one closed loop}
+\label{sec:arch}
+
+One model step is one year; blocks update in fixed order and the year's outputs are the next
+year's inputs (Fig.~\ref{fig:arch}). The economy is the hub: output comes from capital, labour,
+and energy through a nested CES function; markets clear by price; inflation, unemployment,
+budgets, debt, and bilateral trade are tracked per country. Output emits CO$_2$ (declining
+structural intensity); emissions accumulate in the carbon pools; warming returns as a quadratic
+output damage. Resource stocks and world prices couple scarcity into inflation. Society tracks
+trust, tension, inequality, legitimacy, and protest pressure, all responding to economic stress
+with explicit coefficients; politics converts legitimacy into a policy-space multiplier;
+geopolitics carries relations, alliances, sanctions, and a CINC-style capability index grounded
+in SIPRI expenditure. Discrete crises --- debt, currency, regime collapse --- fire on threshold
+crossings, apply audited state changes (a 40\,\% debt write-down, output and trust hits), and
+have exit rules. Conflict, unrest, and climate risk spill over to geographic neighbours; a
+shock in any block propagates along realistic pathways: carbon price to energy cost to
+emissions; hardship to tension to savings to crisis risk; crisis to trade partners. The
+feedback signs matter more than the functional detail (which is deferred to
+Appendix~\ref{app:spec}): the loop mixes amplifying channels (financial accelerator, crisis
+contagion, tension--trust spiral) with the restoring forces of Section~\ref{sec:invariants},
+and the balance between them is what the next section measures.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig1_architecture.pdf}
+\caption{The closed loop. Economy as central hub; black arrows direct effects, red arrows
+feedbacks reducing output or savings. The climate loop (emissions $\to$ warming $\to$ damage
+$\to$ output) is complemented by carbon-price, resource, socio-political, geopolitical, and
+discrete-crisis channels. The bottom layer monitors the joint state for weak signals.}
+\label{fig:arch}
+\end{figure}
+
+\section{What keeps it together: stability, measured}
+\label{sec:stability}
+
+Convergence claims are cheap; we support ours with three quantitative diagnostics plus the
+engineering discipline that maintains them. All runs below use the deterministic core (simple
+background policy, extreme events off); the harness is
+\texttt{scripts/run\_stability\_analysis.py}.
+
+\textbf{Spectral radius of the one-year map.} We linearize the full annual map
+$x_{t+1}=F(x_t)$ numerically (central differences) around the baseline trajectory in a
+408-dimensional state space --- seven variables per agent (output, capital, debt, unemployment,
+inflation, trust, tension) plus the global climate state and resource prices --- at three
+points along the run. The scale-normalized Jacobian has spectral radius $\rho(J)=1.075$, $1.076$,
+and $1.078$ at 2026, 2036, and 2046: essentially stationary along the trajectory. About 70
+eigenvalues sit in a tight cluster at $|\lambda|\approx1.07$--$1.08$; inspection of the
+eigenvectors identifies them as the \emph{common growth modes} of the 57 economies ---
+capital--output compounding at the calibrated growth rate --- not error amplification. This is
+the expected spectrum of a growing but non-explosive system: remove the deliberate growth trend
+and the remainder of the spectrum lies inside the unit circle, with roughly half the modes
+above $0.9$ --- slow memory, dominated by the socio-political block (the top eigenvector
+coordinates load on trust, unemployment, and tension), which is exactly where
+Section~\ref{sec:emergent} finds multi-year lags.
+
+\textbf{Perturbation contraction.} The trajectory-level counterpart: twin runs from
+$\varepsilon$-perturbed initial states. A $+0.1\,\%$ shock to United States output produces a
+world-product gap of $2.6\times10^{-4}$ after one year that \emph{contracts} to
+$1.2\times10^{-4}$ by year 30; a $+0.01\,^{\circ}$C temperature perturbation decays by a factor
+of six over the same horizon. Nearby trajectories converge --- the opposite of chaotic
+divergence. The one persistent direction is social: raising every country's tension by $0.01$
+leaves output almost untouched for a decade and then grows to a $3\,\%$ world-product gap by
+year 30 --- the slow social memory identified by the spectrum, transmitted through savings and
+crisis channels. We report this asymmetry as a substantive property, not a defect: physical and
+economic perturbations wash out; socio-political ones accumulate.
+
+\textbf{Bounded, near-linear uncertainty growth.} A 500-member ensemble drawing the 33 key
+priors from their history-matched ranges runs the full 30 years without a single member
+diverging or saturating (Fig.~\ref{fig:ens30}). The 5--95th fan of world product widens from
+$\pm1.7\,\%$ of the median at year 5 to $\pm4.0\,\%$ at 10 and $\pm11.5\,\%$ at 30 ---
+tracking a linear reference, far from the exponential fan a locally unstable core would
+produce; the temperature fan widens only from $0.72$ to $1.10\,^{\circ}$C over the same span
+(the climate-sensitivity prior expresses itself early). Median 2053 world product is
+$241$ trillion USD (5--95th: $215$--$270$) at $+1.94\,^{\circ}$C ($1.39$--$2.49$).
+
+\textbf{The discipline that preserves this.} Stability is a maintained property, not a lucky
+draw. Every change to the core faces pinned golden backtests (bit-identical or explicitly
+recalibrated); calibration data are checksum-bound; every optional mechanism is a switch, off
+by default unless anchored by evidence; and the invariants of Section~\ref{sec:invariants} are
+runtime-checked. Two failures that this discipline did \emph{not} catch --- because they lived
+outside the historical window --- were caught by the game layer and are reported in
+Section~\ref{sec:instrument}: an absorbing state in resource prices (missing equilibrium term
+plus two quantity-side accounting defects) and a structural attractor in government trust (an
+inequality drag $\approx40\times$ stronger than the only restoring term). Both fixes were
+shipped as anchors of exactly the Section~\ref{sec:invariants} type, with the historical
+backtests unchanged to the bit. An honest caveat accompanies all of this: convergence here is
+engineered and measured, not proven --- anchors strong enough to stabilize can in principle
+mask real-world instabilities, which is why their strengths carry priors and the tails are
+explored deliberately (Section~\ref{sec:instrument}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig11_ensemble30.pdf}
+\caption{Thirty-year convergence evidence (500-member history-matched ensemble).
+\emph{(a)}~World product fan: all members bounded, median $241$T at 2053. \emph{(b)}~Temperature
+fan: width grows $0.72\to1.10\,^{\circ}$C. \emph{(c)}~Relative 5--95th half-width of world
+product tracks a linear reference --- uncertainty accumulates, it does not explode.}
+\label{fig:ens30}
+\end{figure}
+
+\section{Is it anchored? Validation against history}
+\label{sec:valid}
+
+A stable simulator can still be stably wrong; the second requirement is anchor to observation.
+The economic and climate blocks are calibrated by history matching --- ruling out parameter
+regions whose implausibility $I_o(\theta)=\mathrm{RMSE}_o(\theta)/\mathrm{tol}_o$ exceeds the
+three-sigma cut, a standard approach for expensive simulators \citep{williamson2013} --- on the
+2015--2023 series of world product, emissions, and temperature. Because those metrics are
+in-sample by construction, predictive adequacy is measured separately by a temporal hold-out:
+constraints frozen on data through 2019, 2020--2023 scored strictly out-of-sample
+(\texttt{scripts/run\_holdout\_validation.py}).
+
+Results (Table~\ref{tab:backtest}; Fig.~\ref{fig:valid}): in-sample RMSE 0.60 trillion USD for
+GDP, 0.94 Gt for CO$_2$, $0.145\,^{\circ}$C for temperature; out-of-sample 0.77, 0.71, and
+$0.13$ respectively (with the 2020 pandemic year excluded: 0.83, 0.10, 0.15). Skill against
+naive benchmarks divides honestly: on the held-out window temperature beats persistence
+($+0.05$) and linear extrapolation ($+0.16$), emissions beat both decisively ($+0.32$,
+$+0.54$), while product loses to both --- short smooth aggregates remain the domain of a ruler,
+consistent with the full-window comparison and with the forecast-evaluation literature
+\citep{celasun2021}. The climate block additionally tracks the 1990--2023 record
+($0.096\,^{\circ}$C) with best-fit sensitivity $3.0\,^{\circ}$C.
+
+The socio-political blocks are held to a softer but real bar. The conflict-proneness score ---
+a fixed-weight composite of observed inputs with no coefficient estimated from conflict data
+--- ranks the 57 actors against the UCDP/PRIO registry 1990--2023 \citep{sundberg2013} at AUC
+0.739 (95\,\% CI $[0.60,0.86]$, permutation $p\approx0.001$); observed conflict incidence falls
+monotonically from 55\,\% in the top score quintile to 8\,\% in the bottom. Because regime
+stability and military burden are themselves affected by conflict, the score is recomputed in a
+vintage-clean configuration (inputs from pre-2000 data only, evaluated against 2000--2023
+conflicts): AUC 0.84 $[0.72,0.94]$, identical to the 2023-vintage score on the same subset ---
+ranking skill is not reverse-causation contamination
+(\texttt{scripts/run\_conflict\_vintage\_test.py}). The social cost of carbon cross-checks
+against the published range (Ramsey ${\approx}\$90$/tCO$_2$ at 200 years, below the EPA-2023
+central ${\approx}\$190$ \citep{epa2023,rennert2022}; fed DICE's own lower damage function the
+engine returns ${\approx}\$15$, below DICE's \$31 --- the valuation machinery is sound and the
+difference is the damage function). Emergent, unanchored behaviour also lands where it should:
+run without its SSP2 productivity anchor, the model's no-intervention baseline reaches about
+$2\,^{\circ}$C by 2100, nearest the strong-mitigation SSP1-2.6 envelope --- reported as a
+finding about the optimism of the fitted structural decarbonisation rate, and a reason the
+recommended use mode is scenario \emph{differences}, where such anchor uncertainty cancels.
+
+\begin{table*}[t]
+\centering
+\caption{Validation summary. Economic and climate blocks: retrospective evaluation, in-sample
+and temporal hold-out (out-of-sample values after semicolons). Other blocks: cross-checks,
+benchmark improvement, or channel identification.}
+\label{tab:backtest}
+\small
+\begin{tabularx}{\linewidth}{@{}l l L L@{}}
+\toprule
+Block & Source & Criterion & Result \\
+\midrule
+Economy & PWT, WDI & in-sample RMSE 2015--2023; hold-out 2020--2023 & GDP \$0.60T; \$0.77 out-of-sample \\
+Climate and carbon & IPCC AR6, GCB & in-sample; hold-out; ECS/TCR anchors & CO$_2$ 0.94 Gt; 0.71 out-of-sample. $T$ $0.145^{\circ}$C; 0.13 out-of-sample \\
+Cost of carbon & EPA-2023, RFF-SP & published cross-check; engine swap & ${\approx}\$90$/tCO$_2$ (range 90--280); ${\approx}\$15$ under DICE damages \\
+Conflict & UCDP/PRIO & ranking vs.\ registry; input-vintage test & AUC 0.739 $[0.60,0.86]$; vintage-clean 0.84 $[0.72,0.94]$; BSS $+0.123$ \\
+Social block & SWIID, WGI & channel identification (Sec.~\ref{sec:emergent}) & significant lagged channel, lag-0 $p<10^{-8}$ \\
+Stability & --- & spectral radius; twins; fan growth (Sec.~\ref{sec:stability}) & $\rho(J){\approx}1.08$ (growth modes); perturbations contract; fan ${\pm}11.5\%$ at 30y \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig2_validation.pdf}
+\caption{Retrospective anchor. (a)~RMSE 2015--2023 of the closed nested-CES core against the
+former Cobb--Douglas core. (b)~Conflict ranking (score inputs at 2023 base-year values;
+vintage-clean variant in text): AUC 0.739 (90\,\% bootstrap band shaded; 95\,\% CI
+$[0.60,0.86]$; permutation $p\approx0.001$) against 0.5 for chance.}
+\label{fig:valid}
+\end{figure}
+
+\section{Does it do anything? Emergent dynamics}
+\label{sec:emergent}
+
+A simulator can be stable and anchored by being inert. The third requirement is that the loop
+produce structured behaviour that was not individually programmed. Five regularities emerge
+from the coupled dynamics and survive robustness checks.
+
+\textbf{A lagged, mediated economy-to-society channel.} Global sensitivity screening (Morris,
+33 priors) shows social tension nearly insensitive to physico-economic priors at short horizons
+--- its elementary effects sit three orders of magnitude below the physical outputs, at the
+noise floor. Yet the channel exists: tension accumulates. In an ensemble that also varies the
+social priors, final tension is governed by them (inequality sensitivity: Spearman
+$\rho\approx+0.59$, $p<10^{-11}$; trust anchor: $\rho\approx-0.52$, $p<10^{-9}$); the
+prior-induced spread grows by two-thirds between horizons of 5 and 25 years; an exogenous
+three-year stagflation shock raises mean tension persistently, the response still building a
+decade later (positive in 78\,\% of prior draws); distributed-lag regression confirms
+contemporaneous transmission (lag-0 $p<10^{-8}$) with a positive cumulative effect
+(Fig.~\ref{fig:social}). The spectral analysis of Section~\ref{sec:stability} sees the same
+structure from the other side: the slow modes load on trust and tension. Nothing in the code
+specifies ``society responds with a multi-year lag''; it follows from an accumulating index
+with anchored increments.
+
+\textbf{Threshold-stepped sovereign cascades.} An oil-supply shock propagates from the energy
+market into sovereign finance along the reserve/debt channel: at a realistic import burden
+(${\approx}3\,\%$ of GDP) two additional importers cross the debt-crisis threshold; at a severe
+burden (${\approx}15\,\%$) mean importer crisis exposure triples and four further countries
+tip. The dose--response is a staircase, not a slope --- the signature of heterogeneous
+countries crossing individual thresholds (Appendix~\ref{app:benchmark}).
+
+\textbf{Convex escalation of food-driven instability.} A regional crop failure opens a
+food-supply gap whose protest response accelerates with depth (${\approx}0.11$ affordability
+stress and ${\approx}0.016$ protest pressure at a 50\,\% yield loss on the vulnerable subset)
+--- the nonlinearity documented empirically for food prices and unrest \citep{lagi2011food}.
+
+\textbf{Late clustering of failures.} On the deterministic 30-year baseline, active crises per
+year rise from 1--2 in the 2020s to around ten in the 2040s with a dispersion (Fano) index of
+2.0 --- crises cluster in time rather than arriving at random, because slow accumulators (debt,
+temperature, tension) mature together. The game layer shows the same clock from the player's
+side: 77--90\,\% of losing runs fail after 2040 (Section~\ref{sec:instrument}).
+
+\textbf{Spatially structured risk.} Conflict, unrest, and climate risk diffuse over the real
+adjacency graph; the model reproduces the neighbour-conflict premium and an emergent spatial
+autocorrelation of the observed record, while activating the geographic coupling moves the
+2015--2023 retrospective fit by under a quarter of a percent --- realism in propagation at no
+cost in anchor.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig5_social_channel.pdf}
+\caption{The emergent social channel. \emph{(a)}~Impulse response of mean tension to a
+three-year stagflation shock: slow build, persistence beyond a decade (5--95th band over
+priors). \emph{(b)}~What governs final tension: social-block priors (marked~$*$) dominate;
+physico-economic priors are weak --- the channel is real but lagged and mediated.}
+\label{fig:social}
+\end{figure}
+
+\section{The instrument: ensembles, weak signals, and a game that hunts the tails}
+\label{sec:instrument}
+
+The model is operated as an instrument with three modes, in increasing order of adversarialness.
+
+\textbf{Ensembles and scenario differences.} The core is deterministic, so uncertainty is
+explicit: 500-member ensembles over the history-matched priors yield outcome distributions, and
+scenarios are compared as distributions against a common baseline --- differences are robust to
+the anchor uncertainties that dominate absolute levels. The whole workflow runs on a laptop
+(Apple M4 Pro: a world-year in 30--50 ms, the 500$\times$30-year ensemble in under a minute,
+the full 527-test suite in two), which is what makes ensemble-first practice a default rather
+than a special exercise. A worked case: a \$50/tCO$_2$ carbon tax cuts emissions by
+${\approx}5.5\,\%$ over ten years while raising tension and lowering trust through the
+energy-price--inflation channel --- the political-economy cost invisible to single-domain
+models, monotone in the rate, and directly relevant to observed reversals (France 2018,
+Australia 2014); the full dose--response harness is Appendix~\ref{app:benchmark}.
+
+\textbf{Weak signals.} Before any threshold fires, the joint state is monitored for early
+structure: Mahalanobis distance of the stationary increments from their recent baseline
+\citep{mahalanobis1936,wilson1931}, information-criterion change-point detection
+\citep{schwarz1978}, and critical-slowing-down indicators \citep{scheffer2009}. On synthetic
+and model trajectories an injected 15\,\% output drop is flagged at the correct step while calm
+runs stay near the false-alarm rate; the working device is comparing a scenario's weak-signal
+profile against the baseline's.
+
+\textbf{The game as an adversarial tail sampler.} The same 57-actor core, wrapped into a
+single-player decision game (GODMODE): thirty annual turns from 2023, a deck of 158 dilemma
+cards compiled into real policy actions, seven catastrophe gates (temperature, biosphere,
+stability, economic and geopolitical strain, energy and food prices); losing any gate ends the
+run, reaching 2050 wins. A full game simulates in about a second, so outcome distributions are
+statistically meaningful; and because players and scripted archetypes actively push the world
+into corners smooth history never visits, the game functions as an importance sampler of the
+tails. Three uses justify reporting it in a modeling paper.
+
+\emph{A tail census.} In the 1,002-game reference batch of scripted archetypes, survival is
+23.5\,\% with losses spread across five causes (35\,\% climate, 22\,\% economic, 21\,\%
+geopolitical, 13\,\% stability, 8\,\% energy price) and 77\,\% of failures landing in
+2040--2045 (Fig.~\ref{fig:game}). Production telemetry from the public deployment
+corroborates the shape with humans in the loop: of 401 runs started by external players, 200
+were completed, with a 28.5\,\% survival rate --- statistically indistinguishable from the best
+scripted archetype --- a broader loss spectrum (31\,\% climate, 29\,\% economic, 15\,\%
+geopolitical, plus biosphere, food, and energy tails the bots rarely hit), 90\,\% of losses
+after 2040, and a bimodal score distribution (loss cluster near 26, win cluster 70--81, with
+winners holding warming to $1.6$--$1.9\,^{\circ}$C). The distribution of \emph{ways the world
+fails under active management} is a model output no backtest can provide.
+
+\emph{Emergent strategy structure.} No doctrinaire policy dominates: uniformly random play
+survives most often (28.4\,\%), beating consistent decarbonisation (20.1\,\%) and consistent
+expansion (21.9\,\%), and each doctrine dies of its characteristic disease (green of economic
+strain, 43\,\% of its losses; growth of climate and stability, 39\,\% and 34\,\%); passivity is
+worst (18.7\,\%, two-thirds of losses to economic strain --- in a stock-flow-consistent world,
+drifting means compounding debt). Restraint on both strain axes at once wins ${\approx}75\,\%$
+against ${\approx}5\,\%$ for recklessness on both. Single-axis optimisation shifting the
+binding constraint to another subsystem is the game-mechanical face of the coupling this paper
+is about.
+
+\emph{A diagnostic that found real defects.} Balancing the game exposed the two structural
+degeneracies of Section~\ref{sec:stability} --- resource prices pinned at their clamps
+(missing mean-reversion plus two compounding accounting defects) and government trust declining
+on hawk and dove paths alike (an attractor from an inequality drag ${\approx}40\times$ the only
+restoring term). Neither was visible in any 2015--2023 backtest; both fixes shipped as
+equilibrium anchors with the goldens bit-identical. Sustained adversarial play explores exactly
+the regions that validation against smooth history cannot; we regard the game layer as part of
+the model's quality programme. (Its epistemic status is bounded honestly: the game provides no
+goodness-of-fit against history, human telemetry reflects self-selected players, and difficulty
+gates are tuned against the bot batches through threshold-flip analysis.)
+
+Beyond the game, country policies can also be set by language-model agents (intentions
+compiled into the same typed actions; every consequence computed by the deterministic core; off
+in all validated configurations, with full prompt/response audit logs) --- the strategy space
+widens without the physics ever leaving the engine. The whole environment --- CLI, ensembles,
+games, a desktop analytical shell --- ships as an open, pip-installable codebase with pinned
+goldens and dated, manifest-bound runs \citep{theclimateguy2026gim}; results here correspond to
+release v18.1.3.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig10_game_outcomes.pdf}
+\caption{The tail census (1,002 scripted playthroughs, 2023--2050). \emph{(a)}~Outcome
+composition by policy archetype: no doctrine dominates and each dies of its characteristic
+cause. \emph{(b)}~Timing of failures: 77\,\% of losses land in 2040--2045 as slow accumulators
+come due. Production telemetry (200 completed human runs, 28.5\,\% survival, 90\,\% of losses
+after 2040) reproduces the shape with a broader loss spectrum.}
+\label{fig:game}
+\end{figure}
+
+\section{Limitations}
+\label{sec:limits}
+
+\textbf{Convergence is engineered, not proven.} The anchors that stabilize the loop could mask
+genuine instabilities of the real system; their strengths carry priors and the tails are probed
+adversarially, but a formal stability proof for the full nonlinear map does not exist --- the
+spectral and perturbation evidence of Section~\ref{sec:stability} is local and numerical.
+
+\textbf{Expectations are adaptive.} Agents look at the recent past; a tested model-consistent
+expectations mechanism is off by default (its marginal effect proved unstable). Anticipatory
+responses to announced policy are not in the headline runs.
+
+\textbf{Long-run growth is weakly identified,} and forward projections anchor productivity
+drift to an external scenario; absolute long-horizon levels inherit this, which is why scenario
+differences are the recommended mode.
+
+\textbf{The climate block is a fast emulator,} not an Earth-system model; the strongest carbon
+feedbacks are deeply uncertain, switchable, and relegated to tail scenarios. Damage estimates
+are uncertain across the discipline and carried as an interval (the level function is anchored
+at the meta-analytic central estimate; a Burke-type growth-damage channel exists as a switch).
+
+\textbf{The socio-political block mixes anchored and expert-set pieces.} Substantial parts are
+tied to literature (war-size tail, migration gravity, misery-index ratio, governance anchors);
+coupling thresholds and cross-border tension diffusion remain expert priors, tagged as such in
+the auditable registry. Conflict is intrinsically hard to predict: the block supports relative
+risk ranking (AUC ${\approx}0.74$; vintage-clean 0.84), not event prediction. The persistent
+social mode found in Section~\ref{sec:stability} means socio-political initial-state errors do
+not wash out --- an inherited uncertainty, honestly larger than the economic one.
+
+\textbf{Aggregation.} Resources are aggregate (no sectoral energy technologies, no endogenous
+renewable learning curves); no nominal exchange rates (a real numeraire with a
+fundamentals-triggered currency-crisis mechanism); no portfolio capital account; no dedicated
+pandemic submodel (epidemic shocks are extreme events); state-dominated political economies are
+represented by shared functional forms with country-specific states.
+
+\section{Conclusion}
+
+The contribution of this work, restated in its proper order: a closed seven-domain,
+57-country world simulator that (i)~stays together --- spectral radius consistent with growth
+rather than divergence, contracting perturbations, near-linear uncertainty growth over thirty
+years; (ii)~is anchored --- in-sample and hold-out retrospective validation, external
+cross-checks, an input-vintage-robust conflict ranking; and (iii)~is alive --- lagged social
+channels, threshold cascades, convex escalations, and clustered late failures that emerge from
+the coupling rather than from bespoke code. Underneath is a stated philosophy: the
+deterministic core encodes explicit invariants of nature and society --- conservation,
+accounting, slow empirical regularities --- with calibrated restoring forces, and all
+uncertainty lives in ensembles over the invariants' strengths. Around it is an instrument:
+history-matched ensembles for distributions, weak-signal detectors for early structure, and a
+game layer that adversarially samples the tails, yields outcome distributions from both
+scripted archetypes and external human players, and has already paid for itself by exposing two
+structural degeneracies that no retrospective test could see. The model does not forecast; it
+maps the consequences of assumptions, the distribution of risks, and the ways a managed world
+can fail --- comparatively, reproducibly, and on a laptop.
+
+\clearpage
+\appendix
+\section{Model specification and key parameters}
+\label{app:spec}
+
+\textbf{Production.} Output is nested CES in capital, labour, and energy, normalized to
+Cobb--Douglas at each country's base point \citep{arrow1961}:
+\begin{equation}
+Y = A\,\Theta\,\Big[\mathrm{KE}_0\big(a_K (K/K_0)^{\rho} + a_E (E/E_0)^{\rho}\big)^{1/\rho}\Big]^{\alpha+\gamma} L^{\beta},
+\qquad \rho = \tfrac{\sigma_{KE}-1}{\sigma_{KE}},
+\label{eq:ces}
+\end{equation}
+with $\alpha=0.30$, $\beta=0.60$, $\gamma=0.042$, $a_K=\alpha/(\alpha+\gamma)$,
+$a_E=\gamma/(\alpha+\gamma)$, $\mathrm{KE}_0=K_0^{a_K}E_0^{a_E}$; at the base point the bracket
+equals one, so levels and first derivatives reproduce the Cobb--Douglas limit for any
+$\sigma_{KE}$, while substitution away from it is governed by $\sigma_{KE}=0.4$ (gross
+complementarity; \citealp{vanderwerf2008,koetse2008}). The exponent sum $0.942$ encodes mild
+decreasing returns; per-country scale factors pin base-year levels, so renormalising to
+constant returns moves 2100 world product by only 7--9\,\%. Capital:
+$K_{t+1}=(1-\delta)K_t+sY_t$, $\delta=0.05$, $s\approx0.24$ modulated by stability and tension
+\citep{mody2012}. Productivity grows at ${\approx}1\,\%$ baseline with R\&D
+(\`a la Jones, \citealp{jones1995}), trade diffusion, and $\beta$-convergence (slope 0.0093 per
+log gap, validated on the cross-section); inflation is Phillips-with-pass-through plus a weak
+quantity-theory term ($\lambda\approx0.027$); rates follow country Taylor rules capped
+$\pm6$\,pp \citep{taylor1993}.
+
+\textbf{Climate.} Four-pool AR6 impulse response \citep{joos2013}:
+\begin{equation}
+C^{(i)}_{t+1} = C^{(i)}_t e^{-1/\tau_i} + a_i E_t,\quad
+a=(0.217,0.224,0.282,0.276),\ \tau=(\infty,394,36.5,4.3)\,\text{yr},
+\label{eq:pools}
+\end{equation}
+forcing $F=5.35\ln(C/C_0)+F_{\text{non-CO}_2}$ (SSP2-4.5 marker forward), two-layer heat
+balance \citep{geoffroy2013}:
+\begin{equation}
+C_s\dot T = F - \lambda T - \kappa(T-T_d), \qquad C_d\dot T_d = \kappa(T-T_d).
+\label{eq:ebm}
+\end{equation}
+Damage: $\Omega(T)=1-0.0078\,T^2$ (3.1/7.0/12.5\,\% at $+2/+3/+4\,^{\circ}$C), anchored at the
+Howard--Sterner productivity-corrected central estimate \citep{howard2017,nordhaus2017},
+normalized to the 2023 baseline; Burke-type growth damages switchable
+\citep{burke2015,burke2023}.
+
+\textbf{Society and crises.} Tension is a $[0,1]$ composite (base year: WGI-derived trust and
+stability, Gini, water stress, climate risk; increments: unemployment $0.010$/pt, inflation
+$0.005$/pt, inequality damped by individualism, trust anchor, neighbour spillover $0.05$).
+Legitimacy $=0.6\,\text{trust}+0.4(1-\text{tension})$ sets the policy-space multiplier. Crisis
+triggers (expert priors, tagged in the registry): debt --- debt${}>120\,\%$ GDP and effective
+rate${}>12\,\%$ (then a 40\,\% write-down, 7\,\% output loss, exit below 70\,\%/8\,\% within 6
+years); currency --- external debt${}>50\,\%$, current-account deficit${}>4\,\%$, reserves
+${}<3$ months; regime collapse --- trust${}<0.20$ and tension${}>0.80$. Severity optionally
+heavy-tailed (war-size exponent $\alpha\approx1.5$; \citealp{richardson1948,clauset2009}).
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}lccL@{}}
+\toprule
+Parameter & Central & Range & Source \\
+\midrule
+Equilibrium climate sensitivity, $^{\circ}$C & 3.0 & 1.5--6.0 & IPCC AR6 WG1; Otto et al.\ 2013 \\
+Surface heat capacity & 8.0 & 6.0--18.0 & Geoffroy et al.\ 2013 \\
+Ocean heat exchange & 1.0 & 0.4--1.3 & Geoffroy et al.\ 2013 \\
+Emissions scale & 0.98 & 0.90--1.05 & Global Carbon Project 2023 \\
+Structural decarbonization rate & 0.016 & 0.010--0.030 & GCP/WDI trend; 2015--2023 backtest \\
+Capital share $\alpha$ & 0.30 & 0.22--0.40 & PWT 10; Gollin 2002 \\
+Labor share $\beta$ & 0.60 & 0.50--0.72 & PWT 10; Gollin 2002 \\
+Energy elasticity $\gamma$ & 0.042 & 0.015--0.080 & 2015--2023 backtest \\
+Capital--energy substitution $\sigma_{KE}$ & 0.40 & 0.20--0.60 & van der Werf 2008; Koetse et al.\ 2008 \\
+Depreciation rate $\delta$ & 0.05 & 0.03--0.08 & PWT 8/9 \\
+TFP sensitivity to R\&D & 0.30 & 0.10--0.60 & calibration to backtest \\
+Damage coefficient & 0.0078 & 0.0015--0.025 & Howard \& Sterner 2017; DICE-2016R2; Burke et al.\ 2015 \\
+Pure time preference $\rho$ & 0.015 & 0.001--0.030 & DICE-2016R2; Stern 2007 \\
+Elasticity of marginal utility $\eta$ & 1.45 & 1.0--2.0 & DICE-2016R2; Stern 2007 \\
+Market demand elasticity & 0.40 & 0.20--0.70 & Labandeira et al.\ 2017 \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Social block (validated by sign and channel, Sec.~\ref{sec:emergent})}}\\
+Tension stress from unemployment & 0.010 & 0.007--0.014 & Di Tella et al.\ 2001; structural prior \\
+Tension stress from inflation & 0.005 & 0.003--0.007 & Di Tella et al.\ 2001 (aversion ${\approx}$2:1); prior \\
+Inequality effect on tension & 0.0005 & 0.0003--0.0007 & Wilkinson \& Pickett 2009 \\
+Trust-anchor strength & 0.060 & 0.039--0.081 & calibrated to WGI trust persistence \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The 33 key parameters carry literature-grounded priors; the full registry of 287 parameters
+with calibration-status tags, all data-source manifests, and every harness cited in the text
+are in the repository \citep{theclimateguy2026gim}.
+
+\clearpage
+\section{Integration benchmark: where sectoral models stop}
+\label{app:benchmark}
+
+For three shocks we take a published conclusion from a named sectoral model, feed GIM the same
+exogenous shock, and ask whether it (a)~reproduces the sectoral first-order effect and
+(b)~surfaces a cross-sector consequence the sectoral model cannot represent by construction.
+Runs are deterministic (57 countries, ten years, extreme events off); each scenario carries a
+dose--response sweep on which the sectoral model's slope is, by construction, zero.
+
+\emph{Carbon tax (anchor: DICE \citealp{nordhaus2017}).} Fed the same \$50/tCO$_2$ tax, GIM
+reproduces the emissions decline (${\approx}5.5\,\%$ over ten years) and adds the
+political-economy channel: tension rises and trust falls monotonically in the rate --- the
+mechanism behind the French 2018 and Australian 2014 reversals; DICE's response on that axis is
+zero.
+
+\emph{Oil shock (anchor: energy-system models).} A 20\,\% supply cut propagates into sovereign
+finance: two additional importers enter debt crisis at a realistic burden, four more with
+triple exposure at a severe one; the response is threshold-stepped (Sri Lanka 2022 is the
+real-world instance). Energy-system models produce no sovereign crises at any magnitude.
+
+\emph{Crop shock (anchor: AgMIP/AR6).} A 50\,\% regional yield loss raises food-affordability
+stress by ${\approx}0.11$ and protest pressure by ${\approx}0.016$ on the vulnerable subset,
+convex in loss depth \citep{lagi2011food}; the assessment chain stops at the food-security
+index.
+
+Across the three channels GIM shows a positive, measurable slope where every sectoral model is
+flat at zero (Fig.~\ref{fig:bench-summary}) --- the integration dividend, quantified.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig9_integration_summary.pdf}
+\caption{The integration dividend: three cross-sector channels, each normalized to its own
+maximum; the dashed line is every sectoral model's zero response. Smooth for
+economy--society, threshold-stepped for resources--finance, convex for climate--society.}
+\label{fig:bench-summary}
+\end{figure}
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{references_v2}
+
+\end{document}

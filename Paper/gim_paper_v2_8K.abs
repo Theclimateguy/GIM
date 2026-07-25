@@ -1,0 +1,27 @@
+
+Coupling the economy, climate, society, and geopolitics in one simulator is easy to attempt and
+hard to sustain: closed feedback loops between social and physical blocks generically either
+diverge, collapse into absorbing states, or must be damped into triviality. We present a global
+integrated model (GIM) --- 57 country agents, seven coupled domains, an annual deterministic loop
+--- whose central result is \emph{practical convergence with non-trivial dynamics}: thirty-year
+trajectories remain bounded and plausible while still producing regime shifts, crisis cascades,
+and lagged social responses. We argue this behaviour follows from a design stance: the
+deterministic core is an explicit encoding of invariants --- physical conservation laws,
+stock-flow accounting identities, and empirical regularities treated as slowly varying --- with
+equilibrium anchors supplying restoring forces. Convergence is measured, not asserted: the
+spectral radius of the numerically linearized one-year map is $1.07$--$1.08$, with the modes
+above unity identified as common growth modes while trajectory-level perturbations contract; the
+5--95th uncertainty fan of a 500-member history-matched ensemble grows near-linearly (not
+exponentially) to $\pm11.5\,\%$ of median world product at thirty years. The model is anchored
+retrospectively (in-sample RMSE 2015--2023: 0.60 trillion USD GDP, 0.94 Gt CO$_2$,
+$0.145^{\circ}$C; temporal hold-out through 2019 scored out-of-sample on 2020--2023: 0.77, 0.71,
+$0.13$; conflict ranking AUC 0.739, vintage-clean 0.84) and produces emergent regularities none
+of which are individually programmed. A game-mechanical layer over the same core operates as an
+adversarial sampler of the tails: 1,002 scripted playthroughs and 200 completed runs by external
+players on the production deployment (28.5\,\% survival) map the distribution of ways a
+managed world fails, and exposed two structural degeneracies invisible to retrospective
+validation. GIM is an exploration instrument for scenarios, uncertainty, and weak signals ---
+not a forecast engine.
+
+\medskip
+\noindent\textbf{Keywords:} integrated assessment model, world simulation, stability, invariants, uncertainty quantification, serious games, weak signals.
