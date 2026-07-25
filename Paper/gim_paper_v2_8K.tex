@@ -209,7 +209,8 @@ $x_{t+1}=F(x_t)$ numerically (central differences) around the baseline trajector
 408-dimensional state space --- seven variables per agent (output, capital, debt, unemployment,
 inflation, trust, tension) plus the global climate state and resource prices --- at three
 points along the run. The scale-normalized Jacobian has spectral radius $\rho(J)=1.075$, $1.076$,
-and $1.078$ at 2026, 2036, and 2046: essentially stationary along the trajectory. About 70
+and $1.078$ at 2026, 2036, and 2046: essentially stationary along the trajectory
+(Fig.~\ref{fig:stability}a). About 70
 eigenvalues sit in a tight cluster at $|\lambda|\approx1.07$--$1.08$; inspection of the
 eigenvectors identifies them as the \emph{common growth modes} of the 57 economies ---
 capital--output compounding at the calibrated growth rate --- not error amplification. This is
@@ -224,11 +225,23 @@ $\varepsilon$-perturbed initial states. A $+0.1\,\%$ shock to United States outp
 world-product gap of $2.6\times10^{-4}$ after one year that \emph{contracts} to
 $1.2\times10^{-4}$ by year 30; a $+0.01\,^{\circ}$C temperature perturbation decays by a factor
 of six over the same horizon. Nearby trajectories converge --- the opposite of chaotic
-divergence. The one persistent direction is social: raising every country's tension by $0.01$
+divergence (Fig.~\ref{fig:stability}b). The one persistent direction is social: raising every country's tension by $0.01$
 leaves output almost untouched for a decade and then grows to a $3\,\%$ world-product gap by
 year 30 --- the slow social memory identified by the spectrum, transmitted through savings and
 crisis channels. We report this asymmetry as a substantive property, not a defect: physical and
 economic perturbations wash out; socio-political ones accumulate.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig12_stability.pdf}
+\caption{Local stability of the annual map. \emph{(a)}~Eigenvalues of the scale-normalized
+Jacobian (408-dimensional state) at three linearization years: the spectrum lies on and inside
+the unit circle except the tight cluster at $|\lambda|\approx1.07$ --- the common growth modes
+of the 57 economies. \emph{(b)}~Twin-run response: output and temperature perturbations
+contract over 30 years, while a broad social-tension perturbation persists and slowly
+amplifies --- the model's one long-memory direction.}
+\label{fig:stability}
+\end{figure}
 
 \textbf{Bounded, near-linear uncertainty growth.} A 500-member ensemble drawing the 33 key
 priors from their history-matched ranges runs the full 30 years without a single member
@@ -470,11 +483,12 @@ release v18.1.3.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig10_game_outcomes.pdf}
-\caption{The tail census (1,002 scripted playthroughs, 2023--2050). \emph{(a)}~Outcome
-composition by policy archetype: no doctrine dominates and each dies of its characteristic
-cause. \emph{(b)}~Timing of failures: 77\,\% of losses land in 2040--2045 as slow accumulators
-come due. Production telemetry (200 completed human runs, 28.5\,\% survival, 90\,\% of losses
-after 2040) reproduces the shape with a broader loss spectrum.}
+\caption{The tail census: 1,002 scripted playthroughs and 200 completed human runs from the
+production deployment, 2023--2050. \emph{(a)}~Outcome composition by archetype and for human
+players: no doctrine dominates, each dies of its characteristic cause, and the human loss
+spectrum is broader (biosphere and food-price tails the bots rarely hit). \emph{(b)}~Timing of
+failures, bots vs.\ humans: both distributions peak in 2040--2049 as slow accumulators come
+due.}
 \label{fig:game}
 \end{figure}
 
@@ -531,6 +545,13 @@ scripted archetypes and external human players, and has already paid for itself 
 structural degeneracies that no retrospective test could see. The model does not forecast; it
 maps the consequences of assumptions, the distribution of risks, and the ways a managed world
 can fail --- comparatively, reproducibly, and on a laptop.
+
+\section*{Code and data availability}
+The complete model, calibration data with checksums, every validation and stability harness
+cited in the text, the game backend, and the figure-generation scripts are openly available at
+\url{https://github.com/Theclimateguy/GIM} (release v18.1.3) \citep{theclimateguy2026gim}; an
+archived, DOI-carrying snapshot of the same release is deposited on Zenodo. All results in this
+paper are reproducible on a consumer laptop from the pinned release.
 
 \clearpage
 \appendix

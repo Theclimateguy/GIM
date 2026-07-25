@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use GIM, please cite it as below."
+title: "GIM: Global Integrated Model"
+type: software
+authors:
+  - family-names: Sotiriadi
+    given-names: Nazar S.
+    email: sotiriadi.n.s@gmail.com
+    affiliation: "JSC Sberbank of Russia"
+  - family-names: Osiptsov
+    given-names: Andrei A.
+    affiliation: "JSC Sberbank of Russia; Skolkovo Institute of Science and Technology (Skoltech)"
+version: 18.1.3
+date-released: 2026-07-20
+repository-code: "https://github.com/Theclimateguy/GIM"
+license: Apache-2.0
+abstract: >-
+  A year-by-year deterministic simulation of the world as 57 interacting
+  country agents: economy and prices, climate and carbon cycle, natural
+  resources, society and politics, interstate relations, and discrete crises
+  with stock-flow-consistent finance. Includes history-matched ensembles,
+  weak-signal detection, stability analysis, and a game-mechanical scenario
+  layer.
+keywords:
+  - integrated assessment model
+  - world simulation
+  - scenario analysis
+  - uncertainty quantification
+  - serious games

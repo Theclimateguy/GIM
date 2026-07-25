@@ -1,0 +1,30 @@
+{
+  "title": "GIM: Global Integrated Model",
+  "upload_type": "software",
+  "version": "18.1.3",
+  "creators": [
+    {
+      "name": "Sotiriadi, Nazar S.",
+      "affiliation": "JSC Sberbank of Russia"
+    },
+    {
+      "name": "Osiptsov, Andrei A.",
+      "affiliation": "JSC Sberbank of Russia; Skolkovo Institute of Science and Technology (Skoltech)"
+    }
+  ],
+  "description": "A year-by-year deterministic simulation of the world as 57 interacting country agents: economy and prices, climate and carbon cycle, natural resources, society and politics, interstate relations, and discrete crises with stock-flow-consistent finance. Includes history-matched ensembles, weak-signal detection, stability analysis (Jacobian spectral radius, twin runs, 30-year fans), and a game-mechanical scenario layer. Companion code for the paper \"An Integrated World Model for Strategic Planning and Scenario Analysis\".",
+  "license": "Apache-2.0",
+  "keywords": [
+    "integrated assessment model",
+    "world simulation",
+    "scenario analysis",
+    "uncertainty quantification",
+    "serious games"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/Theclimateguy/GIM"
+    }
+  ]
+}

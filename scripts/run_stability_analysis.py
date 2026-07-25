@@ -158,6 +158,7 @@ def main() -> int:
         comp = sorted(zip(labels, np.abs(top)), key=lambda kv: -kv[1])[:6]
         spectral[2023 + t + 1] = {
             "rho": float(mags[0]),
+            "eigs_re_im": [[float(z.real), float(z.imag)] for z in eig],
             "top5_eig_mags": [float(m) for m in mags[:5]],
             "n_eigs_above_1": int((np.abs(eig) > 1.0).sum()),
             "n_eigs_above_0.9": int((np.abs(eig) > 0.9).sum()),
@@ -197,6 +198,9 @@ def main() -> int:
         dT = np.abs(m[:, 1] - base[:, 1])
         dten = np.abs(m[:, 2] - base[:, 2])
         twins[name] = {
+            "series_rel_gdp_gap": [float(x) for x in rel_gdp],
+            "series_dT": [float(x) for x in dT],
+            "series_dtension": [float(x) for x in dten],
             "rel_gdp_gap_y1": float(rel_gdp[0]), "rel_gdp_gap_y10": float(rel_gdp[9]),
             "rel_gdp_gap_y30": float(rel_gdp[-1]), "rel_gdp_gap_max": float(rel_gdp.max()),
             "dT_y30": float(dT[-1]), "dT_max": float(dT.max()),
