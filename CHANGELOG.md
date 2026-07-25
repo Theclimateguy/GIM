@@ -19,11 +19,17 @@ bit-identical to 18.1.3.
   optional LLM advisors — replacing the earlier "play as a country" sketch.
 - **Default branch** moved to `GIM18`.
 
+### Added
+
+- **`scripts/run_stability_analysis.py`** committed — the deterministic stability-analysis harness
+  (Jacobian spectral radius, twin runs, crisis clustering) referenced by
+  [`docs/STABILITY_ANALYSIS.md`](docs/STABILITY_ANALYSIS.md).
+
 ### Removed
 
-- **`Paper/` LaTeX/figure materials removed from the public repository** (kept locally; companion to
-  the publication). References to `paper/…` paths scrubbed from the documentation. The published
-  paper is still cited in [`CITATION.cff`](CITATION.cff) and [`.zenodo.json`](.zenodo.json).
+- **`Paper/` LaTeX/figure materials removed from the public repository** (working manuscript, kept
+  locally). References to `paper/…` paths scrubbed from the documentation and citation metadata;
+  there is no published paper to cite.
 
 
 
