@@ -10,9 +10,10 @@ not pinpoint forecasting.
 every layer, what it can do, and its limits. For where the model stands and what comes next, see
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-**Want to play?** There's a live browser game built on the model — **God Mode**, playable now at
-**[godmode-rwhp.onrender.com](https://godmode-rwhp.onrender.com/)** (no install). See
-[Play online](#play-online--god-mode) below.
+**Want to play?** **GODMODE** is a full strategy game built on this model — you run Earth's largest
+multinational holding from 2023 to 2050, and roughly one run in six survives. Playable in the browser
+at **[godmode-rwhp.onrender.com](https://godmode-rwhp.onrender.com/)** (no install). See
+[Play online](#play-online--godmode) below.
 
 ## What's inside
 
@@ -40,15 +41,36 @@ Carbon Project to within ~1%.
 Headline backtest: GDP error ≈ 0.60, global CO₂ error ≈ 0.94, temperature error ≈ 0.145. Full
 methodology and the calibration ledger are in [Documentation](#documentation).
 
-## Play online — God Mode
+## Play online — GODMODE
 
-A live, playable browser front end built on the model: **God Mode** —
-**[godmode-rwhp.onrender.com](https://godmode-rwhp.onrender.com/)**. Pick a country and steer it
-year by year while the deterministic engine runs the rest of the world; no install, nothing to build.
-It's the hosted, public-facing take on the "play as a country" role-play
-([Ролевая игра акторов](#native-app--gim2-gim2)) — a single narrative trajectory, not an uncertainty
-ensemble, and not validated the way the deterministic core is. Hosted on a free Render tier, so the
-first load after idle can take ~30 s to wake.
+**GODMODE** is a full strategy game built on the model, playable in the browser (no install) at
+**[godmode-rwhp.onrender.com](https://godmode-rwhp.onrender.com/)** · source:
+[github.com/Theclimateguy/GODMODE](https://github.com/Theclimateguy/GODMODE).
+
+You are the CEO of the largest multinational holding on Earth — one signature moves whole economies.
+Steer the planet from 2023 to 2050 without breaking it. Roughly **one run in six makes it**; the rest
+end in runaway warming, a price spiral, a financial crash, a great-power war, or the collapse of global
+order — most within sight of the finish. No single-minded strategy wins.
+
+Every decision is a **real GIM18 policy lever** (climate policy, fuel taxes, R&D, sanctions, trade
+restrictions), executed by the same 57-actor engine described here; a thin game layer adds two-sided
+resource prices and the crisis meters the macro core is too stable to produce. Around it:
+
+- **Decision cards** — a 73-card deck; each year a situation lands with two options (discard one and
+  your advisors float a third). A chosen stance holds for a few years, so bias compounds.
+- **War Room** — six advisors (economy, climate, resources, society, geopolitics, risk) with hidden
+  psychotypes (hawk / dove / technocrat / fool); consult, overrule, or replace them.
+- **Cabinet politics** — advisors have loyalty and bonds; blocs and rivalries form, and high tension
+  erupts into resignations, power plays, or a vote of no confidence.
+- **Trusted advisors** — rare historical figures (Curie, Oppenheimer, Vernadsky, Tesla…) with fixed
+  biographies and sharper, mechanism-revealing counsel.
+- **Interactive world map** — a choropleth over GIM's real per-country data (GDP, stability, CO₂,
+  trust).
+- **LLM advisors (optional)** — paste a provider key (OpenAI / Anthropic / DeepSeek / GigaChat) and the
+  advisors argue their corner in live dialogue; without one they fall back to deterministic replies. The
+  key lives in session memory only — never stored, never logged.
+
+Hosted on a free Render tier, so the first load after idle can take ~30–60 s to wake.
 
 ## Install
 
@@ -123,8 +145,8 @@ compiled doctrine. It reuses whichever LLM connection is already configured for 
 Ollama model or an OpenAI-compatible key); without one, doctrines fall back to a deterministic
 heuristic. The point of the exercise is the per-year, per-actor decision log (what it did and, in its
 own words, why) — a single trajectory, not an uncertainty ensemble, and explicitly **not** validated the
-way the deterministic core is. The public **[God Mode](#play-online--god-mode)** web game is the hosted
-version of this idea.
+way the deterministic core is. For a fuller, public-facing game built on the same engine, see
+**[GODMODE](#play-online--godmode)**.
 
 ### Build & run
 
