@@ -1,0 +1,60 @@
+{
+ "experiment": "E12",
+ "question": "Which of the three fx-trigger conditions blocks, and is the failure plumbing, specification or calibration?",
+ "config": {
+  "horizon": 30,
+  "base_year": 2023,
+  "n_agents": 57,
+  "n_observations": 1710,
+  "thresholds": {
+   "external_debt_ratio": 0.5,
+   "current_account_ratio": -0.04,
+   "fx_cover_months": 3.0
+  }
+ },
+ "input_distributions": {
+  "external_debt_ratio": {
+   "min": 0.0,
+   "p05": 0.03369979307584327,
+   "median": 0.6688087699787246,
+   "p95": 1.0929823321700307,
+   "max": 1.4051180602557758,
+   "sd": 0.28433599157664863,
+   "threshold": 0.5,
+   "share_meeting_condition": 0.7421052631578947,
+   "is_constant": false
+  },
+  "current_account_ratio": {
+   "min": 0.0,
+   "p05": 0.0,
+   "median": 0.0,
+   "p95": 0.0,
+   "max": 0.0,
+   "sd": 0.0,
+   "threshold": -0.04,
+   "share_meeting_condition": 0.0,
+   "is_constant": true
+  },
+  "fx_cover_months": {
+   "min": 0.0013261570102118135,
+   "p05": 0.006167006740929814,
+   "median": 0.05320480513365494,
+   "p95": 141149.364857112,
+   "max": 677145.7163284265,
+   "sd": 91866.34937119916,
+   "threshold": 3.0,
+   "share_meeting_condition": 0.8695906432748538,
+   "is_constant": false
+  }
+ },
+ "conjunction_counts": {
+  "(True, False, True)": 1089,
+  "(False, False, True)": 398,
+  "(True, False, False)": 180,
+  "(False, False, False)": 43
+ },
+ "n_two_of_three": 1089,
+ "n_three_of_three": 0,
+ "agents_ever_two_of_three": 46,
+ "verdict": "plumbing: at least one input never moves"
+}

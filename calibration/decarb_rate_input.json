@@ -1,0 +1,399 @@
+{
+  "generated_at": "2026-03-15T16:51:43.112498+00:00",
+  "methodology": {
+    "start_year": 2000,
+    "end_year": 2023,
+    "excluded_years": [
+      2020,
+      2021
+    ],
+    "fit": "log_linear_ols",
+    "dependent_variable": "ln(CO2 / GDP_PPP)",
+    "gdp_indicator": "NY.GDP.MKTP.PP.KD",
+    "grouping": "current_oecd_membership_vs_non_oecd"
+  },
+  "sources": {
+    "emissions": {
+      "label": "Global Carbon Project / Global Carbon Budget 2025 flat country dataset",
+      "url": "https://zenodo.org/records/17417124/files/GCB2025v15_MtCO2_flat.csv?download=1",
+      "unit": "MtCO2"
+    },
+    "gdp": {
+      "label": "World Bank GDP, PPP (constant 2021 international $)",
+      "indicator": "NY.GDP.MKTP.PP.KD",
+      "aggregate_codes": {
+        "global": "WLD",
+        "oecd": "OED"
+      },
+      "unit": "trillion PPP dollars"
+    }
+  },
+  "series": {
+    "global": {
+      "2000": {
+        "emissions_mtco2": 51022.96694699999,
+        "gdp_ppp_trillion_usd": 78.6862307081433,
+        "intensity_mtco2_per_trillion_usd": 648.4357744400074
+      },
+      "2001": {
+        "emissions_mtco2": 51385.98719299999,
+        "gdp_ppp_trillion_usd": 80.5923197785429,
+        "intensity_mtco2_per_trillion_usd": 637.604021502321
+      },
+      "2002": {
+        "emissions_mtco2": 52530.66308699999,
+        "gdp_ppp_trillion_usd": 82.8471210810749,
+        "intensity_mtco2_per_trillion_usd": 634.0674534193292
+      },
+      "2003": {
+        "emissions_mtco2": 55305.380968,
+        "gdp_ppp_trillion_usd": 85.90983358560071,
+        "intensity_mtco2_per_trillion_usd": 643.7607740549703
+      },
+      "2004": {
+        "emissions_mtco2": 57220.04797799998,
+        "gdp_ppp_trillion_usd": 90.3456657660893,
+        "intensity_mtco2_per_trillion_usd": 633.3458001864344
+      },
+      "2005": {
+        "emissions_mtco2": 59197.900899000015,
+        "gdp_ppp_trillion_usd": 94.50066225004909,
+        "intensity_mtco2_per_trillion_usd": 626.4284237750859
+      },
+      "2006": {
+        "emissions_mtco2": 61188.30341099999,
+        "gdp_ppp_trillion_usd": 99.41713022369741,
+        "intensity_mtco2_per_trillion_usd": 615.4704252005752
+      },
+      "2007": {
+        "emissions_mtco2": 62998.51104299999,
+        "gdp_ppp_trillion_usd": 104.612869733906,
+        "intensity_mtco2_per_trillion_usd": 602.2061262944361
+      },
+      "2008": {
+        "emissions_mtco2": 64099.320579,
+        "gdp_ppp_trillion_usd": 107.565079664721,
+        "intensity_mtco2_per_trillion_usd": 595.9119890841598
+      },
+      "2009": {
+        "emissions_mtco2": 63026.02717199999,
+        "gdp_ppp_trillion_usd": 106.878601743723,
+        "intensity_mtco2_per_trillion_usd": 589.6973401946805
+      },
+      "2010": {
+        "emissions_mtco2": 66635.34674400001,
+        "gdp_ppp_trillion_usd": 112.35625898689,
+        "intensity_mtco2_per_trillion_usd": 593.0719600745623
+      },
+      "2011": {
+        "emissions_mtco2": 68959.97897500002,
+        "gdp_ppp_trillion_usd": 116.792115186649,
+        "intensity_mtco2_per_trillion_usd": 590.4506384253166
+      },
+      "2012": {
+        "emissions_mtco2": 69909.47044199999,
+        "gdp_ppp_trillion_usd": 120.464391619854,
+        "intensity_mtco2_per_trillion_usd": 580.333071889088
+      },
+      "2013": {
+        "emissions_mtco2": 70551.639357,
+        "gdp_ppp_trillion_usd": 124.406939304246,
+        "intensity_mtco2_per_trillion_usd": 567.1037303189411
+      },
+      "2014": {
+        "emissions_mtco2": 70931.38780400001,
+        "gdp_ppp_trillion_usd": 128.697476222905,
+        "intensity_mtco2_per_trillion_usd": 551.1482422634792
+      },
+      "2015": {
+        "emissions_mtco2": 70807.05502500004,
+        "gdp_ppp_trillion_usd": 132.968569072148,
+        "intensity_mtco2_per_trillion_usd": 532.5097165374513
+      },
+      "2016": {
+        "emissions_mtco2": 70785.660715,
+        "gdp_ppp_trillion_usd": 137.272012747644,
+        "intensity_mtco2_per_trillion_usd": 515.6598151229111
+      },
+      "2017": {
+        "emissions_mtco2": 71949.21983800002,
+        "gdp_ppp_trillion_usd": 142.505340699153,
+        "intensity_mtco2_per_trillion_usd": 504.8878833944478
+      },
+      "2018": {
+        "emissions_mtco2": 73468.00585700004,
+        "gdp_ppp_trillion_usd": 147.702373822993,
+        "intensity_mtco2_per_trillion_usd": 497.4057217593831
+      },
+      "2019": {
+        "emissions_mtco2": 74173.13337399998,
+        "gdp_ppp_trillion_usd": 152.076274136857,
+        "intensity_mtco2_per_trillion_usd": 487.73639277386457
+      },
+      "2020": {
+        "emissions_mtco2": 70316.45965600002,
+        "gdp_ppp_trillion_usd": 147.75954933876,
+        "intensity_mtco2_per_trillion_usd": 475.8843673432533
+      },
+      "2021": {
+        "emissions_mtco2": 73733.727571,
+        "gdp_ppp_trillion_usd": 157.355030398695,
+        "intensity_mtco2_per_trillion_usd": 468.58195371434084
+      },
+      "2022": {
+        "emissions_mtco2": 75055.54335699999,
+        "gdp_ppp_trillion_usd": 163.062160489275,
+        "intensity_mtco2_per_trillion_usd": 460.28792413759646
+      },
+      "2023": {
+        "emissions_mtco2": 76188.08833799997,
+        "gdp_ppp_trillion_usd": 168.686420963648,
+        "intensity_mtco2_per_trillion_usd": 451.6551356224372
+      }
+    },
+    "oecd": {
+      "2000": {
+        "emissions_mtco2": 13566.311932,
+        "gdp_ppp_trillion_usd": 48.2093701676441,
+        "intensity_mtco2_per_trillion_usd": 281.40404831725186
+      },
+      "2001": {
+        "emissions_mtco2": 13506.634268000002,
+        "gdp_ppp_trillion_usd": 48.880090084763395,
+        "intensity_mtco2_per_trillion_usd": 276.3217957368333
+      },
+      "2002": {
+        "emissions_mtco2": 13600.546898999997,
+        "gdp_ppp_trillion_usd": 49.6480283510881,
+        "intensity_mtco2_per_trillion_usd": 273.9393154310814
+      },
+      "2003": {
+        "emissions_mtco2": 13832.195058999998,
+        "gdp_ppp_trillion_usd": 50.6590098617525,
+        "intensity_mtco2_per_trillion_usd": 273.04511274002004
+      },
+      "2004": {
+        "emissions_mtco2": 13964.755530999999,
+        "gdp_ppp_trillion_usd": 52.3442972335034,
+        "intensity_mtco2_per_trillion_usd": 266.7865702486066
+      },
+      "2005": {
+        "emissions_mtco2": 14032.016342,
+        "gdp_ppp_trillion_usd": 53.851022758056395,
+        "intensity_mtco2_per_trillion_usd": 260.5710276858342
+      },
+      "2006": {
+        "emissions_mtco2": 13984.594707,
+        "gdp_ppp_trillion_usd": 55.586404057419294,
+        "intensity_mtco2_per_trillion_usd": 251.58300746625525
+      },
+      "2007": {
+        "emissions_mtco2": 14113.120594999999,
+        "gdp_ppp_trillion_usd": 57.116098349131,
+        "intensity_mtco2_per_trillion_usd": 247.09531993469446
+      },
+      "2008": {
+        "emissions_mtco2": 13763.603685999999,
+        "gdp_ppp_trillion_usd": 57.3906324546045,
+        "intensity_mtco2_per_trillion_usd": 239.8231749212189
+      },
+      "2009": {
+        "emissions_mtco2": 12903.680196,
+        "gdp_ppp_trillion_usd": 55.3995726718253,
+        "intensity_mtco2_per_trillion_usd": 232.92021172146076
+      },
+      "2010": {
+        "emissions_mtco2": 13333.0236,
+        "gdp_ppp_trillion_usd": 57.0902331645653,
+        "intensity_mtco2_per_trillion_usd": 233.5429873191607
+      },
+      "2011": {
+        "emissions_mtco2": 13190.69231,
+        "gdp_ppp_trillion_usd": 58.2733338204736,
+        "intensity_mtco2_per_trillion_usd": 226.35897837315113
+      },
+      "2012": {
+        "emissions_mtco2": 13033.553805,
+        "gdp_ppp_trillion_usd": 59.039149899600204,
+        "intensity_mtco2_per_trillion_usd": 220.7612038310914
+      },
+      "2013": {
+        "emissions_mtco2": 13103.016994,
+        "gdp_ppp_trillion_usd": 59.989632684343206,
+        "intensity_mtco2_per_trillion_usd": 218.4213572859528
+      },
+      "2014": {
+        "emissions_mtco2": 12916.727186,
+        "gdp_ppp_trillion_usd": 61.3120175040975,
+        "intensity_mtco2_per_trillion_usd": 210.6720299187149
+      },
+      "2015": {
+        "emissions_mtco2": 12784.855119,
+        "gdp_ppp_trillion_usd": 62.8849339981074,
+        "intensity_mtco2_per_trillion_usd": 203.30553450823015
+      },
+      "2016": {
+        "emissions_mtco2": 12642.560082,
+        "gdp_ppp_trillion_usd": 64.0793757262066,
+        "intensity_mtco2_per_trillion_usd": 197.29530662124662
+      },
+      "2017": {
+        "emissions_mtco2": 12616.804909000002,
+        "gdp_ppp_trillion_usd": 65.8212355558585,
+        "intensity_mtco2_per_trillion_usd": 191.68289386322573
+      },
+      "2018": {
+        "emissions_mtco2": 12695.309736999998,
+        "gdp_ppp_trillion_usd": 67.3989839257092,
+        "intensity_mtco2_per_trillion_usd": 188.36055082066895
+      },
+      "2019": {
+        "emissions_mtco2": 12354.337622,
+        "gdp_ppp_trillion_usd": 68.62566931491929,
+        "intensity_mtco2_per_trillion_usd": 180.02502190990148
+      },
+      "2020": {
+        "emissions_mtco2": 11261.904121,
+        "gdp_ppp_trillion_usd": 65.8491883497174,
+        "intensity_mtco2_per_trillion_usd": 171.02570894555805
+      },
+      "2021": {
+        "emissions_mtco2": 11891.883619000002,
+        "gdp_ppp_trillion_usd": 69.9001339874077,
+        "intensity_mtco2_per_trillion_usd": 170.12676429407546
+      },
+      "2022": {
+        "emissions_mtco2": 11777.384391999996,
+        "gdp_ppp_trillion_usd": 72.1605935055905,
+        "intensity_mtco2_per_trillion_usd": 163.2107473047262
+      },
+      "2023": {
+        "emissions_mtco2": 11369.886121,
+        "gdp_ppp_trillion_usd": 73.46063228776791,
+        "intensity_mtco2_per_trillion_usd": 154.77522813117992
+      }
+    },
+    "non_oecd": {
+      "2000": {
+        "emissions_mtco2": 37456.655015,
+        "gdp_ppp_trillion_usd": 30.476860540499196,
+        "intensity_mtco2_per_trillion_usd": 1229.019470861367
+      },
+      "2001": {
+        "emissions_mtco2": 37879.35292499999,
+        "gdp_ppp_trillion_usd": 31.712229693779506,
+        "intensity_mtco2_per_trillion_usd": 1194.4714481060344
+      },
+      "2002": {
+        "emissions_mtco2": 38930.116188,
+        "gdp_ppp_trillion_usd": 33.1990927299868,
+        "intensity_mtco2_per_trillion_usd": 1172.6259059132872
+      },
+      "2003": {
+        "emissions_mtco2": 41473.185909,
+        "gdp_ppp_trillion_usd": 35.25082372384821,
+        "intensity_mtco2_per_trillion_usd": 1176.5167882003898
+      },
+      "2004": {
+        "emissions_mtco2": 43255.292446999985,
+        "gdp_ppp_trillion_usd": 38.0013685325859,
+        "intensity_mtco2_per_trillion_usd": 1138.2561764824045
+      },
+      "2005": {
+        "emissions_mtco2": 45165.88455700001,
+        "gdp_ppp_trillion_usd": 40.649639491992694,
+        "intensity_mtco2_per_trillion_usd": 1111.1017249217412
+      },
+      "2006": {
+        "emissions_mtco2": 47203.70870399999,
+        "gdp_ppp_trillion_usd": 43.83072616627812,
+        "intensity_mtco2_per_trillion_usd": 1076.954749162174
+      },
+      "2007": {
+        "emissions_mtco2": 48885.39044799999,
+        "gdp_ppp_trillion_usd": 47.496771384774995,
+        "intensity_mtco2_per_trillion_usd": 1029.2360727422015
+      },
+      "2008": {
+        "emissions_mtco2": 50335.716893000004,
+        "gdp_ppp_trillion_usd": 50.1744472101165,
+        "intensity_mtco2_per_trillion_usd": 1003.2141795645133
+      },
+      "2009": {
+        "emissions_mtco2": 50122.346975999986,
+        "gdp_ppp_trillion_usd": 51.4790290718977,
+        "intensity_mtco2_per_trillion_usd": 973.6459268879582
+      },
+      "2010": {
+        "emissions_mtco2": 53302.32314400001,
+        "gdp_ppp_trillion_usd": 55.2660258223247,
+        "intensity_mtco2_per_trillion_usd": 964.4681764410233
+      },
+      "2011": {
+        "emissions_mtco2": 55769.28666500002,
+        "gdp_ppp_trillion_usd": 58.518781366175396,
+        "intensity_mtco2_per_trillion_usd": 953.0151750090165
+      },
+      "2012": {
+        "emissions_mtco2": 56875.91663699999,
+        "gdp_ppp_trillion_usd": 61.425241720253794,
+        "intensity_mtco2_per_trillion_usd": 925.9372050341683
+      },
+      "2013": {
+        "emissions_mtco2": 57448.622362999995,
+        "gdp_ppp_trillion_usd": 64.41730661990279,
+        "intensity_mtco2_per_trillion_usd": 891.819689108987
+      },
+      "2014": {
+        "emissions_mtco2": 58014.66061800001,
+        "gdp_ppp_trillion_usd": 67.38545871880751,
+        "intensity_mtco2_per_trillion_usd": 860.9373850238096
+      },
+      "2015": {
+        "emissions_mtco2": 58022.19990600004,
+        "gdp_ppp_trillion_usd": 70.0836350740406,
+        "intensity_mtco2_per_trillion_usd": 827.8994068258855
+      },
+      "2016": {
+        "emissions_mtco2": 58143.10063300001,
+        "gdp_ppp_trillion_usd": 73.19263702143739,
+        "intensity_mtco2_per_trillion_usd": 794.3845583261398
+      },
+      "2017": {
+        "emissions_mtco2": 59332.41492900002,
+        "gdp_ppp_trillion_usd": 76.68410514329452,
+        "intensity_mtco2_per_trillion_usd": 773.7250740310454
+      },
+      "2018": {
+        "emissions_mtco2": 60772.696120000044,
+        "gdp_ppp_trillion_usd": 80.3033898972838,
+        "intensity_mtco2_per_trillion_usd": 756.7886760164733
+      },
+      "2019": {
+        "emissions_mtco2": 61818.79575199998,
+        "gdp_ppp_trillion_usd": 83.4506048219377,
+        "intensity_mtco2_per_trillion_usd": 740.7830762150319
+      },
+      "2020": {
+        "emissions_mtco2": 59054.55553500002,
+        "gdp_ppp_trillion_usd": 81.9103609890426,
+        "intensity_mtco2_per_trillion_usd": 720.9656363607032
+      },
+      "2021": {
+        "emissions_mtco2": 61841.843951999996,
+        "gdp_ppp_trillion_usd": 87.4548964112873,
+        "intensity_mtco2_per_trillion_usd": 707.1284340806609
+      },
+      "2022": {
+        "emissions_mtco2": 63278.158964999995,
+        "gdp_ppp_trillion_usd": 90.90156698368449,
+        "intensity_mtco2_per_trillion_usd": 696.1173615011224
+      },
+      "2023": {
+        "emissions_mtco2": 64818.20221699997,
+        "gdp_ppp_trillion_usd": 95.2257886758801,
+        "intensity_mtco2_per_trillion_usd": 680.6790798826735
+      }
+    }
+  }
+}

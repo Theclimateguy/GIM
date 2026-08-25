@@ -1,0 +1,140 @@
+{
+ "experiment": "E4",
+ "question": "Does the 3-sigma history-matching cut constrain anything, and is implausibility informative about out-of-sample error?",
+ "config": {
+  "n_samples": 600,
+  "seed": 2026,
+  "threshold": 3.0,
+  "constrain_years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "holdout_years": [
+   2020,
+   2021,
+   2022,
+   2023
+  ],
+  "params": [
+   "ECS_DEFAULT",
+   "HEAT_CAP_SURFACE",
+   "EMISSIONS_SCALE",
+   "DECARB_RATE_STRUCTURAL",
+   "ALPHA_CAPITAL",
+   "GAMMA_ENERGY"
+  ],
+  "tolerances": {
+   "world_gdp": 6.0,
+   "global_co2": 2.0,
+   "temperature": 0.15
+  }
+ },
+ "binding": {
+  "threshold_used": 3.0,
+  "n_samples": 600,
+  "n_ruled_out_at_3sigma": 0,
+  "fraction_ruled_out_at_3sigma": 0.0,
+  "implausibility_max_over_all_draws": 1.6891778315524628,
+  "implausibility_quantiles": {
+   "0.5": 0.66500123207205,
+   "0.9": 0.9304766905577786,
+   "0.95": 1.0445974289308086,
+   "0.99": 1.3698116859948033,
+   "1.0": 1.6891778315524628
+  },
+  "threshold_that_would_rule_out_5pct": 1.0445974289308086,
+  "threshold_that_would_rule_out_50pct": 0.66500123207205,
+  "headroom_factor_at_median": 4.511269837278983,
+  "tolerance_that_would_bind_at_3sigma": {
+   "world_gdp": 1.18847238426207,
+   "global_co2": 0.3840147419024464,
+   "temperature": 0.027798618226595313
+  },
+  "current_tolerances": {
+   "world_gdp": 6.0,
+   "global_co2": 2.0,
+   "temperature": 0.15
+  },
+  "per_output_implausibility_median": {
+   "world_gdp": 0.5942361921310351,
+   "global_co2": 0.5760221128536696,
+   "temperature": 0.5559723645319063
+  },
+  "per_output_implausibility_max": {
+   "world_gdp": 0.6187488272764528,
+   "global_co2": 1.4463161422325732,
+   "temperature": 1.6891778315524628
+  },
+  "binding_output": "world_gdp"
+ },
+ "prior_retention": {
+  "ECS_DEFAULT": {
+   "prior_min": 1.5519572237921588,
+   "prior_max": 5.768491015473236,
+   "nroy_min": 1.5519572237921588,
+   "nroy_max": 5.768491015473236,
+   "retained_fraction": 1.0
+  },
+  "HEAT_CAP_SURFACE": {
+   "prior_min": 6.347015008704684,
+   "prior_max": 17.514658401022473,
+   "nroy_min": 6.347015008704684,
+   "nroy_max": 17.514658401022473,
+   "retained_fraction": 1.0
+  },
+  "EMISSIONS_SCALE": {
+   "prior_min": 0.9022566315020973,
+   "prior_max": 1.0471746504215544,
+   "nroy_min": 0.9022566315020973,
+   "nroy_max": 1.0471746504215544,
+   "retained_fraction": 1.0
+  },
+  "DECARB_RATE_STRUCTURAL": {
+   "prior_min": 0.010160238248434126,
+   "prior_max": 0.029689701309909642,
+   "nroy_min": 0.010160238248434126,
+   "nroy_max": 0.029689701309909642,
+   "retained_fraction": 1.0
+  },
+  "ALPHA_CAPITAL": {
+   "prior_min": 0.22565435298955058,
+   "prior_max": 0.3961017596425772,
+   "nroy_min": 0.22565435298955058,
+   "nroy_max": 0.3961017596425772,
+   "retained_fraction": 1.0
+  },
+  "GAMMA_ENERGY": {
+   "prior_min": 0.016626346624567682,
+   "prior_max": 0.07719307971788213,
+   "nroy_min": 0.016626346624567682,
+   "nroy_max": 0.07719307971788213,
+   "retained_fraction": 1.0
+  }
+ },
+ "informativeness": {
+  "gdp_country_rmse_oos": {
+   "spearman_vs_implausibility": 0.058655329598137775,
+   "spearman_vs_own_output_implausibility": 0.9195392764979902,
+   "best_decile_mean": 0.7504793361573384,
+   "worst_decile_mean": 0.7530346116120857,
+   "decile_lift": 1.0034048578443626
+  },
+  "co2_rmse_oos": {
+   "spearman_vs_implausibility": 0.5161547670965752,
+   "spearman_vs_own_output_implausibility": 0.9503136953158202,
+   "best_decile_mean": 0.7028073130692388,
+   "worst_decile_mean": 1.4416011575170735,
+   "decile_lift": 2.0512039796817687
+  },
+  "temp_rmse_oos": {
+   "spearman_vs_implausibility": 0.5215685043569565,
+   "spearman_vs_own_output_implausibility": 0.8990391084419679,
+   "best_decile_mean": 0.15471991987799763,
+   "worst_decile_mean": 0.2700868048246599,
+   "decile_lift": 1.7456498493382968
+  }
+ }
+}

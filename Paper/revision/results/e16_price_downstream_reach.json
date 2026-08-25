@@ -1,0 +1,286 @@
+{
+ "experiment": "E16",
+ "question": "Does a forced change in a resource price reach GDP, inflation, emissions or social tension?",
+ "config": {
+  "horizon": 10,
+  "factors": [
+   1.0,
+   1.5,
+   2.0,
+   3.0,
+   5.0
+  ],
+  "policy": "simple",
+  "extreme_events": false,
+  "forward_init": true
+ },
+ "results": {
+  "energy": {
+   "baseline": {
+    "world_gdp": 138.16812125480038,
+    "mean_inflation": 0.022136171582919247,
+    "mean_unemployment": 0.04103337403771588,
+    "global_co2": 38.88715123006202,
+    "mean_tension": 0.4086040245190542,
+    "final_price": 0.9994121310056125
+   },
+   "forced": {
+    "x1": {
+     "forced_factor": 1.0,
+     "world_gdp": 138.16812125480038,
+     "mean_inflation": 0.022136171582919247,
+     "mean_unemployment": 0.04103337403771588,
+     "global_co2": 38.88715123006202,
+     "mean_tension": 0.4086040245190542,
+     "final_price": 0.9994121310056125,
+     "pct_change_vs_base": {
+      "world_gdp": 0.0,
+      "mean_inflation": 0.0,
+      "global_co2": 0.0,
+      "mean_tension": 0.0
+     }
+    },
+    "x1.5": {
+     "forced_factor": 1.5,
+     "world_gdp": 136.83350611592272,
+     "mean_inflation": 0.02478433239387846,
+     "mean_unemployment": 0.04026471277506895,
+     "global_co2": 38.50823270289608,
+     "mean_tension": 0.41254904430627354,
+     "final_price": 2.101078044617884,
+     "pct_change_vs_base": {
+      "world_gdp": -0.965935649089748,
+      "mean_inflation": 11.963047905729967,
+      "global_co2": -0.9744054660219245,
+      "mean_tension": 0.9654872567304763
+     }
+    },
+    "x2": {
+     "forced_factor": 2.0,
+     "world_gdp": 135.38466726531212,
+     "mean_inflation": 0.02471912261427422,
+     "mean_unemployment": 0.04002559173396979,
+     "global_co2": 38.2004761515408,
+     "mean_tension": 0.40889562667227575,
+     "final_price": 2.9401922790348842,
+     "pct_change_vs_base": {
+      "world_gdp": -2.014541389294283,
+      "mean_inflation": 11.668463183344835,
+      "global_co2": -1.7658148174926722,
+      "mean_tension": 0.07136546282547698
+     }
+    },
+    "x3": {
+     "forced_factor": 3.0,
+     "world_gdp": 133.1563136271078,
+     "mean_inflation": 0.024623155295935197,
+     "mean_unemployment": 0.04043378943390263,
+     "global_co2": 37.74858828357103,
+     "mean_tension": 0.40502804945286963,
+     "final_price": 4.551604127157197,
+     "pct_change_vs_base": {
+      "world_gdp": -3.6273255959311603,
+      "mean_inflation": 11.234931495267958,
+      "global_co2": -2.927864115720594,
+      "mean_tension": -0.8751688313382754
+     }
+    },
+    "x5": {
+     "forced_factor": 5.0,
+     "world_gdp": 130.54927999069068,
+     "mean_inflation": 0.024619401097521244,
+     "mean_unemployment": 0.04012042130951371,
+     "global_co2": 37.035969766447835,
+     "mean_tension": 0.4057821394969707,
+     "final_price": 7.662143976920907,
+     "pct_change_vs_base": {
+      "world_gdp": -5.514181704808411,
+      "mean_inflation": 11.217971930241589,
+      "global_co2": -4.760393613464572,
+      "mean_tension": -0.6906160617005705
+     }
+    }
+   },
+   "max_abs_world_gdp_pct_change": 5.514181704808411,
+   "reaches_economy": true
+  },
+  "food": {
+   "baseline": {
+    "world_gdp": 138.16812125480038,
+    "mean_inflation": 0.022136171582919247,
+    "mean_unemployment": 0.04103337403771588,
+    "global_co2": 38.88715123006202,
+    "mean_tension": 0.4086040245190542,
+    "final_price": 1.1355684012943936
+   },
+   "forced": {
+    "x1": {
+     "forced_factor": 1.0,
+     "world_gdp": 138.16812125480038,
+     "mean_inflation": 0.022136171582919247,
+     "mean_unemployment": 0.04103337403771588,
+     "global_co2": 38.88715123006202,
+     "mean_tension": 0.4086040245190542,
+     "final_price": 1.1355684012943936,
+     "pct_change_vs_base": {
+      "world_gdp": 0.0,
+      "mean_inflation": 0.0,
+      "global_co2": 0.0,
+      "mean_tension": 0.0
+     }
+    },
+    "x1.5": {
+     "forced_factor": 1.5,
+     "world_gdp": 138.4216114944614,
+     "mean_inflation": 0.02174708948397898,
+     "mean_unemployment": 0.04163023778086025,
+     "global_co2": 38.19502281693089,
+     "mean_tension": 0.41778470118511496,
+     "final_price": 7.5,
+     "pct_change_vs_base": {
+      "world_gdp": 0.1834650694812122,
+      "mean_inflation": -1.7576756553535768,
+      "global_co2": -1.7798383045247972,
+      "mean_tension": 2.246839510909576
+     }
+    },
+    "x2": {
+     "forced_factor": 2.0,
+     "world_gdp": 138.61053573770053,
+     "mean_inflation": 0.022369175627148904,
+     "mean_unemployment": 0.03948780141620827,
+     "global_co2": 38.49130586299203,
+     "mean_tension": 0.4228836743128287,
+     "final_price": 10.0,
+     "pct_change_vs_base": {
+      "world_gdp": 0.32020011481829197,
+      "mean_inflation": 1.052594136962001,
+      "global_co2": -1.0179335707265098,
+      "mean_tension": 3.49474036888949
+     }
+    },
+    "x3": {
+     "forced_factor": 3.0,
+     "world_gdp": 133.32768931139586,
+     "mean_inflation": 0.021859145465011987,
+     "mean_unemployment": 0.04064220249842167,
+     "global_co2": 38.53276679185632,
+     "mean_tension": 0.4272670744644732,
+     "final_price": 15.0,
+     "pct_change_vs_base": {
+      "world_gdp": -3.5032914245668327,
+      "mean_inflation": -1.2514635463027373,
+      "global_co2": -0.9113149896455753,
+      "mean_tension": 4.567514959595975
+     }
+    },
+    "x5": {
+     "forced_factor": 5.0,
+     "world_gdp": 127.18765948555775,
+     "mean_inflation": 0.021125678052928424,
+     "mean_unemployment": 0.04126070541342631,
+     "global_co2": 37.02543284009338,
+     "mean_tension": 0.43129813886531704,
+     "final_price": 25.0,
+     "pct_change_vs_base": {
+      "world_gdp": -7.94717455048347,
+      "mean_inflation": -4.564897440398149,
+      "global_co2": -4.7874897776760275,
+      "mean_tension": 5.554060406765416
+     }
+    }
+   },
+   "max_abs_world_gdp_pct_change": 7.94717455048347,
+   "reaches_economy": true
+  },
+  "metals": {
+   "baseline": {
+    "world_gdp": 138.16812125480038,
+    "mean_inflation": 0.022136171582919247,
+    "mean_unemployment": 0.04103337403771588,
+    "global_co2": 38.88715123006202,
+    "mean_tension": 0.4086040245190542,
+    "final_price": 0.7957776085515452
+   },
+   "forced": {
+    "x1": {
+     "forced_factor": 1.0,
+     "world_gdp": 138.16812125480038,
+     "mean_inflation": 0.022136171582919247,
+     "mean_unemployment": 0.04103337403771588,
+     "global_co2": 38.88715123006202,
+     "mean_tension": 0.4086040245190542,
+     "final_price": 0.7957776085515452,
+     "pct_change_vs_base": {
+      "world_gdp": 0.0,
+      "mean_inflation": 0.0,
+      "global_co2": 0.0,
+      "mean_tension": 0.0
+     }
+    },
+    "x1.5": {
+     "forced_factor": 1.5,
+     "world_gdp": 138.97658187007696,
+     "mean_inflation": 0.022288173597416628,
+     "mean_unemployment": 0.040513179755978845,
+     "global_co2": 38.91982151018232,
+     "mean_tension": 0.4072070471864087,
+     "final_price": 2.328940873856197,
+     "pct_change_vs_base": {
+      "world_gdp": 0.585128181475135,
+      "mean_inflation": 0.6866680352923756,
+      "global_co2": 0.08401304566389478,
+      "mean_tension": -0.341890252865178
+     }
+    },
+    "x2": {
+     "forced_factor": 2.0,
+     "world_gdp": 139.10168280389337,
+     "mean_inflation": 0.022471929226616918,
+     "mean_unemployment": 0.03988823813809023,
+     "global_co2": 38.94022428899619,
+     "mean_tension": 0.41197124882234587,
+     "final_price": 4.2199452556162775,
+     "pct_change_vs_base": {
+      "world_gdp": 0.6756707268034525,
+      "mean_inflation": 1.5167828024821983,
+      "global_co2": 0.13647967839090722,
+      "mean_tension": 0.8240800631503936
+     }
+    },
+    "x3": {
+     "forced_factor": 3.0,
+     "world_gdp": 138.9265484936428,
+     "mean_inflation": 0.022170693245449215,
+     "mean_unemployment": 0.04014488830493493,
+     "global_co2": 38.8864985170079,
+     "mean_tension": 0.4079177215293423,
+     "final_price": 8.90876844649512,
+     "pct_change_vs_base": {
+      "world_gdp": 0.5489162275310777,
+      "mean_inflation": 0.15595136855826153,
+      "global_co2": -0.0016784799952413716,
+      "mean_tension": -0.16796285609758882
+     }
+    },
+    "x5": {
+     "forced_factor": 5.0,
+     "world_gdp": 139.21158028288815,
+     "mean_inflation": 0.02264984090170654,
+     "mean_unemployment": 0.039696996676748364,
+     "global_co2": 38.99505496494781,
+     "mean_tension": 0.40890381457812697,
+     "final_price": 21.256717371679876,
+     "pct_change_vs_base": {
+      "world_gdp": 0.7552096812284869,
+      "mean_inflation": 2.3204975479303362,
+      "global_co2": 0.27747914535426127,
+      "mean_tension": 0.07336933585655095
+     }
+    }
+   },
+   "max_abs_world_gdp_pct_change": 0.7552096812284869,
+   "reaches_economy": true
+  }
+ }
+}

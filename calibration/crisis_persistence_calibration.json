@@ -1,0 +1,1704 @@
+{
+  "suite_id": "operational_v2",
+  "simulation_steps": 6,
+  "targets": {
+    "argentina_default_2001": {
+      "debt_crisis_years_min": 3,
+      "debt_crisis_years_max": 5,
+      "gdp_drop_year1_min": 0.08,
+      "gdp_drop_year1_max": 0.14,
+      "regime_crisis_triggered": true
+    },
+    "south_korea_imf_1997": {
+      "debt_crisis_years_min": 1,
+      "debt_crisis_years_max": 2,
+      "gdp_drop_year1_min": 0.03,
+      "gdp_drop_year1_max": 0.08,
+      "regime_crisis_triggered": false
+    }
+  },
+  "anchor_replay_overrides": {
+    "argentina_default_2001": {
+      "Argentina": {
+        "economy.public_debt_gdp": 1.35,
+        "credit_zone": "sub_investment",
+        "society.trust_gov": 0.45,
+        "society.social_tension": 0.6
+      }
+    },
+    "south_korea_imf_1997": {
+      "Korea, Rep.": {
+        "economy.public_debt_gdp": 1.18,
+        "credit_zone": "distressed",
+        "society.trust_gov": 0.55,
+        "society.social_tension": 0.4
+      }
+    }
+  },
+  "core_grid": {
+    "DEBT_CRISIS_PERSIST_GDP_MULT": [
+      0.955,
+      0.965,
+      0.97,
+      0.975,
+      0.98
+    ],
+    "DEBT_CRISIS_PERSIST_TRUST_HIT": [
+      0.02,
+      0.025,
+      0.03,
+      0.035
+    ],
+    "DEBT_CRISIS_PERSIST_TENSION_HIT": [
+      0.015,
+      0.02,
+      0.025
+    ],
+    "DEBT_CRISIS_MAX_YEARS": [
+      6,
+      7,
+      8
+    ],
+    "REGIME_CRISIS_PERSIST_GDP_MULT": [
+      0.95,
+      0.96,
+      0.97
+    ],
+    "REGIME_CRISIS_PERSIST_CAPITAL_MULT": [
+      0.965,
+      0.975,
+      0.985
+    ]
+  },
+  "refinement_grid": {
+    "DEBT_CRISIS_EXIT_THRESHOLD": [
+      0.68,
+      0.7,
+      0.72
+    ],
+    "DEBT_CRISIS_EXIT_RATE": [
+      0.07,
+      0.08,
+      0.09
+    ],
+    "REGIME_CRISIS_MAX_YEARS": [
+      4,
+      5,
+      6
+    ]
+  },
+  "prior_params": {
+    "DEBT_CRISIS_PERSIST_GDP_MULT": 0.965,
+    "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.025,
+    "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.02,
+    "DEBT_CRISIS_MAX_YEARS": 6,
+    "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+    "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+    "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+    "DEBT_CRISIS_EXIT_RATE": 0.08,
+    "REGIME_CRISIS_MAX_YEARS": 5
+  },
+  "best_score": 0.03979773428288014,
+  "plateau_size": 324,
+  "raw_plateau_center": {
+    "params": {
+      "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+      "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+      "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+      "DEBT_CRISIS_MAX_YEARS": 6,
+      "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+      "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+      "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+      "DEBT_CRISIS_EXIT_RATE": 0.08,
+      "REGIME_CRISIS_MAX_YEARS": 5
+    },
+    "total_score": 0.03979773428288014,
+    "cases": {
+      "argentina_default_2001": {
+        "score": 0,
+        "debt_crisis_active_years_max": 4,
+        "regime_crisis_active_years_max": 1,
+        "gdp_change_year1": -0.09990742753095938,
+        "regime_crisis_triggered": true
+      },
+      "south_korea_imf_1997": {
+        "score": 0.03979773428288014,
+        "debt_crisis_active_years_max": 2,
+        "regime_crisis_active_years_max": 0,
+        "gdp_change_year1": -0.09989886714144007,
+        "regime_crisis_triggered": false
+      }
+    },
+    "search_stage": "refined"
+  },
+  "selected_plateau_center": {
+    "params": {
+      "DEBT_CRISIS_PERSIST_GDP_MULT": 0.965,
+      "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.025,
+      "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.02,
+      "DEBT_CRISIS_MAX_YEARS": 6,
+      "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+      "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+      "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+      "DEBT_CRISIS_EXIT_RATE": 0.08,
+      "REGIME_CRISIS_MAX_YEARS": 5
+    },
+    "total_score": 0.03979773428288014,
+    "cases": {
+      "argentina_default_2001": {
+        "score": 0.0,
+        "debt_crisis_active_years_max": 4,
+        "regime_crisis_active_years_max": 1,
+        "gdp_change_year1": -0.09990742753095938,
+        "regime_crisis_triggered": true
+      },
+      "south_korea_imf_1997": {
+        "score": 0.03979773428288014,
+        "debt_crisis_active_years_max": 2,
+        "regime_crisis_active_years_max": 0,
+        "gdp_change_year1": -0.09989886714144007,
+        "regime_crisis_triggered": false
+      }
+    },
+    "search_stage": "refined",
+    "backtest_metrics": {
+      "gdp_rmse_trillions": 1.0503248844720614,
+      "global_co2_rmse_gtco2": 1.6302922727466425,
+      "temperature_rmse_c": 0.13628223260866457
+    },
+    "backtest_guardrail_pass": true
+  },
+  "plateau_medians": {
+    "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+    "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+    "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+    "DEBT_CRISIS_MAX_YEARS": 6.0,
+    "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+    "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+    "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+    "DEBT_CRISIS_EXIT_RATE": 0.08,
+    "REGIME_CRISIS_MAX_YEARS": 5.0
+  },
+  "historical_backtest_baseline": {
+    "gdp_rmse_trillions": 1.053,
+    "global_co2_rmse_gtco2": 1.63,
+    "temperature_rmse_c": 0.136
+  },
+  "plateau_backtest_probe": [
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772413712634,
+        "global_co2_rmse_gtco2": 1.6309070709863498,
+        "temperature_rmse_c": 0.1362831822963978
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.045777235146499,
+        "global_co2_rmse_gtco2": 1.6309070683362288,
+        "temperature_rmse_c": 0.13628318229584668
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.045777243412514,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772442028708,
+        "global_co2_rmse_gtco2": 1.6309070710817515,
+        "temperature_rmse_c": 0.13628318229635017
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772433463925,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772411029285,
+        "global_co2_rmse_gtco2": 1.63090707101635,
+        "temperature_rmse_c": 0.13628318229640504
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.97,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772433937518,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.68,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 5,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772432963306,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772434649886,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772411758157,
+        "global_co2_rmse_gtco2": 1.6309070709923177,
+        "temperature_rmse_c": 0.13628318229643274
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.04577723316838,
+        "global_co2_rmse_gtco2": 1.6309070675255017,
+        "temperature_rmse_c": 0.13628318229731542
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772270092758,
+        "global_co2_rmse_gtco2": 1.6309070640205179,
+        "temperature_rmse_c": 0.1362831822975829
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.045777243391399,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.045777243495447,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.97,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772433937744,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.97,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772433939758,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772350876562,
+        "global_co2_rmse_gtco2": 1.6309070682215854,
+        "temperature_rmse_c": 0.13628318229715317
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772435164023,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.97,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772434951236,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.97,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772440906619,
+        "global_co2_rmse_gtco2": 1.6309070710517417,
+        "temperature_rmse_c": 0.13628318229628633
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.72,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 3,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772350120067,
+        "global_co2_rmse_gtco2": 1.630907068354013,
+        "temperature_rmse_c": 0.13628318229713265
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.68,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 5,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772432742642,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.96,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.68,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 5,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.0457772433939758,
+        "global_co2_rmse_gtco2": 1.6309070718470264,
+        "temperature_rmse_c": 0.13628318229622177
+      },
+      "backtest_guardrail_pass": false
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.68,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 5,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined",
+      "backtest_metrics": {
+        "gdp_rmse_trillions": 1.045777244114885,
+        "global_co2_rmse_gtco2": 1.6309070704762627,
+        "temperature_rmse_c": 0.1362831822961226
+      },
+      "backtest_guardrail_pass": false
+    }
+  ],
+  "top_20": [
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 6
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 6
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.965,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 6
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 6
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.08,
+        "REGIME_CRISIS_MAX_YEARS": 6
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.975,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.09,
+        "REGIME_CRISIS_MAX_YEARS": 6
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 4
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    },
+    {
+      "params": {
+        "DEBT_CRISIS_PERSIST_GDP_MULT": 0.955,
+        "DEBT_CRISIS_PERSIST_TRUST_HIT": 0.02,
+        "DEBT_CRISIS_PERSIST_TENSION_HIT": 0.015,
+        "DEBT_CRISIS_MAX_YEARS": 6,
+        "REGIME_CRISIS_PERSIST_GDP_MULT": 0.95,
+        "REGIME_CRISIS_PERSIST_CAPITAL_MULT": 0.985,
+        "DEBT_CRISIS_EXIT_THRESHOLD": 0.7,
+        "DEBT_CRISIS_EXIT_RATE": 0.07,
+        "REGIME_CRISIS_MAX_YEARS": 5
+      },
+      "total_score": 0.03979773428288014,
+      "cases": {
+        "argentina_default_2001": {
+          "score": 0,
+          "debt_crisis_active_years_max": 4,
+          "regime_crisis_active_years_max": 1,
+          "gdp_change_year1": -0.09990742753095938,
+          "regime_crisis_triggered": true
+        },
+        "south_korea_imf_1997": {
+          "score": 0.03979773428288014,
+          "debt_crisis_active_years_max": 2,
+          "regime_crisis_active_years_max": 0,
+          "gdp_change_year1": -0.09989886714144007,
+          "regime_crisis_triggered": false
+        }
+      },
+      "search_stage": "refined"
+    }
+  ],
+  "notes": [
+    "Historical replay uses minimal case-specific stress overrides because operational_v2 cases are outcome-layer anchors.",
+    "South Korea year-1 GDP residual remains onset-dominated in this model family; persistence search mainly identifies duration and exit behavior.",
+    "The raw plateau center is more aggressive on debt persistence and drifts the historical backtest below the GDP golden anchor; the committed point is a guardrail-safe plateau candidate."
+  ]
+}

@@ -1,0 +1,118 @@
+{
+ "experiment": "E14",
+ "question": "Once the cut binds, does it constrain the parameters and buy out-of-sample skill -- and how does that compare with per-output ranking?",
+ "config": {
+  "n_samples": 600,
+  "seed": 2026,
+  "threshold": 3.0,
+  "constrain_years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "holdout_years": [
+   2020,
+   2021,
+   2022,
+   2023
+  ]
+ },
+ "filtering": {
+  "published_tolerances": {
+   "tolerances": {
+    "world_gdp": 6.0,
+    "global_co2": 2.0,
+    "temperature": 0.15
+   },
+   "n_nroy": 600,
+   "fraction_retained": 1.0,
+   "max_implausibility": 1.6891778315524628,
+   "median_implausibility": 0.66500123207205,
+   "prior_range_retained_per_param": {
+    "ECS_DEFAULT": 1.0,
+    "HEAT_CAP_SURFACE": 1.0,
+    "EMISSIONS_SCALE": 1.0,
+    "DECARB_RATE_STRUCTURAL": 1.0,
+    "ALPHA_CAPITAL": 1.0,
+    "GAMMA_ENERGY": 1.0
+   },
+   "mean_prior_range_retained": 1.0,
+   "out_of_sample_gain_from_filtering": {
+    "gdp_country_rmse_oos": {
+     "all_draws_mean": 0.7685960879126091,
+     "nroy_mean": 0.7685960879126091,
+     "improvement_pct": 0.0
+    },
+    "co2_rmse_oos": {
+     "all_draws_mean": 0.9818866513011064,
+     "nroy_mean": 0.9818866513011064,
+     "improvement_pct": 0.0
+    },
+    "temp_rmse_oos": {
+     "all_draws_mean": 0.1765323842399521,
+     "nroy_mean": 0.1765323842399521,
+     "improvement_pct": 0.0
+    }
+   }
+  },
+  "tightened_tolerances": {
+   "tolerances": {
+    "world_gdp": 1.19,
+    "global_co2": 0.384,
+    "temperature": 0.028
+   },
+   "n_nroy": 92,
+   "fraction_retained": 0.15333333333333332,
+   "max_implausibility": 9.049166954745335,
+   "median_implausibility": 3.506702898323595,
+   "prior_range_retained_per_param": {
+    "ECS_DEFAULT": 0.4879656892107222,
+    "HEAT_CAP_SURFACE": 0.9122180243630065,
+    "EMISSIONS_SCALE": 0.20473414037755006,
+    "DECARB_RATE_STRUCTURAL": 0.8360309197880303,
+    "ALPHA_CAPITAL": 0.7726769146235282,
+    "GAMMA_ENERGY": 0.916472440065109
+   },
+   "mean_prior_range_retained": 0.6883496880713244,
+   "out_of_sample_gain_from_filtering": {
+    "gdp_country_rmse_oos": {
+     "all_draws_mean": 0.7685960879126091,
+     "nroy_mean": 0.7577537120970794,
+     "improvement_pct": 1.4106727819778508
+    },
+    "co2_rmse_oos": {
+     "all_draws_mean": 0.9818866513011064,
+     "nroy_mean": 0.6806634819693499,
+     "improvement_pct": 30.67799821217685
+    },
+    "temp_rmse_oos": {
+     "all_draws_mean": 0.1765323842399521,
+     "nroy_mean": 0.14857075804564054,
+     "improvement_pct": 15.839374919620774
+    }
+   }
+  }
+ },
+ "per_output_ranking": {
+  "gdp_country_rmse_oos": {
+   "ranked_on": "world_gdp",
+   "all_draws_mean": 0.7685960879126091,
+   "best_decile_mean": 0.7376834743659153,
+   "improvement_pct": 4.02195822133935
+  },
+  "co2_rmse_oos": {
+   "ranked_on": "global_co2",
+   "all_draws_mean": 0.9818866513011064,
+   "best_decile_mean": 0.617352285012906,
+   "improvement_pct": 37.125911204226355
+  },
+  "temp_rmse_oos": {
+   "ranked_on": "temperature",
+   "all_draws_mean": 0.1765323842399521,
+   "best_decile_mean": 0.132258685535128,
+   "improvement_pct": 25.079646941518074
+  }
+ }
+}

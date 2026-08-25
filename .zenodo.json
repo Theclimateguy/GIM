@@ -1,0 +1,37 @@
+{
+  "title": "GIM: Global Integrated Model",
+  "upload_type": "software",
+  "version": "20.1.0",
+  "creators": [
+    {
+      "name": "Sotiriadi, Nazar S.",
+      "affiliation": "JSC Sberbank of Russia"
+    },
+    {
+      "name": "Osiptsov, Andrei A.",
+      "affiliation": "JSC Sberbank of Russia; Skolkovo Institute of Science and Technology (Skoltech)"
+    }
+  ],
+  "description": "A year-by-year deterministic simulation of the world as 57 interacting country agents: economy and prices, climate and carbon cycle, natural resources, society and politics, interstate relations, and discrete crises with stock-flow-consistent finance. Includes history-matched ensembles validated against output, emissions, temperature and resource prices, weak-signal detection, stability analysis (Jacobian spectral radius, twin runs, 30-year fans), and a game-mechanical scenario layer. This release accompanies the model-description manuscript included under Paper/ -- an UNREFEREED PREPRINT, not peer reviewed and not published in any journal -- and carries the validation evidence behind its claims under Paper/revision/ -- the null models, ablations and benchmark scripts with their results. Russia is modelled as a single consolidated country agent, as in the manuscript.",
+  "license": "Apache-2.0",
+  "keywords": [
+    "integrated assessment model",
+    "world simulation",
+    "scenario analysis",
+    "uncertainty quantification",
+    "serious games",
+    "model validation",
+    "coupled human-Earth system"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/Theclimateguy/GIM"
+    },
+    {
+      "relation": "isNewVersionOf",
+      "identifier": "10.5281/zenodo.21575176"
+    }
+  ],
+  "notes": "The manuscript under Paper/ is an unrefereed preprint. It has not been peer reviewed and is not published in any journal; its numbers and claims may change in revision. Cite this software record, not the manuscript."
+}

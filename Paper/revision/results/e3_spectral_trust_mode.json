@@ -1,0 +1,556 @@
+{
+ "experiment": "E3",
+ "question": "Are the above-unity modes of Section 4 the missing trust equilibrium term?",
+ "config": {
+  "horizon": 30,
+  "base_year": 2023,
+  "lin_years": [
+   2,
+   12,
+   22
+  ],
+  "eps": 0.0001,
+  "policy": "simple",
+  "extreme_events": false,
+  "forward_init": true,
+  "method": "central differences, D^-1 J D"
+ },
+ "results": {
+  "pull_0": {
+   "2026": {
+    "rho": 1.0750155925634037,
+    "n_eigs_above_1": 75,
+    "n_eigs_above_0.99": 117,
+    "top5_eig_mags": [
+     1.0750155925634037,
+     1.0749830727356129,
+     1.0749752995627915,
+     1.0749155485176245,
+     1.074873293744957
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.585196011135242,
+     "economic": 0.41429099731205854,
+     "climate_resources": 0.0005129915526996181
+    },
+    "dominant_mode_top_coords": [
+     [
+      "AG_GLOBAL_S.trust_gov",
+      0.470378315750543
+     ],
+     [
+      "AG_GLOBAL_S.social_tension",
+      0.12231308846212496
+     ],
+     [
+      "NGA.trust_gov",
+      0.05886840606004447
+     ],
+     [
+      "AG_GLOBAL_S.unemployment",
+      0.04578552482826963
+     ],
+     [
+      "AG_GLOBAL_S.inflation",
+      0.037591519802880266
+     ],
+     [
+      "ZAF.trust_gov",
+      0.03683781500843171
+     ]
+    ],
+    "n_state": 408
+   },
+   "2036": {
+    "rho": 1.1000000000003807,
+    "n_eigs_above_1": 79,
+    "n_eigs_above_0.99": 115,
+    "top5_eig_mags": [
+     1.1000000000003807,
+     1.0997768589838621,
+     1.0997526136304916,
+     1.0994617630639874,
+     1.0755729918240051
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.4772159408551777,
+     "economic": 0.5223532434217206,
+     "climate_resources": 0.00043081572310166316
+    },
+    "dominant_mode_top_coords": [
+     [
+      "EGY.public_debt",
+      1.0
+     ],
+     [
+      "USA.gdp",
+      0.0
+     ],
+     [
+      "USA.capital",
+      0.0
+     ],
+     [
+      "USA.public_debt",
+      0.0
+     ],
+     [
+      "USA.unemployment",
+      0.0
+     ],
+     [
+      "USA.inflation",
+      0.0
+     ]
+    ],
+    "n_state": 408
+   },
+   "2046": {
+    "rho": 1.0762863347629872,
+    "n_eigs_above_1": 67,
+    "n_eigs_above_0.99": 105,
+    "top5_eig_mags": [
+     1.0762863347629872,
+     1.075643339213052,
+     1.0751972695177283,
+     1.0748346107383688,
+     1.0747284817749094
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.35127200673651876,
+     "economic": 0.6480565507721817,
+     "climate_resources": 0.0006714424912994912
+    },
+    "dominant_mode_top_coords": [
+     [
+      "AG_GLOBAL_S.trust_gov",
+      0.26786885372558306
+     ],
+     [
+      "AG_GLOBAL_S.unemployment",
+      0.10808469880043457
+     ],
+     [
+      "AG_GLOBAL_S.inflation",
+      0.09023017368412374
+     ],
+     [
+      "AG_GLOBAL_S.social_tension",
+      0.06926022076997389
+     ],
+     [
+      "AG_GLOBAL_S.capital",
+      0.03932776656133958
+     ],
+     [
+      "AG_GLOBAL_S.public_debt",
+      0.020249644286689728
+     ]
+    ],
+    "n_state": 408
+   }
+  },
+  "pull_0.05": {
+   "2026": {
+    "rho": 1.0517139414236834,
+    "n_eigs_above_1": 50,
+    "n_eigs_above_0.99": 105,
+    "top5_eig_mags": [
+     1.0517139414236834,
+     1.0516880097392365,
+     1.051679824792979,
+     1.0516187224622422,
+     1.0515933295578674
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.5237592039777261,
+     "economic": 0.4749894132596972,
+     "climate_resources": 0.0012513827625767835
+    },
+    "dominant_mode_top_coords": [
+     [
+      "AG_GLOBAL_S.trust_gov",
+      0.2908179087196219
+     ],
+     [
+      "AG_GLOBAL_S.social_tension",
+      0.11439944633105364
+     ],
+     [
+      "NGA.trust_gov",
+      0.0756049978448666
+     ],
+     [
+      "AG_GLOBAL_S.unemployment",
+      0.0611586092211629
+     ],
+     [
+      "AG_GLOBAL_S.inflation",
+      0.05026641447606478
+     ],
+     [
+      "ZAF.trust_gov",
+      0.04410879905604094
+     ]
+    ],
+    "n_state": 408
+   },
+   "2036": {
+    "rho": 1.099999999999933,
+    "n_eigs_above_1": 48,
+    "n_eigs_above_0.99": 105,
+    "top5_eig_mags": [
+     1.099999999999933,
+     1.0997759865200694,
+     1.0997539360244692,
+     1.0994727973801366,
+     1.0525005131877874
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.39761301191757004,
+     "economic": 0.6011333279220935,
+     "climate_resources": 0.0012536601603363642
+    },
+    "dominant_mode_top_coords": [
+     [
+      "EGY.public_debt",
+      1.0
+     ],
+     [
+      "USA.gdp",
+      0.0
+     ],
+     [
+      "USA.capital",
+      0.0
+     ],
+     [
+      "USA.public_debt",
+      0.0
+     ],
+     [
+      "USA.unemployment",
+      0.0
+     ],
+     [
+      "USA.inflation",
+      0.0
+     ]
+    ],
+    "n_state": 408
+   },
+   "2046": {
+    "rho": 1.099679362609666,
+    "n_eigs_above_1": 49,
+    "n_eigs_above_0.99": 102,
+    "top5_eig_mags": [
+     1.099679362609666,
+     1.054075883250045,
+     1.0538497776952802,
+     1.0535553592816356,
+     1.0528053789233314
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.25629417716954245,
+     "economic": 0.7425649870169099,
+     "climate_resources": 0.0011408358135476483
+    },
+    "dominant_mode_top_coords": [
+     [
+      "PHL.public_debt",
+      0.9455318241211582
+     ],
+     [
+      "PHL.inflation",
+      0.018628645391212135
+     ],
+     [
+      "PHL.unemployment",
+      0.015683836769072278
+     ],
+     [
+      "PHL.capital",
+      0.010689979479585436
+     ],
+     [
+      "PHL.gdp",
+      0.0032145946311112374
+     ],
+     [
+      "PHL.trust_gov",
+      0.0006625591577476179
+     ]
+    ],
+    "n_state": 408
+   }
+  },
+  "pull_0.1": {
+   "2026": {
+    "rho": 1.0363088989838949,
+    "n_eigs_above_1": 38,
+    "n_eigs_above_0.99": 94,
+    "top5_eig_mags": [
+     1.0363088989838949,
+     1.0362903865606725,
+     1.0362825248880598,
+     1.0362219613310517,
+     1.0362219613310517
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.4309410910460392,
+     "economic": 0.5677962647025678,
+     "climate_resources": 0.0012626442513930273
+    },
+    "dominant_mode_top_coords": [
+     [
+      "AG_GLOBAL_S.trust_gov",
+      0.16740374547966128
+     ],
+     [
+      "AG_GLOBAL_S.social_tension",
+      0.09720627313866592
+     ],
+     [
+      "AG_GLOBAL_S.unemployment",
+      0.07101144192088887
+     ],
+     [
+      "NGA.trust_gov",
+      0.06807805733674333
+     ],
+     [
+      "AG_GLOBAL_S.inflation",
+      0.056606404814733724
+     ],
+     [
+      "NGA.social_tension",
+      0.055061039366019505
+     ]
+    ],
+    "n_state": 408
+   },
+   "2036": {
+    "rho": 1.0997756346452088,
+    "n_eigs_above_1": 35,
+    "n_eigs_above_0.99": 93,
+    "top5_eig_mags": [
+     1.0997756346452088,
+     1.036784801970981,
+     1.0367177891858994,
+     1.0366945529009501,
+     1.0366515399231462
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.34913025765549993,
+     "economic": 0.649681258932732,
+     "climate_resources": 0.0011884834117681876
+    },
+    "dominant_mode_top_coords": [
+     [
+      "VNM.public_debt",
+      0.9465153567242797
+     ],
+     [
+      "VNM.inflation",
+      0.0152587007471552
+     ],
+     [
+      "VNM.capital",
+      0.01471237646287776
+     ],
+     [
+      "VNM.unemployment",
+      0.013970479818333739
+     ],
+     [
+      "VNM.gdp",
+      0.0023434419889598553
+     ],
+     [
+      "VNM.trust_gov",
+      0.00035234997102963036
+     ]
+    ],
+    "n_state": 408
+   },
+   "2046": {
+    "rho": 1.040980581762004,
+    "n_eigs_above_1": 32,
+    "n_eigs_above_0.99": 95,
+    "top5_eig_mags": [
+     1.040980581762004,
+     1.0387254038796248,
+     1.0371492236602813,
+     1.0370772662810592,
+     1.0369907965499303
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.221299696586745,
+     "economic": 0.777553197694565,
+     "climate_resources": 0.0011471057186899676
+    },
+    "dominant_mode_top_coords": [
+     [
+      "AG_SOUTH_AS.inflation",
+      0.38766354948406895
+     ],
+     [
+      "AG_SOUTH_AS.unemployment",
+      0.241066117450609
+     ],
+     [
+      "AG_SOUTH_AS.public_debt",
+      0.08128094275331386
+     ],
+     [
+      "AG_SOUTH_AS.trust_gov",
+      0.07755141211496057
+     ],
+     [
+      "AG_SOUTH_AS.capital",
+      0.06944372189982098
+     ],
+     [
+      "AG_SOUTH_AS.gdp",
+      0.043713835780751796
+     ]
+    ],
+    "n_state": 408
+   }
+  },
+  "pull_0.2": {
+   "2026": {
+    "rho": 1.0201060325798854,
+    "n_eigs_above_1": 34,
+    "n_eigs_above_0.99": 89,
+    "top5_eig_mags": [
+     1.0201060325798854,
+     1.0200958834513316,
+     1.020087401106188,
+     1.020080492621798,
+     1.0200282318554161
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.2884981271023608,
+     "economic": 0.7099279226252473,
+     "climate_resources": 0.0015739502723920308
+    },
+    "dominant_mode_top_coords": [
+     [
+      "NGA.social_tension",
+      0.09566479803210859
+     ],
+     [
+      "NGA.unemployment",
+      0.08062618469962696
+     ],
+     [
+      "AG_GLOBAL_S.social_tension",
+      0.06436404434981066
+     ],
+     [
+      "AG_GLOBAL_S.unemployment",
+      0.06412227544252315
+     ],
+     [
+      "NGA.inflation",
+      0.053487105676161203
+     ],
+     [
+      "AG_GLOBAL_S.inflation",
+      0.05066737098328519
+     ]
+    ],
+    "n_state": 408
+   },
+   "2036": {
+    "rho": 1.099774556082084,
+    "n_eigs_above_1": 29,
+    "n_eigs_above_0.99": 88,
+    "top5_eig_mags": [
+     1.099774556082084,
+     1.0265114050572672,
+     1.0207064804163675,
+     1.0206050835860097,
+     1.0205906670889509
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.2650251237772038,
+     "economic": 0.7330335781979405,
+     "climate_resources": 0.0019412980248558398
+    },
+    "dominant_mode_top_coords": [
+     [
+      "VNM.public_debt",
+      0.9411191064221727
+     ],
+     [
+      "VNM.inflation",
+      0.01664278218435347
+     ],
+     [
+      "VNM.unemployment",
+      0.016305741335237624
+     ],
+     [
+      "VNM.capital",
+      0.015306504147545799
+     ],
+     [
+      "VNM.gdp",
+      0.002524972602848915
+     ],
+     [
+      "VNM.trust_gov",
+      0.00019129836331325232
+     ]
+    ],
+    "n_state": 408
+   },
+   "2046": {
+    "rho": 1.0997097133287357,
+    "n_eigs_above_1": 32,
+    "n_eigs_above_0.99": 89,
+    "top5_eig_mags": [
+     1.0997097133287357,
+     1.025576813515837,
+     1.0246879205057153,
+     1.0242968041808167,
+     1.0226035515381897
+    ],
+    "above_unity_mass_by_block": {
+     "social": 0.12487382474754577,
+     "economic": 0.8740871580126602,
+     "climate_resources": 0.0010390172397940747
+    },
+    "dominant_mode_top_coords": [
+     [
+      "KOR.public_debt",
+      0.9239960915041984
+     ],
+     [
+      "KOR.inflation",
+      0.020695917576527452
+     ],
+     [
+      "KOR.capital",
+      0.016920796814643268
+     ],
+     [
+      "KOR.unemployment",
+      0.013218885362360665
+     ],
+     [
+      "KOR.gdp",
+      0.003627842733888019
+     ],
+     [
+      "HKG.public_debt",
+      0.00153218429425937
+     ]
+    ],
+    "n_state": 408
+   }
+  }
+ }
+}

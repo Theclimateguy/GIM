@@ -1,0 +1,207 @@
+{
+ "experiment": "E19",
+ "question": "What food supply response do the climate-yield and agricultural supply-elasticity priors jointly imply?",
+ "priors": {
+  "yield_temperature": {
+   "source": "Zhao et al. 2017, PNAS 114(35):9326-9331",
+   "per_crop_loss_per_degC": {
+    "wheat": 0.06,
+    "rice": 0.032,
+    "maize": 0.074,
+    "soybean": 0.031
+   },
+   "unweighted_mean": 0.04925,
+   "note": "excludes CO2 fertilisation, adaptation and genetic improvement"
+  },
+  "supply_price_elasticity": {
+   "source": "Haile et al. 2016 AJAE; Iqbal et al. 2018 Agricultural Economics",
+   "aggregate_area_elasticity_short_run": 0.024,
+   "aggregate_area_elasticity_long_run": 0.143,
+   "crop_long_run_range": [
+    0.045,
+    0.793
+   ],
+   "note": "total supply adds the yield-intensity margin on top of area, putting the aggregate long-run supply elasticity near 0.2-0.3"
+  }
+ },
+ "real_world_anchors": {
+  "food_production_growth_per_year": "~2% (FAO, decelerating)",
+  "real_food_prices": "roughly flat over decades"
+ },
+ "config": {
+  "horizon": 30,
+  "policy": "simple",
+  "extreme_events": false,
+  "forward_init": true
+ },
+ "grid": {
+  "t0_e0": {
+   "temp_sens": 0.0,
+   "elasticity": 0.0,
+   "price_2053": 4.68090560914718,
+   "supply_2053": 1339.3110189299232,
+   "demand_2053": 1787.8481045623419,
+   "demand_over_supply": 1.3349013629341964,
+   "implied_annual_supply_growth": 0.0,
+   "temperature_2053": 1.9021271531111368,
+   "fit_gdp_rmse": 0.5981176069550361,
+   "fit_co2_rmse": 0.9388842090776093,
+   "fit_temp_rmse": 0.09887582019660851,
+   "price_implausibility_food": 0.7023709662726891
+  },
+  "t0_e0.143": {
+   "temp_sens": 0.0,
+   "elasticity": 0.143,
+   "price_2053": 1.0703156473861306,
+   "supply_2053": 1742.1112194771054,
+   "demand_2053": 1847.007377806544,
+   "demand_over_supply": 1.0602120904547776,
+   "implied_annual_supply_growth": 0.009108209073264817,
+   "temperature_2053": 1.9076979169589288,
+   "fit_gdp_rmse": 0.5980412270464392,
+   "fit_co2_rmse": 0.9389295651241267,
+   "fit_temp_rmse": 0.09887571141620233,
+   "price_implausibility_food": 0.7995183784748014
+  },
+  "t0_e0.2": {
+   "temp_sens": 0.0,
+   "elasticity": 0.2,
+   "price_2053": 1.035208673530378,
+   "supply_2053": 1748.0400230005791,
+   "demand_2053": 1807.8910968890932,
+   "demand_over_supply": 1.0342389608367075,
+   "implied_annual_supply_growth": 0.00922643654590205,
+   "temperature_2053": 1.9068241071642036,
+   "fit_gdp_rmse": 0.5980142649499876,
+   "fit_co2_rmse": 0.9389460889851133,
+   "fit_temp_rmse": 0.09887567226761705,
+   "price_implausibility_food": 0.8278424626227774
+  },
+  "t0_e0.3": {
+   "temp_sens": 0.0,
+   "elasticity": 0.3,
+   "price_2053": 1.0356315016521171,
+   "supply_2053": 1751.0958767659633,
+   "demand_2053": 1820.3483784887324,
+   "demand_over_supply": 1.0395480925068872,
+   "implied_annual_supply_growth": 0.009287222825413943,
+   "temperature_2053": 1.9058888506716143,
+   "fit_gdp_rmse": 0.5979711565889567,
+   "fit_co2_rmse": 0.9389731496960573,
+   "fit_temp_rmse": 0.0988756087235677,
+   "price_implausibility_food": 0.8663623597808866
+  },
+  "t0.049_e0": {
+   "temp_sens": 0.049,
+   "elasticity": 0.0,
+   "price_2053": 5.0,
+   "supply_2053": 884.6621158648506,
+   "demand_2053": 1783.4349479416887,
+   "demand_over_supply": 2.015950401807579,
+   "implied_annual_supply_growth": -0.014198404260448494,
+   "temperature_2053": 1.9045649176792843,
+   "fit_gdp_rmse": 0.5981176069550361,
+   "fit_co2_rmse": 0.9388842090776093,
+   "fit_temp_rmse": 0.09887582019660851,
+   "price_implausibility_food": 0.7023709662726891
+  },
+  "t0.049_e0.143": {
+   "temp_sens": 0.049,
+   "elasticity": 0.143,
+   "price_2053": 1.2438428554317134,
+   "supply_2053": 1699.5994888520872,
+   "demand_2053": 1817.298723888633,
+   "demand_over_supply": 1.0692511593516894,
+   "implied_annual_supply_growth": 0.008248916075738633,
+   "temperature_2053": 1.9054923678376394,
+   "fit_gdp_rmse": 0.5980412270464392,
+   "fit_co2_rmse": 0.9389295651241267,
+   "fit_temp_rmse": 0.09887571141620233,
+   "price_implausibility_food": 0.7995183784748014
+  },
+  "t0.049_e0.2": {
+   "temp_sens": 0.049,
+   "elasticity": 0.2,
+   "price_2053": 1.160578819784772,
+   "supply_2053": 1722.6327065651665,
+   "demand_2053": 1782.7211917748716,
+   "demand_over_supply": 1.0348817742637189,
+   "implied_annual_supply_growth": 0.008717030752786181,
+   "temperature_2053": 1.906235926453818,
+   "fit_gdp_rmse": 0.5980142649499876,
+   "fit_co2_rmse": 0.9389460889851133,
+   "fit_temp_rmse": 0.09887567226761705,
+   "price_implausibility_food": 0.8278424626227774
+  },
+  "t0.049_e0.3": {
+   "temp_sens": 0.049,
+   "elasticity": 0.3,
+   "price_2053": 1.091384320258159,
+   "supply_2053": 1729.5391694427408,
+   "demand_2053": 1811.4806402980926,
+   "demand_over_supply": 1.0473776323214197,
+   "implied_annual_supply_growth": 0.008856216627497027,
+   "temperature_2053": 1.9055604974277696,
+   "fit_gdp_rmse": 0.5979711565889567,
+   "fit_co2_rmse": 0.9389731496960573,
+   "fit_temp_rmse": 0.0988756087235677,
+   "price_implausibility_food": 0.8663623597808866
+  },
+  "t0.055_e0": {
+   "temp_sens": 0.055,
+   "elasticity": 0.0,
+   "price_2053": 5.0,
+   "supply_2053": 840.3411112230955,
+   "demand_2053": 1780.5783124059308,
+   "demand_over_supply": 2.118875643028274,
+   "implied_annual_supply_growth": -0.01594403342800632,
+   "temperature_2053": 1.9043686892144889,
+   "fit_gdp_rmse": 0.5981176069550361,
+   "fit_co2_rmse": 0.9388842090776093,
+   "fit_temp_rmse": 0.09887582019660851,
+   "price_implausibility_food": 0.7023709662726891
+  },
+  "t0.055_e0.143": {
+   "temp_sens": 0.055,
+   "elasticity": 0.143,
+   "price_2053": 1.2560719759445838,
+   "supply_2053": 1708.655840656788,
+   "demand_2053": 1813.3475521600076,
+   "demand_over_supply": 1.061271385970259,
+   "implied_annual_supply_growth": 0.008433698959203317,
+   "temperature_2053": 1.9065491659927198,
+   "fit_gdp_rmse": 0.5980412270464392,
+   "fit_co2_rmse": 0.9389295651241267,
+   "fit_temp_rmse": 0.09887571141620233,
+   "price_implausibility_food": 0.7995183784748014
+  },
+  "t0.055_e0.2": {
+   "temp_sens": 0.055,
+   "elasticity": 0.2,
+   "price_2053": 1.1716011947748182,
+   "supply_2053": 1720.9979893187324,
+   "demand_2053": 1782.3068251366,
+   "demand_over_supply": 1.0356240020025458,
+   "implied_annual_supply_growth": 0.008684007461994936,
+   "temperature_2053": 1.9062094898451563,
+   "fit_gdp_rmse": 0.5980142649499876,
+   "fit_co2_rmse": 0.9389460889851133,
+   "fit_temp_rmse": 0.09887567226761705,
+   "price_implausibility_food": 0.8278424626227774
+  },
+  "t0.055_e0.3": {
+   "temp_sens": 0.055,
+   "elasticity": 0.3,
+   "price_2053": 1.0968101371441052,
+   "supply_2053": 1742.4420454404494,
+   "demand_2053": 1809.381519358368,
+   "demand_over_supply": 1.038417044683399,
+   "implied_annual_supply_growth": 0.009114816367364886,
+   "temperature_2053": 1.9051507443782243,
+   "fit_gdp_rmse": 0.5979711565889567,
+   "fit_co2_rmse": 0.9389731496960573,
+   "fit_temp_rmse": 0.0988756087235677,
+   "price_implausibility_food": 0.8663623597808866
+  }
+ }
+}

@@ -1,0 +1,125 @@
+{
+ "experiment": "E8",
+ "question": "Does the fixed-weight conflict composite beat its best single component?",
+ "config": {
+  "n_bootstrap": 20000,
+  "seed": 20260824,
+  "ucdp_window": [
+   1990,
+   2023
+  ],
+  "n_agents": 57,
+  "n_positive": 21,
+  "state_csv": "data/agent_states_operational.csv"
+ },
+ "reduced_form_weights": {
+  "one_minus_regime_stability": 0.3875,
+  "climate_risk": 0.225,
+  "military(minmax mil/gdp)": 0.2,
+  "one_minus_trust_gov": 0.0875,
+  "gini_norm": 0.0625,
+  "water_stress": 0.0375
+ },
+ "composite": {
+  "auc": 0.7394179894179894,
+  "ci95": [
+   0.6,
+   0.8614958448753463
+  ]
+ },
+ "components": {
+  "one_minus_regime_stability": {
+   "auc": 0.7764550264550265,
+   "ci95": [
+    0.6441558441558441,
+    0.8903133903133903
+   ],
+   "delta_composite_minus_component": -0.03749655279306329,
+   "delta_ci95": [
+    -0.11375000000000002,
+    0.03147085472666847
+   ],
+   "prob_composite_better": 0.1459
+  },
+  "climate_risk": {
+   "auc": 0.6150793650793651,
+   "ci95": [
+    0.4576719576719577,
+    0.7675675675675676
+   ],
+   "delta_composite_minus_component": 0.12376168740123647,
+   "delta_ci95": [
+    -0.01677116328793154,
+    0.2698484848484843
+   ],
+   "prob_composite_better": 0.9575
+  },
+  "one_minus_trust_gov": {
+   "auc": 0.7288359788359788,
+   "ci95": [
+    0.5874978146853147,
+    0.8522727272727273
+   ],
+   "delta_composite_minus_component": 0.010273110778491468,
+   "delta_ci95": [
+    -0.06818181818181823,
+    0.0872587169678582
+   ],
+   "prob_composite_better": 0.60295
+  },
+  "inequality_gini": {
+   "auc": 0.6329365079365079,
+   "ci95": [
+    0.474322528508575,
+    0.7823558059587469
+   ],
+   "delta_composite_minus_component": 0.1073757800070171,
+   "delta_ci95": [
+    -0.08400383141762448,
+    0.30540166204986147
+   ],
+   "prob_composite_better": 0.8606
+  },
+  "water_stress": {
+   "auc": 0.6051587301587301,
+   "ci95": [
+    0.43783783783783786,
+    0.7617647058823529
+   ],
+   "delta_composite_minus_component": 0.1354978732030399,
+   "delta_ci95": [
+    -0.02481854838709678,
+    0.29932578411745064
+   ],
+   "prob_composite_better": 0.9491
+  },
+  "social_tension": {
+   "auc": 0.7486772486772487,
+   "ci95": [
+    0.6086956521739131,
+    0.8723776223776224
+   ],
+   "delta_composite_minus_component": -0.009179504970376296,
+   "delta_ci95": [
+    -0.07469512195121952,
+    0.05125000000000002
+   ],
+   "prob_composite_better": 0.38815
+  },
+  "military_power": {
+   "auc": 0.4722222222222222,
+   "ci95": [
+    0.3,
+    0.6428571428571429
+   ],
+   "delta_composite_minus_component": 0.268393703293468,
+   "delta_ci95": [
+    0.040253246753246825,
+    0.4888895730706075
+   ],
+   "prob_composite_better": 0.9889
+  }
+ },
+ "best_single_component": "one_minus_regime_stability",
+ "verdict": "composite adds nothing detectable"
+}

@@ -1,0 +1,158 @@
+{
+  "n": 1002,
+  "n_crashed": 0,
+  "all": {
+    "runs": 1002,
+    "win_pct": 23.5,
+    "loss_reasons": {
+      "temp": 268,
+      "economic": 171,
+      "geopolitics": 163,
+      "avg_stability": 101,
+      "energy_price": 64
+    },
+    "loss_year_hist": {
+      "2030": 24,
+      "2035": 90,
+      "2040": 244,
+      "2045": 346,
+      "2050": 63
+    }
+  },
+  "green": {
+    "runs": 334,
+    "win_pct": 20.1,
+    "loss_reasons": {
+      "economic": 114,
+      "temp": 75,
+      "geopolitics": 67,
+      "energy_price": 11
+    },
+    "loss_year_hist": {
+      "2030": 7,
+      "2035": 36,
+      "2040": 87,
+      "2045": 124,
+      "2050": 13
+    }
+  },
+  "growth": {
+    "runs": 334,
+    "win_pct": 21.9,
+    "loss_reasons": {
+      "temp": 102,
+      "avg_stability": 88,
+      "geopolitics": 40,
+      "energy_price": 25,
+      "economic": 6
+    },
+    "loss_year_hist": {
+      "2030": 10,
+      "2035": 28,
+      "2040": 84,
+      "2045": 115,
+      "2050": 24
+    }
+  },
+  "random": {
+    "runs": 334,
+    "win_pct": 28.4,
+    "loss_reasons": {
+      "temp": 91,
+      "geopolitics": 56,
+      "economic": 51,
+      "energy_price": 28,
+      "avg_stability": 13
+    },
+    "loss_year_hist": {
+      "2030": 7,
+      "2035": 26,
+      "2040": 73,
+      "2045": 107,
+      "2050": 26
+    }
+  },
+  "sensitivity_on_winners": {
+    "planet_health": {
+      "winners_worst_quantiles": {
+        "p5": 35.3,
+        "p25": 37.8,
+        "p50": 39.5,
+        "p75": 41.2,
+        "p95": 43.5
+      },
+      "flip_pct_at_threshold": {
+        "10": 0.0,
+        "15": 0.0,
+        "20": 0.0,
+        "25": 0.0,
+        "30": 0.0,
+        "35": 3.4,
+        "40": 60.0
+      }
+    },
+    "temp": {
+      "winners_worst_quantiles": {
+        "p5": 1.72,
+        "p25": 1.77,
+        "p50": 1.81,
+        "p75": 1.85,
+        "p95": 1.87
+      },
+      "flip_pct_at_threshold": {
+        "2.6": 0.0,
+        "2.4": 0.0,
+        "2.2": 0.0,
+        "2.0": 0.0,
+        "1.9": 0.0,
+        "1.8": 59.1,
+        "1.7": 97.0
+      }
+    },
+    "avg_stability": {
+      "winners_worst_quantiles": {
+        "p5": 20.8,
+        "p25": 24.7,
+        "p50": 28.4,
+        "p75": 32.4,
+        "p95": 38.8
+      },
+      "flip_pct_at_threshold": {
+        "3": 0.0,
+        "6": 0.0,
+        "10": 0.0,
+        "15": 0.0,
+        "20": 0.0,
+        "25": 28.9,
+        "30": 60.0
+      }
+    },
+    "food_price": {
+      "winners_worst_quantiles": {
+        "p5": 133.3,
+        "p25": 155.7,
+        "p50": 178.4,
+        "p75": 194.8,
+        "p95": 224.7
+      },
+      "flip_pct_at_threshold": {
+        "400": 0.0,
+        "350": 0.0,
+        "300": 0.0,
+        "260": 0.0,
+        "230": 3.8,
+        "200": 19.1,
+        "180": 45.1
+      }
+    }
+  },
+  "win_final_year_metrics": {
+    "planet_health": 41.01,
+    "world_gdp": 228.1,
+    "world_co2": 37.94,
+    "temp": 1.75,
+    "avg_stability": 31.51,
+    "geopolitical_strain": 53.27,
+    "economic_strain": 60.53
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "generated_by": "calibration/growth_decarb_calibration.py",
+  "window": {
+    "start_year": 2015,
+    "end_year": 2023
+  },
+  "sources": {
+    "real_ppp_gdp": "World Bank NY.GDP.MKTP.PP.KD (constant 2021 international $)",
+    "co2": "World Bank EN.GHG.CO2.MT.CE.AR5 (MtCO2, AR5 GWP)",
+    "gdp_per_capita": "model 2015 base state (tests/fixtures/historical_backtest_state_2015.csv)"
+  },
+  "tfp_convergence": {
+    "form": "d(ln TFP)/dt += slope * ln(gdp_pc_frontier / gdp_pc_i)",
+    "intercept_frontier_growth": 0.0105579755431504,
+    "slope": 0.009294926368098866,
+    "r2": 0.3807300193724057,
+    "n": 20,
+    "maps_to": {
+      "TFP_CONVERGENCE_SENS": 0.0093
+    }
+  },
+  "development_decarb": {
+    "form": "decarb_i = base + slope * ln(gdp_pc_i)",
+    "base": -0.07791599298661904,
+    "slope": 0.010747222606776517,
+    "r2": 0.46228624011175523,
+    "n": 20,
+    "median_country_decarb": 0.03149941169440012,
+    "maps_to": {
+      "DECARB_DEV_BASE": -0.0779,
+      "DECARB_DEV_SLOPE": 0.0107
+    }
+  },
+  "per_country": [
+    {
+      "country": "United States",
+      "real_ppp_growth": 0.023682843746470672,
+      "loggap_to_frontier": 0.3929795388298637,
+      "gdp_pc_usd": 56572.91889960634,
+      "decarb_rate": 0.0366151996401921
+    },
+    {
+      "country": "China",
+      "real_ppp_growth": 0.05726064387381968,
+      "loggap_to_frontier": 2.327388513221534,
+      "gdp_pc_usd": 8175.33285077392,
+      "decarb_rate": 0.031720528827063124
+    },
+    {
+      "country": "Japan",
+      "real_ppp_growth": 0.004328542115535905,
+      "loggap_to_frontier": 0.8742871052211965,
+      "gdp_pc_usd": 34960.63938433849,
+      "decarb_rate": 0.030153103194276713
+    },
+    {
+      "country": "Germany",
+      "real_ppp_growth": 0.009539056431388193,
+      "loggap_to_frontier": 0.6925142288940523,
+      "gdp_pc_usd": 41929.754911072145,
+      "decarb_rate": 0.04524748673434359
+    },
+    {
+      "country": "India",
+      "real_ppp_growth": 0.056518894617091586,
+      "loggap_to_frontier": 3.968557813672496,
+      "gdp_pc_usd": 1583.9981590798484,
+      "decarb_rate": 0.019974088838025664
+    },
+    {
+      "country": "United Kingdom",
+      "real_ppp_growth": 0.01365496260745469,
+      "loggap_to_frontier": 0.6161891618818243,
+      "gdp_pc_usd": 45255.34492162088,
+      "decarb_rate": 0.05241209854905696
+    },
+    {
+      "country": "France",
+      "real_ppp_growth": 0.012061583836969314,
+      "loggap_to_frontier": 0.8256669148000326,
+      "gdp_pc_usd": 36702.43237333796,
+      "decarb_rate": 0.03149941169440012
+    },
+    {
+      "country": "Italy",
+      "real_ppp_growth": 0.011337264827622429,
+      "loggap_to_frontier": 1.0062074193510049,
+      "gdp_pc_usd": 30639.882975143202,
+      "decarb_rate": 0.030088703147702615
+    },
+    {
+      "country": "Brazil",
+      "real_ppp_growth": 0.010616058830415609,
+      "loggap_to_frontier": 2.238399995588457,
+      "gdp_pc_usd": 8936.195588944425,
+      "decarb_rate": 0.020008276964882325
+    },
+    {
+      "country": "Canada",
+      "real_ppp_growth": 0.018735678797516142,
+      "loggap_to_frontier": 0.653585966118867,
+      "gdp_pc_usd": 43594.194104539434,
+      "decarb_rate": 0.020157301712454473
+    },
+    {
+      "country": "South Korea",
+      "real_ppp_growth": 0.02529035812541225,
+      "loggap_to_frontier": 1.0216025413020924,
+      "gdp_pc_usd": 30171.79065452229,
+      "decarb_rate": 0.03580662334660535
+    },
+    {
+      "country": "Russia",
+      "real_ppp_growth": 0.015763093414066898,
+      "loggap_to_frontier": 2.184965657214698,
+      "gdp_pc_usd": 9426.683024700389,
+      "decarb_rate": 0.0027294217180839214
+    },
+    {
+      "country": "Australia",
+      "real_ppp_growth": 0.02471207937939557,
+      "loggap_to_frontier": 0.3859787894111323,
+      "gdp_pc_usd": 56970.3613028093,
+      "decarb_rate": 0.03184706545245835
+    },
+    {
+      "country": "Spain",
+      "real_ppp_growth": 0.017053369304299126,
+      "loggap_to_frontier": 1.171088957294589,
+      "gdp_pc_usd": 25982.441619777455,
+      "decarb_rate": 0.04265653244951603
+    },
+    {
+      "country": "Mexico",
+      "real_ppp_growth": 0.011643329460919283,
+      "loggap_to_frontier": 2.1238032428894953,
+      "gdp_pc_usd": 10021.23861188272,
+      "decarb_rate": 0.01541471062050512
+    },
+    {
+      "country": "Indonesia",
+      "real_ppp_growth": 0.04008753698489409,
+      "loggap_to_frontier": 3.2381627396578345,
+      "gdp_pc_usd": 3288.2226972553844,
+      "decarb_rate": -0.012021583321573893
+    },
+    {
+      "country": "Netherlands",
+      "real_ppp_growth": 0.020297699307675998,
+      "loggap_to_frontier": 0.6043609383404568,
+      "gdp_pc_usd": 45793.81354346971,
+      "decarb_rate": 0.0601540143268869
+    },
+    {
+      "country": "Saudi Arabia",
+      "real_ppp_growth": 0.027869126731692173,
+      "loggap_to_frontier": 1.2819401186057349,
+      "gdp_pc_usd": 23256.154955353068,
+      "decarb_rate": 0.022678161563859267
+    },
+    {
+      "country": "Turkey",
+      "real_ppp_growth": 0.04953575487754569,
+      "loggap_to_frontier": 2.024754652799741,
+      "gdp_pc_usd": 11064.649450466251,
+      "decarb_rate": 0.024142220665478283
+    },
+    {
+      "country": "Switzerland",
+      "real_ppp_growth": 0.018013075737061568,
+      "loggap_to_frontier": 0.0,
+      "gdp_pc_usd": 83806.44760038375,
+      "decarb_rate": 0.040092169410205214
+    }
+  ]
+}

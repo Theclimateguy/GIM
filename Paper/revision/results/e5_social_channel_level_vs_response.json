@@ -1,0 +1,400 @@
+{
+ "experiment": "E5",
+ "question": "Do the priors that govern the final tension LEVEL also govern the causal shock RESPONSE, or are they drift coefficients?",
+ "config": {
+  "n_ensemble": 120,
+  "years": 50,
+  "seed": 2026,
+  "shock": {
+   "du": 0.05,
+   "dpi": 0.05,
+   "years": [
+    5,
+    6,
+    7
+   ]
+  },
+  "irf_horizon": 25,
+  "n_priors_varied": 37
+ },
+ "aggregate": {
+  "rho_level_vs_drift": 0.863796096951177,
+  "rho_level_vs_shock_response": -0.3251406347663032,
+  "mean_final_trust": 0.3747222183646394,
+  "mean_final_tension": 0.5989852817165464,
+  "mean_tension_drift_per_year": 0.003654437465025321,
+  "share_positive_shock_response": 0.7583333333333333
+ },
+ "per_prior": {
+  "ECS_DEFAULT": {
+   "rho_vs_final_tension_level": 0.31525105910132645,
+   "p_level": 0.0004529744899583611,
+   "rho_vs_baseline_drift": 0.33135634419056875,
+   "p_drift": 0.00021830091076158957,
+   "rho_vs_shock_response": 0.009945135078824918,
+   "p_response": 0.9141497015281983,
+   "partial_rho_level_given_drift": 0.06106042200463884,
+   "is_social_prior": false
+  },
+  "DAMAGE_QUAD_COEFF": {
+   "rho_vs_final_tension_level": 0.09046461559830543,
+   "p_level": 0.32578751329708633,
+   "rho_vs_baseline_drift": 0.06929647892214737,
+   "p_drift": 0.4520125152685582,
+   "rho_vs_shock_response": 0.09909021459823597,
+   "p_response": 0.28158309902209094,
+   "partial_rho_level_given_drift": 0.06089283431285097,
+   "is_social_prior": false
+  },
+  "DAMAGE_BENEFIT_MAX": {
+   "rho_vs_final_tension_level": 0.013334259323564135,
+   "p_level": 0.8850685366795925,
+   "rho_vs_baseline_drift": 0.02264046114313494,
+   "p_drift": 0.8061085275255627,
+   "rho_vs_shock_response": 0.026474060698659627,
+   "p_response": 0.774094237292941,
+   "partial_rho_level_given_drift": -0.012353244998698299,
+   "is_social_prior": false
+  },
+  "DAMAGE_BENEFIT_PEAK": {
+   "rho_vs_final_tension_level": 0.21968886728245013,
+   "p_level": 0.015912676679203926,
+   "rho_vs_baseline_drift": 0.21818876310854915,
+   "p_drift": 0.01666393574166154,
+   "rho_vs_shock_response": -0.1382873810681297,
+   "p_response": 0.13200219736047272,
+   "partial_rho_level_given_drift": 0.06349017777370662,
+   "is_social_prior": false
+  },
+  "DAMAGE_RISK_ADJ": {
+   "rho_vs_final_tension_level": 0.1715744148899229,
+   "p_level": 0.06096479731867376,
+   "rho_vs_baseline_drift": 0.20150010417390096,
+   "p_drift": 0.02732051473419566,
+   "rho_vs_shock_response": -0.3493020348635322,
+   "p_response": 9.219316122426585e-05,
+   "partial_rho_level_given_drift": -0.005026450791075626,
+   "is_social_prior": false
+  },
+  "ALPHA_CAPITAL": {
+   "rho_vs_final_tension_level": -0.17930411834155147,
+   "p_level": 0.0500507056084719,
+   "rho_vs_baseline_drift": -0.14444058615181607,
+   "p_drift": 0.11549401981017036,
+   "rho_vs_shock_response": -0.0710327106049031,
+   "p_response": 0.44073399828973264,
+   "partial_rho_level_given_drift": -0.10938928661184784,
+   "is_social_prior": false
+  },
+  "BETA_LABOR": {
+   "rho_vs_final_tension_level": -0.07517883186332383,
+   "p_level": 0.41445516966789214,
+   "rho_vs_baseline_drift": -0.10897979026321271,
+   "p_drift": 0.23607640779614636,
+   "rho_vs_shock_response": -0.027981109799291613,
+   "p_response": 0.7616088113660996,
+   "partial_rho_level_given_drift": 0.03785133194844612,
+   "is_social_prior": false
+  },
+  "GAMMA_ENERGY": {
+   "rho_vs_final_tension_level": 0.015167719980554202,
+   "p_level": 0.869397076117601,
+   "rho_vs_baseline_drift": -0.021939023543301614,
+   "p_drift": 0.8120028129426604,
+   "rho_vs_shock_response": 0.04926731022987707,
+   "p_response": 0.5930841453772835,
+   "partial_rho_level_given_drift": 0.06773315370642792,
+   "is_social_prior": false
+  },
+  "CAPITAL_DEPRECIATION": {
+   "rho_vs_final_tension_level": 0.05128133898187374,
+   "p_level": 0.5780432264888539,
+   "rho_vs_baseline_drift": 0.0809083964164178,
+   "p_drift": 0.3796878868819276,
+   "rho_vs_shock_response": -0.07392874505173969,
+   "p_response": 0.4222804832195078,
+   "partial_rho_level_given_drift": -0.03705176996597107,
+   "is_social_prior": false
+  },
+  "HEAT_CAP_SURFACE": {
+   "rho_vs_final_tension_level": 0.07578998541565385,
+   "p_level": 0.41066048391506,
+   "rho_vs_baseline_drift": 0.030974373220362523,
+   "p_drift": 0.7369942728702675,
+   "rho_vs_shock_response": 0.03619001319536078,
+   "p_response": 0.6947473190748593,
+   "partial_rho_level_given_drift": 0.09736787729941812,
+   "is_social_prior": false
+  },
+  "HEAT_CAP_DEEP": {
+   "rho_vs_final_tension_level": -0.07460240294464893,
+   "p_level": 0.41805293816647965,
+   "rho_vs_baseline_drift": 0.014507951941107019,
+   "p_drift": 0.8750309233992605,
+   "rho_vs_shock_response": -0.14256545593443987,
+   "p_response": 0.1203454046083529,
+   "partial_rho_level_given_drift": -0.17295812044581102,
+   "is_social_prior": false
+  },
+  "OCEAN_EXCHANGE": {
+   "rho_vs_final_tension_level": -0.1531217445655948,
+   "p_level": 0.09498480814622133,
+   "rho_vs_baseline_drift": -0.13664837835960827,
+   "p_drift": 0.13669015618172195,
+   "rho_vs_shock_response": 0.178859643030766,
+   "p_response": 0.05063113660808326,
+   "partial_rho_level_given_drift": -0.07029519522456529,
+   "is_social_prior": false
+  },
+  "DECARB_RATE_STRUCTURAL": {
+   "rho_vs_final_tension_level": 0.049086742134870465,
+   "p_level": 0.5944412439185259,
+   "rho_vs_baseline_drift": 0.06632405028126952,
+   "p_drift": 0.4716900745811363,
+   "rho_vs_shock_response": -0.10985485103132162,
+   "p_response": 0.23231272853954213,
+   "partial_rho_level_given_drift": -0.016318259240353333,
+   "is_social_prior": false
+  },
+  "EMISSIONS_SCALE": {
+   "rho_vs_final_tension_level": 0.18431141051461905,
+   "p_level": 0.04388406388791533,
+   "rho_vs_baseline_drift": 0.13880130564622542,
+   "p_drift": 0.1305578624403646,
+   "rho_vs_shock_response": -0.004611431349399264,
+   "p_response": 0.9601325750360583,
+   "partial_rho_level_given_drift": 0.129098134945215,
+   "is_social_prior": false
+  },
+  "BASE_BIRTH_RATE": {
+   "rho_vs_final_tension_level": 0.0003611361900131953,
+   "p_level": 0.9968765764706236,
+   "rho_vs_baseline_drift": -0.014612125842072365,
+   "p_drift": 0.874140945242851,
+   "rho_vs_shock_response": 0.06292103618306827,
+   "p_response": 0.49477881666440554,
+   "partial_rho_level_given_drift": 0.025770839724714393,
+   "is_social_prior": false
+  },
+  "BASE_DEATH_RATE": {
+   "rho_vs_final_tension_level": -0.022869643725258695,
+   "p_level": 0.8041850090027182,
+   "rho_vs_baseline_drift": -0.06306687964441975,
+   "p_drift": 0.49377722024082343,
+   "rho_vs_shock_response": 0.07194249600666712,
+   "p_response": 0.4348882391121481,
+   "partial_rho_level_given_drift": 0.06285771205996188,
+   "is_social_prior": false
+  },
+  "BASE_INTEREST_RATE": {
+   "rho_vs_final_tension_level": 0.3986596291409125,
+   "p_level": 6.488837969399901e-06,
+   "rho_vs_baseline_drift": 0.2960622265435099,
+   "p_drift": 0.0010264281711570421,
+   "rho_vs_shock_response": -0.10267379679144384,
+   "p_response": 0.26445868017298857,
+   "partial_rho_level_given_drift": 0.2969790112469215,
+   "is_social_prior": false
+  },
+  "TFP_RD_SHARE_SENS": {
+   "rho_vs_final_tension_level": -0.07176192791166053,
+   "p_level": 0.436044938260339,
+   "rho_vs_baseline_drift": -0.056788665879574964,
+   "p_drift": 0.5378451667288104,
+   "rho_vs_shock_response": -0.04544760052781443,
+   "p_response": 0.6220851322418639,
+   "partial_rho_level_given_drift": -0.04514277406507634,
+   "is_social_prior": false
+  },
+  "ELASTICITY_MARGINAL_UTILITY": {
+   "rho_vs_final_tension_level": 0.15485797624835054,
+   "p_level": 0.09125163061039974,
+   "rho_vs_baseline_drift": 0.0654420445864296,
+   "p_drift": 0.47761739538353154,
+   "rho_vs_shock_response": -0.11029932634210708,
+   "p_response": 0.2304172042970578,
+   "partial_rho_level_given_drift": 0.19557860783790632,
+   "is_social_prior": false
+  },
+  "PURE_TIME_PREFERENCE": {
+   "rho_vs_final_tension_level": 0.054094034307938035,
+   "p_level": 0.5573394125310452,
+   "rho_vs_baseline_drift": 0.09077019237447044,
+   "p_drift": 0.32414923793658207,
+   "rho_vs_shock_response": -0.04404472532814778,
+   "p_response": 0.632886834233698,
+   "partial_rho_level_given_drift": -0.04845508829557752,
+   "is_social_prior": false
+  },
+  "GROWTH_DAMAGE_TFP_COEFF": {
+   "rho_vs_final_tension_level": 0.1071046600458365,
+   "p_level": 0.24428427154811488,
+   "rho_vs_baseline_drift": 0.006875477463712756,
+   "p_drift": 0.9405889745148086,
+   "rho_vs_shock_response": -0.004021112577262309,
+   "p_response": 0.9652326615444443,
+   "partial_rho_level_given_drift": 0.20079336770299905,
+   "is_social_prior": false
+  },
+  "LAND_USE_CO2_GTCO2_YR": {
+   "rho_vs_final_tension_level": -0.031210500729217307,
+   "p_level": 0.7350634413428082,
+   "rho_vs_baseline_drift": 0.000993124522536287,
+   "p_drift": 0.9914107274205156,
+   "rho_vs_shock_response": 0.11649420098617957,
+   "p_response": 0.20512244674083932,
+   "partial_rho_level_given_drift": -0.06364773592312199,
+   "is_social_prior": false
+  },
+  "CARBON_FEEDBACK_CO2_GTCO2_PER_C": {
+   "rho_vs_final_tension_level": -0.04623237724842002,
+   "p_level": 0.6160772630275799,
+   "rho_vs_baseline_drift": -0.030154871866101808,
+   "p_drift": 0.7437080486928476,
+   "rho_vs_shock_response": 0.07360927842211265,
+   "p_response": 0.4242939126945169,
+   "partial_rho_level_given_drift": -0.040079862844362574,
+   "is_social_prior": false
+  },
+  "CARBON_FEEDBACK_CH4_WM2_PER_C": {
+   "rho_vs_final_tension_level": 0.05578165150357663,
+   "p_level": 0.5450906792722947,
+   "rho_vs_baseline_drift": -0.007118549899298561,
+   "p_drift": 0.9384926268558792,
+   "rho_vs_shock_response": -0.042961316758108194,
+   "p_response": 0.6412821197275519,
+   "partial_rho_level_given_drift": 0.1229199871938107,
+   "is_social_prior": false
+  },
+  "CES_SIGMA_KE": {
+   "rho_vs_final_tension_level": 0.11452184179456905,
+   "p_level": 0.21294978374395462,
+   "rho_vs_baseline_drift": 0.26262934926036524,
+   "p_drift": 0.003756733795218433,
+   "rho_vs_shock_response": -0.0506354607958886,
+   "p_response": 0.5828473695097471,
+   "partial_rho_level_given_drift": -0.23107104463460318,
+   "is_social_prior": false
+  },
+  "MARKET_DEMAND_ELASTICITY": {
+   "rho_vs_final_tension_level": -0.02436974789915966,
+   "p_level": 0.7916240934249599,
+   "rho_vs_baseline_drift": -0.01578581845961525,
+   "p_drift": 0.8641249768045887,
+   "rho_vs_shock_response": -0.10488922841864017,
+   "p_response": 0.2542340256388881,
+   "partial_rho_level_given_drift": -0.02130701068696169,
+   "is_social_prior": false
+  },
+  "CRISIS_SEVERITY_ALPHA": {
+   "rho_vs_final_tension_level": -0.16419195777484544,
+   "p_level": 0.07313472630638526,
+   "rho_vs_baseline_drift": -0.1156260851448017,
+   "p_drift": 0.20854175169335393,
+   "rho_vs_shock_response": 0.048079727758872134,
+   "p_response": 0.6020352376983475,
+   "partial_rho_level_given_drift": -0.12851040229120836,
+   "is_social_prior": false
+  },
+  "MIGRATION_BASE_RATE": {
+   "rho_vs_final_tension_level": 0.13859990277102574,
+   "p_level": 0.13112243655970668,
+   "rho_vs_baseline_drift": 0.19358288770053472,
+   "p_drift": 0.034134372123125055,
+   "rho_vs_shock_response": 0.013632891172998122,
+   "p_response": 0.8825127950985925,
+   "partial_rho_level_given_drift": -0.05789118450232866,
+   "is_social_prior": false
+  },
+  "MIGRATION_MAX_SHARE": {
+   "rho_vs_final_tension_level": 0.11981387596360855,
+   "p_level": 0.19241833754270857,
+   "rho_vs_baseline_drift": 0.16974789915966385,
+   "p_drift": 0.06380970582756074,
+   "rho_vs_shock_response": 0.014403778040141675,
+   "p_response": 0.875921057630125,
+   "partial_rho_level_given_drift": -0.0540022170703969,
+   "is_social_prior": false
+  },
+  "MIGRATION_INCOME_PUSH_W": {
+   "rho_vs_final_tension_level": -0.04669074241266754,
+   "p_level": 0.6125799187850537,
+   "rho_vs_baseline_drift": -0.09589554830196541,
+   "p_drift": 0.2974621550909396,
+   "rho_vs_shock_response": 0.07492186957427598,
+   "p_response": 0.4160567559664598,
+   "partial_rho_level_given_drift": 0.07206789539927805,
+   "is_social_prior": false
+  },
+  "MIGRATION_CONFLICT_PUSH_W": {
+   "rho_vs_final_tension_level": -0.08556844225293422,
+   "p_level": 0.35275961973669123,
+   "rho_vs_baseline_drift": -0.02162650184040558,
+   "p_drift": 0.8146323916671326,
+   "rho_vs_shock_response": 0.04109313146746301,
+   "p_response": 0.6558650417397,
+   "partial_rho_level_given_drift": -0.1327861950067301,
+   "is_social_prior": false
+  },
+  "REGIME_COLLAPSE_GDP_MULT": {
+   "rho_vs_final_tension_level": 0.008528370025696227,
+   "p_level": 0.9263425579644574,
+   "rho_vs_baseline_drift": 0.0736578929092298,
+   "p_drift": 0.4239871643100961,
+   "rho_vs_shock_response": -0.07685255920550037,
+   "p_response": 0.4041116273834976,
+   "partial_rho_level_given_drift": -0.1096517464495342,
+   "is_social_prior": false
+  },
+  "REGIME_COLLAPSE_CAPITAL_MULT": {
+   "rho_vs_final_tension_level": -0.05786512952288352,
+   "p_level": 0.5301531226567665,
+   "rho_vs_baseline_drift": -0.07992916174734356,
+   "p_drift": 0.3855010948856103,
+   "rho_vs_shock_response": 0.16706715744148895,
+   "p_response": 0.06818025502215694,
+   "partial_rho_level_given_drift": 0.022255498352942604,
+   "is_social_prior": false
+  },
+  "SOCIAL_STRESS_UNEMPLOYMENT_SENS": {
+   "rho_vs_final_tension_level": -0.11050767414403777,
+   "p_level": 0.2295324240884082,
+   "rho_vs_baseline_drift": -0.11475102437669282,
+   "p_drift": 0.21202949158588502,
+   "rho_vs_shock_response": 0.1292520313910688,
+   "p_response": 0.1594350061939369,
+   "partial_rho_level_given_drift": -0.02274901968901526,
+   "is_social_prior": true
+  },
+  "SOCIAL_STRESS_INFLATION_SENS": {
+   "rho_vs_final_tension_level": 0.16170567400513924,
+   "p_level": 0.0776498691776348,
+   "rho_vs_baseline_drift": 0.06406000416695602,
+   "p_drift": 0.48698540788965783,
+   "rho_vs_shock_response": -0.004055837210917424,
+   "p_response": 0.9649326155649681,
+   "partial_rho_level_given_drift": 0.21155425494814906,
+   "is_social_prior": true
+  },
+  "INEQUALITY_EFFECT_SENS": {
+   "rho_vs_final_tension_level": -0.19809014514896864,
+   "p_level": 0.030098217483811283,
+   "rho_vs_baseline_drift": -0.14236405305924021,
+   "p_drift": 0.12087570818037109,
+   "rho_vs_shock_response": 0.0942357108132509,
+   "p_response": 0.30594118558842476,
+   "partial_rho_level_given_drift": -0.15062198902679413,
+   "is_social_prior": true
+  },
+  "SOCIAL_TRUST_ANCHOR_SENS": {
+   "rho_vs_final_tension_level": 0.18511007708868668,
+   "p_level": 0.04296165103230097,
+   "rho_vs_baseline_drift": 0.1268004722550177,
+   "p_drift": 0.16756568225357998,
+   "rho_vs_shock_response": 0.02325161469546496,
+   "p_response": 0.8009817496650063,
+   "partial_rho_level_given_drift": 0.15122880418189757,
+   "is_social_prior": true
+  }
+ }
+}

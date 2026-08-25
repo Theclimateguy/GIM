@@ -1,0 +1,136 @@
+{
+ "experiment": "E18",
+ "question": "Is the climate spatial channel inert, or only invisible with extreme events switched off?",
+ "config": {
+  "horizon": 30,
+  "n_seeds": 12,
+  "policy": "simple",
+  "forward_init": true
+ },
+ "results": {
+  "events_off": {
+   "climate_diffusion_on": {
+    "mean_tension": 0.45515267846313073,
+    "sd_tension": 0.2493113717294498,
+    "mean_climate_risk": 0.5262877087857779,
+    "sd_climate_risk": 0.08713449803635497,
+    "mean_trust": 0.46252211280330613,
+    "world_gdp": 264.40568028124227,
+    "regime_crisis_agents": 4.0,
+    "climate_shock_agent_years": 0.0,
+    "pct_vs_diffusion_on": {
+     "mean_tension": 0.0,
+     "sd_tension": 0.0,
+     "mean_climate_risk": 0.0,
+     "sd_climate_risk": 0.0,
+     "mean_trust": 0.0,
+     "world_gdp": 0.0,
+     "regime_crisis_agents": 0.0,
+     "climate_shock_agent_years": NaN
+    }
+   },
+   "climate_diffusion_off": {
+    "mean_tension": 0.4551528401215354,
+    "sd_tension": 0.24931132178991902,
+    "mean_climate_risk": 0.5317675117575046,
+    "sd_climate_risk": 0.09056085756102332,
+    "mean_trust": 0.4625219918818453,
+    "world_gdp": 264.396235064858,
+    "regime_crisis_agents": 4.0,
+    "climate_shock_agent_years": 0.0,
+    "pct_vs_diffusion_on": {
+     "mean_tension": 3.551740159115436e-05,
+     "sd_tension": -2.0030987933699813e-05,
+     "mean_climate_risk": 1.0412181170579449,
+     "sd_climate_risk": 3.9322651784127802,
+     "mean_trust": -2.6143930743444854e-05,
+     "world_gdp": -0.003572244126613394,
+     "regime_crisis_agents": 0.0,
+     "climate_shock_agent_years": NaN
+    }
+   },
+   "climate_diffusion_x3": {
+    "mean_tension": 0.45515228973192445,
+    "sd_tension": 0.24931149550453024,
+    "mean_climate_risk": 0.5123540486149872,
+    "sd_climate_risk": 0.08078294796878875,
+    "mean_trust": 0.46252242654201126,
+    "world_gdp": 264.4286918136162,
+    "regime_crisis_agents": 4.0,
+    "climate_shock_agent_years": 0.0,
+    "pct_vs_diffusion_on": {
+     "mean_tension": -8.540677110648113e-05,
+     "sd_tension": 4.964678489249164e-05,
+     "mean_climate_risk": -2.647536687287957,
+     "sd_climate_risk": -7.289363238101364,
+     "mean_trust": 6.783215254835898e-05,
+     "world_gdp": 0.008703115738450604,
+     "regime_crisis_agents": 0.0,
+     "climate_shock_agent_years": NaN
+    }
+   }
+  },
+  "events_on": {
+   "climate_diffusion_on": {
+    "mean_tension": 0.49214337991559404,
+    "sd_tension": 0.2353647649112817,
+    "mean_climate_risk": 0.5318131018384963,
+    "sd_climate_risk": 0.085814963130131,
+    "mean_trust": 0.45176069774602845,
+    "world_gdp": 264.584668326152,
+    "regime_crisis_agents": 3.9166666666666665,
+    "climate_shock_agent_years": 65.91666666666667,
+    "pct_vs_diffusion_on": {
+     "mean_tension": 0.0,
+     "sd_tension": 0.0,
+     "mean_climate_risk": 0.0,
+     "sd_climate_risk": 0.0,
+     "mean_trust": 0.0,
+     "world_gdp": 0.0,
+     "regime_crisis_agents": 0.0,
+     "climate_shock_agent_years": 0.0
+    }
+   },
+   "climate_diffusion_off": {
+    "mean_tension": 0.49208266689706087,
+    "sd_tension": 0.2335453612369495,
+    "mean_climate_risk": 0.5375475119138361,
+    "sd_climate_risk": 0.08915219754156818,
+    "mean_trust": 0.4523379542907189,
+    "world_gdp": 263.66449278392713,
+    "regime_crisis_agents": 3.9166666666666665,
+    "climate_shock_agent_years": 65.75,
+    "pct_vs_diffusion_on": {
+     "mean_tension": -0.012336449297271401,
+     "sd_tension": -0.7730144633237706,
+     "mean_climate_risk": 1.0782754421648808,
+     "sd_climate_risk": 3.8888723944058055,
+     "mean_trust": 0.12777927508314432,
+     "world_gdp": -0.3477811273216174,
+     "regime_crisis_agents": 0.0,
+     "climate_shock_agent_years": -0.25284450063211844
+    }
+   },
+   "climate_diffusion_x3": {
+    "mean_tension": 0.48763250214505627,
+    "sd_tension": 0.23133117326243213,
+    "mean_climate_risk": 0.5173592873353966,
+    "sd_climate_risk": 0.07962537467449055,
+    "mean_trust": 0.45362307077832326,
+    "world_gdp": 262.292262714616,
+    "regime_crisis_agents": 3.75,
+    "climate_shock_agent_years": 65.66666666666667,
+    "pct_vs_diffusion_on": {
+     "mean_tension": -0.9165779637859632,
+     "sd_tension": -1.7137618922568894,
+     "mean_climate_risk": -2.7178372351362436,
+     "sd_climate_risk": -7.212714694352864,
+     "mean_trust": 0.4122476881204478,
+     "world_gdp": -0.8664166469049273,
+     "regime_crisis_agents": -4.255319148936167,
+     "climate_shock_agent_years": -0.37926675094816686
+    }
+   }
+  }
+ }
+}

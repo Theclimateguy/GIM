@@ -1,0 +1,750 @@
+{
+ "experiment": "E9",
+ "question": "Does the model beat naive benchmarks at COUNTRY level on 2020-2023, where the paper says the crisis triggers live?",
+ "config": {
+  "fit_years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "holdout": [
+   2020,
+   2021,
+   2022,
+   2023
+  ],
+  "holdout_ex2020": [
+   2021,
+   2022,
+   2023
+  ],
+  "benchmarks": [
+   "persistence (hold 2019)",
+   "linear OLS on observed 2015-2019"
+  ]
+ },
+ "summary": {
+  "oos": {
+   "n_countries": 20,
+   "win_rate_vs_persistence": 0.5,
+   "win_rate_vs_linear": 0.4,
+   "win_rate_vs_both": 0.3,
+   "median_skill_vs_persistence": -0.042299232990154756,
+   "median_skill_vs_linear": -0.2525392529177408,
+   "pooled_rmse_model": 0.7700606766907956,
+   "pooled_rmse_persistence": 0.5426312764044064,
+   "pooled_rmse_linear": 0.1686934661715217,
+   "pooled_skill_vs_persistence": -0.4191232797957871,
+   "pooled_skill_vs_linear": -3.5648518236493194
+  },
+  "oos_ex2020": {
+   "n_countries": 20,
+   "win_rate_vs_persistence": 0.45,
+   "win_rate_vs_linear": 0.35,
+   "win_rate_vs_both": 0.25,
+   "median_skill_vs_persistence": -0.0895496077442478,
+   "median_skill_vs_linear": -0.7451896924774254,
+   "pooled_rmse_model": 0.828790104599027,
+   "pooled_rmse_persistence": 0.6184687753929057,
+   "pooled_rmse_linear": 0.11101470042770249,
+   "pooled_skill_vs_persistence": -0.34006782164953564,
+   "pooled_skill_vs_linear": -6.465588804059067
+  },
+  "growth_2020_2023": {
+   "n_countries": 20,
+   "win_rate_vs_zero_growth": 0.6,
+   "win_rate_vs_mean_growth": 0.5,
+   "median_skill_vs_zero_growth": 0.04715258514873838,
+   "median_skill_vs_mean_growth": 0.0008358043572705975,
+   "pooled_rmse_model": 0.047908714001181074,
+   "pooled_rmse_zero_growth": 0.05174205911041226,
+   "pooled_rmse_mean_growth": 0.04635788897953297,
+   "pooled_skill_vs_zero_growth": 0.07408566986194387,
+   "pooled_skill_vs_mean_growth": -0.03345331411300445
+  }
+ },
+ "per_country": [
+  {
+   "country": "Australia",
+   "level_2019": 1.499348,
+   "growth": {
+    "mean_growth_2015_2019": 0.024974234682755923,
+    "rmse_model": 0.015508924015220967,
+    "rmse_zero_growth": 0.029031172534116294,
+    "rmse_mean_growth": 0.016592028013758708,
+    "skill_vs_zero_growth": 0.4657837537565701,
+    "skill_vs_mean_growth": 0.06527857822079319,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.044552603759752424,
+    "rmse_persistence": 0.08939340081068625,
+    "rmse_linear": 0.03066971264678649,
+    "skill_vs_persistence": 0.5016119382894478,
+    "skill_vs_linear": -0.45265801061949484,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.047311536363995765,
+    "rmse_persistence": 0.10321613638380388,
+    "rmse_linear": 0.027427750702122795,
+    "skill_vs_persistence": 0.5416265516074903,
+    "skill_vs_linear": -0.7249513778150991,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Brazil",
+   "level_2019": 1.819683,
+   "growth": {
+    "mean_growth_2015_2019": 0.0024118776922651365,
+    "rmse_model": 0.03134951601486533,
+    "rmse_zero_growth": 0.03597170063162378,
+    "rmse_mean_growth": 0.034778380143066945,
+    "skill_vs_zero_growth": 0.12849502624557463,
+    "skill_vs_mean_growth": 0.09859182958195234,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.1815148945835165,
+    "rmse_persistence": 0.08732964619904292,
+    "rmse_linear": 0.07549116123090172,
+    "skill_vs_persistence": -1.0785025759729439,
+    "skill_vs_linear": -1.4044522779074007,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.1765862036211483,
+    "rmse_persistence": 0.09478130844563544,
+    "rmse_linear": 0.08170790252356155,
+    "skill_vs_persistence": -0.8630910093674684,
+    "skill_vs_linear": -1.1611887977448365,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Canada",
+   "level_2019": 1.696605,
+   "growth": {
+    "mean_growth_2015_2019": 0.02154592559282385,
+    "rmse_model": 0.04200881188544099,
+    "rmse_zero_growth": 0.044518939832192364,
+    "rmse_mean_growth": 0.04212895611416192,
+    "skill_vs_zero_growth": 0.05638337202577004,
+    "skill_vs_mean_growth": 0.0028518206906280597,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.03223522207602183,
+    "rmse_persistence": 0.08065653891346941,
+    "rmse_linear": 0.07361336828449933,
+    "skill_vs_persistence": 0.6003396313520881,
+    "skill_vs_linear": 0.5621009766671747,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.011286873839766275,
+    "rmse_persistence": 0.0789836473307398,
+    "rmse_linear": 0.04690633101639536,
+    "skill_vs_persistence": 0.8570985992517781,
+    "skill_vs_linear": 0.7593741911764293,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   }
+  },
+  {
+   "country": "China",
+   "level_2019": 14.579284,
+   "growth": {
+    "mean_growth_2015_2019": 0.06412453044352522,
+    "rmse_model": 0.02440200752219151,
+    "rmse_zero_growth": 0.05251036725340493,
+    "rmse_mean_growth": 0.028479225979345532,
+    "skill_vs_zero_growth": 0.5352916233773015,
+    "skill_vs_mean_growth": 0.14316465131850886,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 3.095139345437687,
+    "rmse_persistence": 2.02864167249973,
+    "rmse_linear": 0.3236957551862175,
+    "skill_vs_persistence": -0.5257200852153445,
+    "skill_vs_linear": -8.561878077941115,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 3.2990865660308106,
+    "rmse_persistence": 2.3341767274198992,
+    "rmse_linear": 0.25474444082206,
+    "skill_vs_persistence": -0.41338336865241665,
+    "skill_vs_linear": -11.950573348665284,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "France",
+   "level_2019": 2.608037,
+   "growth": {
+    "mean_growth_2015_2019": 0.016395671562909657,
+    "rmse_model": 0.05461473152391898,
+    "rmse_zero_growth": 0.05322385935122174,
+    "rmse_mean_growth": 0.05341286554416213,
+    "skill_vs_zero_growth": -0.026132493765980813,
+    "skill_vs_mean_growth": -0.02250143233306101,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.14481229887785718,
+    "rmse_persistence": 0.10801300037032584,
+    "rmse_linear": 0.13908676077657595,
+    "skill_vs_persistence": -0.34069323490101966,
+    "skill_vs_linear": -0.04116522715255799,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.1179056806800832,
+    "rmse_persistence": 0.054802341710916,
+    "rmse_linear": 0.0901852086415882,
+    "skill_vs_persistence": -1.1514715794817532,
+    "skill_vs_linear": -0.3073727106255417,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Germany",
+   "level_2019": 3.675639,
+   "growth": {
+    "mean_growth_2015_2019": 0.017649081683154242,
+    "rmse_model": 0.03792686751396532,
+    "rmse_zero_growth": 0.030205520496477564,
+    "rmse_mean_growth": 0.03430182100355848,
+    "skill_vs_zero_growth": -0.25562701422040335,
+    "skill_vs_mean_growth": -0.1056808765351196,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.18031981769580913,
+    "rmse_persistence": 0.08119975876503567,
+    "rmse_linear": 0.20859266838041762,
+    "skill_vs_persistence": -1.220694007448877,
+    "skill_vs_linear": 0.13554096078317734,
+    "beats_persistence": false,
+    "beats_linear": true,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.18884031935356535,
+    "rmse_persistence": 0.03320588009173471,
+    "rmse_linear": 0.19844205325030337,
+    "skill_vs_persistence": -4.686954203046998,
+    "skill_vs_linear": 0.04838558027126916,
+    "beats_persistence": false,
+    "beats_linear": true,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "India",
+   "level_2019": 2.689205,
+   "growth": {
+    "mean_growth_2015_2019": 0.061400288172450745,
+    "rmse_model": 0.06090405248243616,
+    "rmse_zero_growth": 0.07937988942782737,
+    "rmse_mean_growth": 0.06409469983727852,
+    "skill_vs_zero_growth": 0.23275211238722548,
+    "skill_vs_mean_growth": 0.049780205897565044,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.2600312785725078,
+    "rmse_persistence": 0.3374980615703593,
+    "rmse_linear": 0.21940219706907393,
+    "skill_vs_persistence": 0.22953252720149842,
+    "skill_vs_linear": -0.18518083249021755,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.2956504341120278,
+    "rmse_persistence": 0.3792441498691839,
+    "rmse_linear": 0.16746671793828863,
+    "skill_vs_persistence": 0.22042189915385868,
+    "skill_vs_linear": -0.7654280071397517,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Indonesia",
+   "level_2019": 1.04933,
+   "growth": {
+    "mean_growth_2015_2019": 0.049495556115531573,
+    "rmse_model": 0.0318170462510598,
+    "rmse_zero_growth": 0.041406508097016896,
+    "rmse_mean_growth": 0.03580858909115901,
+    "skill_vs_zero_growth": 0.23159310665581,
+    "skill_vs_mean_growth": 0.11146886658778488,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.05096079898724491,
+    "rmse_persistence": 0.07558879573885272,
+    "rmse_linear": 0.06678207260385484,
+    "skill_vs_persistence": 0.3258154401175225,
+    "skill_vs_linear": 0.2369089936824854,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.05097772757184468,
+    "rmse_persistence": 0.08638074995622576,
+    "rmse_linear": 0.06682866498904451,
+    "skill_vs_persistence": 0.4098485183599573,
+    "skill_vs_linear": 0.23718770111296306,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   }
+  },
+  {
+   "country": "Italy",
+   "level_2019": 1.922108,
+   "growth": {
+    "mean_growth_2015_2019": 0.010177817881794296,
+    "rmse_model": 0.06652426367952993,
+    "rmse_zero_growth": 0.0675517832829292,
+    "rmse_mean_growth": 0.06644584349927089,
+    "skill_vs_zero_growth": 0.015210843496102466,
+    "skill_vs_mean_growth": -0.0011802119760868646,
+    "beats_zero_growth": true,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.13688521264140097,
+    "rmse_persistence": 0.10587368029283759,
+    "rmse_linear": 0.10370895820618209,
+    "skill_vs_persistence": -0.2929106862327646,
+    "skill_vs_linear": -0.3198976733452641,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.09465973200830377,
+    "rmse_persistence": 0.07252897321300869,
+    "rmse_linear": 0.03635713486640134,
+    "skill_vs_persistence": -0.30512990622795333,
+    "skill_vs_linear": -1.6036081323828824,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Japan",
+   "level_2019": 4.564333,
+   "growth": {
+    "mean_growth_2015_2019": 0.006627011466550646,
+    "rmse_model": 0.03292943936190889,
+    "rmse_zero_growth": 0.02656844228004883,
+    "rmse_mean_growth": 0.026891279797665146,
+    "skill_vs_zero_growth": -0.23941927098363447,
+    "skill_vs_mean_growth": -0.22453968757440879,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.043640361673677804,
+    "rmse_persistence": 0.10451871686688471,
+    "rmse_linear": 0.184575455080658,
+    "skill_vs_persistence": 0.5824636679260207,
+    "skill_vs_linear": 0.7635635699524224,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.049079401011742685,
+    "rmse_persistence": 0.0499710315182708,
+    "rmse_linear": 0.15483806987269952,
+    "skill_vs_persistence": 0.0178429477927049,
+    "skill_vs_linear": 0.6830275587128318,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   }
+  },
+  {
+   "country": "Mexico",
+   "level_2019": 1.277682,
+   "growth": {
+    "mean_growth_2015_2019": 0.012927130957301096,
+    "rmse_model": 0.061074765398365725,
+    "rmse_zero_growth": 0.05803873047851598,
+    "rmse_mean_growth": 0.05719478165656389,
+    "skill_vs_zero_growth": -0.05231049843472335,
+    "skill_vs_mean_growth": -0.06783807245038331,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.1561856313824741,
+    "rmse_persistence": 0.06251232224529818,
+    "rmse_linear": 0.08480451167707886,
+    "skill_vs_persistence": -1.4984775124750942,
+    "skill_vs_linear": -0.8417137047755476,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.15237593782779235,
+    "rmse_persistence": 0.03758617248403997,
+    "rmse_linear": 0.059016122532566065,
+    "skill_vs_persistence": -3.0540424245776823,
+    "skill_vs_linear": -1.581937465371582,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Netherlands",
+   "level_2019": 0.854305,
+   "growth": {
+    "mean_growth_2015_2019": 0.024116426009334054,
+    "rmse_model": 0.04217044744855481,
+    "rmse_zero_growth": 0.04383266076790755,
+    "rmse_mean_growth": 0.041565426186085774,
+    "skill_vs_zero_growth": 0.03792179827170672,
+    "skill_vs_mean_growth": -0.014555877756681657,
+    "beats_zero_growth": true,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.016730790596075552,
+    "rmse_persistence": 0.046157688292417766,
+    "rmse_linear": 0.030954347110150496,
+    "skill_vs_persistence": 0.6375297114083617,
+    "skill_vs_linear": 0.4595010989396956,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.015166440312468783,
+    "rmse_persistence": 0.049766865878145605,
+    "rmse_linear": 0.018173481387736824,
+    "skill_vs_persistence": 0.6952502424081942,
+    "skill_vs_linear": 0.16546312790113749,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   }
+  },
+  {
+   "country": "Russia",
+   "level_2019": 1.461551,
+   "growth": {
+    "mean_growth_2015_2019": 0.017364119679809345,
+    "rmse_model": 0.04025308566638325,
+    "rmse_zero_growth": 0.038024717461552233,
+    "rmse_mean_growth": 0.0355542705830398,
+    "skill_vs_zero_growth": -0.058603149571963886,
+    "skill_vs_mean_growth": -0.132158950423944,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.09804163782290785,
+    "rmse_persistence": 0.05251637292549819,
+    "rmse_linear": 0.03810743440873333,
+    "skill_vs_persistence": -0.8668775538248541,
+    "skill_vs_linear": -1.5727693124478361,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.10426518296767315,
+    "rmse_persistence": 0.05635506201753304,
+    "rmse_linear": 0.028721711745946933,
+    "skill_vs_persistence": -0.8501476040472538,
+    "skill_vs_linear": -2.6301869432411715,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Saudi Arabia",
+   "level_2019": 0.748759,
+   "growth": {
+    "mean_growth_2015_2019": 0.019197486494349183,
+    "rmse_model": 0.05683534480325838,
+    "rmse_zero_growth": 0.06776373861619078,
+    "rmse_mean_growth": 0.05988951387136795,
+    "skill_vs_zero_growth": 0.16127200234376216,
+    "skill_vs_mean_growth": 0.05099672498042618,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.035824233615291134,
+    "rmse_persistence": 0.08161569979176803,
+    "rmse_linear": 0.05017501795500207,
+    "skill_vs_persistence": 0.5610619806398516,
+    "skill_vs_linear": 0.2860145332201176,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.03535721702624053,
+    "rmse_persistence": 0.09279523459208455,
+    "rmse_linear": 0.052655997435964136,
+    "skill_vs_persistence": 0.6189759400720724,
+    "skill_vs_linear": 0.32852440846384035,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   }
+  },
+  {
+   "country": "South Korea",
+   "level_2019": 1.733931,
+   "growth": {
+    "mean_growth_2015_2019": 0.029780122005589556,
+    "rmse_model": 0.019837290591126874,
+    "rmse_zero_growth": 0.027631446509183612,
+    "rmse_mean_growth": 0.021187855960941488,
+    "skill_vs_zero_growth": 0.2820755661657549,
+    "skill_vs_mean_growth": 0.06374242737463853,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.07771255449718989,
+    "rmse_persistence": 0.09931776331301473,
+    "rmse_linear": 0.0513546089486512,
+    "skill_vs_persistence": 0.21753619992158713,
+    "skill_vs_linear": -0.5132537485563107,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.08316384313693613,
+    "rmse_persistence": 0.11446781829259561,
+    "rmse_linear": 0.04507537990026765,
+    "skill_vs_persistence": 0.27347402634723217,
+    "skill_vs_linear": -0.8449948357826778,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Spain",
+   "level_2019": 1.333521,
+   "growth": {
+    "mean_growth_2015_2019": 0.025094226920120415,
+    "rmse_model": 0.07483238659913978,
+    "rmse_zero_growth": 0.07418515607338963,
+    "rmse_mean_growth": 0.0754670007591946,
+    "skill_vs_zero_growth": -0.008724528733347503,
+    "skill_vs_mean_growth": 0.008409161006408539,
+    "beats_zero_growth": false,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 0.07137744979323284,
+    "rmse_persistence": 0.083893400470478,
+    "rmse_linear": 0.12838567105548696,
+    "skill_vs_persistence": 0.1491887396035343,
+    "skill_vs_linear": 0.44403881518534694,
+    "beats_persistence": true,
+    "beats_linear": true,
+    "beats_both": true
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.04944642424716831,
+    "rmse_persistence": 0.04785081687216354,
+    "rmse_linear": 0.10458825933551254,
+    "skill_vs_persistence": -0.03334545738827277,
+    "skill_vs_linear": 0.5272277733531514,
+    "beats_persistence": false,
+    "beats_linear": true,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Switzerland",
+   "level_2019": 0.74711,
+   "growth": {
+    "mean_growth_2015_2019": 0.018392613777299987,
+    "rmse_model": 0.03692425022828599,
+    "rmse_zero_growth": 0.03294568216816227,
+    "rmse_mean_growth": 0.02805082477944762,
+    "skill_vs_zero_growth": -0.1207614412054423,
+    "skill_vs_mean_growth": -0.31633385180673135,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.06786407731210299,
+    "rmse_persistence": 0.0388930699000477,
+    "rmse_linear": 0.015967187054553727,
+    "skill_vs_persistence": -0.7448886777646668,
+    "skill_vs_linear": -3.2502212243294695,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.07127115389123716,
+    "rmse_persistence": 0.04394940858153453,
+    "rmse_linear": 0.00431497367662931,
+    "skill_vs_persistence": -0.621663548873828,
+    "skill_vs_linear": -15.517170029855528,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "Turkey",
+   "level_2019": 1.010632,
+   "growth": {
+    "mean_growth_2015_2019": 0.03876749980653054,
+    "rmse_model": 0.04050811328800489,
+    "rmse_zero_growth": 0.0671058852649556,
+    "rmse_mean_growth": 0.038918377683963806,
+    "skill_vs_zero_growth": 0.3963552804934196,
+    "skill_vs_mean_growth": -0.0408479412207392,
+    "beats_zero_growth": true,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.1690058088296306,
+    "rmse_persistence": 0.18044918159346135,
+    "rmse_linear": 0.06451591599607652,
+    "skill_vs_persistence": 0.06341604136289092,
+    "skill_vs_linear": -1.6195986869334464,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.19013618630585924,
+    "rmse_persistence": 0.20809900469648254,
+    "rmse_linear": 0.07158691584537862,
+    "skill_vs_persistence": 0.08631861751007652,
+    "skill_vs_linear": -1.656018688059373,
+    "beats_persistence": true,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "United Kingdom",
+   "level_2019": 3.189277,
+   "growth": {
+    "mean_growth_2015_2019": 0.01987212591380687,
+    "rmse_model": 0.08654341091995348,
+    "rmse_zero_growth": 0.07152343086415172,
+    "rmse_mean_growth": 0.07226504148999412,
+    "skill_vs_zero_growth": -0.2100008329344547,
+    "skill_vs_mean_growth": -0.1975833561506548,
+    "beats_zero_growth": false,
+    "beats_mean_growth": false
+   },
+   "oos": {
+    "rmse_model": 0.22563211436113464,
+    "rmse_persistence": 0.17635820864011403,
+    "rmse_linear": 0.2495440437740754,
+    "skill_vs_persistence": -0.2793967238665458,
+    "skill_vs_linear": 0.0958224810790893,
+    "beats_persistence": false,
+    "beats_linear": true,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 0.22535015122208427,
+    "rmse_persistence": 0.08508322199274472,
+    "rmse_linear": 0.17349464372248832,
+    "skill_vs_persistence": -1.648585066998291,
+    "skill_vs_linear": -0.2988882330139304,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  },
+  {
+   "country": "United States",
+   "level_2019": 20.06157,
+   "growth": {
+    "mean_growth_2015_2019": 0.02426342028182324,
+    "rmse_model": 0.02867395997854789,
+    "rmse_zero_growth": 0.03660696320233812,
+    "rmse_mean_growth": 0.028887695858084532,
+    "skill_vs_zero_growth": 0.2167074930510362,
+    "skill_vs_mean_growth": 0.007398855228421541,
+    "beats_zero_growth": true,
+    "beats_mean_growth": true
+   },
+   "oos": {
+    "rmse_model": 1.4031702529727115,
+    "rmse_persistence": 1.2222582937736621,
+    "rmse_linear": 0.44057474197350294,
+    "skill_vs_persistence": -0.14801450734320043,
+    "skill_vs_linear": -2.18486313284183,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   },
+   "oos_ex2020": {
+    "rmse_model": 1.5913690714200808,
+    "rmse_persistence": 1.388927647122654,
+    "rmse_linear": 0.10495930671057283,
+    "skill_vs_persistence": -0.14575375810022284,
+    "skill_vs_linear": -14.16177194089429,
+    "beats_persistence": false,
+    "beats_linear": false,
+    "beats_both": false
+   }
+  }
+ ]
+}

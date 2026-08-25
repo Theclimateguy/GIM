@@ -1,0 +1,141 @@
+% Model-evaluation literature to merge into Paper/references_v2.bib.
+% Every entry below was verified against the publisher or repository record on
+% 2026-08-24; none is reconstructed from memory.
+%
+% Standing corrections to the initial gap assessment: references_v2.bib ALREADY
+% carries oreskes1994 (V&V in the earth sciences), sterman2000 (system-dynamics
+% validation), keppo2021 (IAM capability stocktake), williamson2013 (history
+% matching), celasun2021 (forecast evaluation) and morris1991/campolongo2007
+% (screening). The gap is narrower than "no evaluation literature": what is missing
+% is the IAM- and environmental-model-specific EVALUATION HIERARCHY into which the
+% paper's own diagnostics should be placed.
+
+% --- the one the paper cannot go out without ------------------------------------
+@article{schwanitz2013,
+  author  = {Schwanitz, Valeria Jana},
+  title   = {Evaluating integrated assessment models of global climate change},
+  journal = {Environmental Modelling \& Software},
+  volume  = {50},
+  pages   = {120--131},
+  year    = {2013},
+  doi     = {10.1016/j.envsoft.2013.09.005},
+}
+
+% --- the evaluation hierarchy the paper's Sections 4-6 should be indexed against --
+@article{jakeman2006,
+  author  = {Jakeman, A. J. and Letcher, R. A. and Norton, J. P.},
+  title   = {Ten iterative steps in development and evaluation of environmental models},
+  journal = {Environmental Modelling \& Software},
+  volume  = {21},
+  number  = {5},
+  pages   = {602--614},
+  year    = {2006},
+  doi     = {10.1016/j.envsoft.2006.01.004},
+}
+
+@article{bennett2013,
+  author  = {Bennett, Neil D. and Croke, Barry F. W. and Guariso, Giorgio and
+             Guillaume, Joseph H. A. and Hamilton, Serena H. and Jakeman, Anthony J. and
+             Marsili-Libelli, Stefano and Newham, Lachlan T. H. and Norton, John P. and
+             Perrin, Charles and Pierce, Suzanne A. and Robson, Barbara and
+             Seppelt, Ralf and Voinov, Alexey A. and Fath, Brian D. and
+             Andreassian, Vazken},
+  title   = {Characterising performance of environmental models},
+  journal = {Environmental Modelling \& Software},
+  volume  = {40},
+  pages   = {1--20},
+  year    = {2013},
+  doi     = {10.1016/j.envsoft.2012.09.011},
+}
+
+@article{augusiak2014,
+  author  = {Augusiak, Jacqueline and Van den Brink, Paul J. and Grimm, Volker},
+  title   = {Merging validation and evaluation of ecological models to `evaludation':
+             A review of terminology and a practical approach},
+  journal = {Ecological Modelling},
+  volume  = {280},
+  pages   = {117--128},
+  year    = {2014},
+  doi     = {10.1016/j.ecolmodel.2013.11.009},
+}
+
+@article{grimm2014trace,
+  author  = {Grimm, Volker and Augusiak, Jacqueline and Focks, Andreas and
+             Frank, Bea M. and Gabsi, Faten and Johnston, Alice S. A. and Liu, Chun and
+             Martin, Benjamin T. and Meli, Mattia and Radchuk, Viktoriia and
+             Thorbek, Pernille and Railsback, Steven F.},
+  title   = {Towards better modelling and decision support: Documenting model
+             development, testing, and analysis using {TRACE}},
+  journal = {Ecological Modelling},
+  volume  = {280},
+  pages   = {129--139},
+  year    = {2014},
+  doi     = {10.1016/j.ecolmodel.2014.01.018},
+}
+
+@article{wilson2021,
+  author  = {Wilson, Charlie and Guivarch, C{\'e}line and Kriegler, Elmar and
+             van Ruijven, Bas and van Vuuren, Detlef P. and Krey, Volker and
+             Schwanitz, Valeria Jana and Thompson, Erica L.},
+  title   = {Evaluating process-based integrated assessment models of climate change
+             mitigation},
+  journal = {Climatic Change},
+  volume  = {166},
+  number  = {1--2},
+  pages   = {3},
+  year    = {2021},
+  doi     = {10.1007/s10584-021-03099-9},
+}
+
+% --- model-description protocol: GMD reviewers will expect this to be addressed ---
+@article{grimm2020odd,
+  author  = {Grimm, Volker and Railsback, Steven F. and Vincenot, Christian E. and
+             Berger, Uta and Gallagher, Cara and DeAngelis, Donald L. and
+             Edmonds, Bruce and Ge, Jiaqi and Giske, Jarl and Groeneveld, J{\"u}rgen and
+             Johnston, Alice S. A. and Milles, Alexander and Nabe-Nielsen, Jacob and
+             Polhill, J. Gareth and Radchuk, Viktoriia and Rohw{\"a}der, Marie-Sophie and
+             Stillman, Richard A. and Thiele, Jan C. and Ayll{\'o}n, Daniel},
+  title   = {The {ODD} Protocol for Describing Agent-Based and Other Simulation Models:
+             A Second Update to Improve Clarity, Replication, and Structural Realism},
+  journal = {Journal of Artificial Societies and Social Simulation},
+  volume  = {23},
+  number  = {2},
+  pages   = {7},
+  year    = {2020},
+  doi     = {10.18564/jasss.4259},
+}
+
+% --- history matching: the origin, currently cited only in the code docstring -----
+@incollection{craig1997,
+  author    = {Craig, Peter S. and Goldstein, Michael and Seheult, Allan H. and
+               Smith, James A.},
+  title     = {Pressure Matching for Hydrocarbon Reservoirs: A Case Study in the Use of
+               {Bayes} Linear Strategies for Large Computer Experiments},
+  booktitle = {Case Studies in Bayesian Statistics III},
+  series    = {Lecture Notes in Statistics},
+  volume    = {121},
+  pages     = {37--93},
+  publisher = {Springer},
+  address   = {New York},
+  year      = {1997},
+  doi       = {10.1007/978-1-4612-2290-3_2},
+}
+
+% --- for the "what a model of this kind may and may not claim" framing ------------
+@article{saltelli2020,
+  author  = {Saltelli, Andrea and Bammer, Gabriele and Bruno, Isabelle and
+             Charters, Erica and Di Fiore, Monica and Didier, Emmanuel and
+             Nelson Espeland, Wendy and Kay, John and Lo Piano, Samuele and
+             Mayo, Deborah and Pielke Jr, Roger and Portaluri, Tommaso and
+             Porter, Theodore M. and Puy, Arnald and Rafols, Ismael and
+             Ravetz, Jerome R. and Reinert, Erik and Sarewitz, Daniel and
+             Stark, Philip B. and Stirling, Andrew and van der Sluijs, Jeroen and
+             Vineis, Paolo},
+  title   = {Five ways to ensure that models serve society: a manifesto},
+  journal = {Nature},
+  volume  = {582},
+  number  = {7813},
+  pages   = {482--484},
+  year    = {2020},
+  doi     = {10.1038/d41586-020-01812-9},
+}

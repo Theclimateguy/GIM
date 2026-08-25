@@ -1,0 +1,54 @@
+{
+  "method": "Logistic CBR (Lutz 2001) + income-driven CDR (Preston 1975), anchored to WPP brackets",
+  "params": {
+    "CBR_LOGISTIC_MIN": 0.009,
+    "CBR_LOGISTIC_MAX": 0.044,
+    "CBR_LOGISTIC_MID_GDP_PC": 6000.0,
+    "CBR_LOGISTIC_K": 1.6,
+    "CDR_LOGISTIC_MIN": 0.007,
+    "CDR_LOGISTIC_MAX": 0.017,
+    "CDR_LOGISTIC_MID_GDP_PC": 2500.0,
+    "CDR_LOGISTIC_K": 1.5
+  },
+  "benchmark_table": [
+    {
+      "gdp_pc": 1500,
+      "label": "low income (Sub-Saharan)",
+      "cbr_model": 40.6,
+      "cbr_wpp_ref": 40.0,
+      "cdr_model": 13.8,
+      "cdr_wpp_ref": 14.0
+    },
+    {
+      "gdp_pc": 8000,
+      "label": "lower-middle income",
+      "cbr_model": 22.5,
+      "cbr_wpp_ref": 18.0,
+      "cdr_model": 8.5,
+      "cdr_wpp_ref": 9.0
+    },
+    {
+      "gdp_pc": 20000,
+      "label": "upper-middle income",
+      "cbr_model": 13.5,
+      "cbr_wpp_ref": 12.0,
+      "cdr_model": 7.4,
+      "cdr_wpp_ref": 8.0
+    },
+    {
+      "gdp_pc": 60000,
+      "label": "high income",
+      "cbr_model": 9.9,
+      "cbr_wpp_ref": 10.0,
+      "cdr_model": 7.1,
+      "cdr_wpp_ref": 7.5
+    }
+  ],
+  "implied_world_natural_increase_pct_yr_at_12k": 0.98,
+  "un_wpp_2015_2023_growth_pct_yr": 0.95,
+  "sources": [
+    "Lutz, Sanderson & Scherbov (2001) Nature 412:543",
+    "Preston (1975) Population Studies 29:231",
+    "UN World Population Prospects 2024"
+  ]
+}

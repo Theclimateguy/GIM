@@ -1,0 +1,289 @@
+{
+ "experiment": "E13",
+ "question": "Do the model's resource prices track observed history, and does the startup configuration change the answer?",
+ "scope_caveat": "World Bank Pink Sheet series are MARKET price indices for traded commodity baskets; GIM prices are CLEARING indices for three aggregate resources with a reserve buffer and no storage, futures or financialisation. The fair test is direction and multi-year magnitude, not year-by-year timing.",
+ "observed_source": "data/external/worldbank_commodity_price_indices_annual.csv (World Bank CMO Pink Sheet, annual nominal indices, 2010=100, renormalised to the model base year)",
+ "config": {
+  "window": [
+   2015,
+   2023
+  ],
+  "n_years": 9
+ },
+ "results": {
+  "backtest_config_section5": {
+   "energy": {
+    "years": [
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023
+    ],
+    "model": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "observed": [
+     1.0,
+     0.8475740006228547,
+     1.0493029855156681,
+     1.351881193179683,
+     1.183854346462692,
+     0.7970427571316714,
+     1.443007960123699,
+     2.3082602407655672,
+     1.6180553311088068
+    ],
+    "model_total_move_pct": 0.0,
+    "observed_total_move_pct": 61.80553311088068,
+    "same_direction": false,
+    "model_sd": 0.0,
+    "observed_sd": 0.44268762508255227,
+    "model_is_constant": true,
+    "correlation": null,
+    "rmse_model_vs_observed": 0.5285485586374289,
+    "rmse_flat_null_vs_observed": 0.5285485586374289,
+    "skill_vs_flat_null": 0.0
+   },
+   "food": {
+    "years": [
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023
+    ],
+    "model": [
+     1.0,
+     1.0,
+     1.0004285479630968,
+     1.0040895933319247,
+     1.0155131592368927,
+     1.0389761054647695,
+     1.0777371071515112,
+     1.13427315744039,
+     1.2104545322452398
+    ],
+    "observed": [
+     1.0,
+     1.0131331524807194,
+     1.0196490178649695,
+     1.0224214064191663,
+     0.9832259219234923,
+     1.0526516515415985,
+     1.3669518443856346,
+     1.5612872531407258,
+     1.4180259970623033
+    ],
+    "model_total_move_pct": 21.045453224523982,
+    "observed_total_move_pct": 41.802599706230325,
+    "same_direction": true,
+    "model_sd": 0.07022414615158643,
+    "observed_sd": 0.21055641608521625,
+    "model_is_constant": false,
+    "correlation": 0.878190912370555,
+    "rmse_model_vs_observed": 0.1859449031146077,
+    "rmse_flat_null_vs_observed": 0.26427208622607556,
+    "skill_vs_flat_null": 0.29638840874197236
+   },
+   "metals": {
+    "years": [
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023
+    ],
+    "model": [
+     1.0,
+     0.8035117895065672,
+     0.6345191115229109,
+     0.49920942930721324,
+     0.4009925472793458,
+     0.3405552645708564,
+     0.30899848039778055,
+     0.3,
+     0.3
+    ],
+    "observed": [
+     1.0,
+     0.940695040626802,
+     1.1682441103141044,
+     1.232638386842079,
+     1.170623542840321,
+     1.1824033934249754,
+     1.7395915758933047,
+     1.718371995511606,
+     1.553630748553342
+    ],
+    "model_total_move_pct": -70.0,
+    "observed_total_move_pct": 55.363074855334204,
+    "same_direction": false,
+    "model_sd": 0.23829622689875507,
+    "observed_sd": 0.27971506378143207,
+    "model_is_constant": false,
+    "correlation": -0.7727813903114616,
+    "rmse_model_vs_observed": 0.9293131018903794,
+    "rmse_flat_null_vs_observed": 0.41067535137054123,
+    "skill_vs_flat_null": -1.2628898929263603
+   }
+  },
+  "forward_init_same_window": {
+   "energy": {
+    "years": [
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023
+    ],
+    "model": [
+     1.0,
+     0.999764805090157,
+     0.9995630710531125,
+     0.999389623436469,
+     0.999240074314473,
+     0.9991107016652796,
+     0.9989983473100735,
+     0.9989003305217368,
+     0.9988143748700606
+    ],
+    "observed": [
+     1.0,
+     0.8475740006228547,
+     1.0493029855156681,
+     1.351881193179683,
+     1.183854346462692,
+     0.7970427571316714,
+     1.443007960123699,
+     2.3082602407655672,
+     1.6180553311088068
+    ],
+    "model_total_move_pct": -0.11856251299393605,
+    "observed_total_move_pct": 61.80553311088068,
+    "same_direction": false,
+    "model_sd": 0.00038130395309985554,
+    "observed_sd": 0.44268762508255227,
+    "model_is_constant": false,
+    "correlation": -0.644472758251364,
+    "rmse_model_vs_observed": 0.5291321577400898,
+    "rmse_flat_null_vs_observed": 0.5285485586374289,
+    "skill_vs_flat_null": -0.0011041541843674896
+   },
+   "food": {
+    "years": [
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023
+    ],
+    "model": [
+     1.0,
+     1.0,
+     1.000056159775337,
+     1.000695238869311,
+     1.003186303115102,
+     1.0091670987406434,
+     1.0201987688785499,
+     1.0378611199871293,
+     1.0634229604143959
+    ],
+    "observed": [
+     1.0,
+     1.0131331524807194,
+     1.0196490178649695,
+     1.0224214064191663,
+     0.9832259219234923,
+     1.0526516515415985,
+     1.3669518443856346,
+     1.5612872531407258,
+     1.4180259970623033
+    ],
+    "model_total_move_pct": 6.342296041439588,
+    "observed_total_move_pct": 41.802599706230325,
+    "same_direction": true,
+    "model_sd": 0.020938940147608047,
+    "observed_sd": 0.21055641608521625,
+    "model_is_constant": false,
+    "correlation": 0.8600661213682876,
+    "rmse_model_vs_observed": 0.24112551713668082,
+    "rmse_flat_null_vs_observed": 0.26427208622607556,
+    "skill_vs_flat_null": 0.08758612920470787
+   },
+   "metals": {
+    "years": [
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023
+    ],
+    "model": [
+     1.0,
+     0.9719152672227339,
+     0.9465950934745653,
+     0.9237904255936962,
+     0.9032285072606471,
+     0.8845297988271702,
+     0.8670682425083104,
+     0.8502834788353322,
+     0.8346599642036786
+    ],
+    "observed": [
+     1.0,
+     0.940695040626802,
+     1.1682441103141044,
+     1.232638386842079,
+     1.170623542840321,
+     1.1824033934249754,
+     1.7395915758933047,
+     1.718371995511606,
+     1.553630748553342
+    ],
+    "model_total_move_pct": -16.534003579632138,
+    "observed_total_move_pct": 55.363074855334204,
+    "same_direction": false,
+    "model_sd": 0.05295259424581822,
+    "observed_sd": 0.27971506378143207,
+    "model_is_constant": false,
+    "correlation": -0.8558209529293835,
+    "rmse_model_vs_observed": 0.509630853835296,
+    "rmse_flat_null_vs_observed": 0.41067535137054123,
+    "skill_vs_flat_null": -0.2409579784482121
+   }
+  }
+ }
+}

@@ -1,0 +1,729 @@
+{
+ "experiment": "E7",
+ "question": "What shape do the three cross-sector transfer functions have, where is the nonlinearity generated, and is the cascade ordering more than a ranking on the trigger's own variable?",
+ "benchmark_source": "results/integration_benchmark/20260824T083204Z/benchmark.json",
+ "config": {
+  "horizon": 10,
+  "shock_window": 4,
+  "burdens": [
+   0.0,
+   0.02,
+   0.03,
+   0.04,
+   0.06,
+   0.08,
+   0.1,
+   0.12,
+   0.15,
+   0.2
+  ]
+ },
+ "shapes": {
+  "A_carbon_tax": {
+   "dose": [
+    0.0,
+    25.0,
+    50.0,
+    100.0,
+    150.0
+   ],
+   "emissions_cut_pct": {
+    "values": [
+     0.0,
+     2.8887985271878582,
+     5.503927814163769,
+     10.118832529405172,
+     14.37003505108432
+    ],
+    "loglog": {
+     "exponent": 0.8946063022351115,
+     "r2_loglog": 0.9997345914117276,
+     "n_points": 4
+    },
+    "fit": {
+     "linear_slope": 0.0950000868669915,
+     "quadratic_coef": -0.0001267191021199965,
+     "r2_linear": 0.9967668263875185,
+     "r2_quadratic": 0.9998575246894773,
+     "max_step_jump": 4.614904715241402,
+     "n_distinct_levels": 5
+    }
+   },
+   "tension_delta": {
+    "values": [
+     0.0,
+     0.0020929886738180192,
+     0.0033784385883532386,
+     0.013238872702060644,
+     0.01567051883966919
+    ],
+    "loglog": {
+     "exponent": 1.2320844645825377,
+     "r2_loglog": 0.9496102357687672,
+     "n_points": 4
+    },
+    "fit": {
+     "linear_slope": 0.00011454886345972302,
+     "quadratic_coef": -8.86929879554463e-08,
+     "r2_linear": 0.9502629719494494,
+     "r2_quadratic": 0.9512557854594705,
+     "max_step_jump": 0.009860434113707406,
+     "n_distinct_levels": 5
+    }
+   }
+  },
+  "B_oil_shock": {
+   "dose": [
+    0.0,
+    0.03,
+    0.06,
+    0.08,
+    0.1,
+    0.12,
+    0.15,
+    0.2
+   ],
+   "extra_in_crisis": {
+    "values": [
+     0.0,
+     0.0,
+     3.0,
+     3.0,
+     2.0,
+     3.0,
+     4.0,
+     9.0
+    ],
+    "fit": {
+     "linear_slope": 39.522998296422486,
+     "quadratic_coef": 164.82838346494506,
+     "r2_linear": 0.818690678997323,
+     "r2_quadratic": 0.8778878963710893,
+     "max_step_jump": 5.0,
+     "n_distinct_levels": 5
+    }
+   },
+   "dca_delta": {
+    "values": [
+     0.0,
+     0.0,
+     0.4736842105263158,
+     0.4736842105263158,
+     0.3157894736842105,
+     0.4736842105263158,
+     0.631578947368421,
+     1.4210526315789473
+    ],
+    "fit": {
+     "linear_slope": 6.240473415224603,
+     "quadratic_coef": 26.025534231307102,
+     "r2_linear": 0.818690678997323,
+     "r2_quadratic": 0.8778878963710893,
+     "max_step_jump": 0.7894736842105263,
+     "n_distinct_levels": 5
+    }
+   }
+  },
+  "C_crop_shock": {
+   "dose": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.7
+   ],
+   "food_delta": {
+    "values": [
+     0.0,
+     0.027470595610482484,
+     0.05876870954391897,
+     0.09609314474002803,
+     0.13441634080690576,
+     0.17581634356489698,
+     0.27211256182473953
+    ],
+    "loglog": {
+     "exponent": 1.1757257359911881,
+     "r2_loglog": 0.9991130972633048,
+     "n_points": 6
+    },
+    "fit": {
+     "linear_slope": 0.38773966906575597,
+     "quadratic_coef": 0.17763361729394683,
+     "r2_linear": 0.9900140874760184,
+     "r2_quadratic": 0.9999464887844639,
+     "max_step_jump": 0.09629621825984255,
+     "n_distinct_levels": 7
+    }
+   },
+   "protest_delta": {
+    "values": [
+     0.0,
+     0.0051324470551342705,
+     0.011039429801053657,
+     0.01819171976406564,
+     0.02590908186231644,
+     0.03449002038965332,
+     0.055274681776894485
+    ],
+    "loglog": {
+     "exponent": 1.21616483547921,
+     "r2_loglog": 0.9979819289165917,
+     "n_points": 6
+    },
+    "fit": {
+     "linear_slope": 0.07839128279573908,
+     "quadratic_coef": 0.0472889726734905,
+     "r2_linear": 0.9828597116875469,
+     "r2_quadratic": 0.9999566673078252,
+     "max_step_jump": 0.020784661387241166,
+     "n_distinct_levels": 7
+    }
+   },
+   "protest_over_food_gain": {
+    "gain_mean": 0.19267464273996718,
+    "gain_min": 0.18683421094720581,
+    "gain_max": 0.20313167979542024,
+    "relative_spread": 0.0845854369648912,
+    "gains": [
+     0.18683421094720581,
+     0.1878453668070367,
+     0.18931339809183909,
+     0.1927524712158013,
+     0.1961707295825,
+     0.20313167979542024
+    ]
+   }
+  }
+ },
+ "oil_cascade": {
+  "benchmark_config_forward_init_false": {
+   "n_importers": 38,
+   "n_in_crisis_at_zero_burden": 2,
+   "per_burden": {
+    "0": {
+     "n_extra": 0,
+     "extra": []
+    },
+    "0.02": {
+     "n_extra": 1,
+     "extra": [
+      "ISR"
+     ]
+    },
+    "0.03": {
+     "n_extra": 2,
+     "extra": [
+      "ESP",
+      "ISR"
+     ]
+    },
+    "0.04": {
+     "n_extra": 3,
+     "extra": [
+      "EGY",
+      "ESP",
+      "ISR"
+     ]
+    },
+    "0.06": {
+     "n_extra": 4,
+     "extra": [
+      "ARG",
+      "EGY",
+      "ESP",
+      "ISR"
+     ]
+    },
+    "0.08": {
+     "n_extra": 5,
+     "extra": [
+      "ARG",
+      "EGY",
+      "ESP",
+      "ISR",
+      "THA"
+     ]
+    },
+    "0.1": {
+     "n_extra": 5,
+     "extra": [
+      "ARG",
+      "EGY",
+      "ESP",
+      "ISR",
+      "THA"
+     ]
+    },
+    "0.12": {
+     "n_extra": 10,
+     "extra": [
+      "AG_SOUTH_AS",
+      "ARG",
+      "EGY",
+      "ESP",
+      "ISR",
+      "KOR",
+      "POL",
+      "ROU",
+      "SWE",
+      "THA"
+     ]
+    },
+    "0.15": {
+     "n_extra": 11,
+     "extra": [
+      "ARG",
+      "CHL",
+      "CZE",
+      "EGY",
+      "ESP",
+      "ISR",
+      "KOR",
+      "POL",
+      "ROU",
+      "SWE",
+      "THA"
+     ]
+    },
+    "0.2": {
+     "n_extra": 21,
+     "extra": [
+      "AG_EUROPE",
+      "ARG",
+      "BEL",
+      "BGD",
+      "CHL",
+      "CHN",
+      "CZE",
+      "DEU",
+      "EGY",
+      "ESP",
+      "FRA",
+      "ISR",
+      "ITA",
+      "JPN",
+      "KOR",
+      "PAK",
+      "POL",
+      "PRT",
+      "ROU",
+      "SWE",
+      "THA"
+     ]
+    }
+   },
+   "tipping_order": [
+    {
+     "country": "ISR",
+     "tip_burden": 0.02,
+     "debt_gdp": 1.0284727611818199,
+     "fx_reserves_gdp": 0.3995841381869829,
+     "gdp": 0.512184638998974
+    },
+    {
+     "country": "ESP",
+     "tip_burden": 0.03,
+     "debt_gdp": 1.07300287362269,
+     "fx_reserves_gdp": 0.05212646039459533,
+     "gdp": 1.61948198071964
+    },
+    {
+     "country": "EGY",
+     "tip_burden": 0.04,
+     "debt_gdp": 1.0284727611818199,
+     "fx_reserves_gdp": 0.06237441606053857,
+     "gdp": 0.395926075163006
+    },
+    {
+     "country": "ARG",
+     "tip_burden": 0.06,
+     "debt_gdp": 0.713312731846403,
+     "fx_reserves_gdp": 0.02923462973147099,
+     "gdp": 0.6494616879591739
+    },
+    {
+     "country": "THA",
+     "tip_burden": 0.08,
+     "debt_gdp": 0.611243613638526,
+     "fx_reserves_gdp": 0.40371794432875996,
+     "gdp": 0.515906283940933
+    },
+    {
+     "country": "AG_SOUTH_AS",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.6304309327576054,
+     "fx_reserves_gdp": 0.17128536295874525,
+     "gdp": 0.1515500550433721
+    },
+    {
+     "country": "KOR",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.48554379949843196,
+     "fx_reserves_gdp": 0.2244168723941663,
+     "gdp": 1.8448009343915401
+    },
+    {
+     "country": "POL",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.49513151853385806,
+     "fx_reserves_gdp": 0.20924201375689563,
+     "gdp": 0.8124511933961429
+    },
+    {
+     "country": "ROU",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.49513151853385795,
+     "fx_reserves_gdp": 0.19015682022548477,
+     "gdp": 0.34775799575891403
+    },
+    {
+     "country": "SWE",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.49513151853385795,
+     "fx_reserves_gdp": 0.09072083655877404,
+     "gdp": 0.5789909152460699
+    },
+    {
+     "country": "CHL",
+     "tip_burden": 0.15,
+     "debt_gdp": 0.713312731846403,
+     "fx_reserves_gdp": 0.13817752657606275,
+     "gdp": 0.335518054097637
+    },
+    {
+     "country": "CZE",
+     "tip_burden": 0.15,
+     "debt_gdp": 0.495131518533858,
+     "fx_reserves_gdp": 0.4241155308826487,
+     "gdp": 0.345059295659911
+    },
+    {
+     "country": "AG_EUROPE",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.5399638886877612,
+     "fx_reserves_gdp": 0.14565538318865334,
+     "gdp": 1.6191605783158436
+    },
+    {
+     "country": "BEL",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.495131518533858,
+     "fx_reserves_gdp": 0.03951076983734287,
+     "gdp": 0.651330595110011
+    },
+    {
+     "country": "BGD",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.6001757891418865,
+     "fx_reserves_gdp": 0.0478447342431091,
+     "gdp": 0.437415333018291
+    },
+    {
+     "country": "CHN",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.5573318954187255,
+     "fx_reserves_gdp": 0.18069268104297592,
+     "gdp": 18.2703566545332
+    },
+    {
+     "country": "DEU",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.495131518533858,
+     "fx_reserves_gdp": 0.022005116417781218,
+     "gdp": 4.56220753249028
+    },
+    {
+     "country": "FRA",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.49513151853385795,
+     "fx_reserves_gdp": 0.025914401174033028,
+     "gdp": 3.05625064813829
+    },
+    {
+     "country": "ITA",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.495131518533858,
+     "fx_reserves_gdp": 0.036611744960304726,
+     "gdp": 2.31672799933318
+    },
+    {
+     "country": "JPN",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.5573318954187254,
+     "fx_reserves_gdp": 0.293969119550505,
+     "gdp": 4.2131672379058305
+    },
+    {
+     "country": "PAK",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.6001757891418864,
+     "fx_reserves_gdp": 0.028045769128361736,
+     "gdp": 0.336686348609266
+    },
+    {
+     "country": "PRT",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.495131518533858,
+     "fx_reserves_gdp": 0.0337687530599968,
+     "gdp": 0.292323800948839
+    }
+   ],
+   "spearman_tip_dose_vs_preshock": {
+    "debt_gdp": -0.4590626764539809,
+    "fx_reserves_gdp": -0.4376058723884812,
+    "gdp": 0.18125352907961606
+   }
+  },
+  "headline_forward_init_true": {
+   "n_importers": 38,
+   "n_in_crisis_at_zero_burden": 2,
+   "per_burden": {
+    "0": {
+     "n_extra": 0,
+     "extra": []
+    },
+    "0.02": {
+     "n_extra": 0,
+     "extra": []
+    },
+    "0.03": {
+     "n_extra": 0,
+     "extra": []
+    },
+    "0.04": {
+     "n_extra": 0,
+     "extra": []
+    },
+    "0.06": {
+     "n_extra": 3,
+     "extra": [
+      "EGY",
+      "ESP",
+      "ISR"
+     ]
+    },
+    "0.08": {
+     "n_extra": 3,
+     "extra": [
+      "EGY",
+      "ESP",
+      "ISR"
+     ]
+    },
+    "0.1": {
+     "n_extra": 4,
+     "extra": [
+      "EGY",
+      "ESP",
+      "ISR",
+      "VNM"
+     ]
+    },
+    "0.12": {
+     "n_extra": 10,
+     "extra": [
+      "CHN",
+      "EGY",
+      "ESP",
+      "ISR",
+      "KOR",
+      "MEX",
+      "POL",
+      "ROU",
+      "THA",
+      "VNM"
+     ]
+    },
+    "0.15": {
+     "n_extra": 12,
+     "extra": [
+      "ARG",
+      "CHN",
+      "EGY",
+      "ESP",
+      "ISR",
+      "KOR",
+      "MEX",
+      "POL",
+      "ROU",
+      "SWE",
+      "THA",
+      "VNM"
+     ]
+    },
+    "0.2": {
+     "n_extra": 19,
+     "extra": [
+      "AG_EUROPE",
+      "AG_SOUTH_AS",
+      "ARG",
+      "BGD",
+      "CHL",
+      "CHN",
+      "CZE",
+      "DNK",
+      "EGY",
+      "ESP",
+      "ISR",
+      "KOR",
+      "MEX",
+      "PAK",
+      "POL",
+      "ROU",
+      "SWE",
+      "THA",
+      "VNM"
+     ]
+    }
+   },
+   "tipping_order": [
+    {
+     "country": "EGY",
+     "tip_burden": 0.06,
+     "debt_gdp": 1.0284727611818199,
+     "fx_reserves_gdp": 0.06237441606053857,
+     "gdp": 0.395926075163006
+    },
+    {
+     "country": "ESP",
+     "tip_burden": 0.06,
+     "debt_gdp": 1.07300287362269,
+     "fx_reserves_gdp": 0.05212646039459533,
+     "gdp": 1.61948198071964
+    },
+    {
+     "country": "ISR",
+     "tip_burden": 0.06,
+     "debt_gdp": 1.0284727611818199,
+     "fx_reserves_gdp": 0.3995841381869829,
+     "gdp": 0.512184638998974
+    },
+    {
+     "country": "VNM",
+     "tip_burden": 0.1,
+     "debt_gdp": 0.5573318954187255,
+     "fx_reserves_gdp": 0.21259861187480658,
+     "gdp": 0.433857681378291
+    },
+    {
+     "country": "CHN",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.5573318954187255,
+     "fx_reserves_gdp": 0.18069268104297592,
+     "gdp": 18.2703566545332
+    },
+    {
+     "country": "KOR",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.48554379949843196,
+     "fx_reserves_gdp": 0.2244168723941663,
+     "gdp": 1.8448009343915401
+    },
+    {
+     "country": "MEX",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.450297603114434,
+     "fx_reserves_gdp": 0.11474678253039006,
+     "gdp": 1.79831758148688
+    },
+    {
+     "country": "POL",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.49513151853385806,
+     "fx_reserves_gdp": 0.20924201375689563,
+     "gdp": 0.8124511933961429
+    },
+    {
+     "country": "ROU",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.49513151853385795,
+     "fx_reserves_gdp": 0.19015682022548477,
+     "gdp": 0.34775799575891403
+    },
+    {
+     "country": "THA",
+     "tip_burden": 0.12,
+     "debt_gdp": 0.611243613638526,
+     "fx_reserves_gdp": 0.40371794432875996,
+     "gdp": 0.515906283940933
+    },
+    {
+     "country": "ARG",
+     "tip_burden": 0.15,
+     "debt_gdp": 0.713312731846403,
+     "fx_reserves_gdp": 0.02923462973147099,
+     "gdp": 0.6494616879591739
+    },
+    {
+     "country": "SWE",
+     "tip_burden": 0.15,
+     "debt_gdp": 0.49513151853385795,
+     "fx_reserves_gdp": 0.09072083655877404,
+     "gdp": 0.5789909152460699
+    },
+    {
+     "country": "AG_EUROPE",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.5399638886877612,
+     "fx_reserves_gdp": 0.14565538318865334,
+     "gdp": 1.6191605783158436
+    },
+    {
+     "country": "AG_SOUTH_AS",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.6304309327576054,
+     "fx_reserves_gdp": 0.17128536295874525,
+     "gdp": 0.1515500550433721
+    },
+    {
+     "country": "BGD",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.6001757891418865,
+     "fx_reserves_gdp": 0.0478447342431091,
+     "gdp": 0.437415333018291
+    },
+    {
+     "country": "CHL",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.713312731846403,
+     "fx_reserves_gdp": 0.13817752657606275,
+     "gdp": 0.335518054097637
+    },
+    {
+     "country": "CZE",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.495131518533858,
+     "fx_reserves_gdp": 0.4241155308826487,
+     "gdp": 0.345059295659911
+    },
+    {
+     "country": "DNK",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.49513151853385806,
+     "fx_reserves_gdp": 0.25937894044965715,
+     "gdp": 0.404651706117557
+    },
+    {
+     "country": "PAK",
+     "tip_burden": 0.2,
+     "debt_gdp": 0.6001757891418864,
+     "fx_reserves_gdp": 0.028045769128361736,
+     "gdp": 0.336686348609266
+    }
+   ],
+   "spearman_tip_dose_vs_preshock": {
+    "debt_gdp": -0.20350877192982456,
+    "fx_reserves_gdp": -0.1824561403508772,
+    "gdp": -0.38421052631578945
+   }
+  }
+ },
+ "injection_point_audit": {
+  "A_carbon_tax": "carbon price enters as a CPI wedge; the emissions and tension legs are both inside the model.",
+  "B_oil_shock": "the supply cut is converted to an import bill OUTSIDE the model by two hard-coded constants (elasticity 0.30, import intensity 0.05, gim_benchmark.py:201-207) and injected directly into public_debt and fx_reserves. The resources -> finance leg is therefore NOT demonstrated; what is demonstrated is finance -> sovereign-crisis thresholding.",
+  "C_crop_shock": "the yield cut enters at the food supply gap; the affordability and protest legs are inside the model."
+ }
+}

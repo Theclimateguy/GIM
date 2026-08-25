@@ -1,0 +1,684 @@
+{
+  "method": "Sobol variance decomposition (Saltelli 2010 S1 + Jansen 1999 ST), Sobol-sequence sampling",
+  "N": 128,
+  "D": 20,
+  "evaluations": 2816,
+  "horizon": "2015->2050 deterministic forward run",
+  "outputs": [
+    "gmst_2050",
+    "gdp_2050",
+    "co2_2050",
+    "gini_2050"
+  ],
+  "param_ranges": {
+    "ECS_DEFAULT": [
+      2.0,
+      4.0
+    ],
+    "DAMAGE_QUAD_COEFF": [
+      0.0026,
+      0.0115
+    ],
+    "TFP_CONVERGENCE_SENS": [
+      0.0068,
+      0.022
+    ],
+    "DECARB_RATE_STRUCTURAL": [
+      0.01,
+      0.025
+    ],
+    "SAVINGS_BASE": [
+      0.2,
+      0.28
+    ],
+    "DEBT_SPREAD_LINEAR": [
+      0.043,
+      0.086
+    ],
+    "DEBT_SPREAD_QUADRATIC": [
+      0.05,
+      0.15
+    ],
+    "CRISK_TEMP_SENSITIVITY": [
+      0.3,
+      0.6
+    ],
+    "PHILLIPS_SLOPE": [
+      0.1,
+      0.4
+    ],
+    "OKUN_COEFF": [
+      0.2,
+      0.5
+    ],
+    "GINI_GROWTH_SENS": [
+      3.0,
+      9.0
+    ],
+    "TRUST_UNEMPLOYMENT_SENS": [
+      -0.045,
+      -0.015
+    ],
+    "EVENT_BASE_PROB": [
+      0.006,
+      0.02
+    ],
+    "CES_SIGMA_KE": [
+      0.3,
+      0.5
+    ],
+    "SFC_ACCEL_SENS": [
+      0.3,
+      0.7
+    ],
+    "TAYLOR_PHI_PI": [
+      0.3,
+      0.7
+    ],
+    "STRUCTURAL_TRANSITION_POLICY_SENS": [
+      0.3,
+      0.7
+    ],
+    "MIGRATION_BASE_RATE": [
+      0.0005,
+      0.002
+    ],
+    "RESILIENCE_TECH_W": [
+      0.2,
+      0.4
+    ],
+    "CARBON_FEEDBACK_CO2_GTCO2_PER_C": [
+      0.0,
+      8.0
+    ]
+  },
+  "results": {
+    "gmst_2050": {
+      "S1": {
+        "ECS_DEFAULT": 0.9422162306820875,
+        "DAMAGE_QUAD_COEFF": 0.00478417044295364,
+        "TFP_CONVERGENCE_SENS": 0.019739270045466085,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.0010246922348714877,
+        "DEBT_SPREAD_LINEAR": -0.0014286597250491603,
+        "DEBT_SPREAD_QUADRATIC": 0.026711558491507293,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": 0.0001356167181688708,
+        "OKUN_COEFF": 0.0061575175946359945,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.008973785846272142,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": 0.00016769956439814364,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": -0.0004224105864734093,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": -0.003869829561717606,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 0.03780761741835111
+      },
+      "ST": {
+        "ECS_DEFAULT": 0.9452494991330119,
+        "DAMAGE_QUAD_COEFF": 5.16704263795633e-05,
+        "TFP_CONVERGENCE_SENS": 0.006740512838880627,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.0007527901178662366,
+        "DEBT_SPREAD_LINEAR": 0.00015624361321348127,
+        "DEBT_SPREAD_QUADRATIC": 0.00017261367563333295,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": 1.1163260796304938e-05,
+        "OKUN_COEFF": 5.3518569967631094e-05,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.00010000975229580998,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": 1.9485438427658524e-05,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": 5.898067392748105e-06,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": 5.434164331383354e-05,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 0.04107589447530717
+      },
+      "var": 0.0694616574673436
+    },
+    "gdp_2050": {
+      "S1": {
+        "ECS_DEFAULT": -0.038527077281337856,
+        "DAMAGE_QUAD_COEFF": -0.04862238831040148,
+        "TFP_CONVERGENCE_SENS": 1.2560269651657263,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.10273419423530712,
+        "DEBT_SPREAD_LINEAR": -0.32316049529285956,
+        "DEBT_SPREAD_QUADRATIC": 0.26909485568506314,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": 0.013412637510475809,
+        "OKUN_COEFF": -0.03161182848531958,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.2975011366538553,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": -0.0005220350178979666,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": -0.046418385552766436,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": -0.17106076998053418,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": -0.006094229424257267
+      },
+      "ST": {
+        "ECS_DEFAULT": 0.023415556466010626,
+        "DAMAGE_QUAD_COEFF": 0.021268575670616595,
+        "TFP_CONVERGENCE_SENS": 0.8802372862032527,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.06767786638156426,
+        "DEBT_SPREAD_LINEAR": 0.06145430394807272,
+        "DEBT_SPREAD_QUADRATIC": 0.08382912027875948,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": 0.0029424097180015315,
+        "OKUN_COEFF": 0.02191523512166538,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.05364853307425933,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": 0.002722069632401474,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": 0.0034455778378797404,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": 0.01452316251893634,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 0.000930796756531828
+      },
+      "var": 517.0983345643979
+    },
+    "co2_2050": {
+      "S1": {
+        "ECS_DEFAULT": 0.04200693630625519,
+        "DAMAGE_QUAD_COEFF": 0.07196219641530169,
+        "TFP_CONVERGENCE_SENS": 0.5744266875031376,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.009725639306243442,
+        "DEBT_SPREAD_LINEAR": 0.039947350491391025,
+        "DEBT_SPREAD_QUADRATIC": 0.556646710537501,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": -0.007832154975664406,
+        "OKUN_COEFF": 0.11103525460787364,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.11502630896582094,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": -0.00017215619490628422,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": -0.015674015600353294,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": -0.10061435807996356,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 0.7488250309817277
+      },
+      "ST": {
+        "ECS_DEFAULT": 0.023571344380512352,
+        "DAMAGE_QUAD_COEFF": 0.001155933496622477,
+        "TFP_CONVERGENCE_SENS": 0.15560267203653924,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.016755410609221616,
+        "DEBT_SPREAD_LINEAR": 0.003998516648313633,
+        "DEBT_SPREAD_QUADRATIC": 0.004700949673780276,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": 0.0002600599127065224,
+        "OKUN_COEFF": 0.0012928513879391227,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.002821756894195949,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": 0.00043217932317575985,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": 0.00017148451568448574,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": 0.0013896187008174256,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 0.8072490872697368
+      },
+      "var": 11066.547892052988
+    },
+    "gini_2050": {
+      "S1": {
+        "ECS_DEFAULT": -0.051950743345350915,
+        "DAMAGE_QUAD_COEFF": 0.42503589950171244,
+        "TFP_CONVERGENCE_SENS": 0.8466471812942058,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": -0.2512095999865233,
+        "DEBT_SPREAD_LINEAR": -0.1363854669776748,
+        "DEBT_SPREAD_QUADRATIC": 3.453498405438186,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": -0.7181400793654995,
+        "OKUN_COEFF": -0.267053461522421,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": -0.8771168314964055,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": 0.021995782949850867,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": -0.4162515457954998,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": 0.8928968558049957,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": -0.010177694202441762
+      },
+      "ST": {
+        "ECS_DEFAULT": 0.000923339450866576,
+        "DAMAGE_QUAD_COEFF": 0.001045472392216752,
+        "TFP_CONVERGENCE_SENS": 0.035303316034826844,
+        "DECARB_RATE_STRUCTURAL": 0.0,
+        "SAVINGS_BASE": 0.0014114383245555123,
+        "DEBT_SPREAD_LINEAR": 0.1696500654681353,
+        "DEBT_SPREAD_QUADRATIC": 0.8607667558904822,
+        "CRISK_TEMP_SENSITIVITY": 0.0,
+        "PHILLIPS_SLOPE": 0.002609962540905849,
+        "OKUN_COEFF": 0.0023872584063652892,
+        "GINI_GROWTH_SENS": 0.0,
+        "TRUST_UNEMPLOYMENT_SENS": 0.06397157327028333,
+        "EVENT_BASE_PROB": 0.0,
+        "CES_SIGMA_KE": 5.268335859904938e-05,
+        "SFC_ACCEL_SENS": 0.0,
+        "TAYLOR_PHI_PI": 0.0033400753158694977,
+        "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+        "MIGRATION_BASE_RATE": 0.002626745462068686,
+        "RESILIENCE_TECH_W": 0.0,
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 4.129604994181649e-05
+      },
+      "var": 0.23200120101464353
+    }
+  },
+  "ranking_by_total_order": {
+    "gmst_2050": [
+      [
+        "ECS_DEFAULT",
+        0.9452
+      ],
+      [
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C",
+        0.0411
+      ],
+      [
+        "TFP_CONVERGENCE_SENS",
+        0.0067
+      ],
+      [
+        "SAVINGS_BASE",
+        0.0008
+      ],
+      [
+        "DEBT_SPREAD_QUADRATIC",
+        0.0002
+      ],
+      [
+        "DEBT_SPREAD_LINEAR",
+        0.0002
+      ],
+      [
+        "TRUST_UNEMPLOYMENT_SENS",
+        0.0001
+      ],
+      [
+        "MIGRATION_BASE_RATE",
+        0.0001
+      ],
+      [
+        "OKUN_COEFF",
+        0.0001
+      ],
+      [
+        "DAMAGE_QUAD_COEFF",
+        0.0001
+      ],
+      [
+        "CES_SIGMA_KE",
+        0.0
+      ],
+      [
+        "PHILLIPS_SLOPE",
+        0.0
+      ],
+      [
+        "TAYLOR_PHI_PI",
+        0.0
+      ],
+      [
+        "DECARB_RATE_STRUCTURAL",
+        0.0
+      ],
+      [
+        "CRISK_TEMP_SENSITIVITY",
+        0.0
+      ],
+      [
+        "GINI_GROWTH_SENS",
+        0.0
+      ],
+      [
+        "EVENT_BASE_PROB",
+        0.0
+      ],
+      [
+        "SFC_ACCEL_SENS",
+        0.0
+      ],
+      [
+        "STRUCTURAL_TRANSITION_POLICY_SENS",
+        0.0
+      ],
+      [
+        "RESILIENCE_TECH_W",
+        0.0
+      ]
+    ],
+    "gdp_2050": [
+      [
+        "TFP_CONVERGENCE_SENS",
+        0.8802
+      ],
+      [
+        "DEBT_SPREAD_QUADRATIC",
+        0.0838
+      ],
+      [
+        "SAVINGS_BASE",
+        0.0677
+      ],
+      [
+        "DEBT_SPREAD_LINEAR",
+        0.0615
+      ],
+      [
+        "TRUST_UNEMPLOYMENT_SENS",
+        0.0536
+      ],
+      [
+        "ECS_DEFAULT",
+        0.0234
+      ],
+      [
+        "OKUN_COEFF",
+        0.0219
+      ],
+      [
+        "DAMAGE_QUAD_COEFF",
+        0.0213
+      ],
+      [
+        "MIGRATION_BASE_RATE",
+        0.0145
+      ],
+      [
+        "TAYLOR_PHI_PI",
+        0.0034
+      ],
+      [
+        "PHILLIPS_SLOPE",
+        0.0029
+      ],
+      [
+        "CES_SIGMA_KE",
+        0.0027
+      ],
+      [
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C",
+        0.0009
+      ],
+      [
+        "DECARB_RATE_STRUCTURAL",
+        0.0
+      ],
+      [
+        "CRISK_TEMP_SENSITIVITY",
+        0.0
+      ],
+      [
+        "GINI_GROWTH_SENS",
+        0.0
+      ],
+      [
+        "EVENT_BASE_PROB",
+        0.0
+      ],
+      [
+        "SFC_ACCEL_SENS",
+        0.0
+      ],
+      [
+        "STRUCTURAL_TRANSITION_POLICY_SENS",
+        0.0
+      ],
+      [
+        "RESILIENCE_TECH_W",
+        0.0
+      ]
+    ],
+    "co2_2050": [
+      [
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C",
+        0.8072
+      ],
+      [
+        "TFP_CONVERGENCE_SENS",
+        0.1556
+      ],
+      [
+        "ECS_DEFAULT",
+        0.0236
+      ],
+      [
+        "SAVINGS_BASE",
+        0.0168
+      ],
+      [
+        "DEBT_SPREAD_QUADRATIC",
+        0.0047
+      ],
+      [
+        "DEBT_SPREAD_LINEAR",
+        0.004
+      ],
+      [
+        "TRUST_UNEMPLOYMENT_SENS",
+        0.0028
+      ],
+      [
+        "MIGRATION_BASE_RATE",
+        0.0014
+      ],
+      [
+        "OKUN_COEFF",
+        0.0013
+      ],
+      [
+        "DAMAGE_QUAD_COEFF",
+        0.0012
+      ],
+      [
+        "CES_SIGMA_KE",
+        0.0004
+      ],
+      [
+        "PHILLIPS_SLOPE",
+        0.0003
+      ],
+      [
+        "TAYLOR_PHI_PI",
+        0.0002
+      ],
+      [
+        "DECARB_RATE_STRUCTURAL",
+        0.0
+      ],
+      [
+        "CRISK_TEMP_SENSITIVITY",
+        0.0
+      ],
+      [
+        "GINI_GROWTH_SENS",
+        0.0
+      ],
+      [
+        "EVENT_BASE_PROB",
+        0.0
+      ],
+      [
+        "SFC_ACCEL_SENS",
+        0.0
+      ],
+      [
+        "STRUCTURAL_TRANSITION_POLICY_SENS",
+        0.0
+      ],
+      [
+        "RESILIENCE_TECH_W",
+        0.0
+      ]
+    ],
+    "gini_2050": [
+      [
+        "DEBT_SPREAD_QUADRATIC",
+        0.8608
+      ],
+      [
+        "DEBT_SPREAD_LINEAR",
+        0.1697
+      ],
+      [
+        "TRUST_UNEMPLOYMENT_SENS",
+        0.064
+      ],
+      [
+        "TFP_CONVERGENCE_SENS",
+        0.0353
+      ],
+      [
+        "TAYLOR_PHI_PI",
+        0.0033
+      ],
+      [
+        "MIGRATION_BASE_RATE",
+        0.0026
+      ],
+      [
+        "PHILLIPS_SLOPE",
+        0.0026
+      ],
+      [
+        "OKUN_COEFF",
+        0.0024
+      ],
+      [
+        "SAVINGS_BASE",
+        0.0014
+      ],
+      [
+        "DAMAGE_QUAD_COEFF",
+        0.001
+      ],
+      [
+        "ECS_DEFAULT",
+        0.0009
+      ],
+      [
+        "CES_SIGMA_KE",
+        0.0001
+      ],
+      [
+        "CARBON_FEEDBACK_CO2_GTCO2_PER_C",
+        0.0
+      ],
+      [
+        "DECARB_RATE_STRUCTURAL",
+        0.0
+      ],
+      [
+        "CRISK_TEMP_SENSITIVITY",
+        0.0
+      ],
+      [
+        "GINI_GROWTH_SENS",
+        0.0
+      ],
+      [
+        "EVENT_BASE_PROB",
+        0.0
+      ],
+      [
+        "SFC_ACCEL_SENS",
+        0.0
+      ],
+      [
+        "STRUCTURAL_TRANSITION_POLICY_SENS",
+        0.0
+      ],
+      [
+        "RESILIENCE_TECH_W",
+        0.0
+      ]
+    ]
+  },
+  "max_ST_across_outputs": {
+    "ECS_DEFAULT": 0.9452,
+    "TFP_CONVERGENCE_SENS": 0.8802,
+    "DEBT_SPREAD_QUADRATIC": 0.8608,
+    "CARBON_FEEDBACK_CO2_GTCO2_PER_C": 0.8072,
+    "DEBT_SPREAD_LINEAR": 0.1697,
+    "SAVINGS_BASE": 0.0677,
+    "TRUST_UNEMPLOYMENT_SENS": 0.064,
+    "OKUN_COEFF": 0.0219,
+    "DAMAGE_QUAD_COEFF": 0.0213,
+    "MIGRATION_BASE_RATE": 0.0145,
+    "TAYLOR_PHI_PI": 0.0034,
+    "PHILLIPS_SLOPE": 0.0029,
+    "CES_SIGMA_KE": 0.0027,
+    "DECARB_RATE_STRUCTURAL": 0.0,
+    "CRISK_TEMP_SENSITIVITY": 0.0,
+    "GINI_GROWTH_SENS": 0.0,
+    "EVENT_BASE_PROB": 0.0,
+    "SFC_ACCEL_SENS": 0.0,
+    "STRUCTURAL_TRANSITION_POLICY_SENS": 0.0,
+    "RESILIENCE_TECH_W": 0.0
+  },
+  "freezable_ST_lt_0p01": [
+    "DECARB_RATE_STRUCTURAL",
+    "CRISK_TEMP_SENSITIVITY",
+    "PHILLIPS_SLOPE",
+    "GINI_GROWTH_SENS",
+    "EVENT_BASE_PROB",
+    "CES_SIGMA_KE",
+    "SFC_ACCEL_SENS",
+    "TAYLOR_PHI_PI",
+    "STRUCTURAL_TRANSITION_POLICY_SENS",
+    "RESILIENCE_TECH_W"
+  ],
+  "gim18_priorities_ST_gt_0p05": [
+    [
+      "ECS_DEFAULT",
+      0.9452
+    ],
+    [
+      "TFP_CONVERGENCE_SENS",
+      0.8802
+    ],
+    [
+      "DEBT_SPREAD_QUADRATIC",
+      0.8608
+    ],
+    [
+      "CARBON_FEEDBACK_CO2_GTCO2_PER_C",
+      0.8072
+    ],
+    [
+      "DEBT_SPREAD_LINEAR",
+      0.1697
+    ],
+    [
+      "SAVINGS_BASE",
+      0.0677
+    ],
+    [
+      "TRUST_UNEMPLOYMENT_SENS",
+      0.064
+    ]
+  ],
+  "sources": [
+    "Saltelli et al. (2010) Comp. Phys. Comm. 181:259",
+    "Jansen (1999) Comp. Phys. Comm. 120:131",
+    "Herman & Usher (2017) JOSS 2:97 (SALib reference)"
+  ]
+}

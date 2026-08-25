@@ -1,0 +1,191 @@
+{
+ "experiment": "E17",
+ "question": "After repair, does the fx channel fire at a plausible frequency?",
+ "reference": "Laeven & Valencia crisis database: currency crises in roughly 3-5% of country-years, 1970-2017",
+ "target_onset_rate": [
+  0.03,
+  0.05
+ ],
+ "config": {
+  "horizon": 30,
+  "base_year": 2023,
+  "policy": "simple",
+  "extreme_events": false,
+  "forward_init": true
+ },
+ "before_repair": {
+  "overrides": {},
+  "n_agent_years": 1710,
+  "onsets": 43,
+  "onset_rate_per_agent_year": 0.025146198830409357,
+  "n_eligible_agents": 41,
+  "onset_rate_per_eligible_agent_year": 0.034959349593495934,
+  "active_agent_years": 81,
+  "active_rate": 0.04736842105263158,
+  "n_distinct_agents_affected": 13,
+  "mean_onsets_per_affected_agent": 3.3076923076923075,
+  "mean_duration_years": 1.8837209302325582,
+  "current_account_median": -0.031266847231919664,
+  "current_account_p05": -0.19521133624377812,
+  "cover_months_median": 9.943152743417823,
+  "share_cover_below_3mo": 0.28713450292397663,
+  "share_external_debt_above_0.5": 0.716374269005848
+ },
+ "after_repair_by_thresholds": {
+  "published thresholds": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true
+   },
+   "n_agent_years": 1710,
+   "onsets": 43,
+   "onset_rate_per_agent_year": 0.025146198830409357,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.034959349593495934,
+   "active_agent_years": 81,
+   "active_rate": 0.04736842105263158,
+   "n_distinct_agents_affected": 13,
+   "mean_onsets_per_affected_agent": 3.3076923076923075,
+   "mean_duration_years": 1.8837209302325582,
+   "current_account_median": -0.031266847231919664,
+   "current_account_p05": -0.19521133624377812,
+   "cover_months_median": 9.943152743417823,
+   "share_cover_below_3mo": 0.28713450292397663,
+   "share_external_debt_above_0.5": 0.716374269005848
+  },
+  "current_account_deficit_threshold=-0.06": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true,
+    "FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD": -0.06
+   },
+   "n_agent_years": 1710,
+   "onsets": 41,
+   "onset_rate_per_agent_year": 0.023976608187134502,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.03333333333333333,
+   "active_agent_years": 79,
+   "active_rate": 0.046198830409356725,
+   "n_distinct_agents_affected": 11,
+   "mean_onsets_per_affected_agent": 3.727272727272727,
+   "mean_duration_years": 1.9268292682926829,
+   "current_account_median": -0.03142228299082797,
+   "current_account_p05": -0.19521133624377812,
+   "cover_months_median": 9.943152743417823,
+   "share_cover_below_3mo": 0.28830409356725145,
+   "share_external_debt_above_0.5": 0.7146198830409357
+  },
+  "current_account_deficit_threshold=-0.08": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true,
+    "FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD": -0.08
+   },
+   "n_agent_years": 1710,
+   "onsets": 41,
+   "onset_rate_per_agent_year": 0.023976608187134502,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.03333333333333333,
+   "active_agent_years": 79,
+   "active_rate": 0.046198830409356725,
+   "n_distinct_agents_affected": 11,
+   "mean_onsets_per_affected_agent": 3.727272727272727,
+   "mean_duration_years": 1.9268292682926829,
+   "current_account_median": -0.03142228299082797,
+   "current_account_p05": -0.19521133624377812,
+   "cover_months_median": 9.943152743417823,
+   "share_cover_below_3mo": 0.28830409356725145,
+   "share_external_debt_above_0.5": 0.7146198830409357
+  },
+  "reserve_months_threshold=2": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true,
+    "FX_CRISIS_RESERVE_MONTHS_THRESHOLD": 2.0
+   },
+   "n_agent_years": 1710,
+   "onsets": 24,
+   "onset_rate_per_agent_year": 0.014035087719298246,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.01951219512195122,
+   "active_agent_years": 77,
+   "active_rate": 0.04502923976608187,
+   "n_distinct_agents_affected": 9,
+   "mean_onsets_per_affected_agent": 2.6666666666666665,
+   "mean_duration_years": 3.2083333333333335,
+   "current_account_median": -0.030445641601560065,
+   "current_account_p05": -0.191247103315366,
+   "cover_months_median": 9.977090508287297,
+   "share_cover_below_3mo": 0.3064327485380117,
+   "share_external_debt_above_0.5": 0.7192982456140351
+  },
+  "current_account_deficit_threshold=-0.06, reserve_months_threshold=2": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true,
+    "FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD": -0.06,
+    "FX_CRISIS_RESERVE_MONTHS_THRESHOLD": 2.0
+   },
+   "n_agent_years": 1710,
+   "onsets": 24,
+   "onset_rate_per_agent_year": 0.014035087719298246,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.01951219512195122,
+   "active_agent_years": 77,
+   "active_rate": 0.04502923976608187,
+   "n_distinct_agents_affected": 9,
+   "mean_onsets_per_affected_agent": 2.6666666666666665,
+   "mean_duration_years": 3.2083333333333335,
+   "current_account_median": -0.030445641601560065,
+   "current_account_p05": -0.191247103315366,
+   "cover_months_median": 9.977090508287297,
+   "share_cover_below_3mo": 0.3064327485380117,
+   "share_external_debt_above_0.5": 0.7192982456140351
+  },
+  "current_account_deficit_threshold=-0.08, reserve_months_threshold=2": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true,
+    "FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD": -0.08,
+    "FX_CRISIS_RESERVE_MONTHS_THRESHOLD": 2.0
+   },
+   "n_agent_years": 1710,
+   "onsets": 24,
+   "onset_rate_per_agent_year": 0.014035087719298246,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.01951219512195122,
+   "active_agent_years": 77,
+   "active_rate": 0.04502923976608187,
+   "n_distinct_agents_affected": 9,
+   "mean_onsets_per_affected_agent": 2.6666666666666665,
+   "mean_duration_years": 3.2083333333333335,
+   "current_account_median": -0.030445641601560065,
+   "current_account_p05": -0.191247103315366,
+   "cover_months_median": 9.977090508287297,
+   "share_cover_below_3mo": 0.3064327485380117,
+   "share_external_debt_above_0.5": 0.7192982456140351
+  },
+  "external_debt_threshold=0.7, current_account_deficit_threshold=-0.06, reserve_months_threshold=2": {
+   "overrides": {
+    "STRUCTURAL_TRADE_BALANCE": true,
+    "FX_CRISIS_EXTERNAL_DEBT_THRESHOLD": 0.7,
+    "FX_CRISIS_CURRENT_ACCOUNT_DEFICIT_THRESHOLD": -0.06,
+    "FX_CRISIS_RESERVE_MONTHS_THRESHOLD": 2.0
+   },
+   "n_agent_years": 1710,
+   "onsets": 7,
+   "onset_rate_per_agent_year": 0.004093567251461989,
+   "n_eligible_agents": 41,
+   "onset_rate_per_eligible_agent_year": 0.005691056910569106,
+   "active_agent_years": 24,
+   "active_rate": 0.014035087719298246,
+   "n_distinct_agents_affected": 5,
+   "mean_onsets_per_affected_agent": 1.4,
+   "mean_duration_years": 3.4285714285714284,
+   "current_account_median": -0.030233629999332844,
+   "current_account_p05": -0.19118762053221042,
+   "cover_months_median": 9.973972649891591,
+   "share_cover_below_3mo": 0.30701754385964913,
+   "share_external_debt_above_0.5": 0.7321637426900585
+  }
+ },
+ "threshold_sets_in_target_range": [
+  "published thresholds",
+  "current_account_deficit_threshold=-0.06",
+  "current_account_deficit_threshold=-0.08"
+ ]
+}

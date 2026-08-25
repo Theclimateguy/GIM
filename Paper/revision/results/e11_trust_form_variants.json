@@ -1,0 +1,398 @@
+{
+ "experiment": "E11",
+ "question": "Does the deviation form stop the trust drift while preserving dispersion, shock response and fit?",
+ "acceptance_criteria": {
+  "A_drift": "median annual drift ~0; agents drifting down well below 57/57",
+  "B_dispersion": "sd_retained_fraction not collapsing toward 0",
+  "C_response": "shock_tension_response_max stays comparable to V0",
+  "D_fit": "fit_country_gdp_rmse not degraded vs V0",
+  "E_prices": "resource-price implausibility not degraded vs V0 (the criterion the V6 decision was deferred to)"
+ },
+ "config": {
+  "horizon": 30,
+  "base_year": 2023,
+  "shock": {
+   "du": 0.05,
+   "dpi": 0.05,
+   "years": [
+    5,
+    6,
+    7
+   ]
+  },
+  "irf_horizon": 20,
+  "regime_trust_floor": 0.2
+ },
+ "results": {
+  "V0_current_level_form": {
+   "overrides": {},
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4389132563123327,
+   "median_annual_drift": -0.00555645431279568,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 17,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3266886306413263,
+   "sd_retained_fraction": 2.075025431474376,
+   "shock_trust_response_min": -0.019609605545451048,
+   "shock_tension_response_max": 0.018270816667993572,
+   "shock_tension_response_at_end": 0.00671605115138052,
+   "fit_country_gdp_rmse": 0.5981259771088541,
+   "fit_global_co2_rmse": 0.9388620814671589,
+   "fit_temperature_rmse": 0.09887585866022405,
+   "fit_price_implausibility": {
+    "energy": 0.9857982886661167,
+    "food": 0.7023877612987837,
+    "metals": 0.964055054909931
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 5.0
+  },
+  "V1_trust_gini_only": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4389132563123327,
+   "median_annual_drift": -0.00555645431279568,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 17,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3266886306413263,
+   "sd_retained_fraction": 2.075025431474376,
+   "shock_trust_response_min": -0.019609605545451048,
+   "shock_tension_response_max": 0.018270816667993572,
+   "shock_tension_response_at_end": 0.00671605115138052,
+   "fit_country_gdp_rmse": 0.5981259771088541,
+   "fit_global_co2_rmse": 0.9388620814671589,
+   "fit_temperature_rmse": 0.09887585866022405,
+   "fit_price_implausibility": {
+    "energy": 0.9857982886661167,
+    "food": 0.7023877612987837,
+    "metals": 0.964055054909931
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 5.0
+  },
+  "V2_trust_gini_unemp_infl": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4389132563123327,
+   "median_annual_drift": -0.00555645431279568,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 17,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3266886306413263,
+   "sd_retained_fraction": 2.075025431474376,
+   "shock_trust_response_min": -0.019609605545451048,
+   "shock_tension_response_max": 0.018270816667993572,
+   "shock_tension_response_at_end": 0.00671605115138052,
+   "fit_country_gdp_rmse": 0.5981259771088541,
+   "fit_global_co2_rmse": 0.9388620814671589,
+   "fit_temperature_rmse": 0.09887585866022405,
+   "fit_price_implausibility": {
+    "energy": 0.9857982886661167,
+    "food": 0.7023877612987837,
+    "metals": 0.964055054909931
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 5.0
+  },
+  "V3_trust_all_four": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4389132563123327,
+   "median_annual_drift": -0.00555645431279568,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 17,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3266886306413263,
+   "sd_retained_fraction": 2.075025431474376,
+   "shock_trust_response_min": -0.019609605545451048,
+   "shock_tension_response_max": 0.018270816667993572,
+   "shock_tension_response_at_end": 0.00671605115138052,
+   "fit_country_gdp_rmse": 0.5981259771088541,
+   "fit_global_co2_rmse": 0.9388620814671589,
+   "fit_temperature_rmse": 0.09887585866022405,
+   "fit_price_implausibility": {
+    "energy": 0.9857982886661167,
+    "food": 0.7023877612987837,
+    "metals": 0.964055054909931
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 5.0
+  },
+  "V4_anchor_only_020": {
+   "overrides": {
+    "TRUST_ANCHOR_PULL": 0.2
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.5025621755076427,
+   "median_annual_drift": -0.0013004580018677622,
+   "n_agents_drifting_down": 37,
+   "n_agents": 57,
+   "n_below_floor_end": 3,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.22759562180599266,
+   "sd_retained_fraction": 1.445617199510575,
+   "shock_trust_response_min": -0.00652371296488008,
+   "shock_tension_response_max": 0.01159716110684983,
+   "shock_tension_response_at_end": 0.009640409142370965,
+   "fit_country_gdp_rmse": 0.5981105251187374,
+   "fit_global_co2_rmse": 0.9389037894992048,
+   "fit_temperature_rmse": 0.09887578743632991,
+   "fit_price_implausibility": {
+    "energy": 0.985793419164656,
+    "food": 0.7023561882374822,
+    "metals": 0.964047110110941
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 3.0
+  },
+  "V5_tension_only": {
+   "overrides": {
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4389132563123327,
+   "median_annual_drift": -0.00555645431279568,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 17,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3266886306413263,
+   "sd_retained_fraction": 2.075025431474376,
+   "shock_trust_response_min": -0.019609605545451048,
+   "shock_tension_response_max": 0.018270816667993572,
+   "shock_tension_response_at_end": 0.00671605115138052,
+   "fit_country_gdp_rmse": 0.5981259771088541,
+   "fit_global_co2_rmse": 0.9388620814671589,
+   "fit_temperature_rmse": 0.09887585866022405,
+   "fit_price_implausibility": {
+    "energy": 0.9857982886661167,
+    "food": 0.7023877612987837,
+    "metals": 0.964055054909931
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 5.0
+  },
+  "V6_trust_and_tension": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true,
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4389132563123327,
+   "median_annual_drift": -0.00555645431279568,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 17,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3266886306413263,
+   "sd_retained_fraction": 2.075025431474376,
+   "shock_trust_response_min": -0.019609605545451048,
+   "shock_tension_response_max": 0.018270816667993572,
+   "shock_tension_response_at_end": 0.00671605115138052,
+   "fit_country_gdp_rmse": 0.5981259771088541,
+   "fit_global_co2_rmse": 0.9388620814671589,
+   "fit_temperature_rmse": 0.09887585866022405,
+   "fit_price_implausibility": {
+    "energy": 0.9857982886661167,
+    "food": 0.7023877612987837,
+    "metals": 0.964055054909931
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 5.0
+  },
+  "V7_trust_and_tension_weak_anchor": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true,
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true,
+    "TRUST_ANCHOR_PULL": 0.05
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.4430381284297167,
+   "median_annual_drift": -0.005099138294196365,
+   "n_agents_drifting_down": 38,
+   "n_agents": 57,
+   "n_below_floor_end": 16,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.29677774247532024,
+   "sd_retained_fraction": 1.8850406943238776,
+   "shock_trust_response_min": -0.016336236755101208,
+   "shock_tension_response_max": 0.023227904026665136,
+   "shock_tension_response_at_end": 0.023227904026665136,
+   "fit_country_gdp_rmse": 0.5981216116602015,
+   "fit_global_co2_rmse": 0.9388734843396568,
+   "fit_temperature_rmse": 0.0988758386588864,
+   "fit_price_implausibility": {
+    "energy": 0.9857969296155875,
+    "food": 0.7023790953699891,
+    "metals": 0.9640528307909821
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 4.0
+  },
+  "V6_anchor_0.02": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true,
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true,
+    "TRUST_ANCHOR_PULL": 0.02
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.43407028100468525,
+   "median_annual_drift": -0.0055657695723427495,
+   "n_agents_drifting_down": 39,
+   "n_agents": 57,
+   "n_below_floor_end": 20,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.3230660072420727,
+   "sd_retained_fraction": 2.0520156448547784,
+   "shock_trust_response_min": -0.01794737682578279,
+   "shock_tension_response_max": 0.020641824658362173,
+   "shock_tension_response_at_end": 0.0063883676362818664,
+   "fit_country_gdp_rmse": 0.598124186243586,
+   "fit_global_co2_rmse": 0.9388667265080315,
+   "fit_temperature_rmse": 0.09887585046798301,
+   "fit_price_implausibility": {
+    "energy": 0.9857977327054531,
+    "food": 0.7023842283208624,
+    "metals": 0.9640541444580326
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 4.5
+  },
+  "V6_anchor_0.10": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true,
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true,
+    "TRUST_ANCHOR_PULL": 0.1
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.46252211280330613,
+   "median_annual_drift": -0.00235674267994302,
+   "n_agents_drifting_down": 37,
+   "n_agents": 57,
+   "n_below_floor_end": 14,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.2705962340063101,
+   "sd_retained_fraction": 1.7187438268727293,
+   "shock_trust_response_min": -0.011087418637263702,
+   "shock_tension_response_max": 0.019700153431224998,
+   "shock_tension_response_at_end": 0.008597533402273483,
+   "fit_country_gdp_rmse": 0.5981176069550361,
+   "fit_global_co2_rmse": 0.9388842090776093,
+   "fit_temperature_rmse": 0.09887582019660851,
+   "fit_price_implausibility": {
+    "energy": 0.9857956697988963,
+    "food": 0.7023709662726891,
+    "metals": 0.9640507736908834
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 3.6
+  },
+  "V6_anchor_0.15": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true,
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true,
+    "TRUST_ANCHOR_PULL": 0.15
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.47853610278296066,
+   "median_annual_drift": -0.0019088540381098195,
+   "n_agents_drifting_down": 37,
+   "n_agents": 57,
+   "n_below_floor_end": 10,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.25210839159389287,
+   "sd_retained_fraction": 1.6013147534962058,
+   "shock_trust_response_min": -0.0088320578247304,
+   "shock_tension_response_max": 0.015296745752765739,
+   "shock_tension_response_at_end": 0.0025690326815442366,
+   "fit_country_gdp_rmse": 0.5981139217403455,
+   "fit_global_co2_rmse": 0.9388942982362002,
+   "fit_temperature_rmse": 0.09887580315669087,
+   "fit_price_implausibility": {
+    "energy": 0.9857945017929176,
+    "food": 0.7023633410200988,
+    "metals": 0.9640488705815319
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 3.7
+  },
+  "V6_anchor_0.20": {
+   "overrides": {
+    "TRUST_GINI_DEVIATION_FORM": true,
+    "TRUST_UNEMP_DEVIATION_FORM": true,
+    "TRUST_INFLATION_DEVIATION_FORM": true,
+    "TRUST_GDPPC_DEVIATION_FORM": true,
+    "TENSION_GINI_DEVIATION_FORM": true,
+    "TENSION_STRESS_DEVIATION_FORM": true,
+    "TENSION_REF_PER_AGENT": true,
+    "TRUST_ANCHOR_PULL": 0.2
+   },
+   "mean_trust_start": 0.5852576027727071,
+   "mean_trust_end": 0.5025621755076427,
+   "median_annual_drift": -0.0013004580018677622,
+   "n_agents_drifting_down": 37,
+   "n_agents": 57,
+   "n_below_floor_end": 3,
+   "sd_trust_start": 0.1574383743379969,
+   "sd_trust_end": 0.22759562180599266,
+   "sd_retained_fraction": 1.445617199510575,
+   "shock_trust_response_min": -0.00652371296488008,
+   "shock_tension_response_max": 0.01159716110684983,
+   "shock_tension_response_at_end": 0.009640409142370965,
+   "fit_country_gdp_rmse": 0.5981105251187374,
+   "fit_global_co2_rmse": 0.9389037894992048,
+   "fit_temperature_rmse": 0.09887578743632991,
+   "fit_price_implausibility": {
+    "energy": 0.985793419164656,
+    "food": 0.7023561882374822,
+    "metals": 0.964047110110941
+   },
+   "regime_first_decade_mean": 0.7,
+   "regime_last_decade_mean": 3.0
+  }
+ }
+}

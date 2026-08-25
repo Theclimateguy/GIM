@@ -1,0 +1,24 @@
+# Non-CO2 net anthropogenic effective radiative forcing (ERF, W/m2 vs 1750), SSP2-4.5 marker.
+# Used by gim/core/forcing.py to replace the post-2024 LINEAR non-CO2 extrapolation with the
+# physically-realistic SSP2-4.5 trajectory (CH4+N2O+halogens+O3+aerosol+minor net), which rises
+# and then PLATEAUS (~0.73 by 2100) as aerosol cooling weakens with air-quality policy while CH4/N2O
+# are partially controlled -- versus the unbounded linear 0.012/yr (which reaches an unphysical 1.42
+# W/m2 by 2100). The historical/calibrated window (year <= F_NONCO2_FORWARD_FROM_YEAR = 2024) is NOT
+# read from this table: there the validated lumped path is kept so the 1990-2023 climate calibration
+# (ECS=3.0) and the backtest goldens are untouched (cf. the T1.3b joint-recal warning in forcing.py).
+# Provenance: the SHAPE follows AR6 WG1 Annex III (Smith et al. 2021) / Meinshausen et al. (2020, GMD
+# 13:3571) SSP2-4.5 net non-CO2 ERF (assessed total minus CO2 ERF); the 2024 value is anchored to the
+# model's calibrated lumped value (0.40 + 0.012*(2024-2015) = 0.508) for C1 continuity at the handoff.
+# This is an AR6/SSP2-4.5-consistent reconstruction, not the raw RCMIP CSV; the raw RCMIP/FAIR table is
+# a drop-in replacement with the same (year, erf_wm2) columns and loader.
+year,erf_wm2
+2024,0.508
+2030,0.550
+2040,0.610
+2050,0.650
+2060,0.680
+2070,0.700
+2080,0.715
+2090,0.725
+2100,0.730
+2150,0.700

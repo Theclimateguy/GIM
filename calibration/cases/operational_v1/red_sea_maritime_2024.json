@@ -1,0 +1,31 @@
+{
+  "id": "red_sea_maritime_2024",
+  "title": "Red Sea maritime disruption",
+  "description": "Shipping disruption and route insecurity affecting Egypt, Saudi Arabia, China, and the United States during 2024.",
+  "reference_period": "2023-12 to 2024-08",
+  "tags": ["historical", "maritime", "red-sea", "energy-routes"],
+  "scenario": {
+    "question": "Could Red Sea shipping disruptions and maritime coercion destabilize Egypt, Saudi Arabia, China and the United States in 2024?",
+    "template": "maritime_deterrence",
+    "base_year": 2024,
+    "horizon_months": 12,
+    "actors": ["Egypt, Arab Rep.", "Saudi Arabia", "China", "United States"]
+  },
+  "expectations": {
+    "top_outcomes": ["maritime_chokepoint_crisis", "direct_strike_exchange"],
+    "dominant_outcomes": ["maritime_chokepoint_crisis", "direct_strike_exchange", "broad_regional_escalation"],
+    "drivers": ["tail_pressure", "military_posture", "debt_stress"],
+    "actor_metrics": {
+      "Egypt, Arab Rep.": ["regime_fragility", "strategic_dependency", "food_affordability_stress"],
+      "Saudi Arabia": ["regime_fragility", "conflict_escalation_pressure", "strategic_dependency"]
+    },
+    "min_calibration_score": 0.9,
+    "min_physical_consistency_score": 0.9,
+    "min_criticality_score": 0.6,
+    "minimum_case_score": 0.74
+  },
+  "historical_signals": [
+    "The case is calibrated around route insecurity and spillovers into macro and geopolitical stress.",
+    "Maritime disruption is expected to dominate over negotiated de-escalation in the initial horizon."
+  ]
+}
