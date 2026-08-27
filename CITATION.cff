@@ -1,7 +1,8 @@
 cff-version: 1.2.0
 message: >-
-  If you use GIM, please cite this software record. The manuscript under Paper/ is an
-  unrefereed preprint: it has not been peer reviewed and is not published in any
+  If you use GIM, please cite this software record. Zenodo DOI 10.5281/zenodo.21575176
+  represents all versions and always resolves to the latest. The manuscript under Paper/
+  is an unrefereed preprint: it has not been peer reviewed and is not published in any
   journal, so please do not cite it as a paper.
 title: "GIM: Global Integrated Model"
 type: software
@@ -13,17 +14,17 @@ authors:
   - family-names: Osiptsov
     given-names: Andrei A.
     affiliation: "JSC Sberbank of Russia; Skolkovo Institute of Science and Technology (Skoltech)"
-version: 20.1.0
-date-released: 2026-08-25
+version: 20.1.1
+date-released: 2026-08-27
 repository-code: "https://github.com/Theclimateguy/GIM"
 license: Apache-2.0
 abstract: >-
   A year-by-year deterministic simulation of the world as 57 interacting
   country agents: economy and prices, climate and carbon cycle, natural
   resources, society and politics, interstate relations, and discrete crises
-  with stock-flow-consistent finance. Includes history-matched ensembles,
+  with stock-flow-consistent finance. Includes prior ensembles,
   weak-signal detection, stability analysis, and a game-mechanical scenario
-  layer. Validated against output, emissions, temperature and resource prices;
+  layer. Scored against output, emissions, temperature and resource prices;
   the validation evidence ships under Paper/revision/.
 keywords:
   - integrated assessment model

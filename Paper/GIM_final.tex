@@ -1,5 +1,5 @@
 % =====================================================================================
-%  GIM v20.1.0 -- model description manuscript
+%  GIM v20.1.1 -- model description manuscript
 %  Target: Geoscientific Model Development (model description paper)
 %
 %  COMPILING ON OVERLEAF
@@ -22,8 +22,9 @@
 %
 %  UNRESOLVED BEFORE SUBMISSION -- search for "TODO" in this file:
 %    * the user manual URL inside the frozen archive
-%  (Zenodo DOIs are resolved: version DOI 10.5281/zenodo.22102520 = v20.1.0, 2026-08-25;
-%   concept DOI 10.5281/zenodo.21575176 = all versions.)
+%  Zenodo: the paper cites the CONCEPT DOI 10.5281/zenodo.21575176, which represents all
+%  versions and always resolves to the latest. The release these results were produced from
+%  is tagged v20.1.1 in the repository and is the deposit that DOI resolved to on publication.
 % =====================================================================================
 \documentclass[12pt,a4paper]{article}
 
@@ -77,12 +78,12 @@
 
 % -------------------------------------------------------------------------------------
 % SINGLE SOURCE OF TRUTH FOR EVERY NUMBER QUOTED IN THE TEXT.
-% Every macro below was regenerated from release v20.1.0 on 2026-08-27 by the harness
+% Every macro below was regenerated on 2026-08-27 by the harness
 % named in the comment.  Nothing in the body of this paper hard-codes a result: if a
 % number changes, it changes here and nowhere else.  At submission this block should be
 % \input{numbers.tex} from a machine-generated file (scripts/emit_paper_numbers.py).
 % -------------------------------------------------------------------------------------
-\newcommand{\Version}{v20.1.0}
+\newcommand{\Version}{v20.1.1}
 % -- gim/historical_backtest.py, deterministic (temperature variability off) -----------
 \newcommand{\rmseGdpIn}{0.60}          \newcommand{\rmseCoTwoIn}{0.94}
 \newcommand{\rmseTempIn}{0.099}        \newcommand{\rmseTempInStoch}{0.145}
@@ -113,7 +114,7 @@
 
 \begin{document}
 
-\title{\vspace{-1.5em}\textbf{GIM v20.1.0: a closed economy--climate--society world model
+\title{\vspace{-1.5em}\textbf{GIM v20.1.1: a closed economy--climate--society world model
 with measured boundedness at country resolution}}
 
 \author{%
@@ -1239,15 +1240,18 @@ risks, and the ways a managed world can fail --- comparatively, reproducibly, an
 
 The complete model, calibration data with checksums, every validation and stability harness
 cited in the text, the game backend, and the figure-generation scripts are archived as GIM
-\Version{} on Zenodo at \url{https://doi.org/10.5281/zenodo.22102520}
-\citep{theclimateguy2026gim}. That is the version DOI of the frozen deposit from which every
-number in this paper was produced, and it is the record we ask readers to cite; the concept DOI
-\url{https://doi.org/10.5281/zenodo.21575176} resolves to whichever version is current and
-should be used only when referring to the model in general rather than to these results. The
-archive is the citable record; the development repository at
-\url{https://github.com/Theclimateguy/GIM} (tag \texttt{v20.1.0}) is a convenience mirror and
+\Version{} on Zenodo at \url{https://doi.org/10.5281/zenodo.21575176}
+\citep{theclimateguy2026gim}. That DOI represents all versions of the deposit and always
+resolves to the latest, and it is the record we ask readers to cite. The results in this paper
+were produced by the release tagged \texttt{\Version} in the repository, which is the version
+that DOI resolved to at publication; a reader who needs that exact state rather than the
+current one can select it from the version list on the Zenodo record. The archive is the
+citable record; the development repository at
+\url{https://github.com/Theclimateguy/GIM} (tag \texttt{\Version}) is a convenience mirror and
 is \emph{not} the archival copy. All code and configuration are released under the Apache
-License 2.0, an OSI-approved licence. The archive contains the model source; the user manual
+License 2.0, an OSI-approved licence. The engine is unchanged from v20.1.0, which it reproduces to the bit on every headline
+metric; v20.1.1 replaces the superseded manuscript draft and withdraws the licensed Hofstede
+multi-country panels from the distribution. The archive contains the model source; the user manual
 and command reference; every configuration file and scenario definition; the pinned observed
 fixtures; the pre-processing, run-control and post-processing scripts for every number, table
 and figure in this paper; and the \nTests-test regression suite with its golden trajectories.

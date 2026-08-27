@@ -2,6 +2,57 @@
 
 All notable changes to the Global Integrated Model. This project follows semantic versioning.
 
+## [20.1.1] — 2026-08-27 — the manuscript, corrected, and only it
+
+No engine change: this release reproduces v20.1.0 to the bit on every headline metric,
+including all 20 country-level GDP RMSEs, and the suite is unchanged at 592 tests / 657
+subtests. What changed is what ships.
+
+### Changed
+- **`Paper/GIM_final.tex` replaces `gim_paper_v2_8K`** as the manuscript, and every superseded
+  draft is untracked. Shipping a retired draft beside the current one means shipping numbers
+  the current one has corrected. Each number in the new manuscript was re-derived from this
+  release rather than carried over; the corrections that changed a stated result are listed in
+  `Paper/REVISION_NOTES.md`, with 2053 world product (241 → 264 T USD), the in-sample
+  temperature RMSE (0.145 → 0.099 °C, the deterministic configuration every other result uses),
+  the bot failure window (2040–2045 → 2040–2049) and the oil-cascade Spearman correlations
+  (−0.46/−0.44 → −0.20/−0.18, the earlier pair having come from a different initialisation than
+  the tipping counts printed beside them) the largest of them.
+- Claims are stated at the strength the diagnostics support: bounded over the tested horizon
+  rather than stable; the climate coordinates carry no above-unity eigenvector mass, with the
+  τ=∞ carbon pool contributing |λ|=1 by construction; a prior ensemble with a non-binding
+  history-matching diagnostic, since acceptance is 100 %; a procedurally held-out validation
+  window with its leakage channels named. `CITATION.cff` and `.zenodo.json` follow the same
+  wording — "history-matched ensembles" was the mislabel the paper corrected.
+- Zenodo is cited by the **concept DOI** `10.5281/zenodo.21575176`, which represents all
+  versions and always resolves to the latest. `.zenodo.json` now records `isNewVersionOf`
+  `10.5281/zenodo.22102520` — the actual v20.1.0 record. It previously named the concept DOI
+  there, which is what made an earlier draft mistake the concept parent for a version.
+
+### Removed
+- **The licensed Hofstede multi-country panels leave the distribution.**
+  `data/agent_state_pipeline/generated/{actor_base_inputs, country_panel_raw,
+  country_panel_imputed}.csv` are excluded from the public build: they are written by
+  `build_gim13_agent_states.py` and read only by `build_milex_grounding.py`, whose committed
+  output ships as before, so nothing in `gim/` or `tests/` loses an input. PDI, IDV and UAI
+  remain in `agent_states_operational.csv` for the 57 agents — without them the public tree
+  would not reproduce the paper.
+- **A `mas` column in `tests/fixtures/historical_backtest_state_2015.csv`.** GIM does not use
+  MAS: `CulturalState` keeps PDI/IDV/UAI/LTO and records MAS as empirically inert. It was dead
+  weight and a redistribution of a licensed score at once.
+
+### Added
+- `FORBIDDEN_CSV_COLUMNS` in `scripts/build_public_release.py`: the build now reads the header
+  row of every shipped CSV and fails on `hofstede_name`, `hofstede_source` or `mas`. A path
+  check cannot catch a licensed column reappearing inside a file the release must ship, which
+  is exactly how the `mas` column above was found.
+- `Paper/REVISION_NOTES.md` and `Paper/BIBLIOGRAPHY_AUDIT.md`: what changed in the manuscript
+  and why, including the numbers carried over without independent re-verification.
+
+### Fixed
+- `build_public_release.py` no longer crashes at its closing `print` when `--out` points
+  outside the repository.
+
 ## [20.1] — 2026-08-25 — validation repairs: five defects found by making the model check itself
 
 The public release line for the paper. Resource prices became a validation target for the first
