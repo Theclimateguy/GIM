@@ -86,11 +86,16 @@ paper/*
 # The manuscript itself ships with the release from 20.1 on. Only the canonical version:
 # the older drafts (gim_paper.tex, _clean, _condensed) and the Russian translation predate
 # the 20.1 validation repairs and would contradict the numbers in this one.
-!Paper/gim_paper_v2_8K.tex
-!Paper/gim_paper_v2_8K.pdf
-!Paper/references_v2.bib
-!Paper/cas-sc.cls
-!Paper/cas-common.sty
+# The canonical manuscript, and only it. GIM_final.tex is self-contained (article class,
+# no cas-* files), so the Copernicus/Elsevier class files are no longer tracked; every
+# earlier draft (gim_paper*.tex, references_v2.bib, the RU and condensed variants) stays
+# local and out of the public tree, because shipping a superseded draft alongside the paper
+# means shipping numbers the paper has since corrected.
+!Paper/GIM_final.tex
+!Paper/GIM_final.pdf
+!Paper/references.bib
+!Paper/REVISION_NOTES.md
+!Paper/BIBLIOGRAPHY_AUDIT.md
 
 # Paper scratch screenshots / review markups (not part of the paper; keep fig2-fig5 sources)
 paper/chk-*.png

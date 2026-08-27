@@ -13,7 +13,7 @@
   title     = {Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change},
   publisher = {Cambridge University Press},
   year      = {2021},
-  address   = {Cambridge}
+  address   = {Cambridge},
   doi         = {10.1017/9781009157896},
 }
 
@@ -103,7 +103,7 @@
   volume    = {1},
   pages     = {1341--1393},
   publisher = {Elsevier},
-  year      = {1999}
+  year      = {1999},
   doi         = {10.1016/S1574-0048(99)10034-X},
 }
 
@@ -229,7 +229,7 @@
   institution = {International Monetary Fund},
   type        = {IMF Working Paper},
   number      = {2021/216},
-  year        = {2021}
+  year        = {2021},
   doi         = {10.5089/9781513587172.001.a001},
 }
 
@@ -279,7 +279,7 @@
   author  = {Lagi, Marco and Bertrand, Karla Z. and Bar-Yam, Yaneer},
   title   = {The Food Crises and Political Instability in North Africa and the Middle East},
   journal = {arXiv preprint arXiv:1108.2455},
-  year    = {2011}
+  year    = {2011},
   doi         = {10.2139/ssrn.1910031},
 }
 
@@ -321,7 +321,7 @@
   title     = {The Limits to Growth},
   publisher = {Universe Books},
   year      = {1972},
-  address   = {New York}
+  address   = {New York},
   doi         = {10.1349/ddlp.1},
 }
 
@@ -435,11 +435,14 @@
 
 @misc{theclimateguy2026gim,
   author       = {Sotiriadi, Nazar S. and Osiptsov, Andrei A.},
-  title        = {{GIM}: Global Integrated Model},
+  title        = {{GIM}: Global Integrated Model, v20.1.0},
   year         = {2026},
-  doi          = {10.5281/zenodo.21575176},
+  doi          = {10.5281/zenodo.22102520},
   howpublished = {\url{https://github.com/Theclimateguy/GIM}},
-  note         = {Version 18.1.4 (archival repackaging of the v18.1.3 engine); code, calibration data, and validation harnesses}
+  note         = {Frozen release v20.1.0 (tag \texttt{v20.1.0}), published 2026-08-25; Apache-2.0;
+                  code, calibration data, configuration files, run-control and figure scripts, and
+                  the validation harnesses behind every number in this paper. Concept DOI for all
+                  versions: 10.5281/zenodo.21575176}
 }
 
 @article{may1972,
@@ -588,7 +591,7 @@
   title     = {The Economics of Climate Change: The Stern Review},
   publisher = {Cambridge University Press},
   year      = {2007},
-  address   = {Cambridge}
+  address   = {Cambridge},
   doi         = {10.1017/CBO9780511817434},
 }
 
@@ -663,7 +666,7 @@
   year    = {2014},
   doi     = {10.1007/s10584-014-1266-1},
 }
-% Model-evaluation literature to merge into Paper/references_v2.bib.
+% --- model-evaluation literature ---
 % Every entry below was verified against the publisher or repository record on
 % 2026-08-24; none is reconstructed from memory.
 %
@@ -803,4 +806,193 @@
   pages   = {482--484},
   year    = {2020},
   doi     = {10.1038/d41586-020-01812-9},
+}
+
+% =====================================================================
+% Added for the GMD model-description version (v20.1.0).
+% Rationale for each block is given in REVISION_NOTES.md.
+% =====================================================================
+
+% --- observational datasets actually used, now named in the text ------------------
+@article{morice2021,
+  author  = {Morice, Colin P. and Kennedy, John J. and Rayner, Nick A. and
+             Winn, J. P. and Hogan, Emma and Killick, R. E. and Dunn, R. J. H. and
+             Osborn, Timothy J. and Jones, Philip D. and Simpson, I. R.},
+  title   = {An Updated Assessment of Near-Surface Temperature Change From 1850:
+             The {HadCRUT5} Data Set},
+  journal = {Journal of Geophysical Research: Atmospheres},
+  volume  = {126},
+  number  = {3},
+  pages   = {e2019JD032361},
+  year    = {2021},
+  doi     = {10.1029/2019JD032361},
+}
+
+@misc{noaa_gml_co2,
+  author       = {Lan, Xin and Tans, Pieter and Thoning, Kirk W.},
+  title        = {Trends in globally-averaged {CO$_2$} determined from {NOAA} Global
+                  Monitoring Laboratory measurements},
+  year         = {2024},
+  howpublished = {\url{https://gml.noaa.gov/ccgg/trends/global.html}},
+  note         = {Global annual mean series \texttt{co2\_annmean\_gl.txt}; public domain},
+}
+
+@misc{worldbank_pinksheet,
+  author       = {{World Bank}},
+  title        = {Commodity Markets Outlook: Annual Commodity Price Indices
+                  (``{Pink Sheet}''), nominal, 2010${=}$100},
+  year         = {2024},
+  howpublished = {\url{https://www.worldbank.org/en/research/commodity-markets}},
+  note         = {Retrieved 2026-08-24; CC BY 4.0},
+}
+
+@misc{worldbank_wdi,
+  author       = {{World Bank}},
+  title        = {World Development Indicators},
+  year         = {2024},
+  howpublished = {\url{https://databank.worldbank.org/source/world-development-indicators}},
+  note         = {CC BY 4.0; indicator codes listed in the data manifest},
+}
+
+@article{gleditsch2002,
+  author  = {Gleditsch, Nils Petter and Wallensteen, Peter and Eriksson, Mikael and
+             Sollenberg, Margareta and Strand, H{\aa}vard},
+  title   = {Armed Conflict 1946--2001: A New Dataset},
+  journal = {Journal of Peace Research},
+  volume  = {39},
+  number  = {5},
+  pages   = {615--637},
+  year    = {2002},
+  doi     = {10.1177/0022343302039005007},
+}
+
+@article{davies2024,
+  author  = {Davies, Shawn and Engstr{\"o}m, Garoun and Pettersson, Ther{\'e}se and
+             {\"O}berg, Magnus},
+  title   = {Organized violence 1989--2023, and the prevalence of organized crime groups},
+  journal = {Journal of Peace Research},
+  volume  = {61},
+  number  = {4},
+  pages   = {673--693},
+  year    = {2024},
+  doi     = {10.1177/00223433241262912},
+}
+
+@misc{sipri_milex,
+  author       = {{SIPRI}},
+  title        = {{SIPRI} Military Expenditure Database},
+  year         = {2024},
+  howpublished = {\url{https://www.sipri.org/databases/milex}},
+  note         = {Free for non-commercial research use; not redistributed with the model archive},
+}
+
+% --- forcing and climate-emulator anchors -----------------------------------------
+@article{meinshausen2020,
+  author  = {Meinshausen, Malte and Nicholls, Zebedee R. J. and Lewis, Jared and
+             Gidden, Matthew J. and Vogel, Elisabeth and Freund, Mandy and
+             Beyerle, Urs and Gessner, Claudia and Nauels, Alexander and
+             Bauer, Nico and Canadell, Josep G. and Daniel, John S. and
+             John, Andrew and Krummel, Paul B. and Luderer, Gunnar and
+             Meinshausen, Nicolai and Montzka, Stephen A. and Rayner, Peter J. and
+             Reimann, Stefan and Smith, Steven J. and van den Berg, Marten and
+             Velders, Guus J. M. and Vollmer, Martin K. and Wang, Ray H. J.},
+  title   = {The shared socio-economic pathway ({SSP}) greenhouse gas concentrations
+             and their extensions to 2500},
+  journal = {Geoscientific Model Development},
+  volume  = {13},
+  number  = {8},
+  pages   = {3571--3605},
+  year    = {2020},
+  doi     = {10.5194/gmd-13-3571-2020},
+}
+
+@incollection{forster2021,
+  author    = {Forster, Piers and Storelvmo, Trude and Armour, Kyle and
+               Collins, William and Dufresne, Jean-Louis and Frame, David and
+               Lunt, Daniel J. and Mauritsen, Thorsten and Palmer, Matthew D. and
+               Watanabe, Masahiro and Wild, Martin and Zhang, Hua},
+  title     = {The Earth's Energy Budget, Climate Feedbacks, and Climate Sensitivity},
+  booktitle = {Climate Change 2021: The Physical Science Basis. Contribution of Working
+               Group I to the Sixth Assessment Report of the IPCC},
+  publisher = {Cambridge University Press},
+  address   = {Cambridge},
+  pages     = {923--1054},
+  year      = {2021},
+  doi       = {10.1017/9781009157896.009},
+}
+
+@article{sherwood2020,
+  author  = {Sherwood, Steven C. and Webb, Mark J. and Annan, James D. and
+             Armour, Kyle C. and Forster, Piers M. and Hargreaves, Julia C. and
+             Hegerl, Gabriele and Klein, Stephen A. and Marvel, Kate D. and
+             Rohling, Eelco J. and Watanabe, Masahiro and Andrews, Tim and
+             Braconnot, Pascale and Bretherton, Christopher S. and Foster, Gavin L. and
+             Hausfather, Zeke and von der Heydt, Anna S. and Knutti, Reto and
+             Mauritsen, Thorsten and Norris, Jessica R. and Proistosescu, Cristian and
+             Rugenstein, Maria and Schmidt, Gavin A. and Tokarska, Katarzyna B. and
+             Zelinka, Mark D.},
+  title   = {An Assessment of {Earth's} Climate Sensitivity Using Multiple Lines of Evidence},
+  journal = {Reviews of Geophysics},
+  volume  = {58},
+  number  = {4},
+  pages   = {e2019RG000678},
+  year    = {2020},
+  doi     = {10.1029/2019RG000678},
+}
+
+% --- economic regularities cited in the text but previously unreferenced ----------
+@incollection{okun1962,
+  author    = {Okun, Arthur M.},
+  title     = {Potential {GNP}: Its Measurement and Significance},
+  booktitle = {Proceedings of the Business and Economic Statistics Section},
+  publisher = {American Statistical Association},
+  address   = {Washington, DC},
+  pages     = {98--104},
+  year      = {1962},
+}
+
+@article{phillips1958,
+  author  = {Phillips, A. W.},
+  title   = {The Relation between Unemployment and the Rate of Change of Money Wage
+             Rates in the {United Kingdom}, 1861--1957},
+  journal = {Economica},
+  volume  = {25},
+  number  = {100},
+  pages   = {283--299},
+  year    = {1958},
+  doi     = {10.1111/j.1468-0335.1958.tb00003.x},
+}
+
+@article{laeven2020,
+  author  = {Laeven, Luc and Valencia, Fabi{\'a}n},
+  title   = {Systemic Banking Crises Database {II}},
+  journal = {IMF Economic Review},
+  volume  = {68},
+  number  = {2},
+  pages   = {307--361},
+  year    = {2020},
+  doi     = {10.1057/s41308-020-00107-3},
+}
+
+@article{barro2008,
+  author  = {Barro, Robert J. and Urs{\'u}a, Jos{\'e} F.},
+  title   = {Macroeconomic Crises since 1870},
+  journal = {Brookings Papers on Economic Activity},
+  volume  = {2008},
+  number  = {1},
+  pages   = {255--350},
+  year    = {2008},
+  doi     = {10.1353/eca.0.0000},
+}
+
+@article{nordhaus2018,
+  author  = {Nordhaus, William D.},
+  title   = {Projections and Uncertainties about Climate Change in an Era of Minimal
+             Climate Policies},
+  journal = {American Economic Journal: Economic Policy},
+  volume  = {10},
+  number  = {3},
+  pages   = {333--360},
+  year    = {2018},
+  doi     = {10.1257/pol.20170046},
 }

@@ -20,6 +20,14 @@ Two things follow, and the second is the reason this is a build rather than a br
 Usage:
     python3 scripts/build_public_release.py --out dist/gim-public [--git-init]
 
+A second, unrelated exclusion rides along: the Hofstede cultural-dimension scores. They are
+not published under an open licence, so the full multi-country panel does not ship. The three
+dimensions the engine actually consumes (PDI, IDV, UAI) stay in agent_states_operational.csv
+for the 57 modelled agents -- without them the public tree would not reproduce the paper's
+numbers, which is the whole point of this build -- but the pipeline panels that carry the raw
+scores, their source labels and MAS for every country do not. Nothing in gim/ or tests/ reads
+those panels; only scripts/build_milex_grounding.py does, and its committed output ships.
+
 The build fails rather than shipping if the public tree does not reproduce the local
 headline numbers, or if any excluded pattern survives into the output.
 """
@@ -55,7 +63,10 @@ EXCLUDE_GLOBS = [
     # output, so shipping the generator without its output directory breaks the loop
     # the script exists to close. From 20.1 the canonical manuscript ships too (it is
     # tracked explicitly in .gitignore), so nothing under Paper/ is excluded by pattern
-    # any more -- only build by-products.
+    # any more -- only build by-products. From this release the canonical manuscript is
+    # Paper/GIM_final.tex and it is the ONLY one: every superseded draft is untracked, so
+    # the public tree cannot ship a version of the paper whose numbers the current one has
+    # corrected.
     "Paper/*.aux", "Paper/*.log", "Paper/*.bbl", "Paper/*.blg", "Paper/*.out", "Paper/*.abs",
     "Paper/*.synctex.gz", "Paper/*.fdb_latexmk", "Paper/*.fls",
     "scripts/*rus*", "scripts/*_rus_*", "scripts/backtest_rus_blocks.py",
@@ -65,11 +76,24 @@ EXCLUDE_GLOBS = [
     "tests/test_regional_budget.py",      # reads data/blocks/RUS/territories
     "tests/test_integrated_golden_run.py",  # pins the RUS block trajectory; the public
                                             # reference is tests/test_global_golden_run.py
+    # Hofstede: the licensed multi-country panel. These three are pipeline artifacts written
+    # by build_gim13_agent_states.py and read only by build_milex_grounding.py (whose output,
+    # data/external/sipri_milex_2023.csv, is committed), so dropping them costs the public
+    # tree nothing it can run. See the module docstring.
+    "data/agent_state_pipeline/generated/actor_base_inputs.csv",
+    "data/agent_state_pipeline/generated/country_panel_raw.csv",
+    "data/agent_state_pipeline/generated/country_panel_imputed.csv",
     "*субнациональная*",        # the sub-national specification document
     "*.pyc", "__pycache__", ".DS_Store", ".pytest_cache",
 ]
-# Files that must NOT appear in the output, checked after the copy.
+# Paths that must NOT appear in the output, checked after the copy.
 FORBIDDEN_SUBSTRINGS = ["blocks/RUS", "block_states_RUS", "субнацион"]
+
+# Column headers that must NOT appear in any shipped CSV. A path check cannot catch a licensed
+# column that reappears inside a file we do ship, so this one reads the header row instead.
+# PDI/IDV/UAI are deliberately absent from this list: agent_states_operational.csv carries them
+# for the 57 agents by design (module docstring).
+FORBIDDEN_CSV_COLUMNS = ["hofstede_name", "hofstede_source", "mas"]
 
 
 def tracked_files() -> list[str]:
@@ -151,6 +175,20 @@ def main() -> int:
             print("   ", f)
         return 1
 
+    column_leaks = []
+    for p in sorted(out.rglob("*.csv")):
+        with p.open(encoding="utf-8", errors="replace") as fh:
+            header = fh.readline()
+        cols = {c.strip().strip('"').lower() for c in header.split(",")}
+        hit = sorted(cols & set(FORBIDDEN_CSV_COLUMNS))
+        if hit:
+            column_leaks.append((str(p.relative_to(out)), hit))
+    if column_leaks:
+        print("FAILED: licensed columns present in the output:")
+        for f, hit in column_leaks[:20]:
+            print("   ", f, "->", ", ".join(hit))
+        return 1
+
     # The public tree must be the same model. Run its own backtest in a clean interpreter.
     print("\nverifying the public tree reproduces the local headline numbers ...")
     probe = ("import json,sys; sys.path.insert(0,'.');"
@@ -211,7 +249,11 @@ def main() -> int:
                        cwd=out, check=True)
         print("  initialised a fresh repository (no shared history)")
 
-    print(f"\npublic tree at {out.relative_to(REPO)}")
+    try:
+        shown = out.relative_to(REPO)
+    except ValueError:          # --out given as a path outside the repository
+        shown = out
+    print(f"\npublic tree at {shown}")
     return 0
 
 
