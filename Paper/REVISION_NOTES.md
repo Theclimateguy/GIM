@@ -223,6 +223,33 @@ documents where a number came from without redistributing it. Public tree: 493 f
 **One-line robustness fix, incidental.** `build_public_release.py` crashed at its closing
 `print` when `--out` points outside the repository (`Path.relative_to` raises). Guarded.
 
+## E-quater. Release v20.1.1 (2026-08-27)
+
+**Zenodo is cited by the concept DOI.** `10.5281/zenodo.21575176` represents all versions and
+always resolves to the latest. The paper cites it, and states that the results were produced by
+the release tagged `v20.1.1`, which a reader can select from the version list on the record if
+they need that exact state rather than the current one. Confirmed after the release: the
+concept DOI now resolves to version **20.1.1**, published 2026-08-27, version DOI
+`10.5281/zenodo.22127525`, `is_last: true`.
+
+**One version string, not three.** `v20.1.1` in the title, the `\Version` macro, `CITATION.cff`
+and `.zenodo.json`. The engine did not change --- v20.1.1 reproduces v20.1.0 to the bit on
+every headline metric including all 20 country-level GDP RMSEs, and the suite is unchanged at
+592 tests / 657 subtests --- so the paper says so once, in Code and data availability, rather
+than leaving a reader to wonder why the archive version differs from the run version. The
+version was bumped because the tag `v20.1.0` was already taken by the 2026-08-25 release, which
+carries the superseded manuscript.
+
+**`.zenodo.json` metadata bug fixed.** It recorded `isNewVersionOf: 10.5281/zenodo.21575176`.
+That is the concept parent, not a previous version; corrected to `10.5281/zenodo.22102520`, the
+actual v20.1.0 record. Naming the concept DOI there is precisely what led the first draft of
+this paper to treat it as the v18.1.4 version DOI --- the version-confusion both reviewers
+flagged as blocker #1 traces back to this one line.
+
+**Wording aligned across metadata.** `CITATION.cff` and `.zenodo.json` said "history-matched
+ensembles". Acceptance is 100 %, so the filter never bound; both now say "prior ensembles",
+matching the correction the paper makes.
+
 ## F. Carried over from the previous version WITHOUT independent re-verification
 
 Flagged so you can decide whether to re-run before submission. None was contested by either
