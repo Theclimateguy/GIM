@@ -54,6 +54,7 @@ EXCLUDE_DIRS = [
     "dist",
     "results",                  # working run outputs
     "macapp", "gim2",           # desktop app bundles; gim2 ships the Russia block by design
+    "docs/ui_redesign",         # design notes for that desktop app (mockups, user journeys)
 ]
 EXCLUDE_GLOBS = [
     # Manuscript sources go to the journal; Paper/revision (the validation scripts and their
@@ -84,6 +85,9 @@ EXCLUDE_GLOBS = [
     "data/agent_state_pipeline/generated/country_panel_raw.csv",
     "data/agent_state_pipeline/generated/country_panel_imputed.csv",
     "*субнациональная*",        # the sub-national specification document
+    "docs/BLOCK_MODEL_ROADMAP.md",  # block-layer working notes: the layer itself is withheld,
+    "docs/BLOCK_STATE_STORAGE.md",  # so its roadmap and storage ADR would describe nothing shipped
+    "texput.log",               # stray pdflatex crash log
     "*.pyc", "__pycache__", ".DS_Store", ".pytest_cache",
 ]
 # Paths that must NOT appear in the output, checked after the copy.

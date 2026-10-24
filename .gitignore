@@ -52,6 +52,7 @@ _archive_local/
 data/external/raw/
 
 # LaTeX build artifacts (keep .tex/.bib/.pdf)
+texput.log
 paper/*.aux
 paper/*.log
 paper/*.blg

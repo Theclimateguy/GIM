@@ -1,10 +1,11 @@
-"""GIM19 annual world core (57 actors) with scenario gaming layers.
+"""GIM annual world core (57 actors) with scenario gaming layers.
 
-Lineage: the validated GIM18 engine; GIM19 = this core + the gim19 block layer
-+ the coupling channels (flag-off contract keeps the core bit-identical).
+Lineage: the validated GIM18 engine, extended in the GIM19 working tree and released as
+GIM 20.1 for the paper. The optional intra-country block layer is flag-off by default,
+which keeps this core bit-identical to the published numbers.
 """
 
-__version__ = "19.2.0"
+__version__ = "20.1.1"
 
 from .core import *  # noqa: F401,F403
 from .crisis_metrics import CrisisMetricsEngine

@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gim18"
-version = "18.1.4"
-description = "Unified local GIM18 simulator package"
+name = "gim"
+version = "20.1.1"
+description = "GIM: Global Integrated Model -- a year-by-year simulation of the world as 57 interacting country agents"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}

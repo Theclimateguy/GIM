@@ -1,6 +1,6 @@
 # Simulation Step Order
 
-This note documents the effective yearly write order in [`simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/gim/core/simulation.py) and the runtime contract for critical-field finalization.
+This note documents the effective yearly write order in [`simulation.py`](../gim/core/simulation.py) and the runtime contract for critical-field finalization.
 
 ## Yearly Order
 

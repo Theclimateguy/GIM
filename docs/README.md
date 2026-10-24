@@ -1,31 +1,36 @@
-# GIM18 Documentation Index
+# GIM Documentation Index
 
-Source-of-truth documentation for **v18.0.0**. (Engineering change-history and superseded planning
-notes have been moved out of the repository to keep it clean.)
+Source-of-truth documentation for **GIM 20.1.1**, the release that accompanies the paper
+(`../Paper/GIM_final.pdf`). Engineering change-history and superseded planning notes are kept out of
+the repository; the full lineage is in [`../CHANGELOG.md`](../CHANGELOG.md).
 
-> **Canon: 18.0.0 (reviewer-response deepening + global sensitivity).** The current golden backtest is
-> **GDP 0.60 / CO₂ 0.94 / temperature 0.145** (climate ECS ≈ 3.0, 1990–2023 temperature error 0.096,
-> unchanged). SCC is **$22 / $42 / $45 per tCO₂** at the 30 / 100 / 200-yr horizons under DICE Ramsey
-> discounting (ρ = 1.5%), rising to **~$89/tCO₂** at 200 yr under near-zero-ρ Ramsey (ρ = 0.1%). Some
-> dated calibration/ablation ledgers below were written against earlier goldens (0.590 / 1.146, then the
-> 17.3.0 0.62 / 0.93) and quote them as their as-run baseline; those are retained for provenance and
-> carry a version note where the number would otherwise read as current. See
-> [`GIM18_REVIEWER_RESPONSE.md`](GIM18_REVIEWER_RESPONSE.md) for the v18 changes and
-> [`../CHANGELOG.md`](../CHANGELOG.md) for the full history.
+> **Canon: 20.1.1.** Historical backtest 2015–2023: **GDP 0.60 T$ / CO₂ 0.94 Gt / temperature
+> 0.099 °C** (deterministic configuration; 0.145 °C with AR(1) temperature variability on, which is
+> what `tests/fixtures/historical_backtest_baseline.json` pins), resource-price implausibility
+> energy 0.99 / food 0.80 / metals 0.96 against a flat-price null. The engine is unchanged from
+> 20.1.0; the five validation repairs that produced this golden are listed in the 20.1 entry of the
+> changelog. Several ledgers below were written against earlier goldens (0.590 / 1.146, then the
+> 17.3.0 0.62 / 0.93, then the v18 0.60 / 0.94 / 0.145) and quote them as their as-run baseline;
+> they are retained for provenance and carry a version note where the number would otherwise read
+> as current.
 
 ## Start here
 
 - [`MODEL_LAYERS.md`](MODEL_LAYERS.md) — plain-language tour of every layer: what it does + limits.
-- [`ROADMAP.md`](ROADMAP.md) — current standing, real limitations, and the priority order for next work.
+- [`../Paper/revision/`](../Paper/revision/) — the validation evidence behind the paper's claims:
+  null models, ablations and benchmark scripts with their JSON results; `../Paper/REVISION_NOTES.md`
+  maps each number in the manuscript to the harness that produced it.
+- [`ROADMAP.md`](ROADMAP.md) — standing, real limitations and priority order as assessed at v18.0.0
+  (the 20.1 validation repairs postdate it; see the changelog for what has since moved).
 
 ## Specification & methodology
 
-- [`GIM18_REVIEWER_RESPONSE.md`](GIM18_REVIEWER_RESPONSE.md) — **v18 changes**: issues #11–#19 (climate/economy/social deepening + Sobol GSA), conclusion-relevant findings, honesty ledger.
 - [`UNIFIED_MODEL_SPEC.md`](UNIFIED_MODEL_SPEC.md) — state vector, yearly equations, events, reconciliation.
 - [`MODEL_METHODOLOGY.md`](MODEL_METHODOLOGY.md) — runtime behaviour and module-level methodology.
-- [`CORE_TRANSITION_CONTRACT.md`](CORE_TRANSITION_CONTRACT.md) / [`SIMULATION_STEP_ORDER.md`](SIMULATION_STEP_ORDER.md) — phase contract and yearly order.
-- [`MODEL_STATE_MAP.md`](MODEL_STATE_MAP.md), [`state_registry.csv`](state_registry.csv), [`critical_field_registry.csv`](critical_field_registry.csv) — state inventory.
+- [`CORE_TRANSITION_CONTRACT.md`](CORE_TRANSITION_CONTRACT.md) / [`SIMULATION_STEP_ORDER.md`](SIMULATION_STEP_ORDER.md) — phase contract and yearly write order (Algorithm 1 of the paper).
+- [`MODEL_STATE_MAP.md`](MODEL_STATE_MAP.md), [`state_registry.csv`](state_registry.csv), [`state_registry_coverage.md`](state_registry_coverage.md), [`critical_field_registry.csv`](critical_field_registry.csv) — state inventory.
 - [`agent_state_data_contract.md`](agent_state_data_contract.md) — CSV/state-artifact contract for loaders.
+- [`GIM18_REVIEWER_RESPONSE.md`](GIM18_REVIEWER_RESPONSE.md) — the v18 reviewer-response round (issues #11–#19: climate/economy/social deepening + Sobol GSA), kept as the record of those changes.
 
 ## Calibration & validation
 
@@ -34,6 +39,7 @@ notes have been moved out of the repository to keep it clean.)
 - [`INVARIANTS.md`](calibration/INVARIANTS.md) — enforceable accounting/integrity invariants (debt & resource identities).
 - [`DETERMINISM.md`](calibration/DETERMINISM.md) — world-scoped randomness and reproducibility.
 - [`PRIORS.md`](calibration/PRIORS.md) / [`UNCERTAINTY.md`](calibration/UNCERTAINTY.md) / [`VALIDATION.md`](calibration/VALIDATION.md) — priors, ensembles, sensitivity, history matching, skill scoring.
+- [`STABILITY_ANALYSIS.md`](STABILITY_ANALYSIS.md) — numerical linearization of the annual map, twin runs and the 30-year fans behind the paper's boundedness section (`scripts/run_stability_analysis.py`).
 - [`CRISIS_VALIDATION_PROTOCOL.md`](calibration/CRISIS_VALIDATION_PROTOCOL.md) — operational crisis-scenario validation.
 - [`INTEGRATION_BENCHMARK.md`](INTEGRATION_BENCHMARK.md) — literature-anchored benchmark of the integration claim vs sectoral models (carbon/DICE, oil/MESSAGEix, crop/AgMIP); the paper's Appendix B.
 - [`GEO_ON_REVALIDATION.md`](calibration/GEO_ON_REVALIDATION.md) — re-validation of all headline numbers (2015–2023 backtest RMSE, conflict AUC, Morris sensitivity) under the geo-coupling-on headline; all hold, plus two resolved bookkeeping drifts.
@@ -71,11 +77,10 @@ notes have been moved out of the repository to keep it clean.)
 
 ## Finalization record
 
-- [`RE_ANCHOR.md`](RE_ANCHOR.md) — the headline activation decision + the new golden.
+- [`RE_ANCHOR.md`](RE_ANCHOR.md) — the headline activation decision + the golden it produced (v18 line).
 - [`MILEX_GROUNDING_ANALYSIS.md`](MILEX_GROUNDING_ANALYSIS.md) — empirical basis for the v18.1.0 SIPRI milex re-anchor (proxy-CINC blind spot, decomposition test, decision matrix, verification).
 - [`OBJECTIVE_RELATIONSHIPS.md`](OBJECTIVE_RELATIONSHIPS.md) — objective definitions and linkage map.
 
-## Graphical interface
+## Command line
 
-- Native macOS app — [`../gim2/README.md`](../gim2/README.md), engine bridge:
-  [`../gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md`](../gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md).
+- [`../COMMAND_REFERENCE.md`](../COMMAND_REFERENCE.md) — every `python3 -m gim` subcommand, flag and artifact.

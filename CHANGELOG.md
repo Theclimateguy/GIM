@@ -53,6 +53,23 @@ subtests. What changed is what ships.
 - `build_public_release.py` no longer crashes at its closing `print` when `--out` points
   outside the repository.
 
+### Documentation (2026-10-24, no engine change)
+- `README.md` linked the retired `Paper/gim_paper_v2_8K.pdf` (a 404 on GitHub since 20.1.1 removed it);
+  it now points at `Paper/GIM_final.pdf` / `.tex`, states the temperature RMSE the way the paper does
+  (0.099 °C deterministic, 0.145 °C with variability on) and says which commands run offline.
+- One version string: `pyproject.toml` (was `gim18` 18.1.4), `gim.__version__` (was 19.2.0) and the
+  `--version` banner (was "GIM17") now all say 20.1.1, matching `CITATION.cff` and `.zenodo.json`.
+- `docs/README.md` rewritten for 20.1.1 (was the v18.0.0 index; links to the excluded desktop app
+  dropped, `STABILITY_ANALYSIS.md` and `Paper/revision/` added); `COMMAND_REFERENCE.md` loses the
+  desktop-app and local-UI sections that are not in the release; `UNIFIED_MODEL_SPEC.md` and
+  `SIMULATION_STEP_ORDER.md` had absolute paths from the author's machine, now relative.
+- CI triggered only on pushes to `GIM17`; it now runs on `main` and every `GIM*` branch.
+- `requirements-lock.txt` pins `shapely`, the one hard runtime dependency, and no longer claims a
+  standard-library-only runtime.
+- Public build: `docs/BLOCK_MODEL_ROADMAP.md`, `docs/BLOCK_STATE_STORAGE.md` and `docs/ui_redesign/`
+  are excluded (they describe the withheld block layer and the desktop app); the stray `texput.log`
+  is removed and ignored.
+
 ## [20.1] — 2026-08-25 — validation repairs: five defects found by making the model check itself
 
 The public release line for the paper. Resource prices became a validation target for the first

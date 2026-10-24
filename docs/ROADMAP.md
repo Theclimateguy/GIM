@@ -1,6 +1,7 @@
 # Where the model stands and where it should go next
 
-A candid assessment of GIM18 (v18.0.0): what is solid enough to use, what the real
+A candid assessment written at v18.0.0 (the 20.1 validation repairs — resource prices as a target, the
+repaired currency channel, the trust-form fix — postdate it; see `../CHANGELOG.md`): what is solid enough to use, what the real
 limitations are, whether they block using the model, and the priority order for further work.
 
 ## Current standing

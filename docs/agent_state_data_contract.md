@@ -4,8 +4,8 @@ This document separates the real-world source layer from the model-ready `agent_
 In `GIM18`, it is the working contract for both the compact runtime state and the larger
 operational state build.
 
-> **Canonical state (single source of truth).** All blocks — the GIM18 engine, the `gim2`
-> library, and the GIM2.app — start from one validated compiled state, **`data/agent_states_operational.csv`**,
+> **Canonical state (single source of truth).** All consumers — the GIM engine and any
+> front-end built on it — start from one validated compiled state, **`data/agent_states_operational.csv`**,
 > the **2023 base year** (57 actors: the 50 largest economies, residual regional aggregates, and
 > Taiwan, together covering essentially all of world output: GDP ≈ $107T, population ≈ 8.06B,
 > CO₂ ≈ 38 Gt). Its aggregates are validated against World Bank / UN / Global Carbon Project to

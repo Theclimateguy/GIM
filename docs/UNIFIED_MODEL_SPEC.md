@@ -1,10 +1,10 @@
 # GIM Unified Model Specification
 
-> **Scope note (Tier-1 + Phase 4):** since this spec was written the model gained endogenous inflation/unemployment (Phillips+Okun), Taylor-rule monetary policy, multi-GHG non-CO2 forcing, AR(1) temperature variability, and enforceable debt/resource accounting identities; the climate core was recalibrated (ECS 3.0, HEAT_CAP_SURFACE 8, OCEAN_EXCHANGE 1.0, TCR 1.79). See docs/README.md (GIM18 Modernization) for the per-area docs and calibration_params.py for the authoritative parameters.
+> **Scope note (Tier-1 + Phase 4):** since this spec was written the model gained endogenous inflation/unemployment (Phillips+Okun), Taylor-rule monetary policy, multi-GHG non-CO2 forcing, AR(1) temperature variability, and enforceable debt/resource accounting identities; the climate core was recalibrated (ECS 3.0, HEAT_CAP_SURFACE 8, OCEAN_EXCHANGE 1.0, TCR 1.79). See docs/README.md for the per-area docs and calibration_params.py for the authoritative parameters.
 
 ## 1. Purpose
 
-This document is the single consolidated specification for GIM18:
+This document is the single consolidated specification for the GIM core (written in the GIM18 line; the 20.1 release keeps the same state vector and yearly order):
 
 - full state vector
 - yearly transition equations
@@ -14,9 +14,9 @@ This document is the single consolidated specification for GIM18:
 
 Authoritative registries:
 
-- state registry: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/docs/state_registry.csv)
-- parameter registry: [`data/parameters_gim18.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim18.csv)
-- parameter lock: [`data/parameters_gim18.lock.json`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim18.lock.json)
+- state registry: [`docs/state_registry.csv`](../docs/state_registry.csv)
+- parameter registry: [`data/parameters_gim18.csv`](../data/parameters_gim18.csv)
+- parameter lock: [`data/parameters_gim18.lock.json`](../data/parameters_gim18.lock.json)
 
 ## 2. Global notation
 
@@ -353,8 +353,8 @@ Policy document:
 
 ## 9. Implementation pointers
 
-- kernel phases and tracing: [`gim/core/simulation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/gim/core/simulation.py)
-- full state list: [`docs/state_registry.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/docs/state_registry.csv)
-- parameter list: [`data/parameters_gim18.csv`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/data/parameters_gim18.csv)
-- crisis validation harness: [`gim/crisis_validation.py`](/Users/theclimateguy/Documents/jupyter_lab/GIM18/gim/crisis_validation.py)
+- kernel phases and tracing: [`gim/core/simulation.py`](../gim/core/simulation.py)
+- full state list: [`docs/state_registry.csv`](../docs/state_registry.csv)
+- parameter list: [`data/parameters_gim18.csv`](../data/parameters_gim18.csv)
+- crisis validation harness: [`gim/crisis_validation.py`](../gim/crisis_validation.py)
 

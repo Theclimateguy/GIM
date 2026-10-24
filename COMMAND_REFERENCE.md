@@ -1,6 +1,7 @@
-# GIM18 Command Reference v18.0.0
+# GIM Command Reference (v20.1.1)
 
-Operational CLI reference for `python3 -m gim`.
+Operational CLI reference for `python3 -m gim`. Every command below runs offline; the LLM-backed
+background policies are optional and need an API key only when selected.
 
 ## Version
 
@@ -19,10 +20,6 @@ python3 -m gim --version
 - `python3 -m gim calibrate`
 - `python3 -m gim brief`
 - `python3 -m gim console`
-
-The native app (`gim2/`, see below) has its own reproducible CLI, `python3 -m gim2`:
-
-- `python3 -m gim2 ensemble` / `sensitivity` / `weak` / `scc` / `scenario` / `dose` / `answer` / `meta` / `engine`
 
 ## Quick Start Commands
 
@@ -116,13 +113,6 @@ Hybrid round flags (`hybrid`):
 - `--brief` / `--brief-output <name.md>`
 - `--json`
 
-`Game` tab in the local UI uses `hybrid` under the hood:
-
-- one row per human-controlled table
-- each row requires a distinct actor and natural-language intent
-- UI forwards `DEEPSEEK_API_KEY` to the runtime when provided
-- artifact panel exposes `dashboard.html`, `hybrid_report.md`, `evaluation.json`, `hybrid_result.json`, and policy/baseline CSV logs
-
 ## Command Details
 
 ### `world`
@@ -206,26 +196,6 @@ Interactive menu wrapper for question/game flows.
 ```bash
 python3 -m gim console --state-csv data/agent_states_operational.csv --state-year 2026
 ```
-
-### Native app (`gim2/`)
-
-The graphical shell is the native macOS app **GIM2** (SwiftUI), not a web UI. Build and run:
-
-```bash
-gim2/app/freeze/freeze_engine.sh   # PyInstaller-freeze the engine (one-time; needs pyinstaller)
-gim2/app/build_app.sh              # swift build -c release + assemble GIM2.app
-open gim2/app/GIM2.app
-```
-
-The app talks to a deterministic Python engine sidecar (`python3 -m gim2 engine`, loopback HTTP+SSE,
-schema `gim-engine/2`); every screen reports the equivalent `python3 -m gim2 …` CLI invocation for
-reproducibility. Five areas: **Ассистент** (natural-language front end, tool-calling over the engine),
-**Экспертный режим** (Сценарий / Ансамбли / Отклик / Чувствительность / Сигналы), **Сравнение**
-(up to 3 runs vs. baseline + PDF export), **Документация**, **Валидация** (live backtest/AUC/Morris).
-Persona archetypes (`gim/persona.py`) bias a country's compiled doctrine ("play as a country"); a
-local LLM backend is available via `GIM_LLM_BACKEND=ollama` + `OLLAMA_MODEL`.
-
-Engine bridge contract (endpoints, JSON shapes): [`gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md`](gim2/docs/ENGINE_BRIDGE_CONTRACT_v2.md).
 
 ## Artifacts and Paths
 
